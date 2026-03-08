@@ -1,5 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
   "name": "Mycroft API",
   "colors": {
     "primary": "#1E3A5F",
