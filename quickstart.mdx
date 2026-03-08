@@ -1,0 +1,220 @@
+---
+title: "Quickstart"
+description: "Faca sua primeira analise de credito em 5 minutos"
+---
+
+<Steps>
+  <Step title="Obter sua API key">
+    Gere um token Bearer no [dashboard Mycroft](https://app.mycroft.com.br). Consulte a pagina de [autenticacao](/autenticacao) para instrucoes detalhadas.
+
+    <Tip>
+      Os tokens usam o formato `myc_xxxxxxxxxxxxx`.
+    </Tip>
+  </Step>
+
+  <Step title="Enviar arquivo CNAB para analise">
+    Envie um arquivo CNAB 400 (`.rem`) para criar uma nova operacao de analise:
+
+    <CodeGroup>
+
+    ```bash cURL
+    curl -X POST https://api.mycroft.com.br/api/v1/operations \
+      -H "Authorization: Bearer myc_sua_chave_aqui" \
+      -F "file=@bordero.rem" \
+      -F "cedenteCnpj=11222333000181"
+    ```
+
+    ```python Python
+    import requests
+
+    response = requests.post(
+        "https://api.mycroft.com.br/api/v1/operations",
+        headers={"Authorization": "Bearer myc_sua_chave_aqui"},
+        files={"file": open("bordero.rem", "rb")},
+        data={"cedenteCnpj": "11222333000181"}
+    )
+    print(response.json())
+    ```
+
+    ```javascript Node.js
+    const fs = require("fs");
+
+    const form = new FormData();
+    form.append("file", fs.createReadStream("bordero.rem"));
+    form.append("cedenteCnpj", "11222333000181");
+
+    const res = await fetch("https://api.mycroft.com.br/api/v1/operations", {
+      method: "POST",
+      headers: { "Authorization": "Bearer myc_sua_chave_aqui" },
+      body: form
+    });
+    console.log(await res.json());
+    ```
+
+    </CodeGroup>
+
+    Resposta esperada (`202 Accepted`):
+
+    ```json
+    {
+      "operationId": "550e8400-e29b-41d4-a716-446655440000",
+      "status": "queued",
+      "createdAt": "2026-03-08T12:00:00.000Z"
+    }
+    ```
+  </Step>
+
+  <Step title="Acompanhar status (polling)">
+    Consulte o status da operacao ate que esteja concluida:
+
+    <CodeGroup>
+
+    ```bash cURL
+    curl -X GET https://api.mycroft.com.br/api/v1/operations/550e8400-e29b-41d4-a716-446655440000 \
+      -H "Authorization: Bearer myc_sua_chave_aqui"
+    ```
+
+    ```python Python
+    import requests
+    import time
+
+    operation_id = "550e8400-e29b-41d4-a716-446655440000"
+
+    while True:
+        response = requests.get(
+            f"https://api.mycroft.com.br/api/v1/operations/{operation_id}",
+            headers={"Authorization": "Bearer myc_sua_chave_aqui"}
+        )
+        data = response.json()
+        if data["status"] in ("completed", "failed"):
+            break
+        time.sleep(3)
+
+    print(data)
+    ```
+
+    ```javascript Node.js
+    const operationId = "550e8400-e29b-41d4-a716-446655440000";
+
+    let data;
+    do {
+      const res = await fetch(
+        `https://api.mycroft.com.br/api/v1/operations/${operationId}`,
+        { headers: { "Authorization": "Bearer myc_sua_chave_aqui" } }
+      );
+      data = await res.json();
+      if (data.status !== "completed" && data.status !== "failed") {
+        await new Promise((r) => setTimeout(r, 3000));
+      }
+    } while (data.status !== "completed" && data.status !== "failed");
+
+    console.log(data);
+    ```
+
+    </CodeGroup>
+
+    Repita a cada 2-5 segundos ate que `status` seja `"completed"` ou `"failed"`. Resposta quando concluido:
+
+    ```json
+    {
+      "operationId": "550e8400-e29b-41d4-a716-446655440000",
+      "status": "completed",
+      "createdAt": "2026-03-08T12:00:00.000Z",
+      "completedAt": "2026-03-08T12:00:12.000Z",
+      "tituloCount": 45,
+      "approvedCount": 34,
+      "blockedCount": 8,
+      "alertCount": 3
+    }
+    ```
+
+    <Note>
+      O processamento tipicamente leva entre 5 e 30 segundos dependendo do tamanho do arquivo.
+    </Note>
+  </Step>
+
+  <Step title="Obter resultado da analise">
+    Com a operacao concluida, obtenha o resultado hierarquico completo:
+
+    <CodeGroup>
+
+    ```bash cURL
+    curl -X GET https://api.mycroft.com.br/api/v1/operations/550e8400-e29b-41d4-a716-446655440000/result \
+      -H "Authorization: Bearer myc_sua_chave_aqui"
+    ```
+
+    ```python Python
+    import requests
+
+    operation_id = "550e8400-e29b-41d4-a716-446655440000"
+    response = requests.get(
+        f"https://api.mycroft.com.br/api/v1/operations/{operation_id}/result",
+        headers={"Authorization": "Bearer myc_sua_chave_aqui"}
+    )
+    result = response.json()
+    print(result)
+    ```
+
+    ```javascript Node.js
+    const operationId = "550e8400-e29b-41d4-a716-446655440000";
+
+    const res = await fetch(
+      `https://api.mycroft.com.br/api/v1/operations/${operationId}/result`,
+      { headers: { "Authorization": "Bearer myc_sua_chave_aqui" } }
+    );
+    const result = await res.json();
+    console.log(result);
+    ```
+
+    </CodeGroup>
+
+    O resultado segue uma hierarquia `cedente -> sacado -> titulo`, onde cada titulo inclui as regras aplicadas:
+
+    ```json
+    {
+      "operationId": "550e8400-e29b-41d4-a716-446655440000",
+      "cedentes": [
+        {
+          "cnpj": "11222333000181",
+          "razaoSocial": "Comercial ABC Ltda",
+          "sacados": [
+            {
+              "cnpj": "44555666000199",
+              "razaoSocial": "Industria XYZ S/A",
+              "titulos": [
+                {
+                  "nossoNumero": "0000001",
+                  "valor": 15000.00,
+                  "vencimento": "2026-04-15",
+                  "status": "blocked",
+                  "issues": [
+                    {
+                      "ruleId": "R3",
+                      "ruleName": "Titulo vencido",
+                      "severity": "blocking",
+                      "detail": "Titulo venceu ha 45 dias"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+    ```
+
+    Consulte a [API Reference](/api-reference/introduction) para detalhes completos do schema de resposta.
+  </Step>
+</Steps>
+
+## Proximos passos
+
+<CardGroup cols={2}>
+  <Card title="Autenticacao" icon="lock" href="/autenticacao">
+    Detalhes sobre geracao e rotacao de tokens
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Documentacao completa de todos os endpoints
+  </Card>
+</CardGroup>

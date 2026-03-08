@@ -1,45 +1,63 @@
 ---
 title: "Introducao"
-description: "Visao geral da API Mycroft para analise de credito em FIDCs"
+description: "Visao geral da API Mycroft v1"
 ---
 
-# API Mycroft
-
-A API Mycroft permite integrar a analise de credito de borderos diretamente no seu sistema. Envie arquivos CNAB 400 e receba resultados detalhados com transparencia total sobre cada regra aplicada.
+A API REST do Mycroft permite integrar analise de credito de borderos CNAB 400 diretamente no seu sistema, com transparencia total sobre cada regra aplicada.
 
 ## Base URL
 
 ```
-https://api.mycroft.com.br/v1
+https://api.mycroft.com.br/api/v1
 ```
+
+Todos os endpoints sao prefixados com `/v1/`.
 
 ## Autenticacao
 
-Todas as requisicoes exigem um token Bearer no header `Authorization`:
+Todas as rotas exigem um Bearer token no header `Authorization`:
 
-```bash
-curl -H "Authorization: Bearer seu_token_aqui" \
-  https://api.mycroft.com.br/v1/operations
+```
+Authorization: Bearer myc_xxxxxxxxxxxxx
 ```
 
-## Endpoints disponiveis
+Consulte a pagina de [autenticacao](/autenticacao) para instrucoes de geracao e uso do token.
 
-A API possui dois grupos de endpoints:
+## Content types
 
-### Operacoes
+**Requests:**
 
-Envie borderos para analise e consulte os resultados:
+| Tipo | Uso |
+|------|-----|
+| `application/json` | Maioria dos endpoints (criacao e atualizacao de recursos) |
+| `multipart/form-data` | Upload de arquivo (POST /v1/operations) |
 
-- **POST /v1/operations** - Criar nova operacao de analise
-- **GET /v1/operations/{id}** - Consultar status de uma operacao
-- **GET /v1/operations/{id}/result** - Obter resultado da analise
+**Responses:**
 
-### Motores de Regras
+| Tipo | Uso |
+|------|-----|
+| `application/json` | Respostas de sucesso |
+| `application/problem+json` | Respostas de erro (RFC 7807) |
 
-Gerencie os motores de regras de credito:
+## Versionamento
 
-- **GET /v1/engines** - Listar motores disponiveis
-- **POST /v1/engines** - Criar novo motor
-- **GET /v1/engines/{id}** - Consultar motor especifico
-- **PUT /v1/engines/{id}** - Atualizar motor
-- **DELETE /v1/engines/{id}** - Remover motor
+A versao da API e definida no prefixo da URL (`/v1/`). Versao atual: **v1**.
+
+Mudancas retrocompativeis (novos campos, novos endpoints) nao incrementam a versao. Mudancas incompativeis resultarao em uma nova versao (`/v2/`).
+
+## Endpoints
+
+| Metodo | Path | Descricao |
+|--------|------|-----------|
+| POST | /v1/operations | Criar nova operacao de analise |
+| GET | /v1/operations/{id} | Consultar status de uma operacao |
+| GET | /v1/operations/{id}/result | Obter resultado da analise |
+| GET | /v1/engines | Listar motores de regras |
+| POST | /v1/engines | Criar novo motor de regras |
+| GET | /v1/engines/{id} | Consultar motor especifico |
+| PUT | /v1/engines/{id} | Atualizar motor de regras |
+| DELETE | /v1/engines/{id} | Remover motor de regras |
+
+<Note>
+  Navegue pelas secoes Operacoes e Motores de Regras na barra lateral para ver a documentacao completa de cada endpoint com playground interativo.
+</Note>
