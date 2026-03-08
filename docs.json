@@ -18,8 +18,8 @@
         "tab": "Guias",
         "groups": [
           {
-            "group": "Comece aqui",
-            "pages": ["index"]
+            "group": "Comecando",
+            "pages": ["index", "quickstart", "autenticacao"]
           }
         ]
       },

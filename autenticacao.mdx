@@ -1,0 +1,73 @@
+---
+title: "Autenticacao"
+description: "Como autenticar chamadas a API Mycroft"
+---
+
+Todas as rotas `/v1/*` exigem autenticacao via Bearer token no header `Authorization`.
+
+## Formato do token
+
+Os tokens da API Mycroft usam o prefixo `myc_` para facilitar identificacao e rotacao:
+
+```
+Authorization: Bearer myc_xxxxxxxxxxxxx
+```
+
+## Gerar API key
+
+<Steps>
+  <Step title="Acessar o dashboard">
+    Faca login no [dashboard Mycroft](https://app.mycroft.com.br) com suas credenciais.
+  </Step>
+  <Step title="Navegar ate API Keys">
+    No menu lateral, acesse **Configuracoes** e depois **API Keys**.
+  </Step>
+  <Step title="Gerar nova chave">
+    Clique em **Gerar nova chave**, de um nome descritivo e copie o token gerado.
+  </Step>
+</Steps>
+
+<Warning>
+  A chave e exibida apenas uma vez. Apos a geracao, o servidor armazena apenas o hash SHA-256 do token. Se perder a chave, gere uma nova.
+</Warning>
+
+## Exemplo de request autenticado
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET https://api.mycroft.com.br/api/v1/engines \
+  -H "Authorization: Bearer myc_sua_chave_aqui"
+```
+
+```python Python
+import requests
+
+response = requests.get(
+    "https://api.mycroft.com.br/api/v1/engines",
+    headers={"Authorization": "Bearer myc_sua_chave_aqui"}
+)
+print(response.json())
+```
+
+```javascript Node.js
+const res = await fetch("https://api.mycroft.com.br/api/v1/engines", {
+  headers: { "Authorization": "Bearer myc_sua_chave_aqui" }
+});
+console.log(await res.json());
+```
+
+</CodeGroup>
+
+## Erros de autenticacao
+
+Requisicoes sem token ou com token invalido recebem resposta `401 Unauthorized` no formato ProblemDetail (RFC 7807):
+
+```json
+{
+  "type": "https://mycroft.app/problems/unauthorized",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Token de autenticacao ausente ou invalido"
+}
+```
