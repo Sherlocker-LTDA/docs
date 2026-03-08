@@ -526,6 +526,33 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/EngineDetail"
+                },
+                "example": {
+                  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                  "name": "Motor Padrão Mycroft",
+                  "description": "Motor de regras padrão com todas as 15 regras habilitadas",
+                  "isTemplate": true,
+                  "ruleCount": 15,
+                  "rules": [
+                    {
+                      "id": "R1",
+                      "name": "CNPJ Status",
+                      "severity": "blocking",
+                      "enabled": true
+                    },
+                    {
+                      "id": "R2",
+                      "name": "Protestos",
+                      "severity": "blocking",
+                      "enabled": true
+                    },
+                    {
+                      "id": "R11",
+                      "name": "Score Baixo",
+                      "severity": "alert",
+                      "enabled": true
+                    }
+                  ]
                 }
               }
             }
