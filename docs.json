@@ -18,8 +18,12 @@
         "tab": "Guias",
         "groups": [
           {
-            "group": "Comecando",
-            "pages": ["index", "quickstart", "autenticacao"]
+            "group": "Começar",
+            "pages": [
+              "index",
+              "quickstart",
+              "autenticacao"
+            ]
           }
         ]
       },
@@ -28,7 +32,9 @@
         "groups": [
           {
             "group": "Visao Geral",
-            "pages": ["api-reference/introduction"]
+            "pages": [
+              "api-reference/introduction"
+            ]
           },
           {
             "group": "Operacoes",
