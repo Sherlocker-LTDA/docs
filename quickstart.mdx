@@ -190,8 +190,15 @@ description: "Faca sua primeira analise de credito em 5 minutos"
                   {
                     "ruleId": "R3",
                     "ruleName": "Titulo vencido",
-                    "severity": "blocking",
-                    "detail": "Titulo venceu ha 45 dias"
+                    "category": "blocking",
+                    "status": "blocked",
+                    "message": "Titulo com data de vencimento expirada ha mais de 30 dias",
+                    "detail": {
+                      "field": "dataVencimento",
+                      "actual": "2026-01-01",
+                      "expected": ">= 2026-03-08",
+                      "threshold": 30
+                    }
                   }
                 ]
               }
