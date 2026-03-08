@@ -117,7 +117,7 @@ description: "Faca sua primeira analise de credito em 5 minutos"
 
     ```json
     {
-      "operationId": "550e8400-e29b-41d4-a716-446655440000",
+      "id": "550e8400-e29b-41d4-a716-446655440000",
       "status": "completed",
       "createdAt": "2026-03-08T12:00:00.000Z",
       "completedAt": "2026-03-08T12:00:12.000Z",
@@ -173,34 +173,32 @@ description: "Faca sua primeira analise de credito em 5 minutos"
     ```json
     {
       "operationId": "550e8400-e29b-41d4-a716-446655440000",
-      "cedentes": [
-        {
-          "cnpj": "11222333000181",
-          "razaoSocial": "Comercial ABC Ltda",
-          "sacados": [
-            {
-              "cnpj": "44555666000199",
-              "razaoSocial": "Industria XYZ S/A",
-              "titulos": [
-                {
-                  "nossoNumero": "0000001",
-                  "valor": 15000.00,
-                  "vencimento": "2026-04-15",
-                  "status": "blocked",
-                  "issues": [
-                    {
-                      "ruleId": "R3",
-                      "ruleName": "Titulo vencido",
-                      "severity": "blocking",
-                      "detail": "Titulo venceu ha 45 dias"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      "cedente": {
+        "cnpj": "11222333000181",
+        "razaoSocial": "Comercial ABC Ltda",
+        "sacados": [
+          {
+            "cnpjCpf": "44555666000199",
+            "razaoSocial": "Industria XYZ S/A",
+            "titulos": [
+              {
+                "numero": "DUP-2026-001",
+                "valor": 15000.00,
+                "dataVencimento": "2026-04-15",
+                "status": "blocked",
+                "issues": [
+                  {
+                    "ruleId": "R3",
+                    "ruleName": "Titulo vencido",
+                    "severity": "blocking",
+                    "detail": "Titulo venceu ha 45 dias"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
     }
     ```
 
