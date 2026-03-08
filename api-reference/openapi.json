@@ -625,11 +625,38 @@
         },
         "responses": {
           "200": {
-            "description": "Motor atualizado",
+            "description": "Motor atualizado com detalhes",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/EngineDetail"
+                },
+                "example": {
+                  "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+                  "name": "Motor Customizado FIDC Alpha",
+                  "description": "Motor com regras ajustadas para operacoes de maior risco",
+                  "isTemplate": false,
+                  "ruleCount": 12,
+                  "rules": [
+                    {
+                      "id": "R1",
+                      "name": "CNPJ Status",
+                      "severity": "blocking",
+                      "enabled": true
+                    },
+                    {
+                      "id": "R2",
+                      "name": "Protestos",
+                      "severity": "blocking",
+                      "enabled": true
+                    },
+                    {
+                      "id": "R11",
+                      "name": "Score Baixo",
+                      "severity": "alert",
+                      "enabled": false
+                    }
+                  ]
                 }
               }
             }
