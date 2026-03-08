@@ -1,0 +1,45 @@
+---
+title: "Introducao"
+description: "Visao geral da API Mycroft para analise de credito em FIDCs"
+---
+
+# API Mycroft
+
+A API Mycroft permite integrar a analise de credito de borderos diretamente no seu sistema. Envie arquivos CNAB 400 e receba resultados detalhados com transparencia total sobre cada regra aplicada.
+
+## Base URL
+
+```
+https://api.mycroft.com.br/v1
+```
+
+## Autenticacao
+
+Todas as requisicoes exigem um token Bearer no header `Authorization`:
+
+```bash
+curl -H "Authorization: Bearer seu_token_aqui" \
+  https://api.mycroft.com.br/v1/operations
+```
+
+## Endpoints disponiveis
+
+A API possui dois grupos de endpoints:
+
+### Operacoes
+
+Envie borderos para analise e consulte os resultados:
+
+- **POST /v1/operations** - Criar nova operacao de analise
+- **GET /v1/operations/{id}** - Consultar status de uma operacao
+- **GET /v1/operations/{id}/result** - Obter resultado da analise
+
+### Motores de Regras
+
+Gerencie os motores de regras de credito:
+
+- **GET /v1/engines** - Listar motores disponiveis
+- **POST /v1/engines** - Criar novo motor
+- **GET /v1/engines/{id}** - Consultar motor especifico
+- **PUT /v1/engines/{id}** - Atualizar motor
+- **DELETE /v1/engines/{id}** - Remover motor

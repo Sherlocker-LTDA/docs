@@ -27,8 +27,28 @@
         "tab": "API Reference",
         "groups": [
           {
-            "group": "Referência",
-            "pages": []
+            "group": "Visao Geral",
+            "pages": ["api-reference/introduction"]
+          },
+          {
+            "group": "Operacoes",
+            "openapi": "api-reference/openapi.json",
+            "pages": [
+              "POST /v1/operations",
+              "GET /v1/operations/{id}",
+              "GET /v1/operations/{id}/result"
+            ]
+          },
+          {
+            "group": "Motores de Regras",
+            "openapi": "api-reference/openapi.json",
+            "pages": [
+              "GET /v1/engines",
+              "POST /v1/engines",
+              "GET /v1/engines/{id}",
+              "PUT /v1/engines/{id}",
+              "DELETE /v1/engines/{id}"
+            ]
           }
         ]
       }
