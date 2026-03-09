@@ -39,6 +39,10 @@ Consulte a pagina de [autenticacao](/autenticacao) para instrucoes de geracao e 
 | `application/json` | Respostas de sucesso |
 | `application/problem+json` | Respostas de erro (RFC 7807) |
 
+## Upload de XMLs NFe
+
+O endpoint `POST /v1/operations` aceita um parametro opcional `xmls` com um arquivo ZIP contendo XMLs de NFe. Quando fornecido, as regras de NFe utilizam os dados do XML ao inves de consultar a API Sherlocker NFe.
+
 ## Versionamento
 
 A versao da API e definida no prefixo da URL (`/v1/`). Versao atual: **v1**.
@@ -57,6 +61,7 @@ Mudancas retrocompativeis (novos campos, novos endpoints) nao incrementam a vers
 | GET | /v1/engines/{id} | Consultar motor especifico |
 | PUT | /v1/engines/{id} | Atualizar motor de regras |
 | DELETE | /v1/engines/{id} | Remover motor de regras |
+| GET | /v1/openapi.json | Especificacao OpenAPI (sem autenticacao) |
 
 <Note>
   Navegue pelas secoes Operacoes e Motores de Regras na barra lateral para ver a documentacao completa de cada endpoint com playground interativo.

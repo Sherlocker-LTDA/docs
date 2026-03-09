@@ -53,6 +53,53 @@ description: "Faca sua primeira analise de credito em 5 minutos"
 
     </CodeGroup>
 
+    <Tip>
+      Para maior precisao nas regras de NFe, envie um arquivo ZIP com os XMLs das notas fiscais junto com o CNAB.
+    </Tip>
+
+    <CodeGroup>
+
+    ```bash cURL (com XMLs NFe)
+    curl -X POST https://api.mycroft.com.br/api/v1/operations \
+      -H "Authorization: Bearer myc_sua_chave_aqui" \
+      -F "file=@bordero.rem" \
+      -F "cedenteCnpj=11222333000181" \
+      -F "xmls=@notas.zip"
+    ```
+
+    ```python Python (com XMLs NFe)
+    import requests
+
+    response = requests.post(
+        "https://api.mycroft.com.br/api/v1/operations",
+        headers={"Authorization": "Bearer myc_sua_chave_aqui"},
+        files={
+            "file": open("bordero.rem", "rb"),
+            "xmls": ("notas.zip", open("notas.zip", "rb"), "application/zip")
+        },
+        data={"cedenteCnpj": "11222333000181"}
+    )
+    print(response.json())
+    ```
+
+    ```javascript Node.js (com XMLs NFe)
+    const fs = require("fs");
+
+    const form = new FormData();
+    form.append("file", fs.createReadStream("bordero.rem"));
+    form.append("cedenteCnpj", "11222333000181");
+    form.append("xmls", fs.createReadStream("notas.zip"));
+
+    const res = await fetch("https://api.mycroft.com.br/api/v1/operations", {
+      method: "POST",
+      headers: { "Authorization": "Bearer myc_sua_chave_aqui" },
+      body: form
+    });
+    console.log(await res.json());
+    ```
+
+    </CodeGroup>
+
     Resposta esperada (`202 Accepted`):
 
     ```json
@@ -198,7 +245,8 @@ description: "Faca sua primeira analise de credito em 5 minutos"
                       "actual": "2026-01-01",
                       "expected": ">= 2026-03-08",
                       "threshold": 30
-                    }
+                    },
+                    "dataSource": "XML NFe"
                   }
                 ]
               }
