@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Mycroft API",
-    "description": "API de análise de crédito transparente para FIDCs brasileiros",
     "version": "1.0.0",
+    "description": "API de analise de credito transparente para FIDCs brasileiros",
     "contact": {
       "name": "Mycroft",
       "url": "https://mycroft.com.br"
@@ -11,101 +11,171 @@
   },
   "servers": [
     {
-      "url": "https://api.mycroft.com.br/api",
-      "description": "Produção"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
+      "url": "https://api.mycroft.com.br/api/v1",
+      "description": "Producao"
     }
   ],
   "paths": {
     "/v1/operations": {
       "post": {
-        "operationId": "createOperation",
-        "summary": "Criar operação de análise",
-        "description": "Envia um arquivo CNAB 400 para análise de crédito. A operação é enfileirada e processada assincronamente. Use GET /v1/operations/{id} para acompanhar o status.",
-        "tags": ["Operações"],
+        "summary": "Create a new analysis operation",
+        "description": "Upload a CNAB 400 remessa file for credit analysis. Optionally include a ZIP of NFe XML files for higher accuracy NFe rule evaluation. Returns 202 with operation metadata.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "multipart/form-data": {
               "schema": {
                 "type": "object",
-                "required": ["file", "cedenteCnpj"],
                 "properties": {
                   "file": {
                     "type": "string",
-                    "format": "binary",
-                    "description": "Arquivo remessa CNAB 400 (.rem ou .txt)"
+                    "description": "CNAB 400 remessa file (binary)"
+                  },
+                  "engineId": {
+                    "description": "Engine ID to use (defaults to template engine)",
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   },
                   "cedenteCnpj": {
                     "type": "string",
-                    "description": "CNPJ do cedente (14 dígitos ou formatado: 11.222.333/0001-81)",
-                    "example": "11222333000181"
+                    "description": "CNPJ of the cedente (14 digits or formatted)"
                   },
-                  "engineId": {
-                    "type": "string",
-                    "format": "uuid",
-                    "description": "ID do motor de regras. Se omitido, usa o template padrão.",
-                    "default": "template-padrao"
+                  "xmls": {
+                    "description": "Optional ZIP file containing NFe XML files (binary). When provided, NFe rules will use XML-sourced data instead of querying the Sherlocker NFe API. The ZIP must contain at least one .xml file with standard nfeProc structure.",
+                    "type": "string"
                   }
-                }
+                },
+                "required": [
+                  "file",
+                  "cedenteCnpj"
+                ]
               }
             }
           }
         },
         "responses": {
           "202": {
-            "description": "Operação aceita e enfileirada",
+            "description": "Operation created and queued for processing",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OperationCreated"
-                },
-                "example": {
-                  "operationId": "550e8400-e29b-41d4-a716-446655440000",
-                  "status": "queued",
-                  "createdAt": "2026-03-08T12:00:00.000Z"
+                  "type": "object",
+                  "properties": {
+                    "operationId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                    }
+                  },
+                  "required": [
+                    "operationId",
+                    "status",
+                    "createdAt"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "400": {
-            "description": "Erro de validação (arquivo inválido, CNPJ inválido, engine inexistente)",
+            "description": "Validation Error — field-level details in errors array",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                },
-                "example": {
-                  "type": "https://mycroft.com.br/problems/validation-error",
-                  "title": "Validation Error",
-                  "status": 400,
-                  "detail": "Um ou mais campos são inválidos",
-                  "errors": [
-                    {
-                      "field": "cedenteCnpj",
-                      "message": "CNPJ inválido: deve conter 14 dígitos"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "field": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "field",
+                          "message"
+                        ],
+                        "additionalProperties": false
+                      }
                     }
-                  ]
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail",
+                    "errors"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "401": {
-            "description": "Token de autenticação ausente ou inválido",
+            "description": "Unauthorized — missing or invalid Bearer token",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
-                },
-                "example": {
-                  "type": "https://mycroft.com.br/problems/unauthorized",
-                  "title": "Unauthorized",
-                  "status": 401,
-                  "detail": "Token de autenticação ausente ou inválido"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -115,10 +185,13 @@
     },
     "/v1/operations/{id}": {
       "get": {
-        "operationId": "getOperationStatus",
-        "summary": "Consultar status da operação",
-        "description": "Retorna o status atual e contadores de uma operação. Use para polling até status ser 'completed' ou 'failed'.",
-        "tags": ["Operações"],
+        "summary": "Get operation status",
+        "description": "Returns the current status, timestamps, and counts for an operation.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "id",
@@ -128,58 +201,233 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "ID da operação retornado no POST"
+            "description": "Operation ID"
           }
         ],
         "responses": {
           "200": {
-            "description": "Status da operação",
+            "description": "Operation status",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OperationStatus"
-                },
-                "example": {
-                  "id": "550e8400-e29b-41d4-a716-446655440000",
-                  "status": "completed",
-                  "fileName": "bordero-2026-03.rem",
-                  "fileSize": 45678,
-                  "engineId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                  "tituloCount": 42,
-                  "approvedCount": 35,
-                  "blockedCount": 5,
-                  "alertCount": 2,
-                  "createdAt": "2026-03-08T12:00:00.000Z",
-                  "queuedAt": "2026-03-08T12:00:00.100Z",
-                  "processingAt": "2026-03-08T12:00:01.500Z",
-                  "completedAt": "2026-03-08T12:00:03.200Z",
-                  "error": null
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "queued",
+                        "processing",
+                        "completed",
+                        "failed"
+                      ]
+                    },
+                    "fileName": {
+                      "type": "string"
+                    },
+                    "fileSize": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "engineId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "tituloCount": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "approvedCount": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "blockedCount": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "alertCount": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                    },
+                    "queuedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "processingAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "completedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "format": "date-time",
+                          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "error": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status",
+                    "fileName",
+                    "fileSize",
+                    "engineId",
+                    "tituloCount",
+                    "approvedCount",
+                    "blockedCount",
+                    "alertCount",
+                    "createdAt",
+                    "queuedAt",
+                    "processingAt",
+                    "completedAt",
+                    "error"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "401": {
-            "description": "Token de autenticação ausente ou inválido",
+            "description": "Unauthorized — missing or invalid Bearer token",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "404": {
-            "description": "Operação não encontrada",
+            "description": "Not Found — resource does not exist",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
-                },
-                "example": {
-                  "type": "https://mycroft.com.br/problems/not-found",
-                  "title": "Not Found",
-                  "status": 404,
-                  "detail": "Operação não encontrada: 550e8400-e29b-41d4-a716-446655440000"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -189,10 +437,13 @@
     },
     "/v1/operations/{id}/result": {
       "get": {
-        "operationId": "getOperationResult",
-        "summary": "Obter resultado da análise",
-        "description": "Retorna o resultado hierárquico da análise (cedente → sacados → títulos). Só disponível quando status é 'completed'.",
-        "tags": ["Operações"],
+        "summary": "Get operation analysis result",
+        "description": "Returns the hierarchical analysis result grouped by cedente > sacados > titulos. Defaults to exception-first view (filter=issues). Only available when operation status is \"completed\".",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "id",
@@ -202,160 +453,742 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "ID da operação"
+            "description": "Operation ID"
           },
           {
             "name": "filter",
             "in": "query",
+            "required": false,
             "schema": {
               "type": "string",
-              "enum": ["issues", "all"],
+              "enum": [
+                "issues",
+                "all"
+              ],
               "default": "issues"
             },
-            "description": "'issues' retorna apenas entidades com problemas. 'all' retorna a árvore completa."
+            "description": "Filter mode. \"issues\" (default) returns only entities with blocked/alerted status. \"all\" returns the complete entity tree."
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "evidence"
+              ]
+            },
+            "description": "Optional expansion. Reserved for future use."
           }
         ],
         "responses": {
           "200": {
-            "description": "Resultado da análise",
+            "description": "Hierarchical analysis result",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnalysisResult"
-                },
-                "example": {
-                  "operationId": "550e8400-e29b-41d4-a716-446655440000",
-                  "engineId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                  "engineName": "Template Padrão",
-                  "timestamp": "2026-03-08T12:00:03.200Z",
-                  "cedente": {
-                    "id": "c1d2e3f4-a5b6-7890-cdef-123456789abc",
-                    "cnpj": "11222333000181",
-                    "razaoSocial": "Distribuidora ABC Ltda",
-                    "status": "alerted",
-                    "issues": [
-                      {
-                        "ruleId": "R12",
-                        "ruleName": "Primeira Operação",
-                        "category": "alert",
-                        "status": "alerted",
-                        "message": "Cedente sem histórico anterior de operações",
-                        "detail": {
-                          "field": "historico",
-                          "actual": "0 operações anteriores"
-                        }
-                      }
-                    ],
-                    "sacados": [
-                      {
-                        "id": "d4e5f6a7-b8c9-0123-def4-56789abcdef0",
-                        "cnpjCpf": "44555666000199",
-                        "razaoSocial": "Comercial XYZ S.A.",
-                        "tipo": "PJ",
-                        "status": "blocked",
-                        "issues": [
-                          {
-                            "ruleId": "R2",
-                            "ruleName": "Protestos",
-                            "category": "blocking",
-                            "status": "blocked",
-                            "message": "Sacado possui protestos acima do limiar permitido",
-                            "detail": {
-                              "field": "protestos",
-                              "actual": "3 protestos",
-                              "threshold": "2 protestos"
-                            }
-                          }
-                        ],
-                        "titulos": [
-                          {
-                            "id": "e5f6a7b8-c9d0-1234-ef56-789abcdef012",
-                            "numero": "DUP-2026-001",
-                            "valor": 15750.50,
-                            "dataVencimento": "2026-04-15",
-                            "nfeChave": "35260311222333000181550010000001231234567890",
-                            "status": "blocked",
-                            "issues": [
-                              {
-                                "ruleId": "R5",
-                                "ruleName": "Duplicata Vencimento",
-                                "category": "blocking",
-                                "status": "blocked",
-                                "message": "Data de vencimento inferior a 5 dias úteis",
-                                "detail": {
-                                  "field": "dataVencimento",
-                                  "actual": "2026-04-15",
-                                  "expected": "mínimo 5 dias úteis"
-                                }
-                              }
-                            ]
-                          },
-                          {
-                            "id": "f6a7b8c9-d0e1-2345-f678-9abcdef01234",
-                            "numero": "DUP-2026-002",
-                            "valor": 8320.00,
-                            "dataVencimento": "2026-06-20",
-                            "nfeChave": null,
-                            "status": "approved",
-                            "issues": []
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  "summary": {
-                    "totalTitulos": 42,
-                    "approved": 35,
-                    "blocked": 5,
-                    "alerted": 2,
-                    "totalValue": 523480.75,
-                    "approvedValue": 412300.50,
-                    "blockedValue": 87650.25,
-                    "alertedValue": 23530.00,
-                    "sacados": {
-                      "total": 12,
-                      "withIssues": 4
+                  "type": "object",
+                  "properties": {
+                    "operationId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "engineId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "engineName": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string"
                     },
                     "cedente": {
-                      "status": "alerted"
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "cnpj": {
+                          "type": "string"
+                        },
+                        "razaoSocial": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "approved",
+                            "blocked",
+                            "alerted"
+                          ]
+                        },
+                        "issues": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "ruleId": {
+                                "type": "string"
+                              },
+                              "ruleName": {
+                                "type": "string"
+                              },
+                              "category": {
+                                "type": "string",
+                                "enum": [
+                                  "blocking",
+                                  "alert"
+                                ]
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "blocked",
+                                  "alerted"
+                                ]
+                              },
+                              "message": {
+                                "type": "string"
+                              },
+                              "detail": {
+                                "type": "object",
+                                "properties": {
+                                  "field": {
+                                    "type": "string"
+                                  },
+                                  "actual": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "boolean"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "expected": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "boolean"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  },
+                                  "threshold": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "boolean"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "field",
+                                  "actual"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "dataSource": {
+                                "description": "Data source used for this rule evaluation. For NFe rules, this is either \"XML NFe\" (from uploaded XML) or \"Sherlocker NFe\" (from API fallback).",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "ruleId",
+                              "ruleName",
+                              "category",
+                              "status",
+                              "message",
+                              "detail"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "sacados": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "cnpjCpf": {
+                                "type": "string"
+                              },
+                              "razaoSocial": {
+                                "type": "string"
+                              },
+                              "tipo": {
+                                "type": "string",
+                                "enum": [
+                                  "PJ",
+                                  "PF"
+                                ]
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "approved",
+                                  "blocked",
+                                  "alerted"
+                                ]
+                              },
+                              "issues": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "ruleId": {
+                                      "type": "string"
+                                    },
+                                    "ruleName": {
+                                      "type": "string"
+                                    },
+                                    "category": {
+                                      "type": "string",
+                                      "enum": [
+                                        "blocking",
+                                        "alert"
+                                      ]
+                                    },
+                                    "status": {
+                                      "type": "string",
+                                      "enum": [
+                                        "blocked",
+                                        "alerted"
+                                      ]
+                                    },
+                                    "message": {
+                                      "type": "string"
+                                    },
+                                    "detail": {
+                                      "type": "object",
+                                      "properties": {
+                                        "field": {
+                                          "type": "string"
+                                        },
+                                        "actual": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "boolean"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
+                                        "expected": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "boolean"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
+                                        "threshold": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "boolean"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "field",
+                                        "actual"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "dataSource": {
+                                      "description": "Data source used for this rule evaluation. For NFe rules, this is either \"XML NFe\" (from uploaded XML) or \"Sherlocker NFe\" (from API fallback).",
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "ruleId",
+                                    "ruleName",
+                                    "category",
+                                    "status",
+                                    "message",
+                                    "detail"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "titulos": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    "numero": {
+                                      "type": "string"
+                                    },
+                                    "valor": {
+                                      "type": "number"
+                                    },
+                                    "dataVencimento": {
+                                      "type": "string"
+                                    },
+                                    "nfeChave": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "status": {
+                                      "type": "string",
+                                      "enum": [
+                                        "approved",
+                                        "blocked",
+                                        "alerted"
+                                      ]
+                                    },
+                                    "issues": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "ruleId": {
+                                            "type": "string"
+                                          },
+                                          "ruleName": {
+                                            "type": "string"
+                                          },
+                                          "category": {
+                                            "type": "string",
+                                            "enum": [
+                                              "blocking",
+                                              "alert"
+                                            ]
+                                          },
+                                          "status": {
+                                            "type": "string",
+                                            "enum": [
+                                              "blocked",
+                                              "alerted"
+                                            ]
+                                          },
+                                          "message": {
+                                            "type": "string"
+                                          },
+                                          "detail": {
+                                            "type": "object",
+                                            "properties": {
+                                              "field": {
+                                                "type": "string"
+                                              },
+                                              "actual": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "string"
+                                                  },
+                                                  {
+                                                    "type": "number"
+                                                  },
+                                                  {
+                                                    "type": "boolean"
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              },
+                                              "expected": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "string"
+                                                  },
+                                                  {
+                                                    "type": "number"
+                                                  },
+                                                  {
+                                                    "type": "boolean"
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              },
+                                              "threshold": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "string"
+                                                  },
+                                                  {
+                                                    "type": "number"
+                                                  },
+                                                  {
+                                                    "type": "boolean"
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            "required": [
+                                              "field",
+                                              "actual"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          "dataSource": {
+                                            "description": "Data source used for this rule evaluation. For NFe rules, this is either \"XML NFe\" (from uploaded XML) or \"Sherlocker NFe\" (from API fallback).",
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "ruleId",
+                                          "ruleName",
+                                          "category",
+                                          "status",
+                                          "message",
+                                          "detail"
+                                        ],
+                                        "additionalProperties": false
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "numero",
+                                    "valor",
+                                    "dataVencimento",
+                                    "nfeChave",
+                                    "status",
+                                    "issues"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "cnpjCpf",
+                              "razaoSocial",
+                              "tipo",
+                              "status",
+                              "issues",
+                              "titulos"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "cnpj",
+                        "razaoSocial",
+                        "status",
+                        "issues",
+                        "sacados"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "summary": {
+                      "type": "object",
+                      "properties": {
+                        "totalTitulos": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "approved": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "blocked": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "alerted": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "totalValue": {
+                          "type": "number"
+                        },
+                        "approvedValue": {
+                          "type": "number"
+                        },
+                        "blockedValue": {
+                          "type": "number"
+                        },
+                        "alertedValue": {
+                          "type": "number"
+                        },
+                        "sacados": {
+                          "type": "object",
+                          "properties": {
+                            "total": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "withIssues": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "total",
+                            "withIssues"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "cedente": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "approved",
+                                "blocked",
+                                "alerted"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "totalTitulos",
+                        "approved",
+                        "blocked",
+                        "alerted",
+                        "totalValue",
+                        "approvedValue",
+                        "blockedValue",
+                        "alertedValue",
+                        "sacados",
+                        "cedente"
+                      ],
+                      "additionalProperties": false
                     }
-                  }
+                  },
+                  "required": [
+                    "operationId",
+                    "engineId",
+                    "engineName",
+                    "timestamp",
+                    "cedente",
+                    "summary"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation Error — invalid request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "401": {
-            "description": "Token de autenticação ausente ou inválido",
+            "description": "Unauthorized — missing or invalid Bearer token",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "404": {
-            "description": "Operação não encontrada",
+            "description": "Not Found — resource does not exist",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "409": {
-            "description": "Operação ainda não completou",
+            "description": "Conflict — operation not in completed state",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
-                },
-                "example": {
-                  "type": "https://mycroft.com.br/problems/conflict",
-                  "title": "Conflict",
-                  "status": 409,
-                  "detail": "Operação ainda não completou. Status atual: processing"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -365,45 +1198,104 @@
     },
     "/v1/engines": {
       "get": {
-        "operationId": "listEngines",
-        "summary": "Listar motores de regras",
-        "description": "Retorna todos os motores de regras disponíveis, incluindo templates e customizados.",
-        "tags": ["Motores de Regras"],
+        "summary": "List available engines",
+        "description": "Returns a list of all analysis engines with summary info.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Lista de motores",
+            "description": "Engine list",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EngineList"
-                },
-                "example": {
-                  "engines": [
-                    {
-                      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                      "name": "Template Padrão",
-                      "description": "Motor de regras padrão com as 15 regras de crédito FIDC",
-                      "isTemplate": true,
-                      "ruleCount": 15
-                    },
-                    {
-                      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
-                      "name": "Motor Conservador",
-                      "description": "Motor customizado com limiares mais restritivos",
-                      "isTemplate": false,
-                      "ruleCount": 15
+                  "type": "object",
+                  "properties": {
+                    "engines": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "isTemplate": {
+                            "type": "boolean"
+                          },
+                          "ruleCount": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "description",
+                          "isTemplate",
+                          "ruleCount"
+                        ],
+                        "additionalProperties": false
+                      }
                     }
-                  ]
+                  },
+                  "required": [
+                    "engines"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "401": {
-            "description": "Token de autenticação ausente ou inválido",
+            "description": "Unauthorized — missing or invalid Bearer token",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -411,89 +1303,259 @@
         }
       },
       "post": {
-        "operationId": "createEngine",
-        "summary": "Criar motor de regras",
-        "description": "Cria um motor de regras customizado com configuração própria de regras, ou clona de um motor existente.",
-        "tags": ["Motores de Regras"],
+        "summary": "Create a new engine",
+        "description": "Create a custom engine with rule configurations, or clone an existing engine.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateEngineRequest"
-              },
-              "example": {
-                "name": "Motor Conservador",
-                "description": "Motor com limiares mais restritivos para operações de alto risco",
-                "cloneFrom": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Engine name (1-100 chars)"
+                  },
+                  "description": {
+                    "description": "Engine description (max 500 chars)",
+                    "type": "string"
+                  },
+                  "rules": {
+                    "description": "Rule configurations (required unless cloneFrom is set)",
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "severity": {
+                          "type": "string",
+                          "enum": [
+                            "blocking",
+                            "alert"
+                          ]
+                        },
+                        "enabled": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "severity",
+                        "enabled"
+                      ]
+                    }
+                  },
+                  "cloneFrom": {
+                    "description": "ID of engine to clone rules from",
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Motor criado",
+            "description": "Engine created",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EngineDetail"
-                },
-                "example": {
-                  "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
-                  "name": "Motor Conservador",
-                  "description": "Motor com limiares mais restritivos para operações de alto risco",
-                  "isTemplate": false,
-                  "ruleCount": 15,
-                  "rules": [
-                    {
-                      "id": "R1",
-                      "name": "CNPJ Status",
-                      "severity": "blocking",
-                      "enabled": true
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     },
-                    {
-                      "id": "R2",
-                      "name": "Protestos",
-                      "severity": "blocking",
-                      "enabled": true
+                    "name": {
+                      "type": "string"
                     },
-                    {
-                      "id": "R11",
-                      "name": "Score Baixo",
-                      "severity": "alert",
-                      "enabled": true
+                    "description": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "isTemplate": {
+                      "type": "boolean"
+                    },
+                    "ruleCount": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "rules": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "severity": {
+                            "type": "string",
+                            "enum": [
+                              "blocking",
+                              "alert"
+                            ]
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "severity",
+                          "enabled"
+                        ],
+                        "additionalProperties": false
+                      }
                     }
-                  ]
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "isTemplate",
+                    "ruleCount",
+                    "rules"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "400": {
-            "description": "Erro de validação",
+            "description": "Validation Error — invalid request",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "401": {
-            "description": "Token de autenticação ausente ou inválido",
+            "description": "Unauthorized — missing or invalid Bearer token",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "404": {
-            "description": "Motor de origem (cloneFrom) não encontrado",
+            "description": "Not Found — resource does not exist",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -503,10 +1565,13 @@
     },
     "/v1/engines/{id}": {
       "get": {
-        "operationId": "getEngine",
-        "summary": "Detalhe do motor de regras",
-        "description": "Retorna detalhes de um motor incluindo todas as configurações de regras.",
-        "tags": ["Motores de Regras"],
+        "summary": "Get engine details",
+        "description": "Returns full engine configuration including rules.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "id",
@@ -516,63 +1581,156 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "ID do motor de regras"
+            "description": "Engine ID"
           }
         ],
         "responses": {
           "200": {
-            "description": "Detalhes do motor com regras",
+            "description": "Engine details with rules",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EngineDetail"
-                },
-                "example": {
-                  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                  "name": "Motor Padrão Mycroft",
-                  "description": "Motor de regras padrão com todas as 15 regras habilitadas",
-                  "isTemplate": true,
-                  "ruleCount": 15,
-                  "rules": [
-                    {
-                      "id": "R1",
-                      "name": "CNPJ Status",
-                      "severity": "blocking",
-                      "enabled": true
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     },
-                    {
-                      "id": "R2",
-                      "name": "Protestos",
-                      "severity": "blocking",
-                      "enabled": true
+                    "name": {
+                      "type": "string"
                     },
-                    {
-                      "id": "R11",
-                      "name": "Score Baixo",
-                      "severity": "alert",
-                      "enabled": true
+                    "description": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "isTemplate": {
+                      "type": "boolean"
+                    },
+                    "ruleCount": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "rules": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "severity": {
+                            "type": "string",
+                            "enum": [
+                              "blocking",
+                              "alert"
+                            ]
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "severity",
+                          "enabled"
+                        ],
+                        "additionalProperties": false
+                      }
                     }
-                  ]
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "isTemplate",
+                    "ruleCount",
+                    "rules"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "401": {
-            "description": "Token de autenticação ausente ou inválido",
+            "description": "Unauthorized — missing or invalid Bearer token",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "404": {
-            "description": "Motor não encontrado",
+            "description": "Not Found — resource does not exist",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -580,10 +1738,13 @@
         }
       },
       "put": {
-        "operationId": "updateEngine",
-        "summary": "Atualizar motor de regras",
-        "description": "Atualiza nome, descrição ou regras de um motor customizado. Motores template não podem ser modificados.",
-        "tags": ["Motores de Regras"],
+        "summary": "Update an engine",
+        "description": "Update name, description, or rules of a custom engine. Template engines cannot be modified.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "id",
@@ -593,7 +1754,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "ID do motor de regras"
+            "description": "Engine ID"
           }
         ],
         "requestBody": {
@@ -601,92 +1762,238 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateEngineRequest"
-              },
-              "example": {
-                "name": "Motor Conservador v2",
-                "rules": [
-                  {
-                    "id": "R1",
-                    "name": "CNPJ Status",
-                    "severity": "blocking",
-                    "enabled": true
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "description": "Engine name (1-100 chars)",
+                    "type": "string"
                   },
-                  {
-                    "id": "R11",
-                    "name": "Score Baixo",
-                    "severity": "blocking",
-                    "enabled": true
+                  "description": {
+                    "description": "Engine description (max 500 chars)",
+                    "type": "string"
+                  },
+                  "rules": {
+                    "description": "Rule configurations",
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "severity": {
+                          "type": "string",
+                          "enum": [
+                            "blocking",
+                            "alert"
+                          ]
+                        },
+                        "enabled": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "severity",
+                        "enabled"
+                      ]
+                    }
                   }
-                ]
+                }
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Motor atualizado com detalhes",
+            "description": "Engine updated",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EngineDetail"
-                },
-                "example": {
-                  "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
-                  "name": "Motor Customizado FIDC Alpha",
-                  "description": "Motor com regras ajustadas para operacoes de maior risco",
-                  "isTemplate": false,
-                  "ruleCount": 12,
-                  "rules": [
-                    {
-                      "id": "R1",
-                      "name": "CNPJ Status",
-                      "severity": "blocking",
-                      "enabled": true
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     },
-                    {
-                      "id": "R2",
-                      "name": "Protestos",
-                      "severity": "blocking",
-                      "enabled": true
+                    "name": {
+                      "type": "string"
                     },
-                    {
-                      "id": "R11",
-                      "name": "Score Baixo",
-                      "severity": "alert",
-                      "enabled": false
+                    "description": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "isTemplate": {
+                      "type": "boolean"
+                    },
+                    "ruleCount": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "rules": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "severity": {
+                            "type": "string",
+                            "enum": [
+                              "blocking",
+                              "alert"
+                            ]
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "severity",
+                          "enabled"
+                        ],
+                        "additionalProperties": false
+                      }
                     }
-                  ]
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "isTemplate",
+                    "ruleCount",
+                    "rules"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "400": {
-            "description": "Erro de validação",
+            "description": "Validation Error — invalid request",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "401": {
-            "description": "Token de autenticação ausente ou inválido",
+            "description": "Unauthorized — missing or invalid Bearer token",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "404": {
-            "description": "Motor não encontrado",
+            "description": "Not Found — resource does not exist",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
@@ -694,10 +2001,13 @@
         }
       },
       "delete": {
-        "operationId": "deleteEngine",
-        "summary": "Deletar motor de regras",
-        "description": "Remove um motor customizado. Motores template ou referenciados por operações não podem ser deletados.",
-        "tags": ["Motores de Regras"],
+        "summary": "Delete an engine",
+        "description": "Delete a custom engine. Template engines and engines referenced by operations cannot be deleted.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "id",
@@ -707,48 +2017,167 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "ID do motor de regras"
+            "description": "Engine ID"
           }
         ],
         "responses": {
           "204": {
-            "description": "Motor deletado"
+            "description": "Engine deleted"
           },
-          "401": {
-            "description": "Token de autenticação ausente ou inválido",
+          "400": {
+            "description": "Validation Error — invalid request",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid Bearer token",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "404": {
-            "description": "Motor não encontrado",
+            "description": "Not Found — resource does not exist",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "409": {
-            "description": "Motor referenciado por operações existentes",
+            "description": "Conflict — operation not in completed state",
             "content": {
               "application/problem+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetail"
-                },
-                "example": {
-                  "type": "https://mycroft.com.br/problems/conflict",
-                  "title": "Conflict",
-                  "status": 409,
-                  "detail": "Motor não pode ser deletado pois é referenciado por 3 operações"
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "instance": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/v1/openapi.json": {
+      "get": {
+        "summary": "OpenAPI specification",
+        "description": "Returns this OpenAPI 3.1 specification document. No authentication required.",
+        "responses": {
+          "200": {
+            "description": "OpenAPI 3.1.0 specification"
           }
         }
       }
@@ -759,548 +2188,6 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer"
-      }
-    },
-    "schemas": {
-      "OperationCreated": {
-        "type": "object",
-        "required": ["operationId", "status", "createdAt"],
-        "properties": {
-          "operationId": {
-            "type": "string",
-            "format": "uuid",
-            "description": "ID único da operação criada"
-          },
-          "status": {
-            "type": "string",
-            "enum": ["queued"],
-            "description": "Status inicial da operação"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Data/hora de criação"
-          }
-        }
-      },
-      "OperationStatus": {
-        "type": "object",
-        "required": ["id", "status", "fileName", "fileSize", "engineId", "createdAt"],
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "status": {
-            "type": "string",
-            "enum": ["queued", "processing", "completed", "failed"],
-            "description": "Status atual da operação"
-          },
-          "fileName": {
-            "type": "string",
-            "description": "Nome do arquivo enviado"
-          },
-          "fileSize": {
-            "type": "integer",
-            "description": "Tamanho do arquivo em bytes"
-          },
-          "engineId": {
-            "type": "string",
-            "format": "uuid",
-            "description": "ID do motor de regras utilizado"
-          },
-          "tituloCount": {
-            "type": ["integer", "null"],
-            "description": "Total de títulos encontrados no arquivo"
-          },
-          "approvedCount": {
-            "type": ["integer", "null"],
-            "description": "Títulos aprovados"
-          },
-          "blockedCount": {
-            "type": ["integer", "null"],
-            "description": "Títulos bloqueados"
-          },
-          "alertCount": {
-            "type": ["integer", "null"],
-            "description": "Títulos com alerta"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "queuedAt": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "processingAt": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "completedAt": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "error": {
-            "type": ["string", "null"],
-            "description": "Mensagem de erro (quando status é 'failed')"
-          }
-        }
-      },
-      "AnalysisResult": {
-        "type": "object",
-        "required": ["operationId", "engineId", "engineName", "timestamp", "cedente", "summary"],
-        "properties": {
-          "operationId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "engineId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "engineName": {
-            "type": "string",
-            "description": "Nome do motor de regras utilizado"
-          },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time",
-            "description": "Data/hora do resultado"
-          },
-          "cedente": {
-            "$ref": "#/components/schemas/Cedente"
-          },
-          "summary": {
-            "$ref": "#/components/schemas/Summary"
-          }
-        }
-      },
-      "Cedente": {
-        "type": "object",
-        "required": ["id", "cnpj", "razaoSocial", "status", "issues", "sacados"],
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "cnpj": {
-            "type": "string",
-            "description": "CNPJ do cedente (14 dígitos)"
-          },
-          "razaoSocial": {
-            "type": "string",
-            "description": "Razão social do cedente"
-          },
-          "status": {
-            "$ref": "#/components/schemas/EntityStatus"
-          },
-          "issues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Issue"
-            }
-          },
-          "sacados": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Sacado"
-            }
-          }
-        }
-      },
-      "Sacado": {
-        "type": "object",
-        "required": ["id", "cnpjCpf", "razaoSocial", "tipo", "status", "issues", "titulos"],
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "cnpjCpf": {
-            "type": "string",
-            "description": "CNPJ ou CPF do sacado"
-          },
-          "razaoSocial": {
-            "type": "string",
-            "description": "Razão social ou nome do sacado"
-          },
-          "tipo": {
-            "type": "string",
-            "enum": ["PJ", "PF"],
-            "description": "Pessoa Jurídica ou Pessoa Física"
-          },
-          "status": {
-            "$ref": "#/components/schemas/EntityStatus"
-          },
-          "issues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Issue"
-            }
-          },
-          "titulos": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Titulo"
-            }
-          }
-        }
-      },
-      "Titulo": {
-        "type": "object",
-        "required": ["id", "numero", "valor", "dataVencimento", "status", "issues"],
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "numero": {
-            "type": "string",
-            "description": "Número do título (duplicata)"
-          },
-          "valor": {
-            "type": "number",
-            "format": "double",
-            "description": "Valor do título em reais"
-          },
-          "dataVencimento": {
-            "type": "string",
-            "format": "date",
-            "description": "Data de vencimento do título"
-          },
-          "nfeChave": {
-            "type": ["string", "null"],
-            "description": "Chave NFe de 44 dígitos. Null se não informada."
-          },
-          "status": {
-            "$ref": "#/components/schemas/EntityStatus"
-          },
-          "issues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Issue"
-            }
-          }
-        }
-      },
-      "Issue": {
-        "type": "object",
-        "required": ["ruleId", "ruleName", "category", "status", "message", "detail"],
-        "properties": {
-          "ruleId": {
-            "type": "string",
-            "description": "Identificador da regra (R1 a R15)"
-          },
-          "ruleName": {
-            "type": "string",
-            "description": "Nome descritivo da regra"
-          },
-          "category": {
-            "type": "string",
-            "enum": ["blocking", "alert"],
-            "description": "Categoria da regra: blocking reprova, alert apenas alerta"
-          },
-          "status": {
-            "type": "string",
-            "enum": ["blocked", "alerted"],
-            "description": "Status resultante da aplicação da regra"
-          },
-          "message": {
-            "type": "string",
-            "description": "Mensagem descritiva do problema encontrado"
-          },
-          "detail": {
-            "$ref": "#/components/schemas/IssueDetail"
-          }
-        }
-      },
-      "IssueDetail": {
-        "type": "object",
-        "required": ["field", "actual"],
-        "properties": {
-          "field": {
-            "type": "string",
-            "description": "Campo que causou o problema"
-          },
-          "actual": {
-            "description": "Valor encontrado"
-          },
-          "expected": {
-            "description": "Valor esperado (quando aplicável)"
-          },
-          "threshold": {
-            "description": "Limiar configurado (para regras de range)"
-          }
-        }
-      },
-      "Summary": {
-        "type": "object",
-        "required": ["totalTitulos", "approved", "blocked", "alerted", "totalValue", "approvedValue", "blockedValue", "alertedValue", "sacados", "cedente"],
-        "properties": {
-          "totalTitulos": {
-            "type": "integer",
-            "description": "Total de títulos analisados"
-          },
-          "approved": {
-            "type": "integer",
-            "description": "Títulos aprovados"
-          },
-          "blocked": {
-            "type": "integer",
-            "description": "Títulos bloqueados"
-          },
-          "alerted": {
-            "type": "integer",
-            "description": "Títulos com alerta"
-          },
-          "totalValue": {
-            "type": "number",
-            "format": "double",
-            "description": "Valor total dos títulos (R$)"
-          },
-          "approvedValue": {
-            "type": "number",
-            "format": "double"
-          },
-          "blockedValue": {
-            "type": "number",
-            "format": "double"
-          },
-          "alertedValue": {
-            "type": "number",
-            "format": "double"
-          },
-          "sacados": {
-            "type": "object",
-            "required": ["total", "withIssues"],
-            "properties": {
-              "total": {
-                "type": "integer",
-                "description": "Total de sacados"
-              },
-              "withIssues": {
-                "type": "integer",
-                "description": "Sacados com problemas"
-              }
-            }
-          },
-          "cedente": {
-            "type": "object",
-            "required": ["status"],
-            "properties": {
-              "status": {
-                "$ref": "#/components/schemas/EntityStatus"
-              }
-            }
-          }
-        }
-      },
-      "EntityStatus": {
-        "type": "string",
-        "enum": ["approved", "blocked", "alerted"],
-        "description": "Status de uma entidade após análise"
-      },
-      "EngineList": {
-        "type": "object",
-        "required": ["engines"],
-        "properties": {
-          "engines": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EngineSummary"
-            }
-          }
-        }
-      },
-      "EngineSummary": {
-        "type": "object",
-        "required": ["id", "name", "isTemplate", "ruleCount"],
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string",
-            "description": "Nome do motor"
-          },
-          "description": {
-            "type": ["string", "null"],
-            "description": "Descrição do motor"
-          },
-          "isTemplate": {
-            "type": "boolean",
-            "description": "Se é um motor template (não editável)"
-          },
-          "ruleCount": {
-            "type": "integer",
-            "description": "Número de regras configuradas"
-          }
-        }
-      },
-      "EngineDetail": {
-        "type": "object",
-        "required": ["id", "name", "isTemplate", "ruleCount", "rules"],
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "description": {
-            "type": ["string", "null"]
-          },
-          "isTemplate": {
-            "type": "boolean"
-          },
-          "ruleCount": {
-            "type": "integer"
-          },
-          "rules": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RuleConfig"
-            },
-            "description": "Lista de configurações de regras do motor"
-          }
-        }
-      },
-      "RuleConfig": {
-        "type": "object",
-        "required": ["id", "name", "severity", "enabled"],
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Identificador da regra (R1 a R15)"
-          },
-          "name": {
-            "type": "string",
-            "description": "Nome da regra"
-          },
-          "severity": {
-            "type": "string",
-            "enum": ["blocking", "alert"],
-            "description": "Severidade: blocking reprova, alert apenas alerta"
-          },
-          "enabled": {
-            "type": "boolean",
-            "description": "Se a regra está ativa"
-          }
-        }
-      },
-      "CreateEngineRequest": {
-        "type": "object",
-        "required": ["name"],
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 255,
-            "description": "Nome do motor"
-          },
-          "description": {
-            "type": "string",
-            "default": "",
-            "description": "Descrição do motor"
-          },
-          "rules": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RuleConfig"
-            },
-            "description": "Configuração de regras. Obrigatório se cloneFrom não for informado."
-          },
-          "cloneFrom": {
-            "type": "string",
-            "format": "uuid",
-            "description": "ID do motor a ser clonado. Mutuamente exclusivo com 'rules'."
-          }
-        }
-      },
-      "UpdateEngineRequest": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 255,
-            "description": "Novo nome do motor"
-          },
-          "description": {
-            "type": "string",
-            "description": "Nova descrição do motor"
-          },
-          "rules": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RuleConfig"
-            },
-            "description": "Nova configuração de regras"
-          }
-        }
-      },
-      "ProblemDetail": {
-        "type": "object",
-        "description": "Formato de erro RFC 7807 Problem Details",
-        "required": ["type", "title", "status", "detail"],
-        "properties": {
-          "type": {
-            "type": "string",
-            "format": "uri",
-            "description": "URI que identifica o tipo de problema"
-          },
-          "title": {
-            "type": "string",
-            "description": "Resumo do problema"
-          },
-          "status": {
-            "type": "integer",
-            "description": "Código HTTP de status"
-          },
-          "detail": {
-            "type": "string",
-            "description": "Descrição detalhada do problema"
-          },
-          "instance": {
-            "type": "string",
-            "description": "URI da instância específica do problema"
-          }
-        }
-      },
-      "ValidationError": {
-        "description": "Erro de validação com detalhes por campo",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ProblemDetail"
-          },
-          {
-            "type": "object",
-            "required": ["errors"],
-            "properties": {
-              "errors": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "required": ["field", "message"],
-                  "properties": {
-                    "field": {
-                      "type": "string",
-                      "description": "Campo com erro"
-                    },
-                    "message": {
-                      "type": "string",
-                      "description": "Mensagem de validação"
-                    }
-                  }
-                },
-                "description": "Lista de erros por campo"
-              }
-            }
-          }
-        ]
       }
     }
   }
