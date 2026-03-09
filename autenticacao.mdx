@@ -36,7 +36,7 @@ Authorization: Bearer myc_xxxxxxxxxxxxx
 <CodeGroup>
 
 ```bash cURL
-curl -X GET https://api.mycroft.com.br/api/v1/engines \
+curl -X GET https://api-mycroft.sherlocker.com.br/api/v1/engines \
   -H "Authorization: Bearer myc_sua_chave_aqui"
 ```
 
@@ -44,14 +44,14 @@ curl -X GET https://api.mycroft.com.br/api/v1/engines \
 import requests
 
 response = requests.get(
-    "https://api.mycroft.com.br/api/v1/engines",
+    "https://api-mycroft.sherlocker.com.br/api/v1/engines",
     headers={"Authorization": "Bearer myc_sua_chave_aqui"}
 )
 print(response.json())
 ```
 
 ```javascript Node.js
-const res = await fetch("https://api.mycroft.com.br/api/v1/engines", {
+const res = await fetch("https://api-mycroft.sherlocker.com.br/api/v1/engines", {
   headers: { "Authorization": "Bearer myc_sua_chave_aqui" }
 });
 console.log(await res.json());

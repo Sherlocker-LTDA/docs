@@ -11,7 +11,7 @@
   },
   "servers": [
     {
-      "url": "https://api.mycroft.com.br/api/v1",
+      "url": "https://api-mycroft.sherlocker.com.br/api/v1",
       "description": "Producao"
     }
   ],

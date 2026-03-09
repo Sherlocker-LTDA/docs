@@ -18,7 +18,7 @@ description: "Faca sua primeira analise de credito em 5 minutos"
     <CodeGroup>
 
     ```bash cURL
-    curl -X POST https://api.mycroft.com.br/api/v1/operations \
+    curl -X POST https://api-mycroft.sherlocker.com.br/api/v1/operations \
       -H "Authorization: Bearer myc_sua_chave_aqui" \
       -F "file=@bordero.rem" \
       -F "cedenteCnpj=11222333000181"
@@ -28,7 +28,7 @@ description: "Faca sua primeira analise de credito em 5 minutos"
     import requests
 
     response = requests.post(
-        "https://api.mycroft.com.br/api/v1/operations",
+        "https://api-mycroft.sherlocker.com.br/api/v1/operations",
         headers={"Authorization": "Bearer myc_sua_chave_aqui"},
         files={"file": open("bordero.rem", "rb")},
         data={"cedenteCnpj": "11222333000181"}
@@ -43,7 +43,7 @@ description: "Faca sua primeira analise de credito em 5 minutos"
     form.append("file", fs.createReadStream("bordero.rem"));
     form.append("cedenteCnpj", "11222333000181");
 
-    const res = await fetch("https://api.mycroft.com.br/api/v1/operations", {
+    const res = await fetch("https://api-mycroft.sherlocker.com.br/api/v1/operations", {
       method: "POST",
       headers: { "Authorization": "Bearer myc_sua_chave_aqui" },
       body: form
@@ -60,7 +60,7 @@ description: "Faca sua primeira analise de credito em 5 minutos"
     <CodeGroup>
 
     ```bash cURL (com XMLs NFe)
-    curl -X POST https://api.mycroft.com.br/api/v1/operations \
+    curl -X POST https://api-mycroft.sherlocker.com.br/api/v1/operations \
       -H "Authorization: Bearer myc_sua_chave_aqui" \
       -F "file=@bordero.rem" \
       -F "cedenteCnpj=11222333000181" \
@@ -71,7 +71,7 @@ description: "Faca sua primeira analise de credito em 5 minutos"
     import requests
 
     response = requests.post(
-        "https://api.mycroft.com.br/api/v1/operations",
+        "https://api-mycroft.sherlocker.com.br/api/v1/operations",
         headers={"Authorization": "Bearer myc_sua_chave_aqui"},
         files={
             "file": open("bordero.rem", "rb"),
@@ -90,7 +90,7 @@ description: "Faca sua primeira analise de credito em 5 minutos"
     form.append("cedenteCnpj", "11222333000181");
     form.append("xmls", fs.createReadStream("notas.zip"));
 
-    const res = await fetch("https://api.mycroft.com.br/api/v1/operations", {
+    const res = await fetch("https://api-mycroft.sherlocker.com.br/api/v1/operations", {
       method: "POST",
       headers: { "Authorization": "Bearer myc_sua_chave_aqui" },
       body: form
@@ -117,7 +117,7 @@ description: "Faca sua primeira analise de credito em 5 minutos"
     <CodeGroup>
 
     ```bash cURL
-    curl -X GET https://api.mycroft.com.br/api/v1/operations/550e8400-e29b-41d4-a716-446655440000 \
+    curl -X GET https://api-mycroft.sherlocker.com.br/api/v1/operations/550e8400-e29b-41d4-a716-446655440000 \
       -H "Authorization: Bearer myc_sua_chave_aqui"
     ```
 
@@ -129,7 +129,7 @@ description: "Faca sua primeira analise de credito em 5 minutos"
 
     while True:
         response = requests.get(
-            f"https://api.mycroft.com.br/api/v1/operations/{operation_id}",
+            f"https://api-mycroft.sherlocker.com.br/api/v1/operations/{operation_id}",
             headers={"Authorization": "Bearer myc_sua_chave_aqui"}
         )
         data = response.json()
@@ -146,7 +146,7 @@ description: "Faca sua primeira analise de credito em 5 minutos"
     let data;
     do {
       const res = await fetch(
-        `https://api.mycroft.com.br/api/v1/operations/${operationId}`,
+        `https://api-mycroft.sherlocker.com.br/api/v1/operations/${operationId}`,
         { headers: { "Authorization": "Bearer myc_sua_chave_aqui" } }
       );
       data = await res.json();
@@ -186,7 +186,7 @@ description: "Faca sua primeira analise de credito em 5 minutos"
     <CodeGroup>
 
     ```bash cURL
-    curl -X GET https://api.mycroft.com.br/api/v1/operations/550e8400-e29b-41d4-a716-446655440000/result \
+    curl -X GET https://api-mycroft.sherlocker.com.br/api/v1/operations/550e8400-e29b-41d4-a716-446655440000/result \
       -H "Authorization: Bearer myc_sua_chave_aqui"
     ```
 
@@ -195,7 +195,7 @@ description: "Faca sua primeira analise de credito em 5 minutos"
 
     operation_id = "550e8400-e29b-41d4-a716-446655440000"
     response = requests.get(
-        f"https://api.mycroft.com.br/api/v1/operations/{operation_id}/result",
+        f"https://api-mycroft.sherlocker.com.br/api/v1/operations/{operation_id}/result",
         headers={"Authorization": "Bearer myc_sua_chave_aqui"}
     )
     result = response.json()
@@ -206,7 +206,7 @@ description: "Faca sua primeira analise de credito em 5 minutos"
     const operationId = "550e8400-e29b-41d4-a716-446655440000";
 
     const res = await fetch(
-      `https://api.mycroft.com.br/api/v1/operations/${operationId}/result`,
+      `https://api-mycroft.sherlocker.com.br/api/v1/operations/${operationId}/result`,
       { headers: { "Authorization": "Bearer myc_sua_chave_aqui" } }
     );
     const result = await res.json();
