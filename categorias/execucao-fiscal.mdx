@@ -1,10 +1,10 @@
 ---
-title: "Execucao Fiscal"
-description: "Processos de execucao fiscal (dividas tributarias)"
+title: "Execução Fiscal"
+description: "Processos de execução fiscal (dívidas tributárias)"
 icon: "landmark"
 ---
 
-Identifique pessoas ou empresas com **execucoes fiscais** — cobracas judiciais de dividas tributarias.
+Identifique pessoas ou empresas com **execuções fiscais** — cobranças judiciais de dívidas tributárias.
 
 ```bash
 curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/{cnpj}?categorias=execucao-fiscal&token=SEU_TOKEN"
@@ -12,9 +12,9 @@ curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/{cnpj}?categorias
 
 ## Quando usar
 
-- **Analise de credito** — execucoes fiscais indicam inadimplencia tributaria
-- **Due diligence** — empresas com muitas execucoes fiscais podem ter problemas de gestao
-- **Contratacao publica** — verificar regularidade fiscal de licitantes
+- **Análise de crédito** — execuções fiscais indicam inadimplência tributária
+- **Due diligence** — empresas com muitas execuções fiscais podem ter problemas de gestão
+- **Contratação pública** — verificar regularidade fiscal de licitantes
 
 ## Exemplo de resposta
 
@@ -25,13 +25,13 @@ curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/{cnpj}?categorias
     {
       "numero_formatado": "0005432-10.2021.8.26.0100",
       "tribunal": "tjsp",
-      "classe_nome": "Execucao Fiscal",
+      "classe_nome": "Execução Fiscal",
       "data_ajuizamento": "2021-05-20",
-      "orgao_julgador": "2a Vara de Execucoes Fiscais",
-      "assuntos": "Divida Ativa - ICMS",
+      "orgao_julgador": "2ª Vara de Execuções Fiscais",
+      "assuntos": "Dívida Ativa - ICMS",
       "partes": [
-        { "nome": "Fazenda Publica do Estado de Sao Paulo", "polo": "ativo" },
-        { "nome": "Comercio Silva Ltda", "polo": "passivo" }
+        { "nome": "Fazenda Pública do Estado de São Paulo", "polo": "ativo" },
+        { "nome": "Comércio Silva Ltda", "polo": "passivo" }
       ]
     }
   ]

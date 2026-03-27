@@ -1,10 +1,10 @@
 ---
-title: "Falencia e Insolvencia"
-description: "Processos de falencia e insolvencia"
+title: "Falência e Insolvência"
+description: "Processos de falência e insolvência"
 icon: "building-circle-xmark"
 ---
 
-Identifique empresas em **falencia** ou **insolvencia** filtrando por categoria nos endpoints de processos.
+Identifique empresas em **falência** ou **insolvência** filtrando por categoria nos endpoints de processos.
 
 ```bash
 curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/{cnpj}?categorias=falencia&token=SEU_TOKEN"
@@ -12,9 +12,9 @@ curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/{cnpj}?categorias
 
 ## Quando usar
 
-- **Risco de credito** — falencia indica risco severo de nao recebimento
-- **Cadeia de fornecedores** — verificar se algum fornecedor critico faliu
-- **Mercado imobiliario** — identificar imoveis de empresas falidas em leilao
+- **Risco de crédito** — falência indica risco severo de não recebimento
+- **Cadeia de fornecedores** — verificar se algum fornecedor crítico faliu
+- **Mercado imobiliário** — identificar imóveis de empresas falidas em leilão
 
 ## Exemplo de resposta
 
@@ -25,9 +25,9 @@ curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/{cnpj}?categorias
     {
       "numero_formatado": "1005432-15.2021.8.26.0100",
       "tribunal": "tjsp",
-      "classe_nome": "Falencia",
+      "classe_nome": "Falência",
       "data_ajuizamento": "2021-05-20",
-      "orgao_julgador": "1a Vara de Falencias e Recuperacoes Judiciais",
+      "orgao_julgador": "1ª Vara de Falências e Recuperações Judiciais",
       "partes": [
         { "nome": "Distribuidora Abc Ltda", "polo": "passivo" }
       ]

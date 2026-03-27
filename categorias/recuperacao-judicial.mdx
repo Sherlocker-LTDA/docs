@@ -1,10 +1,10 @@
 ---
-title: "Recuperacao Judicial"
-description: "Processos de recuperacao judicial de empresas"
+title: "Recuperação Judicial"
+description: "Processos de recuperação judicial de empresas"
 icon: "building-circle-exclamation"
 ---
 
-Identifique empresas em **recuperacao judicial** filtrando por categoria nos endpoints de processos.
+Identifique empresas em **recuperação judicial** filtrando por categoria nos endpoints de processos.
 
 ```bash
 curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/{cnpj}?categorias=recuperacao-judicial&token=SEU_TOKEN"
@@ -12,9 +12,9 @@ curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/{cnpj}?categorias
 
 ## Quando usar
 
-- **Analise de credito** — empresas em recuperacao tem risco elevado de inadimplencia
-- **Due diligence** — verificar se a contraparte esta em processo de recuperacao antes de fechar contrato
-- **Monitoramento de carteira** — acompanhar clientes ou fornecedores que entraram em recuperacao
+- **Análise de crédito** — empresas em recuperação têm risco elevado de inadimplência
+- **Due diligence** — verificar se a contraparte está em processo de recuperação antes de fechar contrato
+- **Monitoramento de carteira** — acompanhar clientes ou fornecedores que entraram em recuperação
 
 ## Exemplo de resposta
 
@@ -25,11 +25,11 @@ curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/{cnpj}?categorias
     {
       "numero_formatado": "0014599-21.2016.8.19.0052",
       "tribunal": "tjrj",
-      "classe_nome": "Recuperacao Judicial",
+      "classe_nome": "Recuperação Judicial",
       "data_ajuizamento": "2016-12-07",
-      "orgao_julgador": "2a Vara Civel de Araruama",
+      "orgao_julgador": "2ª Vara Cível de Araruama",
       "partes": [
-        { "nome": "Empresa Xyz Comercio Ltda", "polo": "ativo" }
+        { "nome": "Empresa Xyz Comércio Ltda", "polo": "ativo" }
       ]
     }
   ]

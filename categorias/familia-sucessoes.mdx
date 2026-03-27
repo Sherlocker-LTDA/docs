@@ -1,10 +1,10 @@
 ---
-title: "Familia e Sucessoes"
-description: "Processos de familia, divorcio, inventario e sucessoes"
+title: "Família e Sucessões"
+description: "Processos de família, divórcio, inventário e sucessões"
 icon: "people-roof"
 ---
 
-Identifique processos de **familia e sucessoes** — divorcios, inventarios, guardas e pensoes.
+Identifique processos de **família e sucessões** — divórcios, inventários, guardas e pensões.
 
 ```bash
 curl "https://221b-api.sherlocker.com.br/api/v1/processos/cpf/{cpf}?categorias=familia-sucessoes&token=SEU_TOKEN"
@@ -12,9 +12,9 @@ curl "https://221b-api.sherlocker.com.br/api/v1/processos/cpf/{cpf}?categorias=f
 
 ## Quando usar
 
-- **Levantamento patrimonial** — inventarios indicam patrimonio herdado
-- **Analise de vinculos** — divorcios e guardas revelam estrutura familiar
-- **Localizacao de partes** — processos de familia ajudam a mapear vinculos
+- **Levantamento patrimonial** — inventários indicam patrimônio herdado
+- **Análise de vínculos** — divórcios e guardas revelam estrutura familiar
+- **Localização de partes** — processos de família ajudam a mapear vínculos
 
 ## Exemplo de resposta
 
@@ -25,10 +25,10 @@ curl "https://221b-api.sherlocker.com.br/api/v1/processos/cpf/{cpf}?categorias=f
     {
       "numero_formatado": "0009876-54.2023.8.26.0100",
       "tribunal": "tjsp",
-      "classe_nome": "Inventario",
+      "classe_nome": "Inventário",
       "data_ajuizamento": "2023-01-20",
-      "orgao_julgador": "3a Vara de Familia e Sucessoes",
-      "assuntos": "Inventario e Partilha",
+      "orgao_julgador": "3ª Vara de Família e Sucessões",
+      "assuntos": "Inventário e Partilha",
       "partes": [
         { "nome": "Ana Maria Silva", "polo": "ativo" }
       ]

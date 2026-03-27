@@ -1,28 +1,28 @@
 ---
-title: "Recuperacoes Judiciais e Falencias"
-description: "Como identificar empresas em recuperacao judicial ou falencia usando a API de processos"
+title: "Recuperações Judiciais e Falências"
+description: "Como identificar empresas em recuperação judicial ou falência usando a API de processos"
 icon: "building-circle-exclamation"
 ---
 
-O Sherlocker permite identificar se uma empresa esta em **recuperacao judicial** ou **falencia** usando o parametro `categorias` nos endpoints de processos por CPF ou CNPJ.
+O Sherlocker permite identificar se uma empresa está em **recuperação judicial** ou **falência** usando o parâmetro `categorias` nos endpoints de processos por CPF ou CNPJ.
 
 ## Por que monitorar?
 
-- **Analise de credito** — empresas em recuperacao judicial tem risco elevado de inadimplencia
-- **Due diligence** — antes de fechar contratos, verificar se a contraparte esta em processo de falencia
-- **Monitoramento de carteira** — acompanhar clientes ou fornecedores que entraram em recuperacao
+- **Análise de crédito** — empresas em recuperação judicial têm risco elevado de inadimplência
+- **Due diligence** — antes de fechar contratos, verificar se a contraparte está em processo de falência
+- **Monitoramento de carteira** — acompanhar clientes ou fornecedores que entraram em recuperação
 
 ## Como filtrar
 
-Adicione o parametro `categorias` ao endpoint de processos por CNPJ ou CPF:
+Adicione o parâmetro `categorias` ao endpoint de processos por CNPJ ou CPF:
 
 ### Verificar uma empresa (CNPJ)
 
 ```bash
-# Somente recuperacoes judiciais
+# Somente recuperações judiciais
 curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/12345678000199?categorias=recuperacao-judicial&token=SEU_TOKEN"
 
-# Somente falencias
+# Somente falências
 curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/12345678000199?categorias=falencia&token=SEU_TOKEN"
 
 # Ambas
@@ -37,15 +37,15 @@ curl "https://221b-api.sherlocker.com.br/api/v1/processos/cpf/12345678901?catego
 
 ### Resposta
 
-Se a empresa tiver processos nessas categorias, a resposta tera `total > 0`:
+Se a empresa tiver processos nessas categorias, a resposta terá `total > 0`:
 
 ```json
 {
   "documento": "12.345.678/0001-99",
   "tipo_documento": "CNPJ",
   "categorias": [
-    { "slug": "recuperacao-judicial", "label": "Recuperacao Judicial" },
-    { "slug": "falencia", "label": "Falencia" }
+    { "slug": "recuperacao-judicial", "label": "Recuperação Judicial" },
+    { "slug": "falencia", "label": "Falência" }
   ],
   "total": 1,
   "processos": [
@@ -53,36 +53,36 @@ Se a empresa tiver processos nessas categorias, a resposta tera `total > 0`:
       "numero_processo": "00145992120168190052",
       "numero_formatado": "0014599-21.2016.8.19.0052",
       "tribunal": "tjrj",
-      "classe_nome": "Recuperacao Judicial",
+      "classe_nome": "Recuperação Judicial",
       "data_ajuizamento": "2016-12-07",
-      "orgao_julgador": "2a Vara Civel de Araruama",
+      "orgao_julgador": "2ª Vara Cível de Araruama",
       "partes": [
-        { "nome": "Empresa Xyz Comercio Ltda", "documento": "12.345.678/0001-99", "polo": "ativo" }
+        { "nome": "Empresa Xyz Comércio Ltda", "documento": "12.345.678/0001-99", "polo": "ativo" }
       ],
       "advogados": [
-        { "nome": "Dr. Jose Carlos Mendes", "oab": "RJ084902" }
+        { "nome": "Dr. José Carlos Mendes", "oab": "RJ084902" }
       ],
       "movimentacoes": [
-        { "data": "2016-12-07", "descricao": "Distribuido por sorteio" }
+        { "data": "2016-12-07", "descricao": "Distribuído por sorteio" }
       ]
     }
   ]
 }
 ```
 
-## Categorias disponiveis
+## Categorias disponíveis
 
-| Categoria | Descricao |
+| Categoria | Descrição |
 |-----------|-----------|
-| `recuperacao-judicial` | Recuperacoes judiciais |
-| `falencia` | Falencias |
-| `execucao-fiscal` | Execucoes fiscais |
-| `execucao` | Execucoes civeis |
+| `recuperacao-judicial` | Recuperações judiciais |
+| `falencia` | Falências e insolvência |
+| `execucao-fiscal` | Execuções fiscais |
+| `execucao-civel` | Execuções cíveis |
 | `criminal` | Processos criminais |
-| `trabalhista` | Reclamacoes trabalhistas |
-| `civel` | Acoes civeis em geral |
+| `trabalhista` | Reclamações trabalhistas |
+| `familia-sucessoes` | Família e sucessões |
 
-## Exemplo pratico: monitoramento de carteira
+## Exemplo prático: monitoramento de carteira
 
 ```python
 import requests
@@ -91,7 +91,7 @@ TOKEN = "SEU_TOKEN"
 BASE = "https://221b-api.sherlocker.com.br/api/v1"
 
 def verificar_carteira(cnpjs: list[str]):
-    """Verifica quais empresas da carteira estao em recuperacao ou falencia."""
+    """Verifica quais empresas da carteira estão em recuperação ou falência."""
     alertas = []
 
     for cnpj in cnpjs:

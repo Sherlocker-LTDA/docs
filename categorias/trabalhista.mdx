@@ -1,10 +1,10 @@
 ---
 title: "Trabalhista"
-description: "Reclamacoes trabalhistas e processos do trabalho"
+description: "Reclamações trabalhistas e processos do trabalho"
 icon: "briefcase"
 ---
 
-Identifique **reclamacoes trabalhistas** de empresas ou pessoas.
+Identifique **reclamações trabalhistas** de empresas ou pessoas.
 
 ```bash
 curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/{cnpj}?categorias=trabalhista&token=SEU_TOKEN"
@@ -12,9 +12,9 @@ curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/{cnpj}?categorias
 
 ## Quando usar
 
-- **Due diligence** — volume alto de acoes trabalhistas indica problemas de gestao
-- **Contratacao** — verificar historico trabalhista de candidatos
-- **Fusoes e aquisicoes** — estimar passivo trabalhista de empresa-alvo
+- **Due diligence** — volume alto de ações trabalhistas indica problemas de gestão
+- **Contratação** — verificar histórico trabalhista de candidatos
+- **Fusões e aquisições** — estimar passivo trabalhista de empresa-alvo
 
 ## Exemplo de resposta
 
@@ -25,13 +25,13 @@ curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/{cnpj}?categorias
     {
       "numero_formatado": "1008765-43.2020.5.02.0015",
       "tribunal": "trt2",
-      "classe_nome": "Reclamacao Trabalhista",
+      "classe_nome": "Reclamação Trabalhista",
       "data_ajuizamento": "2020-11-10",
-      "orgao_julgador": "15a Vara do Trabalho de Sao Paulo",
-      "assuntos": "Rescisao Indireta",
+      "orgao_julgador": "15ª Vara do Trabalho de São Paulo",
+      "assuntos": "Rescisão Indireta",
       "partes": [
         { "nome": "Maria Fernanda Santos", "polo": "ativo" },
-        { "nome": "Comercio Silva Ltda", "polo": "passivo" }
+        { "nome": "Comércio Silva Ltda", "polo": "passivo" }
       ]
     }
   ]

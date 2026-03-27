@@ -1,6 +1,6 @@
 ---
 title: "Criminal"
-description: "Processos criminais e acoes penais"
+description: "Processos criminais e ações penais"
 icon: "handcuffs"
 ---
 
@@ -12,9 +12,9 @@ curl "https://221b-api.sherlocker.com.br/api/v1/processos/cpf/{cpf}?categorias=c
 
 ## Quando usar
 
-- **Background check** — verificar antecedentes criminais de candidatos ou socios
-- **Compliance** — identificar envolvimento em acoes penais
-- **Analise de risco** — processos criminais como reu indicam risco reputacional
+- **Background check** — verificar antecedentes criminais de candidatos ou sócios
+- **Compliance** — identificar envolvimento em ações penais
+- **Análise de risco** — processos criminais como réu indicam risco reputacional
 
 ## Exemplo de resposta
 
@@ -25,13 +25,13 @@ curl "https://221b-api.sherlocker.com.br/api/v1/processos/cpf/{cpf}?categorias=c
     {
       "numero_formatado": "0001234-56.2022.8.26.0050",
       "tribunal": "tjsp",
-      "classe_nome": "Acao Penal - Procedimento Ordinario",
+      "classe_nome": "Ação Penal - Procedimento Ordinário",
       "data_ajuizamento": "2022-03-15",
-      "orgao_julgador": "1a Vara Criminal",
+      "orgao_julgador": "1ª Vara Criminal",
       "assuntos": "Estelionato",
       "partes": [
-        { "nome": "Ministerio Publico do Estado de Sao Paulo", "polo": "ativo" },
-        { "nome": "Joao Silva", "polo": "passivo" }
+        { "nome": "Ministério Público do Estado de São Paulo", "polo": "ativo" },
+        { "nome": "João Silva", "polo": "passivo" }
       ]
     }
   ]

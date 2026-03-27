@@ -1,10 +1,10 @@
 ---
-title: "Execucao Civel"
-description: "Processos de execucao civel (cobracas judiciais)"
+title: "Execução Cível"
+description: "Processos de execução cível (cobranças judiciais)"
 icon: "file-invoice-dollar"
 ---
 
-Identifique **execucoes civeis** — cobracas judiciais de dividas entre particulares.
+Identifique **execuções cíveis** — cobranças judiciais de dívidas entre particulares.
 
 ```bash
 curl "https://221b-api.sherlocker.com.br/api/v1/processos/cpf/{cpf}?categorias=execucao-civel&token=SEU_TOKEN"
@@ -12,9 +12,9 @@ curl "https://221b-api.sherlocker.com.br/api/v1/processos/cpf/{cpf}?categorias=e
 
 ## Quando usar
 
-- **Analise de credito** — execucoes civeis indicam dividas nao pagas
-- **Cobranca** — verificar se o devedor ja tem outras execucoes em andamento
-- **Locacao** — verificar historico de execucoes antes de alugar imovel
+- **Análise de crédito** — execuções cíveis indicam dívidas não pagas
+- **Cobrança** — verificar se o devedor já tem outras execuções em andamento
+- **Locação** — verificar histórico de execuções antes de alugar imóvel
 
 ## Exemplo de resposta
 
@@ -25,9 +25,9 @@ curl "https://221b-api.sherlocker.com.br/api/v1/processos/cpf/{cpf}?categorias=e
     {
       "numero_formatado": "0007654-32.2022.8.19.0001",
       "tribunal": "tjrj",
-      "classe_nome": "Execucao de Titulo Extrajudicial",
+      "classe_nome": "Execução de Título Extrajudicial",
       "data_ajuizamento": "2022-06-10",
-      "orgao_julgador": "5a Vara Civel",
+      "orgao_julgador": "5ª Vara Cível",
       "assuntos": "Cheque",
       "partes": [
         { "nome": "Banco Xyz S.A.", "polo": "ativo" },

@@ -4,31 +4,31 @@ description: "Processos judiciais em todos os tribunais do Brasil"
 icon: "scale-balanced"
 ---
 
-O **Perfil Juridico** permite consultar processos judiciais de pessoas fisicas e juridicas em todos os tribunais do Brasil.
+O **Perfil Jurídico** permite consultar processos judiciais de pessoas físicas e jurídicas em todos os tribunais do Brasil.
 
 ## Entidades
 
 <CardGroup cols={2}>
   <Card title="Processo" icon="gavel" href="/entidades/processo">
-    Processos em multiplos tribunais — classe, partes, advogados, movimentacoes
+    Processos em múltiplos tribunais — classe, partes, advogados, movimentações
   </Card>
 </CardGroup>
 
-## O que voce consegue fazer
+## O que você consegue fazer
 
 - **Verificar processos** de uma pessoa ou empresa por CPF ou CNPJ
-- **Segmentar por categoria** — civel, criminal, trabalhista, execucao, falencia, recuperacao judicial
-- **Consultar detalhes** — partes envolvidas, advogados, movimentacoes, orgao julgador
-- **Buscar por numero** — consulta direta de um processo especifico
+- **Segmentar por categoria** — cível, criminal, trabalhista, execução, falência, recuperação judicial
+- **Consultar detalhes** — partes envolvidas, advogados, movimentações, órgão julgador
+- **Buscar por número** — consulta direta de um processo específico
 
 ## Indicadores de risco
 
 | Sinal | Indica |
 |-------|--------|
-| Muitos processos como reu | Risco juridico elevado |
-| Execucoes fiscais | Inadimplencia tributaria |
-| Falencia / Recuperacao judicial | Risco de credito severo |
-| Reclamacoes trabalhistas | Problemas de gestao |
+| Muitos processos como réu | Risco jurídico elevado |
+| Execuções fiscais | Inadimplência tributária |
+| Falência / Recuperação judicial | Risco de crédito severo |
+| Reclamações trabalhistas | Problemas de gestão |
 
 ## Filtrar por categoria
 
@@ -39,26 +39,26 @@ curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/{cnpj}?categorias
 ```
 
 <CardGroup cols={3}>
-  <Card title="Recuperacao Judicial" icon="building-circle-exclamation" href="/categorias/recuperacao-judicial">
-    Empresas em recuperacao
+  <Card title="Recuperação Judicial" icon="building-circle-exclamation" href="/categorias/recuperacao-judicial">
+    Empresas em recuperação
   </Card>
-  <Card title="Falencia" icon="building-circle-xmark" href="/categorias/falencia">
-    Falencias e insolvencia
+  <Card title="Falência" icon="building-circle-xmark" href="/categorias/falencia">
+    Falências e insolvência
   </Card>
-  <Card title="Execucao Fiscal" icon="landmark" href="/categorias/execucao-fiscal">
-    Dividas tributarias
+  <Card title="Execução Fiscal" icon="landmark" href="/categorias/execucao-fiscal">
+    Dívidas tributárias
   </Card>
   <Card title="Trabalhista" icon="briefcase" href="/categorias/trabalhista">
-    Reclamacoes trabalhistas
+    Reclamações trabalhistas
   </Card>
   <Card title="Criminal" icon="handcuffs" href="/categorias/criminal">
-    Acoes penais
+    Ações penais
   </Card>
-  <Card title="Familia" icon="people-roof" href="/categorias/familia-sucessoes">
-    Divorcios, inventarios
+  <Card title="Família" icon="people-roof" href="/categorias/familia-sucessoes">
+    Divórcios, inventários
   </Card>
 </CardGroup>
 
 <Tip>
-  Acesse a tab **Juridico** para ver todos os endpoints e categorias disponiveis.
+  Acesse a tab **Jurídico** para ver todos os endpoints e categorias disponíveis.
 </Tip>
