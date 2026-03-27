@@ -104,7 +104,6 @@
             "pages": [
               "GET /empresas/cnpj/{cnpj}",
               "GET /empresas/cnpj/{cnpj}/funcionarios",
-              "GET /empresas/cnpj/{cnpj}/dividas",
               "GET /empresas/cnpj/{cnpj}/beneficios",
               "GET /empresas/codigos"
             ]
