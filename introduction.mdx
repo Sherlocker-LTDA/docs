@@ -8,39 +8,27 @@ Plataforma de inteligencia investigativa que conecta dados de pessoas, empresas,
 
 ## Tipos de entidade
 
-Os dados do Sherlocker sao organizados em **6 categorias**. Cada categoria agrupa entidades do mesmo dominio:
+Os dados do Sherlocker sao organizados em **3 categorias**. Cada categoria agrupa entidades do mesmo dominio:
 
 ```mermaid
 graph LR
     CAD["👤 Cadastral"]
     PAT["🏠 Patrimonial"]
     JUR["⚖️ Juridico"]
-    FIN["💰 Financeiro"]
-    COM["🌐 Comportamental"]
-    CRE["💳 Credito"]
 
     CAD --> PAT
     CAD --> JUR
-    CAD --> FIN
-    CAD --> COM
-    FIN --> CRE
 
     style CAD fill:#6C63FF33,stroke:#6C63FF,color:#ccc
     style PAT fill:#4CAF5033,stroke:#4CAF50,color:#ccc
     style JUR fill:#FF980033,stroke:#FF9800,color:#ccc
-    style FIN fill:#FF6B6B33,stroke:#FF6B6B,color:#ccc
-    style COM fill:#00BCD433,stroke:#00BCD4,color:#ccc
-    style CRE fill:#E91E6333,stroke:#E91E63,color:#ccc
 ```
 
 | Categoria | Entidades | Identificadores |
 |-----------|-----------|----------------|
-| **Cadastral** | Pessoa, Empresa, Telefone, Email, Endereco | CPF, CNPJ |
+| **Cadastral** | Pessoa, Empresa, Telefone, Email, Endereco, Divida, Beneficio Social, Nota Fiscal | CPF, CNPJ, Chave NF-e |
 | **Patrimonial** | Propriedade Urbana, Propriedade Rural, Veiculo, Aeronave, Patente | CPF, CNPJ, Placa, NIRF |
 | **Juridico** | Processo | CPF, CNPJ, Numero CNJ |
-| **Financeiro** | Divida, Beneficio Social, Nota Fiscal | CPF, CNPJ, Chave NF-e |
-| **Comportamental** | Registro Digital, Registro Comercial | Email, CPF |
-| **Credito** | Operacao de Analise, Engine de Regras | CNPJ, UUID |
 
 ## Entidades
 
@@ -63,6 +51,15 @@ Cada entidade representa um tipo de registro com sua propria estrutura. Clique p
   </Card>
   <Card title="Endereco" icon="location-dot" href="/entidades/endereco">
     Logradouro, cidade, CEP
+  </Card>
+  <Card title="Divida" icon="file-invoice-dollar" href="/entidades/divida">
+    Divida Ativa, FGTS
+  </Card>
+  <Card title="Beneficio" icon="hand-holding-dollar" href="/entidades/beneficio">
+    Auxilio Brasil, BPC
+  </Card>
+  <Card title="Nota Fiscal" icon="file-invoice" href="/entidades/nfe">
+    NF-e por chave de acesso
   </Card>
 </CardGroup>
 
@@ -97,41 +94,6 @@ Cada entidade representa um tipo de registro com sua propria estrutura. Clique p
   </Card>
 </CardGroup>
 
-### Financeiras
-
-<CardGroup cols={3}>
-  <Card title="Divida" icon="file-invoice-dollar" href="/entidades/divida">
-    Divida Ativa, FGTS
-  </Card>
-  <Card title="Beneficio" icon="hand-holding-dollar" href="/entidades/beneficio">
-    Auxilio Brasil, BPC
-  </Card>
-  <Card title="Nota Fiscal" icon="file-invoice" href="/entidades/nfe">
-    NF-e por chave de acesso
-  </Card>
-</CardGroup>
-
-### Comportamentais
-
-<CardGroup cols={2}>
-  <Card title="Registro Digital" icon="globe" href="/entidades/registro-digital">
-    Contas em plataformas online
-  </Card>
-  <Card title="Registro Comercial" icon="store" href="/entidades/registro-comercial">
-    Cadastros em lojas e farmacias
-  </Card>
-</CardGroup>
-
-### Credito
-
-<CardGroup cols={2}>
-  <Card title="Operacao de Credito" icon="file-circle-check" href="/entidades/operacao-credito">
-    Analise CNAB 400 com regras
-  </Card>
-  <Card title="Engine de Regras" icon="gears" href="/entidades/engine-credito">
-    Motores configuraveis
-  </Card>
-</CardGroup>
 
 ## Perfis agregados
 
@@ -146,15 +108,6 @@ Os **perfis** sao endpoints que combinam multiplas entidades de uma categoria em
   </Card>
   <Card title="Perfil Juridico" icon="scale-balanced" href="/areas/juridico">
     `GET /perfil/juridico/cpf/{cpf}` — processos + regularidade
-  </Card>
-  <Card title="Perfil Financeiro" icon="coins" href="/areas/financeiro">
-    `GET /perfil/financeiro/cpf/{cpf}` — dividas + beneficios
-  </Card>
-  <Card title="Perfil Comportamental" icon="fingerprint" href="/areas/comportamento">
-    `GET /registro/email/{email}` — registros digitais e comerciais
-  </Card>
-  <Card title="Sherlocker Credito" icon="credit-card" href="/areas/credito">
-    `POST /credito/operacoes` — analise de credito para FIDCs
   </Card>
 </CardGroup>
 
@@ -246,4 +199,4 @@ Consulte [Autenticacao](/authentication) para configurar seu token.
   </Step>
 </Steps>
 
-A collection esta organizada em 6 pastas: Perfis Agregados, Cadastro, Patrimonio, Juridico, Financeiro e Comportamento.
+A collection esta organizada em 4 pastas: Perfis Agregados, Cadastro, Patrimonio e Juridico.

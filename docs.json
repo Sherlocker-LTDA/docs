@@ -85,7 +85,8 @@
               "entidades/email",
               "entidades/endereco",
               "entidades/divida",
-              "entidades/beneficio"
+              "entidades/beneficio",
+              "entidades/nfe"
             ]
           },
           {
@@ -141,6 +142,11 @@
             "group": "Benefícios Sociais",
             "openapi": "/openapi/beneficios.json",
             "pages": ["GET /beneficios/cpf/{cpf}", "GET /beneficios/cnpj/{cnpj}"]
+          },
+          {
+            "group": "Notas Fiscais",
+            "openapi": "/openapi/nfe.json",
+            "pages": ["GET /nfe/chave/{chave}"]
           },
           {
             "group": "Licitações",
