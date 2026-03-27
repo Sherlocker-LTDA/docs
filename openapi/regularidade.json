@@ -24,8 +24,136 @@
       }
     },
     "schemas": {
-      "CheckerResult": {
+      "IbamaItem": {
         "type": "object",
+        "properties": {
+          "seq_tad": {
+            "type": "string",
+            "description": "Número do TAD"
+          },
+          "nome_embargado": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "municipio": {
+            "type": "string"
+          },
+          "data_embargo": {
+            "type": "string",
+            "description": "Data ISO (YYYY-MM-DD)"
+          },
+          "area_embargada": {
+            "type": "number",
+            "description": "Área em hectares"
+          },
+          "bioma": {
+            "type": "string"
+          },
+          "auto_infracao": {
+            "type": "string"
+          },
+          "descricao": {
+            "type": "string"
+          }
+        }
+      },
+      "BancoCentralItem": {
+        "type": "object",
+        "properties": {
+          "pas": {
+            "type": "string",
+            "description": "Número do PAS"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "cpf_masked": {
+            "type": "string",
+            "description": "CPF parcialmente mascarado"
+          },
+          "penalidade": {
+            "type": "string"
+          },
+          "prazo_anos": {
+            "type": "number"
+          },
+          "inicio_cumprimento": {
+            "type": "string",
+            "description": "Data ISO"
+          },
+          "prazo_final": {
+            "type": "string",
+            "description": "Data ISO"
+          }
+        }
+      },
+      "SancaoInternacionalItem": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "Fonte (OFAC, EU, UN, etc.)"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "description": "Individual ou Entity"
+          },
+          "programs": {
+            "type": "string"
+          },
+          "remarks": {
+            "type": "string"
+          }
+        }
+      },
+      "TrabalhoEscravoItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "ano_acao_fiscal": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "empregador_documento": {
+            "type": "string",
+            "description": "CNPJ formatado do empregador"
+          },
+          "empregador_nome": {
+            "type": "string"
+          },
+          "estabelecimento": {
+            "type": "string"
+          },
+          "trabalhadores_envolvidos": {
+            "type": "number"
+          },
+          "cnae": {
+            "type": "string"
+          },
+          "decisao_administrativa": {
+            "type": "string",
+            "description": "Data ISO"
+          },
+          "inclusao_cadastro": {
+            "type": "string",
+            "description": "Data ISO"
+          }
+        }
+      },
+      "ModuleResult": {
+        "type": "object",
+        "required": [
+          "found"
+        ],
         "properties": {
           "found": {
             "type": "boolean",
@@ -33,35 +161,11 @@
           },
           "data": {
             "type": "array",
-            "description": "Dados do módulo (presente apenas quando found=true)"
+            "description": "Dados do módulo (presente quando found=true)"
           },
           "error": {
             "type": "string",
-            "description": "Mensagem de erro (presente apenas quando a consulta falhou)"
-          }
-        },
-        "required": [
-          "found"
-        ]
-      },
-      "RegularidadeResponse": {
-        "type": "object",
-        "description": "Cada chave corresponde a um modulo consultado",
-        "properties": {
-          "ibama": {
-            "$ref": "#/components/schemas/CheckerResult"
-          },
-          "sancao-nacional": {
-            "$ref": "#/components/schemas/CheckerResult"
-          },
-          "banco-central": {
-            "$ref": "#/components/schemas/CheckerResult"
-          },
-          "sancao-internacional": {
-            "$ref": "#/components/schemas/CheckerResult"
-          },
-          "trabalho-escravo": {
-            "$ref": "#/components/schemas/CheckerResult"
+            "description": "Mensagem de erro (presente quando a consulta falhou)"
           }
         }
       },
@@ -77,15 +181,49 @@
             "properties": {
               "codigo": {
                 "type": "string",
-                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
                 "example": "VALIDATION_ERROR"
               },
               "mensagem": {
                 "type": "string",
-                "description": "Mensagem descritiva do erro",
                 "example": "CPF invalido"
               }
             }
+          }
+        }
+      },
+      "RegularidadeCpfResponse": {
+        "type": "object",
+        "description": "Módulos disponíveis para CPF",
+        "properties": {
+          "ibama": {
+            "$ref": "#/components/schemas/ModuleResult"
+          },
+          "sancao-nacional": {
+            "$ref": "#/components/schemas/ModuleResult"
+          },
+          "banco-central": {
+            "$ref": "#/components/schemas/ModuleResult"
+          },
+          "sancao-internacional": {
+            "$ref": "#/components/schemas/ModuleResult"
+          }
+        }
+      },
+      "RegularidadeCnpjResponse": {
+        "type": "object",
+        "description": "Módulos disponíveis para CNPJ",
+        "properties": {
+          "ibama": {
+            "$ref": "#/components/schemas/ModuleResult"
+          },
+          "sancao-nacional": {
+            "$ref": "#/components/schemas/ModuleResult"
+          },
+          "sancao-internacional": {
+            "$ref": "#/components/schemas/ModuleResult"
+          },
+          "trabalho-escravo": {
+            "$ref": "#/components/schemas/ModuleResult"
           }
         }
       }
@@ -115,7 +253,7 @@
             "name": "modulos",
             "in": "query",
             "required": false,
-            "description": "Módulos a consultar separados por vírgula. Opções: ibama, sancao-nacional, banco-central, sancao-internacional, trabalho-escravo. Se omitido, consulta todos.",
+            "description": "Módulos a consultar separados por vírgula. Opções: ibama, sancao-nacional, banco-central, sancao-internacional. Se omitido, consulta todos.",
             "schema": {
               "type": "string",
               "example": "ibama,protestos"
@@ -137,7 +275,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RegularidadeResponse"
+                  "$ref": "#/components/schemas/RegularidadeCpfResponse"
                 },
                 "example": {
                   "ibama": {
@@ -184,9 +322,6 @@
                     ]
                   },
                   "sancao-internacional": {
-                    "found": false
-                  },
-                  "trabalho-escravo": {
                     "found": false
                   }
                 }
@@ -251,7 +386,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RegularidadeResponse"
+                  "$ref": "#/components/schemas/RegularidadeCnpjResponse"
                 },
                 "example": {
                   "ibama": {
