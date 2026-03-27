@@ -1,0 +1,218 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Licitacoes API",
+    "description": "Consulta de licitacoes e contratos publicos",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": false },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": { "type": "string", "example": "VALIDATION_ERROR" },
+              "mensagem": { "type": "string", "example": "CPF invalido" }
+            }
+          }
+        }
+      },
+      "LicitacaoItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "description": "ID interno da licitacao" },
+          "codigo": { "type": "string", "description": "Codigo do item" },
+          "descricao": { "type": "string", "description": "Descricao do item" },
+          "quantidade": { "type": "number", "description": "Quantidade" },
+          "valor_total": { "type": "number", "description": "Valor total em reais" },
+          "decreto7174": { "type": "boolean" },
+          "exclusivoMEEPP": { "type": "boolean", "description": "Exclusivo para ME/EPP" }
+        }
+      },
+      "LicitacaoParticipante": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "documento": { "type": "string", "description": "CPF ou CNPJ do participante" },
+          "nome": { "type": "string", "description": "Nome ou razao social" },
+          "tipo": { "type": "string", "enum": ["PF", "PJ"], "description": "Tipo de pessoa" },
+          "totalLicitacoes": { "type": "number", "description": "Total de licitacoes do participante" }
+        }
+      },
+      "Licitacao": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "id_licitacao": { "type": "string", "description": "Numero da licitacao no sistema de origem" },
+          "id_pregao": { "type": "string", "description": "Numero do pregao" },
+          "id_uasg": { "type": "string", "description": "Codigo UASG do orgao" },
+          "titulo": { "type": "string", "description": "Titulo do edital" },
+          "descricao": { "type": "string", "description": "Descricao do objeto da licitacao" },
+          "fonte": { "type": "string", "example": "PNCP", "description": "Fonte dos dados" },
+          "modalidade": { "type": "string", "example": "Pregao Eletronico", "description": "Modalidade de contratacao" },
+          "tipo_disputa": { "type": "string", "example": "Aberto", "description": "Tipo de disputa" },
+          "data_publicacao": { "type": "string", "format": "date", "description": "Data de publicacao" },
+          "data_inicio": { "type": "string", "format": "date", "description": "Data de inicio da vigencia" },
+          "data_fim": { "type": "string", "format": "date", "description": "Data de fim da vigencia" },
+          "uf": { "type": "string", "example": "SP", "description": "UF do orgao" },
+          "local": { "type": "string", "example": "Sao Paulo", "description": "Municipio do orgao" },
+          "exclusivoMEEPP": { "type": "boolean", "description": "Exclusivo para ME/EPP" },
+          "items": {
+            "type": "array",
+            "description": "Itens da licitacao",
+            "items": { "$ref": "#/components/schemas/LicitacaoItem" }
+          },
+          "participantes": {
+            "type": "array",
+            "description": "Todos os participantes da licitacao",
+            "items": { "$ref": "#/components/schemas/LicitacaoParticipante" }
+          }
+        }
+      },
+      "LicitacoesResponse": {
+        "type": "object",
+        "properties": {
+          "documento": { "type": "string", "description": "Documento consultado" },
+          "total": { "type": "number", "description": "Total de licitacoes encontradas" },
+          "licitacoes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Licitacao" }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/licitacoes/cpf/{cpf}": {
+      "get": {
+        "operationId": "getLicitacoesByCpf",
+        "summary": "Licitacoes por CPF",
+        "description": "Busca todas as licitacoes publicas em que o CPF participou. Retorna dados completos de cada licitacao incluindo itens e demais participantes.",
+        "tags": ["Licitacoes"],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "example": "03916718630" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Licitacoes encontradas",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LicitacoesResponse" },
+                "example": {
+                  "documento": "03916718630",
+                  "total": 2,
+                  "licitacoes": [
+                    {
+                      "id": "d6fcd05b-a94a-45ff-a1d2-91bde34ff84a",
+                      "id_licitacao": "0759868300017010000012026",
+                      "id_pregao": "",
+                      "id_uasg": "2",
+                      "titulo": "Edital de Chamamento Publico no 2102.001-2025/2026",
+                      "descricao": "CREDENCIAMENTO DE LEILOEIROS OFICIAIS PARA A REALIZACAO DE LEILOES DESTINADOS A ALIENACAO DE BENS MOVEIS DA PREFEITURA MUNICIPAL DE MERUOCA/CE.",
+                      "fonte": "PNCP",
+                      "modalidade": "Credenciamento",
+                      "tipo_disputa": "Aberto",
+                      "data_publicacao": "2025-04-02",
+                      "data_inicio": "2025-04-02",
+                      "data_fim": "2026-04-02",
+                      "uf": "CE",
+                      "local": "Meruoca",
+                      "exclusivoMEEPP": false,
+                      "items": [
+                        {
+                          "id": "b4dddacb-fdeb-43ea-8595-c6708881fa7b",
+                          "codigo": "1",
+                          "descricao": "CREDENCIAMENTO DE LEILOEIROS OFICIAIS PARA A REALIZACAO DE LEILOES DESTINADOS A ALIENACAO DE BENS MOVEIS DA PREFEITURA MUNICIPAL DE MERUOCA/CE",
+                          "quantidade": 1,
+                          "valor_total": 100,
+                          "decreto7174": false,
+                          "exclusivoMEEPP": false
+                        }
+                      ],
+                      "participantes": [
+                        {
+                          "id": "22bda7e1-a742-4ea4-ae94-0ee84c61a166",
+                          "documento": "03916718630",
+                          "nome": "FERNANDO CAETANO MOREIRA FILHO",
+                          "tipo": "PF",
+                          "totalLicitacoes": 47
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          }
+        }
+      }
+    },
+    "/licitacoes/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getLicitacoesByCnpj",
+        "summary": "Licitacoes por CNPJ",
+        "description": "Busca todas as licitacoes publicas em que o CNPJ participou. Retorna dados completos de cada licitacao incluindo itens e demais participantes.",
+        "tags": ["Licitacoes"],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "example": "12345678000199" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Licitacoes encontradas",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LicitacoesResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } }
+          }
+        }
+      }
+    }
+  }
+}

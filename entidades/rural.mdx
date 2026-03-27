@@ -1,0 +1,133 @@
+---
+title: "Rural"
+description: "Propriedades rurais, fiscalizacao ambiental e transporte florestal"
+icon: "tractor"
+---
+
+O modulo **Rural** do Sherlocker agrega dados de propriedades rurais, fiscalizacao ambiental e transporte de produtos florestais a partir de multiplas fontes federais.
+
+## Pontos de entrada
+
+| Dado disponivel | Endpoint | Resultado |
+|----------------|----------|-----------|
+| CPF | `GET /rural/cpf/{cpf}` | Perfil rural completo |
+| CNPJ | `GET /rural/cnpj/{cnpj}` | Perfil rural da empresa |
+| Codigo SNCR | `GET /rural/imovel/{codigo}` | Imovel rural por codigo |
+| Codigo IBGE | `GET /rural/municipio/{codIbge}` | Imoveis por municipio |
+| NIRF | `GET /rural/cafir/{nirf}` | Imovel CAFIR por NIRF |
+
+<Tip>
+  Na rota principal de pessoa (`GET /pessoas/cpf/{cpf}`), o campo `rural` ja vem incluido com o perfil completo. Use `/rural/cpf/{cpf}` quando precisar apenas dos dados rurais.
+</Tip>
+
+## Fontes de dados
+
+### SNCR — Sistema Nacional de Cadastro Rural (INCRA)
+
+Cadastro oficial de imoveis rurais do Brasil.
+
+| Campo | Descricao |
+|-------|-----------|
+| `codigo_imovel` | Codigo unico do imovel no SNCR |
+| `nome_imovel` | Nome da propriedade |
+| `municipio` / `uf` | Localizacao |
+| `area_total` | Area total em hectares |
+| `modulos_fiscais` | Quantidade de modulos fiscais |
+| `nome_detentor` | Nome do proprietario/detentor |
+| `cpf_cnpj` | Documento do detentor |
+| `fracao` | Percentual de participacao (%) |
+| `condicao_detentor` | Proprietario, arrendatario, etc. |
+
+### CAFIR — Cadastro Fiscal de Imoveis Rurais (Receita Federal)
+
+Cadastro tributario vinculado ao ITR (Imposto Territorial Rural).
+
+| Campo | Descricao |
+|-------|-----------|
+| `nirf` | Numero do Imovel na Receita Federal |
+| `area_total` | Area total em hectares |
+| `situacao` | Ativo, cancelado, etc. |
+| `imune_isento` | Se e imune ou isento de ITR |
+| `codigo_sncr` | Vinculo com o SNCR |
+
+### Fiscalizacao ambiental (IBAMA)
+
+Autos de infracao, multas e embargos ambientais.
+
+| Campo | Descricao |
+|-------|-----------|
+| `numero_auto` | Numero do auto de infracao |
+| `tipo_auto` | Tipo (embargo, multa, apreensao) |
+| `descricao_dano` | Descricao do dano ambiental |
+| `area_embargada` | Area embargada em hectares |
+| `valor_multa` | Valor da multa (R$) |
+| `situacao_debito` | Pago, em cobranca, etc. |
+
+### DOF — Transporte Florestal
+
+Guias de transporte de produtos florestais (madeira, carvao, etc.).
+
+| Campo | Descricao |
+|-------|-----------|
+| `produto` | Tipo de produto florestal |
+| `volume` | Volume transportado |
+| `valor_total` | Valor total da operacao |
+| `remetente` / `destinatario` | Partes envolvidas |
+
+### Produtores organicos
+
+Cadastro nacional de produtores organicos.
+
+| Campo | Descricao |
+|-------|-----------|
+| `nome_produtor` | Nome do produtor |
+| `escopo` | Escopo da certificacao |
+| `atividade` | Tipo de atividade |
+| `situacao` | Status da certificacao |
+
+## Perfil rural completo
+
+A rota `GET /rural/cpf/{cpf}` retorna um perfil agregado com:
+
+- **Propriedades SNCR** — todos os imoveis rurais vinculados
+- **Propriedades CAFIR** — cadastro fiscal vinculado aos codigos SNCR
+- **Transportes** — resumo de operacoes florestais com volume, valor e parceiros
+- **Autorizacoes** — autorizacoes de exploracao florestal (AUTEX)
+- **Infracoes** — autos de infracao do IBAMA
+- **Produtor organico** — certificacoes ativas
+- **Resumo** — area total, quantidade de imoveis, valor total de multas, estados
+
+## Exemplo de uso
+
+```python
+import requests
+
+BASE = "https://221b-api.sherlocker.com.br/api/v1"
+
+# Perfil rural completo
+rural = requests.get(f"{BASE}/rural/cpf/12345678901", params={"token": TOKEN}).json()
+
+resumo = rural.get("rural", {}).get("resumo", {})
+print(f"Area total: {resumo.get('area_total_ha', 0)} ha")
+print(f"Imoveis SNCR: {resumo.get('qtd_imoveis_sncr', 0)}")
+print(f"Infracoes IBAMA: {resumo.get('qtd_infracoes', 0)}")
+print(f"Multas: R$ {resumo.get('valor_total_multas', 0):,.2f}")
+
+# Busca por municipio
+imoveis = requests.get(f"{BASE}/rural/municipio/3106200", params={"token": TOKEN}).json()
+```
+
+<CardGroup cols={2}>
+  <Card title="Por CPF" icon="user" href="/api-reference/rural/perfil-rural-por-cpf">
+    Perfil rural completo
+  </Card>
+  <Card title="Por CNPJ" icon="building" href="/api-reference/rural/perfil-rural-por-cnpj">
+    Perfil rural da empresa
+  </Card>
+  <Card title="Por municipio" icon="map" href="/api-reference/rural/imoveis-por-municipio">
+    Imoveis rurais do municipio
+  </Card>
+  <Card title="Fiscalizacao" icon="shield" href="/api-reference/rural/fiscalizacao-ambiental">
+    Infracoes IBAMA
+  </Card>
+</CardGroup>

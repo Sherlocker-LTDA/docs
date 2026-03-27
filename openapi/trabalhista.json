@@ -1,0 +1,160 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Trabalhista API",
+    "description": "Verificacao de irregularidades trabalhistas: PAT (Programa de Alimentacao do Trabalhador) e lista de trabalho escravo, por CNPJ.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "CheckerResult": {
+        "type": "object",
+        "properties": {
+          "found": {
+            "type": "boolean",
+            "description": "Se foram encontrados registros"
+          },
+          "data": {
+            "description": "Dados especificos do modulo"
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "TrabalhistaResponse": {
+        "type": "object",
+        "properties": {
+          "pat": {
+            "$ref": "#/components/schemas/CheckerResult",
+            "description": "Programa de Alimentacao do Trabalhador"
+          },
+          "trabalho_escravo": {
+            "$ref": "#/components/schemas/CheckerResult",
+            "description": "Lista suja do trabalho escravo"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/trabalhista/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getTrabalhistaByCnpj",
+        "summary": "Irregularidades trabalhistas de uma empresa",
+        "description": "Verifica se a empresa consta no PAT e na lista de trabalho escravo do Ministerio do Trabalho.",
+        "tags": [
+          "Trabalhista"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (com ou sem formatacao)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado da consulta",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrabalhistaResponse"
+                },
+                "example": {
+                  "pat": {
+                    "found": true,
+                    "data": {
+                      "beneficiarias": [
+                        {
+                          "programa": "PAT",
+                          "cnpj": "12345678000199",
+                          "razao_social": "Silva Comércio LTDA",
+                          "data_inclusao": "2020-01-15"
+                        }
+                      ],
+                      "facilitadoras": [],
+                      "fornecedoras": []
+                    },
+                    "error": null
+                  },
+                  "trabalho_escravo": {
+                    "found": false,
+                    "data": null,
+                    "error": null
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

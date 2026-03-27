@@ -1,0 +1,2949 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Pessoas API",
+    "description": "Perfil completo de uma pessoa: identidade, localizacao, contatos, rede familiar, beneficios, dividas, patrimonio, processos e historico profissional. Ponto de entrada principal para investigacoes a partir de CPF ou telefone.",
+    "version": "2.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      },
+      "Endereco": {
+        "type": "object",
+        "properties": {
+          "logradouro": {
+            "type": "string"
+          },
+          "numero": {
+            "type": "string"
+          },
+          "complemento": {
+            "type": "string"
+          },
+          "bairro": {
+            "type": "string"
+          },
+          "cidade": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "cep": {
+            "type": "string"
+          }
+        }
+      },
+      "Telefone": {
+        "type": "object",
+        "properties": {
+          "ddi": {
+            "type": "string"
+          },
+          "ddd": {
+            "type": "string"
+          },
+          "numero": {
+            "type": "string"
+          },
+          "numero_completo": {
+            "type": "string"
+          },
+          "estado": {
+            "type": "string"
+          },
+          "operadora": {
+            "type": "string"
+          },
+          "tem_whatsapp": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Email": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "dominio": {
+            "type": "string"
+          },
+          "corporativo": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Parente": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "cpf": {
+            "type": "string"
+          },
+          "vinculo_codigo": {
+            "type": "string",
+            "description": "Codigo do vinculo familiar (ex: 01)"
+          },
+          "vinculo_nome": {
+            "type": "string",
+            "description": "Descricao do vinculo (Conjuge, Pai, Mae, Filho, etc)"
+          }
+        }
+      },
+      "Empresa": {
+        "type": "object",
+        "properties": {
+          "cnpj": {
+            "type": "string"
+          },
+          "razao_social": {
+            "type": "string"
+          },
+          "nome_fantasia": {
+            "type": "string"
+          }
+        }
+      },
+      "Beneficios": {
+        "type": "object",
+        "properties": {
+          "auxilio_brasil": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "bolsa_familia": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "auxilio_emergencial": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "bpc": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "Veiculo": {
+        "type": "object",
+        "properties": {
+          "placa": {
+            "type": "string",
+            "description": "Placa atual do veiculo"
+          },
+          "placa_antiga": {
+            "type": "string",
+            "description": "Placa formato antigo (ABC-1234)"
+          },
+          "chassi": {
+            "type": "string"
+          },
+          "renavam": {
+            "type": "string"
+          },
+          "marca": {
+            "type": "string"
+          },
+          "modelo": {
+            "type": "string"
+          },
+          "ano_fabricacao": {
+            "type": "integer"
+          },
+          "ano_modelo": {
+            "type": "integer"
+          },
+          "cor": {
+            "type": "string"
+          },
+          "combustivel": {
+            "type": "string"
+          },
+          "municipio": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "tipo_veiculo": {
+            "type": "string",
+            "description": "Automovel, Motocicleta, Caminhao, etc"
+          },
+          "especie_veiculo": {
+            "type": "string",
+            "description": "Passageiro, Carga, Misto, etc"
+          },
+          "situacao_veiculo": {
+            "type": "string",
+            "description": "Circulacao, Baixado, Roubado, etc"
+          },
+          "potencia": {
+            "type": "string"
+          },
+          "cilindradas": {
+            "type": "string"
+          },
+          "restricoes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Lista de restricoes do veiculo (ex: Alienacao Fiduciaria)"
+          }
+        }
+      },
+      "Parte": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "documento": {
+            "type": "string",
+            "description": "CPF ou CNPJ da parte"
+          },
+          "polo": {
+            "type": "string",
+            "description": "Autor, Reu, Terceiro, etc"
+          },
+          "tipo": {
+            "type": "string",
+            "description": "Fisica ou Juridica"
+          }
+        }
+      },
+      "Advogado": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "oab": {
+            "type": "string",
+            "description": "Numero OAB (ex: SP123456)"
+          }
+        }
+      },
+      "Processo": {
+        "type": "object",
+        "properties": {
+          "numero_processo": {
+            "type": "string"
+          },
+          "tribunal": {
+            "type": "string"
+          },
+          "classe_codigo": {
+            "type": "integer"
+          },
+          "classe_nome": {
+            "type": "string"
+          },
+          "grau": {
+            "type": "string"
+          },
+          "data_ajuizamento": {
+            "type": "string"
+          },
+          "orgao_julgador": {
+            "type": "string"
+          },
+          "assuntos": {
+            "type": "string"
+          },
+          "partes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Parte"
+            }
+          },
+          "advogados": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Advogado"
+            }
+          }
+        }
+      },
+      "Aeronaves": {
+        "type": "object",
+        "properties": {
+          "avioes": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "drones": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "Patente": {
+        "type": "object",
+        "properties": {
+          "numero_inpi": {
+            "type": "string"
+          },
+          "titulo": {
+            "type": "string"
+          },
+          "natureza": {
+            "type": "string"
+          },
+          "data_deposito": {
+            "type": "string"
+          },
+          "data_publicacao": {
+            "type": "string"
+          }
+        }
+      },
+      "Emprego": {
+        "type": "object",
+        "properties": {
+          "cnpj_empregador": {
+            "type": "string"
+          },
+          "nome_empregador": {
+            "type": "string"
+          },
+          "cargo": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "description": "ativo ou inativo"
+          },
+          "data_admissao": {
+            "type": "string"
+          },
+          "data_desligamento": {
+            "type": "string",
+            "nullable": true
+          },
+          "remuneracao": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "valor": {
+                "type": "number",
+                "nullable": true
+              },
+              "estimativa_minima": {
+                "type": "number",
+                "nullable": true
+              },
+              "estimativa_maxima": {
+                "type": "number",
+                "nullable": true
+              },
+              "faixa": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          },
+          "vinculo": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "nivel": {
+                "type": "string",
+                "nullable": true
+              },
+              "setor": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "codigo": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "descricao": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          },
+          "contatos": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "telefone": {
+                "$ref": "#/components/schemas/Telefone"
+              },
+              "email": {
+                "$ref": "#/components/schemas/Email"
+              }
+            }
+          }
+        }
+      },
+      "NomeResponse": {
+        "type": "object",
+        "properties": {
+          "cpf": {
+            "type": "string"
+          },
+          "nome_completo": {
+            "type": "string"
+          },
+          "data_nascimento": {
+            "type": "string"
+          },
+          "genero": {
+            "type": "string"
+          }
+        }
+      },
+      "PessoaCompletaResponse": {
+        "type": "object",
+        "properties": {
+          "cpf": {
+            "type": "string"
+          },
+          "nome_completo": {
+            "type": "string"
+          },
+          "genero": {
+            "type": "string"
+          },
+          "data_nascimento": {
+            "type": "string"
+          },
+          "enderecos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Endereco"
+            }
+          },
+          "telefones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Telefone"
+            }
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Email"
+            }
+          },
+          "parentes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Parente"
+            }
+          },
+          "empresas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Empresa"
+            }
+          },
+          "beneficios": {
+            "$ref": "#/components/schemas/Beneficios"
+          },
+          "dividas": {
+            "$ref": "#/components/schemas/DividasResponse"
+          },
+          "veiculos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Veiculo"
+            }
+          },
+          "imoveis": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "processos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Processo"
+            }
+          },
+          "aeronaves": {
+            "$ref": "#/components/schemas/Aeronaves"
+          },
+          "patentes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Patente"
+            }
+          },
+          "rural": {
+            "type": "object",
+            "nullable": true
+          },
+          "empregos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Emprego"
+            }
+          },
+          "bancos": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "perfis": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "dominios": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "TelefoneReversoResponse": {
+        "type": "object",
+        "properties": {
+          "resultados": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Telefone"
+            }
+          }
+        }
+      },
+      "HistoricoItem": {
+        "type": "object",
+        "properties": {
+          "situacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "valor": {
+            "type": "number",
+            "nullable": true
+          },
+          "data_inscricao": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "Divida": {
+        "type": "object",
+        "description": "Inscricao de divida federal agrupada por numero de inscricao",
+        "properties": {
+          "numero_inscricao": {
+            "type": "string",
+            "description": "Numero da inscricao na divida ativa"
+          },
+          "fonte": {
+            "type": "string",
+            "enum": [
+              "ativa_uniao",
+              "fgts",
+              "previdenciaria"
+            ],
+            "description": "Origem da divida"
+          },
+          "receita": {
+            "type": "string",
+            "nullable": true,
+            "description": "Tipo de tributo (IRPF, CSLL, FGTS, etc.)"
+          },
+          "ajuizado": {
+            "type": "boolean",
+            "description": "Se foi ajuizado judicialmente"
+          },
+          "data_inscricao": {
+            "type": "string",
+            "nullable": true,
+            "description": "Data da inscricao mais recente"
+          },
+          "valor_atual": {
+            "type": "number",
+            "nullable": true,
+            "description": "Valor consolidado mais recente em R$"
+          },
+          "uf": {
+            "type": "string",
+            "nullable": true,
+            "description": "UF do devedor"
+          },
+          "unidade_responsavel": {
+            "type": "string",
+            "nullable": true
+          },
+          "entidade_responsavel": {
+            "type": "string",
+            "nullable": true,
+            "description": "Somente FGTS"
+          },
+          "historico": {
+            "type": "array",
+            "description": "Historico de situacoes para o mesmo numero de inscricao",
+            "items": {
+              "type": "object",
+              "properties": {
+                "situacao": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "valor": {
+                  "type": "number",
+                  "nullable": true
+                },
+                "data_inscricao": {
+                  "type": "string",
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "DividasResponse": {
+        "type": "object",
+        "description": "Dividas federais agrupadas por numero de inscricao",
+        "properties": {
+          "documento": {
+            "type": "string",
+            "description": "CPF ou CNPJ consultado"
+          },
+          "nome": {
+            "type": "string",
+            "nullable": true,
+            "description": "Nome ou razao social do devedor"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total de inscricoes encontradas"
+          },
+          "valor_total": {
+            "type": "number",
+            "description": "Soma dos valores atuais em R$"
+          },
+          "ajuizado": {
+            "type": "boolean",
+            "description": "True se ao menos uma divida foi ajuizada"
+          },
+          "dividas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Divida"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/pessoas/cpf/{cpf}": {
+      "get": {
+        "operationId": "getPessoaByCpf",
+        "summary": "Informacoes basicas",
+        "description": "Retorna os dados basicos da pessoa: identidade, genero, data de nascimento e parentes.",
+        "tags": [
+          "Pessoas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos, com ou sem formatacao)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados basicos da pessoa com parentes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cpf": {
+                      "type": "string",
+                      "example": "12345678901"
+                    },
+                    "nome_completo": {
+                      "type": "string",
+                      "example": "João Silva de Oliveira"
+                    },
+                    "genero": {
+                      "type": "string",
+                      "example": "Masculino"
+                    },
+                    "data_nascimento": {
+                      "type": "string",
+                      "example": "15/01/1990"
+                    },
+                    "parentes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "nome": {
+                            "type": "string",
+                            "example": "Maria Silva"
+                          },
+                          "cpf": {
+                            "type": "string",
+                            "example": "98765432100"
+                          },
+                          "vinculo_codigo": {
+                            "type": "string",
+                            "example": "01"
+                          },
+                          "vinculo_nome": {
+                            "type": "string",
+                            "example": "Cônjuge"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "cpf": "12345678901",
+                  "nome_completo": "João Silva de Oliveira",
+                  "genero": "Masculino",
+                  "data_nascimento": "15/01/1990",
+                  "parentes": [
+                    {
+                      "nome": "Maria Silva",
+                      "cpf": "98765432100",
+                      "vinculo_codigo": "01",
+                      "vinculo_nome": "Cônjuge"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/cpf/{cpf}/nome": {
+      "get": {
+        "operationId": "getNomeByCpf",
+        "summary": "Nome e genero",
+        "description": "Retorna apenas nome completo, data de nascimento e genero. Ideal para validacao rapida de identidade sem carregar o perfil completo.",
+        "tags": [
+          "Pessoas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Nome e dados basicos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NomeResponse"
+                },
+                "example": {
+                  "cpf": "12345678901",
+                  "nome_completo": "João Silva de Oliveira",
+                  "data_nascimento": "15/01/1990",
+                  "genero": "Masculino"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/cpf/{cpf}/enderecos": {
+      "get": {
+        "operationId": "getEnderecosByCpf",
+        "summary": "Enderecos",
+        "description": "Retorna todos os enderecos associados ao CPF, revelando movimentacao geografica ao longo do tempo.",
+        "tags": [
+          "Pessoas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de enderecos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "enderecos": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Endereco"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "enderecos": [
+                    {
+                      "logradouro": "Rua das Flores",
+                      "numero": "123",
+                      "complemento": "Apto 10",
+                      "bairro": "Centro",
+                      "cidade": "São Paulo",
+                      "uf": "SP",
+                      "cep": "01310100"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/cpf/{cpf}/telefones": {
+      "get": {
+        "operationId": "getTelefonesByCpf",
+        "summary": "Telefones",
+        "description": "Retorna todos os telefones associados ao CPF com DDI, DDD, operadora e indicador de WhatsApp.",
+        "tags": [
+          "Pessoas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de telefones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "telefones": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Telefone"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "telefones": [
+                    {
+                      "ddi": "55",
+                      "ddd": "11",
+                      "numero": "999998888",
+                      "numero_completo": "5511999998888",
+                      "estado": "São Paulo",
+                      "operadora": "Vivo",
+                      "tem_whatsapp": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/cpf/{cpf}/emails": {
+      "get": {
+        "operationId": "getEmailsByCpf",
+        "summary": "Emails",
+        "description": "Retorna todos os emails associados ao CPF com dominio e indicador corporativo.",
+        "tags": [
+          "Pessoas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de emails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "emails": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Email"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "emails": [
+                    {
+                      "email": "joao@gmail.com",
+                      "dominio": "gmail.com",
+                      "corporativo": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/cpf/{cpf}/parentes": {
+      "get": {
+        "operationId": "getParentesByCpf",
+        "summary": "Parentes",
+        "description": "Retorna vinculos familiares: pais, conjuge, filhos e outros parentes com CPF. Essencial para expansao patrimonial — imoveis e veiculos podem estar em nome de familiares.",
+        "tags": [
+          "Pessoas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de parentes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "parentes": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Parente"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "parentes": [
+                    {
+                      "nome": "Maria Silva de Oliveira",
+                      "cpf": "98765432100",
+                      "vinculo_codigo": "01",
+                      "vinculo_nome": "Cônjuge"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/cpf/{cpf}/beneficios": {
+      "get": {
+        "operationId": "getBeneficiosByCpf",
+        "summary": "Beneficios sociais",
+        "description": "Retorna beneficios sociais recebidos: Auxilio Brasil, Bolsa Familia, Auxilio Emergencial e BPC (Beneficio de Prestacao Continuada).",
+        "tags": [
+          "Pessoas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Beneficios sociais",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Beneficios"
+                },
+                "example": {
+                  "auxilio_brasil": [
+                    {
+                      "competencia": "2023-01",
+                      "valor": 600.0,
+                      "parcela": 1
+                    }
+                  ],
+                  "bolsa_familia": [
+                    {
+                      "competencia": "2022-12",
+                      "valor": 400.0,
+                      "parcela": 1
+                    }
+                  ],
+                  "auxilio_emergencial": [
+                    {
+                      "competencia": "2020-04",
+                      "valor": 600.0,
+                      "parcela": 1
+                    }
+                  ],
+                  "bpc": [
+                    {
+                      "tipo": "Idoso",
+                      "valor": 1518.0,
+                      "data_inicio": "2020-01-15"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/cpf/{cpf}/dividas": {
+      "get": {
+        "operationId": "getDividasByCpf",
+        "summary": "Dividas federais",
+        "description": "Retorna dividas inscritas na Divida Ativa da Uniao, FGTS e Previdenciaria.",
+        "tags": [
+          "Pessoas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dividas federais",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DividasResponse"
+                },
+                "example": {
+                  "documento": "12345678901",
+                  "nome": "MARIA DA SILVA",
+                  "total": 2,
+                  "valor_total": 24150.5,
+                  "ajuizado": true,
+                  "dividas": [
+                    {
+                      "numero_inscricao": "80000000000001",
+                      "fonte": "ativa_uniao",
+                      "receita": "IRPF",
+                      "ajuizado": true,
+                      "data_inscricao": "2020-03-15",
+                      "valor_atual": 15420.5,
+                      "uf": "SP",
+                      "unidade_responsavel": "DRF CAMPINAS",
+                      "historico": [
+                        {
+                          "situacao": "Ativa Ajuizada",
+                          "valor": 15420.5,
+                          "data_inscricao": "2020-03-15"
+                        }
+                      ]
+                    },
+                    {
+                      "numero_inscricao": "80000000000002",
+                      "fonte": "fgts",
+                      "receita": "FGTS",
+                      "ajuizado": false,
+                      "data_inscricao": "2021-07-01",
+                      "valor_atual": 8730.0,
+                      "uf": "SP",
+                      "unidade_responsavel": "SRTE/SP",
+                      "entidade_responsavel": "CEF",
+                      "historico": [
+                        {
+                          "situacao": "Ativa",
+                          "valor": 8730.0,
+                          "data_inscricao": "2021-07-01"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/cpf/{cpf}/veiculos": {
+      "get": {
+        "operationId": "getVeiculosByCpf",
+        "summary": "Veiculos",
+        "description": "Retorna veiculos registrados em nome do CPF com placa, marca, modelo, ano, cor e situacao.",
+        "tags": [
+          "Pessoas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de veiculos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "veiculos": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Veiculo"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "veiculos": [
+                    {
+                      "placa": "ABC1D23",
+                      "placa_antiga": "ABC1234",
+                      "chassi": "9BWAG45N1YT123456",
+                      "renavam": "12345678901",
+                      "modelo": "FIAT/STRADA TREK CE",
+                      "marca": "FIAT",
+                      "ano_fabricacao": 2021,
+                      "ano_modelo": 2022,
+                      "cor": "Prata",
+                      "combustivel": "Flex",
+                      "municipio": "São Paulo",
+                      "uf": "SP",
+                      "tipo_veiculo": "Automóvel",
+                      "especie_veiculo": "Passageiro",
+                      "situacao_veiculo": "Circulação",
+                      "potencia": "130",
+                      "cilindradas": "1300",
+                      "restricoes": [
+                        "Alienação Fiduciária"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/cpf/{cpf}/imoveis": {
+      "get": {
+        "operationId": "getImoveisByCpf",
+        "summary": "Imoveis",
+        "description": "Retorna imoveis urbanos vinculados ao CPF.",
+        "tags": [
+          "Pessoas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de imoveis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "imoveis": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "imoveis": [
+                    {
+                      "inscricao": "031.044.0094-1",
+                      "fonte": "prefeitura_sp",
+                      "localizacao": {
+                        "logradouro": "Rua Propriedade",
+                        "numero": "456",
+                        "complemento": "",
+                        "bairro": "Vila Mariana",
+                        "cidade": "São Paulo",
+                        "uf": "SP",
+                        "cep": "04101000"
+                      },
+                      "terreno": {
+                        "area": 250.0
+                      },
+                      "propriedade": {
+                        "areaConstruida": 150.0,
+                        "anoConstrucao": 2005,
+                        "tipoImovel": "Residencial"
+                      },
+                      "proprietario": {
+                        "nome": "João Silva",
+                        "documento": "12345678901"
+                      },
+                      "valoracao": {
+                        "valorVenalIptu": 500000.0,
+                        "valorIptu": 2500.0
+                      },
+                      "fontes": [
+                        "IPTU São Paulo"
+                      ],
+                      "images": {
+                        "fachada": null,
+                        "satelite": null
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/cpf/{cpf}/processos": {
+      "get": {
+        "operationId": "getProcessosByCpf",
+        "summary": "Processos judiciais",
+        "description": "Retorna processos judiciais onde o CPF figura como parte (autor ou reu), com tribunal, classe e data de ajuizamento.",
+        "tags": [
+          "Pessoas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de processos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "processos": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Processo"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "processos": [
+                    {
+                      "numero_processo": "0000001-23.2020.8.26.0100",
+                      "tribunal": "TJ-SP",
+                      "classe_codigo": 1234,
+                      "classe_nome": "Procedimento Comum Cível",
+                      "grau": "G1",
+                      "data_ajuizamento": "2020-01-15",
+                      "orgao_julgador": "1ª Vara Cível",
+                      "assuntos": "Indenização por Dano Moral",
+                      "partes": [
+                        {
+                          "nome": "João Silva de Oliveira",
+                          "documento": "12345678901",
+                          "polo": "Autor",
+                          "tipo": "Física"
+                        },
+                        {
+                          "nome": "Empresa X LTDA",
+                          "documento": "12345678000199",
+                          "polo": "Réu",
+                          "tipo": "Jurídica"
+                        }
+                      ],
+                      "advogados": [
+                        {
+                          "nome": "Dr. José Advogado",
+                          "oab": "SP123456"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/cpf/{cpf}/aeronaves": {
+      "get": {
+        "operationId": "getAeronavesByCpf",
+        "summary": "Aeronaves e drones",
+        "description": "Retorna aeronaves (avioes) e drones registrados em nome do CPF na ANAC e SISANT.",
+        "tags": [
+          "Pessoas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aeronaves e drones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Aeronaves"
+                },
+                "example": {
+                  "avioes": [
+                    {
+                      "marca": "PT-ABC",
+                      "modelo": "EMB-110",
+                      "fabricante": "Embraer",
+                      "tipo": "Avião",
+                      "categoria": "TPP",
+                      "proprietario": "João Silva",
+                      "uf": "SP",
+                      "ano_fabricacao": "2010",
+                      "certificado_matricula": "12345",
+                      "numero_serie": "110-001",
+                      "classe": "CLT",
+                      "pmd": "5700",
+                      "tripulacao_minima": "2",
+                      "passageiros_maximo": "19",
+                      "tipo_motor": "Turboélice",
+                      "quantidade_motores": "2"
+                    }
+                  ],
+                  "drones": [
+                    {
+                      "codigo_aeronave": "PR-DRONE123",
+                      "modelo": "DJI Phantom 4 Pro",
+                      "fabricante": "DJI",
+                      "tipo_uso": "Recreação",
+                      "operador": "João Silva",
+                      "cpf_cnpj": "12345678901",
+                      "data_validade": "2025-12-31",
+                      "numero_serie": "ABC123456",
+                      "peso_maximo": "1.388 kg",
+                      "ramo_atividade": "Fotografia"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/cpf/{cpf}/patentes": {
+      "get": {
+        "operationId": "getPatentesByCpf",
+        "summary": "Patentes",
+        "description": "Retorna patentes e registros de propriedade intelectual vinculados ao CPF no INPI.",
+        "tags": [
+          "Pessoas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de patentes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "patentes": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Patente"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "patentes": [
+                    {
+                      "numero_inpi": "BR1020200001234",
+                      "titulo": "Sistema de automação para irrigação agrícola",
+                      "natureza": "Patente de Invenção",
+                      "data_deposito": "2020-01-15",
+                      "data_publicacao": "2021-07-20"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/cpf/{cpf}/rural": {
+      "get": {
+        "operationId": "getRuralByCpf",
+        "summary": "Perfil rural",
+        "description": "Retorna dados do perfil rural do CPF: imoveis rurais, CAR, CAFIR e informacoes agropecuarias.",
+        "tags": [
+          "Pessoas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil rural",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "sncr": [
+                    {
+                      "codigo_imovel": "9200123456",
+                      "nome_imovel": "Fazenda Boa Vista",
+                      "municipio": "Ribeirão Preto",
+                      "uf": "SP",
+                      "area_total": 500.5,
+                      "modulos_fiscais": 25.0,
+                      "cod_ibge": "3543402",
+                      "nome_detentor": "João Silva",
+                      "cpf_cnpj": "12345678901",
+                      "tipo_detentor": "Proprietário",
+                      "fracao": 100.0,
+                      "condicao_detentor": "Proprietário"
+                    }
+                  ],
+                  "cafir": [
+                    {
+                      "nirf": "1234567890",
+                      "area_total": 500.5,
+                      "codigo_incra": "9200123456",
+                      "nome_imovel": "Fazenda Boa Vista",
+                      "situacao": "Ativo",
+                      "logradouro": "Estrada Rural km 5",
+                      "distrito": "Distrito Rural",
+                      "uf": "SP",
+                      "municipio": "Ribeirão Preto",
+                      "cep": "14000000",
+                      "data_atualizacao": "2023-01-15",
+                      "imune_isento": "Não",
+                      "codigo_sncr": "9200123456"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/cpf/{cpf}/empregos": {
+      "get": {
+        "operationId": "getEmpregosByCpfPessoas",
+        "summary": "Empregos",
+        "description": "Retorna historico completo de vinculos empregaticios com empregador, cargo e datas de admissao/desligamento.",
+        "tags": [
+          "Pessoas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historico de empregos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "empregos": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Emprego"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "empregos": [
+                    {
+                      "cnpj_empregador": "12.345.678/0001-99",
+                      "nome_empregador": "Silva Comércio LTDA",
+                      "cargo": "Gerente Comercial",
+                      "status": "ativo",
+                      "data_admissao": "2019-01-15",
+                      "data_desligamento": null,
+                      "remuneracao": {
+                        "valor": 5000.0,
+                        "estimativa_minima": 6072.0,
+                        "estimativa_maxima": 15180.0,
+                        "faixa": "4 a 10 SM"
+                      },
+                      "vinculo": {
+                        "nivel": "Funcionário",
+                        "setor": {
+                          "tipo": "Privado",
+                          "codigo": "4729199",
+                          "descricao": "Comércio varejista de outros produtos"
+                        }
+                      },
+                      "contatos": {
+                        "telefone": {
+                          "ddi": "55",
+                          "ddd": "11",
+                          "numero": "999998888",
+                          "numero_completo": "5511999998888",
+                          "estado": "São Paulo",
+                          "operadora": "Vivo"
+                        },
+                        "email": {
+                          "email": "joao@silva.com.br",
+                          "dominio": "silva.com.br",
+                          "corporativo": true
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/telefone/{telefone}": {
+      "get": {
+        "operationId": "findByTelefone",
+        "summary": "Busca por telefone",
+        "description": "Busca reversa: dado um telefone, identifica os CPFs associados. Ponto de entrada quando voce tem apenas um numero de telefone.",
+        "tags": [
+          "Busca Reversa"
+        ],
+        "parameters": [
+          {
+            "name": "telefone",
+            "in": "path",
+            "required": true,
+            "description": "Telefone com DDD (10-11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "11999998888"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CPFs associados ao telefone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelefoneReversoResponse"
+                },
+                "example": {
+                  "resultados": [
+                    {
+                      "cpf": "12345678901",
+                      "nome": "João Silva de Oliveira",
+                      "telefone": {
+                        "ddi": "55",
+                        "ddd": "11",
+                        "numero": "999998888",
+                        "numero_completo": "5511999998888",
+                        "estado": "São Paulo",
+                        "operadora": "Vivo",
+                        "tem_whatsapp": false
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/telefones/cpf/{cpf}": {
+      "get": {
+        "operationId": "getTelefonesByCpf",
+        "summary": "Telefones por CPF",
+        "description": "Retorna todos os telefones associados ao CPF.",
+        "tags": [
+          "Telefones"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de telefones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "telefones": [
+                    {
+                      "ddi": "55",
+                      "ddd": "11",
+                      "numero": "999998888",
+                      "numero_completo": "5511999998888",
+                      "estado": "São Paulo",
+                      "operadora": "Vivo",
+                      "tem_whatsapp": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/emails/cpf/{cpf}": {
+      "get": {
+        "operationId": "getEmailsByCpf",
+        "summary": "Emails por CPF",
+        "description": "Retorna todos os emails associados ao CPF.",
+        "tags": [
+          "Emails"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de emails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "emails": [
+                    {
+                      "email": "joao@gmail.com",
+                      "dominio": "gmail.com",
+                      "corporativo": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/processos/cpf/{cpf}": {
+      "get": {
+        "operationId": "pessoas__processos_cpf__cpf_",
+        "summary": "Processos judiciais",
+        "description": "Processos judiciais associados ao CPF",
+        "tags": [
+          "Juridico"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Processos judiciais associados ao CPF",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "processos": [
+                    {
+                      "numero_processo": "0000001-23.2020.8.26.0100",
+                      "tribunal": "TJ-SP",
+                      "classe_codigo": 1234,
+                      "classe_nome": "Procedimento Comum Cível",
+                      "grau": "G1",
+                      "data_ajuizamento": "2020-01-15",
+                      "orgao_julgador": "1ª Vara Cível",
+                      "assuntos": "Indenização por Dano Moral",
+                      "partes": [
+                        {
+                          "nome": "João Silva de Oliveira",
+                          "documento": "12345678901",
+                          "polo": "Autor",
+                          "tipo": "Física"
+                        },
+                        {
+                          "nome": "Empresa X LTDA",
+                          "documento": "12345678000199",
+                          "polo": "Réu",
+                          "tipo": "Jurídica"
+                        }
+                      ],
+                      "advogados": [
+                        {
+                          "nome": "Dr. José Advogado",
+                          "oab": "SP123456"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dividas/cpf/{cpf}": {
+      "get": {
+        "operationId": "pessoas__dividas_cpf__cpf_",
+        "summary": "Dividas federais",
+        "description": "Divida Ativa da Uniao, FGTS e Previdenciaria",
+        "tags": [
+          "Financeiro"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Divida Ativa da Uniao, FGTS e Previdenciaria",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "documento": "12345678901",
+                  "nome": "MARIA DA SILVA",
+                  "total": 2,
+                  "valor_total": 24150.5,
+                  "ajuizado": true,
+                  "dividas": [
+                    {
+                      "numero_inscricao": "80000000000001",
+                      "fonte": "ativa_uniao",
+                      "receita": "IRPF",
+                      "ajuizado": true,
+                      "data_inscricao": "2020-03-15",
+                      "valor_atual": 15420.5,
+                      "uf": "SP",
+                      "unidade_responsavel": "DRF CAMPINAS",
+                      "historico": [
+                        {
+                          "situacao": "Ativa Ajuizada",
+                          "valor": 15420.5,
+                          "data_inscricao": "2020-03-15"
+                        }
+                      ]
+                    },
+                    {
+                      "numero_inscricao": "80000000000002",
+                      "fonte": "fgts",
+                      "receita": "FGTS",
+                      "ajuizado": false,
+                      "data_inscricao": "2021-07-01",
+                      "valor_atual": 8730.0,
+                      "uf": "SP",
+                      "unidade_responsavel": "SRTE/SP",
+                      "entidade_responsavel": "CEF",
+                      "historico": [
+                        {
+                          "situacao": "Ativa",
+                          "valor": 8730.0,
+                          "data_inscricao": "2021-07-01"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficios/cpf/{cpf}": {
+      "get": {
+        "operationId": "pessoas__beneficios_cpf__cpf_",
+        "summary": "Beneficios sociais",
+        "description": "Auxilio Brasil, Bolsa Familia, BPC, Auxilio Emergencial",
+        "tags": [
+          "Financeiro"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Auxilio Brasil, Bolsa Familia, BPC, Auxilio Emergencial",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "auxilio_brasil": [
+                    {
+                      "competencia": "2023-01",
+                      "valor": 600.0,
+                      "parcela": 1
+                    }
+                  ],
+                  "bolsa_familia": [
+                    {
+                      "competencia": "2022-12",
+                      "valor": 400.0,
+                      "parcela": 1
+                    }
+                  ],
+                  "auxilio_emergencial": [
+                    {
+                      "competencia": "2020-04",
+                      "valor": 600.0,
+                      "parcela": 1
+                    }
+                  ],
+                  "bpc": [
+                    {
+                      "tipo": "Idoso",
+                      "valor": 1518.0,
+                      "data_inicio": "2020-01-15"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/veiculos/cpf/{cpf}": {
+      "get": {
+        "operationId": "pessoas__veiculos_cpf__cpf_",
+        "summary": "Veiculos",
+        "description": "Veiculos registrados no CPF",
+        "tags": [
+          "Patrimonio"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Veiculos registrados no CPF",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "veiculos": [
+                    {
+                      "placa": "ABC1D23",
+                      "placa_antiga": "ABC1234",
+                      "chassi": "9BWAG45N1YT123456",
+                      "renavam": "12345678901",
+                      "modelo": "FIAT/STRADA TREK CE",
+                      "marca": "FIAT",
+                      "ano_fabricacao": 2021,
+                      "ano_modelo": 2022,
+                      "cor": "Prata",
+                      "combustivel": "Flex",
+                      "municipio": "São Paulo",
+                      "uf": "SP",
+                      "tipo_veiculo": "Automóvel",
+                      "especie_veiculo": "Passageiro",
+                      "situacao_veiculo": "Circulação",
+                      "potencia": "130",
+                      "cilindradas": "1300",
+                      "restricoes": [
+                        "Alienação Fiduciária"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/imoveis/cpf/{cpf}": {
+      "get": {
+        "operationId": "pessoas__imoveis_cpf__cpf_",
+        "summary": "Imoveis",
+        "description": "Imoveis urbanos do CPF",
+        "tags": [
+          "Patrimonio"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imoveis urbanos do CPF",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "imoveis": [
+                    {
+                      "inscricao": "031.044.0094-1",
+                      "fonte": "prefeitura_sp",
+                      "localizacao": {
+                        "logradouro": "Rua Propriedade",
+                        "numero": "456",
+                        "complemento": "",
+                        "bairro": "Vila Mariana",
+                        "cidade": "São Paulo",
+                        "uf": "SP",
+                        "cep": "04101000"
+                      },
+                      "terreno": {
+                        "area": 250.0
+                      },
+                      "propriedade": {
+                        "areaConstruida": 150.0,
+                        "anoConstrucao": 2005,
+                        "tipoImovel": "Residencial"
+                      },
+                      "proprietario": {
+                        "nome": "João Silva",
+                        "documento": "12345678901"
+                      },
+                      "valoracao": {
+                        "valorVenalIptu": 500000.0,
+                        "valorIptu": 2500.0
+                      },
+                      "fontes": [
+                        "IPTU São Paulo"
+                      ],
+                      "images": {
+                        "fachada": null,
+                        "satelite": null
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aeronaves/cpf/{cpf}": {
+      "get": {
+        "operationId": "pessoas__aeronaves_cpf__cpf_",
+        "summary": "Aeronaves e drones",
+        "description": "Aeronaves e drones registrados no CPF",
+        "tags": [
+          "Patrimonio"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aeronaves e drones registrados no CPF",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "avioes": [
+                    {
+                      "marca": "PT-ABC",
+                      "modelo": "EMB-110",
+                      "fabricante": "Embraer",
+                      "tipo": "Avião",
+                      "categoria": "TPP",
+                      "proprietario": "João Silva",
+                      "uf": "SP",
+                      "ano_fabricacao": "2010",
+                      "certificado_matricula": "12345",
+                      "numero_serie": "110-001",
+                      "classe": "CLT",
+                      "pmd": "5700",
+                      "tripulacao_minima": "2",
+                      "passageiros_maximo": "19",
+                      "tipo_motor": "Turboélice",
+                      "quantidade_motores": "2"
+                    }
+                  ],
+                  "drones": [
+                    {
+                      "codigo_aeronave": "PR-DRONE123",
+                      "modelo": "DJI Phantom 4 Pro",
+                      "fabricante": "DJI",
+                      "tipo_uso": "Recreação",
+                      "operador": "João Silva",
+                      "cpf_cnpj": "12345678901",
+                      "data_validade": "2025-12-31",
+                      "numero_serie": "ABC123456",
+                      "peso_maximo": "1.388 kg",
+                      "ramo_atividade": "Fotografia"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/patentes/cpf/{cpf}": {
+      "get": {
+        "operationId": "pessoas__patentes_cpf__cpf_",
+        "summary": "Patentes",
+        "description": "Patentes e marcas registradas",
+        "tags": [
+          "Patrimonio"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Patentes e marcas registradas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "patentes": [
+                    {
+                      "numero_inpi": "BR1020200001234",
+                      "titulo": "Sistema de automação para irrigação agrícola",
+                      "natureza": "Patente de Invenção",
+                      "data_deposito": "2020-01-15",
+                      "data_publicacao": "2021-07-20"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rural/cpf/{cpf}": {
+      "get": {
+        "operationId": "pessoas__rural_cpf__cpf_",
+        "summary": "Perfil rural",
+        "description": "Imoveis rurais, fiscalizacao ambiental, transportes florestais",
+        "tags": [
+          "Patrimonio"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imoveis rurais, fiscalizacao ambiental, transportes florestais",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "sncr": [
+                    {
+                      "codigo_imovel": "9200123456",
+                      "nome_imovel": "Fazenda Boa Vista",
+                      "municipio": "Ribeirão Preto",
+                      "uf": "SP",
+                      "area_total": 500.5,
+                      "modulos_fiscais": 25.0,
+                      "cod_ibge": "3543402",
+                      "nome_detentor": "João Silva",
+                      "cpf_cnpj": "12345678901",
+                      "tipo_detentor": "Proprietário",
+                      "fracao": 100.0,
+                      "condicao_detentor": "Proprietário"
+                    }
+                  ],
+                  "cafir": [
+                    {
+                      "nirf": "1234567890",
+                      "area_total": 500.5,
+                      "codigo_incra": "9200123456",
+                      "nome_imovel": "Fazenda Boa Vista",
+                      "situacao": "Ativo",
+                      "logradouro": "Estrada Rural km 5",
+                      "distrito": "Distrito Rural",
+                      "uf": "SP",
+                      "municipio": "Ribeirão Preto",
+                      "cep": "14000000",
+                      "data_atualizacao": "2023-01-15",
+                      "imune_isento": "Não",
+                      "codigo_sncr": "9200123456"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/email/{email}": {
+      "get": {
+        "operationId": "getPessoasByEmail",
+        "summary": "CPFs por email",
+        "description": "Busca reversa: retorna CPFs associados a um endereco de email.",
+        "tags": [
+          "Emails"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "description": "Endereco de email",
+            "schema": {
+              "type": "string",
+              "example": "usuario@gmail.com"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CPFs associados ao email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "resultados": [
+                    {
+                      "cpf": "12345678901",
+                      "nome": "João Silva de Oliveira",
+                      "email": {
+                        "email": "joao@gmail.com",
+                        "dominio": "gmail.com",
+                        "corporativo": false
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

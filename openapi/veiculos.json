@@ -1,0 +1,384 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Veiculos API",
+    "description": "Levantamento de veiculos registrados no DENATRAN. Busca por CPF ou CNPJ do proprietario, ou identificacao por placa.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "Veiculo": {
+        "type": "object",
+        "properties": {
+          "cpf_cnpj": {
+            "type": "string",
+            "description": "CPF ou CNPJ do proprietario"
+          },
+          "nome_proprietario": {
+            "type": "string"
+          },
+          "placa": {
+            "type": "string",
+            "description": "Placa atual"
+          },
+          "placa_antiga": {
+            "type": "string",
+            "description": "Placa formato antigo (ABC-1234)"
+          },
+          "renavam": {
+            "type": "string"
+          },
+          "chassi": {
+            "type": "string"
+          },
+          "ano_fabricacao": {
+            "type": "integer"
+          },
+          "ano_modelo": {
+            "type": "integer"
+          },
+          "marca": {
+            "type": "string"
+          },
+          "modelo": {
+            "type": "string"
+          },
+          "combustivel": {
+            "type": "string"
+          },
+          "cor": {
+            "type": "string"
+          },
+          "municipio": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "tipo_veiculo": {
+            "type": "string",
+            "description": "Automovel, Motocicleta, Caminhao, etc"
+          },
+          "especie_veiculo": {
+            "type": "string"
+          },
+          "situacao_veiculo": {
+            "type": "string",
+            "description": "Circulacao, Baixado, Roubado, etc"
+          },
+          "potencia": {
+            "type": "string"
+          },
+          "cilindradas": {
+            "type": "string"
+          },
+          "quantidade_passageiro": {
+            "type": "string"
+          },
+          "restricoes": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Lista de restricoes do veiculo (ex: Alienacao Fiduciaria)"
+          }
+        }
+      },
+      "VeiculosResponse": {
+        "type": "object",
+        "properties": {
+          "veiculos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Veiculo"
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/veiculos/cpf/{cpf}": {
+      "get": {
+        "operationId": "getVeiculosByCpf",
+        "summary": "Veiculos de uma pessoa",
+        "description": "Retorna todos os veiculos registrados em nome de uma pessoa fisica.",
+        "tags": [
+          "Veiculos"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF do proprietario (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de veiculos encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VeiculosResponse"
+                },
+                "example": {
+                  "veiculos": [
+                    {
+                      "cpf_cnpj": "12345678901",
+                      "nome_proprietario": "João Silva de Oliveira",
+                      "placa": "ABC1D23",
+                      "placa_antiga": "ABC1234",
+                      "renavam": "12345678901",
+                      "chassi": "9BWAG45N1YT123456",
+                      "ano_fabricacao": 2021,
+                      "ano_modelo": 2022,
+                      "marca": "FIAT",
+                      "modelo": "FIAT/STRADA TREK CE",
+                      "combustivel": "Flex",
+                      "cor": "Prata",
+                      "municipio": "São Paulo",
+                      "uf": "SP",
+                      "tipo_veiculo": "Automóvel",
+                      "especie_veiculo": "Passageiro",
+                      "situacao_veiculo": "Circulação",
+                      "potencia": "130",
+                      "cilindradas": "1300",
+                      "quantidade_passageiro": "5",
+                      "restricoes": ["Alienação Fiduciária"]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/veiculos/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getVeiculosByCnpj",
+        "summary": "Frota de uma empresa",
+        "description": "Retorna todos os veiculos registrados em nome de uma empresa.",
+        "tags": [
+          "Veiculos"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de veiculos encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VeiculosResponse"
+                },
+                "example": {
+                  "veiculos": [
+                    {
+                      "cpf_cnpj": "12345678000199",
+                      "nome_proprietario": "Silva Comércio LTDA",
+                      "placa": "DEF2G34",
+                      "placa_antiga": "DEF2345",
+                      "renavam": "98765432101",
+                      "chassi": "9BWHE21JX24012345",
+                      "ano_fabricacao": 2020,
+                      "ano_modelo": 2021,
+                      "marca": "VOLKSWAGEN",
+                      "modelo": "VW/SAVEIRO ROBUST CS",
+                      "combustivel": "Flex",
+                      "cor": "Branca",
+                      "municipio": "São Paulo",
+                      "uf": "SP",
+                      "tipo_veiculo": "Automóvel",
+                      "especie_veiculo": "Carga",
+                      "situacao_veiculo": "Circulação",
+                      "potencia": "104",
+                      "cilindradas": "1600",
+                      "quantidade_passageiro": "2",
+                      "restricoes": []
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/veiculos/placa/{placa}": {
+      "get": {
+        "operationId": "getVeiculoByPlaca",
+        "summary": "Identificar veiculo por placa",
+        "description": "Busca reversa: identifica o veiculo e seu proprietario a partir da placa. Aceita formato antigo (ABC1234) e Mercosul (ABC1D23).",
+        "tags": [
+          "Veiculos"
+        ],
+        "parameters": [
+          {
+            "name": "placa",
+            "in": "path",
+            "required": true,
+            "description": "Placa do veiculo",
+            "schema": {
+              "type": "string",
+              "example": "ABC1234"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados do veiculo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VeiculosResponse"
+                },
+                "example": {
+                  "veiculos": [
+                    {
+                      "cpf_cnpj": "12345678901",
+                      "nome_proprietario": "João Silva de Oliveira",
+                      "placa": "ABC1D23",
+                      "placa_antiga": "ABC1234",
+                      "renavam": "12345678901",
+                      "chassi": "9BWAG45N1YT123456",
+                      "ano_fabricacao": 2021,
+                      "ano_modelo": 2022,
+                      "marca": "FIAT",
+                      "modelo": "FIAT/STRADA TREK CE",
+                      "combustivel": "Flex",
+                      "cor": "Prata",
+                      "municipio": "São Paulo",
+                      "uf": "SP",
+                      "tipo_veiculo": "Automóvel",
+                      "especie_veiculo": "Passageiro",
+                      "situacao_veiculo": "Circulação",
+                      "potencia": "130",
+                      "cilindradas": "1300",
+                      "quantidade_passageiro": "5",
+                      "restricoes": ["Alienação Fiduciária"]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

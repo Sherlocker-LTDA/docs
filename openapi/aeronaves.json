@@ -1,0 +1,373 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Aeronaves API",
+    "description": "Levantamento de aeronaves e drones registrados na ANAC por CPF ou CNPJ do proprietario ou operador.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "Aeronave": {
+        "type": "object",
+        "properties": {
+          "cpf_cnpj": {
+            "type": "string",
+            "description": "CPF ou CNPJ do proprietario"
+          },
+          "marca": {
+            "type": "string",
+            "description": "Matricula da aeronave (ex: PR-ABC)"
+          },
+          "proprietario": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "operador": {
+            "type": "string"
+          },
+          "certificado_matricula": {
+            "type": "string"
+          },
+          "numero_serie": {
+            "type": "string"
+          },
+          "categoria": {
+            "type": "string"
+          },
+          "tipo": {
+            "type": "string",
+            "description": "Aviao, helicoptero, etc"
+          },
+          "modelo": {
+            "type": "string"
+          },
+          "fabricante": {
+            "type": "string"
+          },
+          "classe": {
+            "type": "string"
+          },
+          "pmd": {
+            "type": "string",
+            "description": "Peso maximo de decolagem (kg)"
+          },
+          "ano_fabricacao": {
+            "type": "string"
+          },
+          "passageiros_maximo": {
+            "type": "string"
+          },
+          "data_matricula": {
+            "type": "string"
+          },
+          "tipo_motor": {
+            "type": "string"
+          },
+          "quantidade_motores": {
+            "type": "string"
+          },
+          "preco_estimado": {
+            "type": "number",
+            "description": "Preco estimado em USD"
+          }
+        }
+      },
+      "Drone": {
+        "type": "object",
+        "properties": {
+          "cpf_cnpj": {
+            "type": "string"
+          },
+          "codigo_aeronave": {
+            "type": "string",
+            "description": "Codigo de registro SISANT"
+          },
+          "data_validade": {
+            "type": "string"
+          },
+          "operador": {
+            "type": "string"
+          },
+          "tipo_uso": {
+            "type": "string",
+            "description": "Recreativo, Experimental, etc"
+          },
+          "fabricante": {
+            "type": "string"
+          },
+          "modelo": {
+            "type": "string"
+          },
+          "numero_serie": {
+            "type": "string"
+          },
+          "peso_maximo": {
+            "type": "string",
+            "description": "Peso maximo em kg"
+          },
+          "ramo_atividade": {
+            "type": "string"
+          },
+          "preco_estimado": {
+            "type": "number"
+          }
+        }
+      },
+      "AeronavesResponse": {
+        "type": "object",
+        "properties": {
+          "avioes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Aeronave"
+            }
+          },
+          "drones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Drone"
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/aeronaves/cpf/{cpf}": {
+      "get": {
+        "operationId": "getAeronavesByCpf",
+        "summary": "Aeronaves de uma pessoa",
+        "description": "Retorna aeronaves e drones registrados em nome de uma pessoa fisica.",
+        "tags": [
+          "Aeronaves"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF do proprietario (com ou sem formatacao)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          },
+          {
+            "name": "nome",
+            "in": "query",
+            "required": false,
+            "description": "Nome do proprietario (necessario para match em algumas fontes)",
+            "schema": {
+              "type": "string",
+              "example": "JOAO SILVA"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aeronaves e drones encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AeronavesResponse"
+                },
+                "example": {
+                  "avioes": [
+                    {
+                      "cpf_cnpj": "12345678901",
+                      "marca": "PT-ABC",
+                      "proprietario": "João Silva",
+                      "uf": "SP",
+                      "operador": "João Silva",
+                      "certificado_matricula": "12345",
+                      "numero_serie": "110-001",
+                      "categoria": "TPP",
+                      "tipo": "Avião",
+                      "modelo": "EMB-110",
+                      "fabricante": "Embraer",
+                      "classe": "CLT",
+                      "pmd": "5700",
+                      "ano_fabricacao": "2010",
+                      "passageiros_maximo": "19",
+                      "data_matricula": "2010-05-20",
+                      "tipo_motor": "Turboélice",
+                      "quantidade_motores": "2",
+                      "preco_estimado": 1200000
+                    }
+                  ],
+                  "drones": [
+                    {
+                      "cpf_cnpj": "12345678901",
+                      "codigo_aeronave": "PR-DRONE123",
+                      "data_validade": "2025-12-31",
+                      "operador": "João Silva",
+                      "tipo_uso": "Recreação",
+                      "fabricante": "DJI",
+                      "modelo": "DJI Phantom 4 Pro",
+                      "numero_serie": "ABC123456",
+                      "peso_maximo": "1.388 kg",
+                      "ramo_atividade": "Fotografia",
+                      "preco_estimado": 8500
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aeronaves/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getAeronavesByCnpj",
+        "summary": "Aeronaves de uma empresa",
+        "description": "Retorna aeronaves e drones registrados em nome de uma empresa.",
+        "tags": [
+          "Aeronaves"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (com ou sem formatacao)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          },
+          {
+            "name": "nome",
+            "in": "query",
+            "required": false,
+            "description": "Razao social da empresa",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aeronaves e drones encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AeronavesResponse"
+                },
+                "example": {
+                  "avioes": [
+                    {
+                      "cpf_cnpj": "12345678000199",
+                      "marca": "PR-XYZ",
+                      "proprietario": "Silva Comércio LTDA",
+                      "uf": "SP",
+                      "operador": "Silva Comércio LTDA",
+                      "certificado_matricula": "67890",
+                      "numero_serie": "525B-0001",
+                      "categoria": "TPP",
+                      "tipo": "Avião",
+                      "modelo": "C-525B",
+                      "fabricante": "Cessna",
+                      "classe": "CLT",
+                      "pmd": "8210",
+                      "ano_fabricacao": "2015",
+                      "passageiros_maximo": "9",
+                      "data_matricula": "2015-08-10",
+                      "tipo_motor": "Turbojato",
+                      "quantidade_motores": "2",
+                      "preco_estimado": 5500000
+                    }
+                  ],
+                  "drones": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

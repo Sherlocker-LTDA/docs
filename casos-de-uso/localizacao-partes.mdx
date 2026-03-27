@@ -1,0 +1,164 @@
+---
+title: "Localização de Partes e Devedores"
+description: "Encontrar endereço, telefone e email de pessoas para citação judicial ou cobrança"
+icon: "magnifying-glass-location"
+---
+
+Escritórios de advocacia frequentemente precisam **localizar pessoas** para citação judicial, intimação ou cobrança. O Sherlocker permite encontrar endereços atualizados, telefones e emails a partir de CPF, telefone antigo ou email — e expandir a busca via parentes e empresas.
+
+## O problema
+
+O endereço do processo está desatualizado. O oficial de justiça retorna com "mudou-se". O telefone não atende. O email volta. Sem dados atualizados, o processo fica parado por meses.
+
+## Estratégia de busca
+
+<Steps>
+  <Step title="Dados cadastrais atuais">
+    Endereços, telefones e emails vinculados ao CPF
+  </Step>
+  <Step title="Empresas vinculadas">
+    Endereço da empresa onde trabalha ou é sócio
+  </Step>
+  <Step title="Parentes próximos">
+    Endereço de cônjuge, pais ou filhos como alternativa
+  </Step>
+  <Step title="Busca reversa">
+    Se tem telefone ou email antigo, resolver para CPF e buscar dados atuais
+  </Step>
+</Steps>
+
+## Implementação
+
+### Cenário 1 — Tem o CPF
+
+```python
+import requests
+from concurrent.futures import ThreadPoolExecutor
+
+BASE = "https://221b-api.sherlocker.com.br/api/v1"
+TOKEN = "SEU_TOKEN"
+
+def get(endpoint, **params):
+    params["token"] = TOKEN
+    return requests.get(f"{BASE}{endpoint}", params=params).json()
+
+cpf = "12345678901"
+
+# Perfil completo com todos os contatos
+perfil = get(f"/pessoas/cpf/{cpf}")
+
+enderecos = perfil.get("enderecos", [])
+telefones = perfil.get("telefones", [])
+emails = perfil.get("emails", [])
+parentes = perfil.get("parentes", [])
+
+print(f"Nome: {perfil['nome_completo']}")
+print(f"Enderecos: {len(enderecos)}")
+print(f"Telefones: {len(telefones)}")
+print(f"Emails: {len(emails)}")
+
+# Listar todos os enderecos
+for end in enderecos:
+    print(f"  {end.get('logradouro')}, {end.get('numero')} - {end.get('cidade')}/{end.get('uf')}")
+```
+
+### Cenário 2 — Endereço via empresa
+
+```python
+# Onde a pessoa trabalha ou e socia
+with ThreadPoolExecutor(max_workers=2) as pool:
+    fut_soc = pool.submit(get, f"/empresas/cpf/{cpf}")
+    fut_emp = pool.submit(get, f"/empresas/empregos/cpf/{cpf}")
+
+sociedades = fut_soc.result().get("socios", [])
+empregos = fut_emp.result().get("empregos", [])
+
+# Emprego atual = sem data de desligamento
+emprego_atual = next(
+    (e for e in empregos if not e.get("data_desligamento")),
+    None
+)
+
+if emprego_atual:
+    cnpj = emprego_atual["cnpj_empregador"]
+    empresa = get(f"/empresas/cnpj/{cnpj}")
+    end_emp = empresa.get("endereco", {})
+    print(f"Trabalha em: {empresa.get('razao_social')}")
+    print(f"Endereco empresa: {end_emp.get('logradouro')}, {end_emp.get('numero')} - {end_emp.get('cidade')}/{end_emp.get('uf')}")
+```
+
+### Cenário 3 — Parentes como alternativa
+
+```python
+# Conjuge ou pais — enderecos alternativos
+parentes_proximos = [p for p in parentes
+    if p.get("vinculo_nome") in ("Cônjuge", "Mãe", "Pai")]
+
+for par in parentes_proximos:
+    cpf_par = par.get("cpf")
+    if cpf_par:
+        end_par = get(f"/pessoas/cpf/{cpf_par}/enderecos")
+        enderecos_par = end_par.get("enderecos", [])
+        if enderecos_par:
+            e = enderecos_par[0]
+            print(f"  {par['vinculo_nome']}: {e.get('logradouro')}, {e.get('numero')} - {e.get('cidade')}/{e.get('uf')}")
+```
+
+### Cenário 4 — Busca reversa (só tem telefone ou email)
+
+```python
+# Partindo de um telefone antigo
+telefone = "11987654321"
+reverso = get(f"/pessoas/telefone/{telefone}")
+
+for resultado in reverso.get("resultados", []):
+    cpf_encontrado = resultado["cpf"]
+    perfil = get(f"/pessoas/cpf/{cpf_encontrado}")
+    print(f"CPF: {cpf_encontrado} — {perfil.get('nome_completo', '')}")
+    for end in perfil.get("enderecos", []):
+        print(f"  {end.get('endereco')}, {end.get('numero')} - {end.get('cidade')}/{end.get('uf')}")
+```
+
+### Cenário 5 — Localização em lote
+
+Para localizar várias pessoas em paralelo, use `ThreadPoolExecutor` sobre o endpoint de perfil:
+
+```python
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+def localizar(cpf):
+    perfil = get(f"/pessoas/cpf/{cpf}")
+    if "nome_completo" not in perfil:
+        return None
+    enderecos = perfil.get("enderecos", [])
+    telefones = perfil.get("telefones", [])
+    return {
+        "cpf": cpf,
+        "nome": perfil["nome_completo"],
+        "cidade": enderecos[0].get("cidade") if enderecos else None,
+        "uf": enderecos[0].get("uf") if enderecos else None,
+        "telefones": [t.get("numero_completo") for t in telefones],
+    }
+
+with ThreadPoolExecutor(max_workers=10) as pool:
+    futures = {pool.submit(localizar, cpf): cpf for cpf in lista_de_cpfs}
+    for fut in as_completed(futures):
+        r = fut.result()
+        if r:
+            print(f"{r['nome']} — {r['cidade']}/{r['uf']}")
+            print(f"  Tel: {r['telefones']}")
+```
+
+## APIs utilizadas
+
+<CardGroup cols={3}>
+  <Card title="Pessoas" icon="user" href="/api-reference/pessoas/perfil-completo-de-uma-pessoa">
+    Endereços, telefones, emails, parentes
+  </Card>
+  <Card title="Busca por telefone" icon="phone" href="/api-reference/busca-reversa/identificar-pessoa-por-telefone">
+    Busca reversa telefone → CPF
+  </Card>
+  <Card title="Empresas" icon="building" href="/api-reference/empresas/vinculos-societarios-de-uma-pessoa">
+    Endereço do empregador/sociedade
+  </Card>
+</CardGroup>

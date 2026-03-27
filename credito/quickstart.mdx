@@ -1,0 +1,214 @@
+---
+title: "Quickstart"
+description: "Comece a analisar credito em 5 minutos"
+icon: "rocket"
+---
+
+# Quickstart — Sherlocker Credito
+
+Siga este guia para criar sua primeira operacao de analise de credito.
+
+## Pre-requisitos
+
+- Token da API Sherlocker (`SEU_TOKEN`)
+- Arquivo CNAB 400 remessa (`.rem` ou `.txt`)
+
+## 1. Listar engines disponiveis
+
+Primeiro, veja quais motores de regras estao disponiveis:
+
+<CodeGroup>
+```bash cURL
+curl "https://221b-api.sherlocker.com.br/api/v1/credito/engines?token=SEU_TOKEN"
+```
+
+```python Python
+import requests
+
+resp = requests.get(
+    "https://221b-api.sherlocker.com.br/api/v1/credito/engines",
+    params={"token": "SEU_TOKEN"}
+)
+engines = resp.json()
+print(engines)
+```
+
+```javascript Node.js
+const resp = await fetch(
+  "https://221b-api.sherlocker.com.br/api/v1/credito/engines?token=SEU_TOKEN"
+);
+const engines = await resp.json();
+console.log(engines);
+```
+</CodeGroup>
+
+O resultado mostra os engines com `id`, `name`, `ruleCount` e se e um `isTemplate`.
+
+## 2. Criar uma operacao
+
+Envie o arquivo CNAB 400 com o CNPJ do cedente:
+
+<CodeGroup>
+```bash cURL
+curl -X POST "https://221b-api.sherlocker.com.br/api/v1/credito/operacoes?token=SEU_TOKEN" \
+  -F "file=@bordero.rem" \
+  -F "cedenteCnpj=12345678000199"
+```
+
+```python Python
+import requests
+
+with open("bordero.rem", "rb") as f:
+    resp = requests.post(
+        "https://221b-api.sherlocker.com.br/api/v1/credito/operacoes",
+        params={"token": "SEU_TOKEN"},
+        files={"file": ("bordero.rem", f)},
+        data={"cedenteCnpj": "12345678000199"}
+    )
+
+result = resp.json()
+operation_id = result["operationId"]
+print(f"Operacao criada: {operation_id}")
+```
+
+```javascript Node.js
+const form = new FormData();
+form.append("file", fs.createReadStream("bordero.rem"));
+form.append("cedenteCnpj", "12345678000199");
+
+const resp = await fetch(
+  "https://221b-api.sherlocker.com.br/api/v1/credito/operacoes?token=SEU_TOKEN",
+  { method: "POST", body: form }
+);
+const { operationId } = await resp.json();
+console.log(`Operacao criada: ${operationId}`);
+```
+</CodeGroup>
+
+<Tip>
+  Opcionalmente, inclua um ZIP com XMLs de NFe no campo `xmls` para melhorar a precisao da analise.
+</Tip>
+
+**Resposta (202):**
+```json
+{
+  "operationId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "status": "queued",
+  "createdAt": "2026-03-24T14:30:00.000Z"
+}
+```
+
+## 3. Acompanhar o status
+
+Consulte o status ate que a operacao esteja `completed`:
+
+<CodeGroup>
+```bash cURL
+curl "https://221b-api.sherlocker.com.br/api/v1/credito/operacoes/OPERATION_ID?token=SEU_TOKEN"
+```
+
+```python Python
+import time
+
+while True:
+    resp = requests.get(
+        f"https://221b-api.sherlocker.com.br/api/v1/credito/operacoes/{operation_id}",
+        params={"token": "SEU_TOKEN"}
+    )
+    status = resp.json()["status"]
+    print(f"Status: {status}")
+
+    if status in ("completed", "failed"):
+        break
+    time.sleep(2)
+```
+</CodeGroup>
+
+**Status possiveis:** `queued` → `processing` → `completed` / `failed`
+
+## 4. Obter o resultado
+
+Quando `completed`, consulte o resultado:
+
+<CodeGroup>
+```bash cURL
+# Apenas issues (padrao)
+curl "https://221b-api.sherlocker.com.br/api/v1/credito/operacoes/OPERATION_ID/result?token=SEU_TOKEN"
+
+# Arvore completa
+curl "https://221b-api.sherlocker.com.br/api/v1/credito/operacoes/OPERATION_ID/result?token=SEU_TOKEN&filter=all"
+```
+
+```python Python
+resp = requests.get(
+    f"https://221b-api.sherlocker.com.br/api/v1/credito/operacoes/{operation_id}/result",
+    params={"token": "SEU_TOKEN", "filter": "all"}
+)
+resultado = resp.json()
+
+# Resumo
+summary = resultado["summary"]
+print(f"Total titulos: {summary['totalTitulos']}")
+print(f"Aprovados: {summary['approved']} (R$ {summary['approvedValue']:.2f})")
+print(f"Bloqueados: {summary['blocked']} (R$ {summary['blockedValue']:.2f})")
+print(f"Alertas: {summary['alerted']} (R$ {summary['alertedValue']:.2f})")
+
+# Issues do cedente
+for issue in resultado["cedente"]["issues"]:
+    print(f"[{issue['category']}] {issue['ruleName']}: {issue['message']}")
+```
+</CodeGroup>
+
+**Estrutura do resultado:**
+
+```
+Cedente (empresa que cede os titulos)
+  ├── status: approved | blocked | alerted
+  ├── issues: [ regras violadas ]
+  └── Sacados (devedores)
+       ├── status: approved | blocked | alerted
+       ├── issues: [ regras violadas ]
+       └── Titulos (duplicatas)
+            ├── status: approved | blocked | alerted
+            ├── valor, dataVencimento, nfeChave
+            └── issues: [ regras violadas ]
+```
+
+## 5. (Opcional) Criar engine personalizado
+
+Crie um engine com regras customizadas ou clone um existente:
+
+<CodeGroup>
+```bash cURL
+# Clonar engine existente
+curl -X POST "https://221b-api.sherlocker.com.br/api/v1/credito/engines?token=SEU_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Meu Engine", "cloneFrom": "ENGINE_ID_EXISTENTE"}'
+```
+
+```python Python
+resp = requests.post(
+    "https://221b-api.sherlocker.com.br/api/v1/credito/engines",
+    params={"token": "SEU_TOKEN"},
+    json={
+        "name": "Meu Engine Personalizado",
+        "cloneFrom": "ENGINE_ID_EXISTENTE"
+    }
+)
+engine = resp.json()
+print(f"Engine criado: {engine['id']} com {engine['ruleCount']} regras")
+```
+</CodeGroup>
+
+Depois, use o `engineId` ao criar novas operacoes para aplicar suas regras personalizadas.
+
+## Proximos passos
+
+<CardGroup cols={2}>
+  <Card title="Operacoes" icon="file-circle-check" href="/entidades/operacao-credito">
+    Entenda a estrutura completa de uma operacao
+  </Card>
+  <Card title="Engines" icon="gears" href="/entidades/engine-credito">
+    Configure regras blocking e alert
+  </Card>
+</CardGroup>

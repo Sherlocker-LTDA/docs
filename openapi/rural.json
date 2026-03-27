@@ -1,0 +1,712 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Rural API",
+    "description": "Perfil rural completo: imoveis rurais (SNCR, CAFIR), fiscalizacao ambiental (IBAMA) e transporte florestal (DOF) por CPF ou CNPJ.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "SncrRow": {
+        "type": "object",
+        "properties": {
+          "codigo_imovel": {
+            "type": "string"
+          },
+          "nome_imovel": {
+            "type": "string"
+          },
+          "municipio": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "area_total": {
+            "type": "number",
+            "description": "Area em hectares"
+          },
+          "modulos_fiscais": {
+            "type": "number"
+          },
+          "cod_ibge": {
+            "type": "string"
+          },
+          "nome_detentor": {
+            "type": "string"
+          },
+          "cpf_cnpj": {
+            "type": "string"
+          },
+          "tipo_detentor": {
+            "type": "string"
+          },
+          "fracao": {
+            "type": "number",
+            "description": "Fracao de posse"
+          },
+          "condicao_detentor": {
+            "type": "string"
+          }
+        }
+      },
+      "CafirRow": {
+        "type": "object",
+        "properties": {
+          "nirf": {
+            "type": "string",
+            "description": "Numero de registro CAFIR"
+          },
+          "area_total": {
+            "type": "number",
+            "description": "Area em hectares"
+          },
+          "codigo_incra": {
+            "type": "string"
+          },
+          "nome_imovel": {
+            "type": "string"
+          },
+          "situacao": {
+            "type": "string"
+          },
+          "logradouro": {
+            "type": "string"
+          },
+          "distrito": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "municipio": {
+            "type": "string"
+          },
+          "cep": {
+            "type": "string"
+          },
+          "data_atualizacao": {
+            "type": "string"
+          },
+          "imune_isento": {
+            "type": "string"
+          },
+          "codigo_sncr": {
+            "type": "string"
+          }
+        }
+      },
+      "FiscalizacaoRow": {
+        "type": "object",
+        "properties": {
+          "numero_auto": {
+            "type": "string",
+            "description": "Numero do auto de infracao"
+          },
+          "tipo_auto": {
+            "type": "string"
+          },
+          "cpf_cnpj": {
+            "type": "string"
+          },
+          "nome_infrator": {
+            "type": "string"
+          },
+          "municipio": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "descricao_dano": {
+            "type": "string"
+          },
+          "area_embargada": {
+            "type": "number",
+            "description": "Area embargada em hectares"
+          },
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          },
+          "data_auto": {
+            "type": "string"
+          },
+          "valor_multa": {
+            "type": "number",
+            "description": "Valor da multa em reais"
+          },
+          "situacao_debito": {
+            "type": "string"
+          }
+        }
+      },
+      "RuralResumo": {
+        "type": "object",
+        "properties": {
+          "area_total_ha": {
+            "type": "number"
+          },
+          "qtd_imoveis_sncr": {
+            "type": "integer"
+          },
+          "qtd_imoveis_cafir": {
+            "type": "integer"
+          },
+          "qtd_infracoes": {
+            "type": "integer"
+          },
+          "valor_total_multas": {
+            "type": "number"
+          },
+          "qtd_autorizacoes": {
+            "type": "integer"
+          },
+          "qtd_transportes": {
+            "type": "integer"
+          },
+          "estados": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "RuralProfile": {
+        "type": "object",
+        "properties": {
+          "cpf_cnpj": {
+            "type": "string"
+          },
+          "propriedades_sncr": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SncrRow"
+            }
+          },
+          "propriedades_cafir": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CafirRow"
+            }
+          },
+          "transportes": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer"
+              },
+              "volume_total": {
+                "type": "number"
+              },
+              "valor_total": {
+                "type": "number"
+              },
+              "produtos": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "por_ano": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "ano": {
+                      "type": "integer"
+                    },
+                    "qtd": {
+                      "type": "integer"
+                    },
+                    "volume": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "por_produto": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ProdutoAgrupado"
+                }
+              },
+              "parceiros": {
+                "type": "array",
+                "description": "Parceiros comerciais (remetentes e destinatarios)",
+                "items": {
+                  "$ref": "#/components/schemas/TransporteAgrupado"
+                }
+              }
+            }
+          },
+          "infracoes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FiscalizacaoRow"
+            }
+          },
+          "resumo": {
+            "$ref": "#/components/schemas/RuralResumo"
+          }
+        }
+      },
+      "ProdutoAgrupado": {
+        "type": "object",
+        "properties": {
+          "produto": {
+            "type": "string",
+            "description": "Nome do material/produto florestal"
+          },
+          "qtd": {
+            "type": "integer",
+            "description": "Quantidade de operacoes"
+          },
+          "volume": {
+            "type": "number",
+            "description": "Volume total transportado"
+          },
+          "valor": {
+            "type": "number",
+            "description": "Valor total em reais"
+          },
+          "unidade": {
+            "type": "string",
+            "description": "Unidade de medida (m3, kg, etc)"
+          }
+        }
+      },
+      "TransporteDetalhe": {
+        "type": "object",
+        "properties": {
+          "data_emissao": {
+            "type": "string"
+          },
+          "produto": {
+            "type": "string"
+          },
+          "nome_popular": {
+            "type": "string"
+          },
+          "volume": {
+            "type": "number"
+          },
+          "unidade": {
+            "type": "string"
+          },
+          "valor_total": {
+            "type": "number"
+          }
+        }
+      },
+      "TransporteAgrupado": {
+        "type": "object",
+        "description": "Parceiro comercial com operacoes de transporte agrupadas",
+        "properties": {
+          "cpf_cnpj": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "municipio": {
+            "type": "string"
+          },
+          "direcao": {
+            "type": "string",
+            "enum": [
+              "remetente",
+              "destinatario"
+            ],
+            "description": "Se o parceiro eh remetente ou destinatario"
+          },
+          "qtd_operacoes": {
+            "type": "integer"
+          },
+          "volume_total": {
+            "type": "number"
+          },
+          "valor_total": {
+            "type": "number"
+          },
+          "produtos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "por_produto": {
+            "type": "array",
+            "description": "Produtos transportados agrupados por tipo",
+            "items": {
+              "$ref": "#/components/schemas/ProdutoAgrupado"
+            }
+          },
+          "periodo": {
+            "type": "object",
+            "properties": {
+              "primeiro": {
+                "type": "string"
+              },
+              "ultimo": {
+                "type": "string"
+              }
+            }
+          },
+          "operacoes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransporteDetalhe"
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/rural/cpf/{cpf}": {
+      "get": {
+        "operationId": "getRuralByCpf",
+        "summary": "Perfil rural de uma pessoa",
+        "description": "Retorna propriedades SNCR e CAFIR, infracoes IBAMA, transportes florestais (DOF) e resumo consolidado.",
+        "tags": [
+          "Rural"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil rural completo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuralProfile"
+                },
+                "example": {
+                  "cpf_cnpj": "12345678901",
+                  "propriedades_sncr": [
+                    {
+                      "codigo_imovel": "9200123456",
+                      "nome_imovel": "Fazenda Boa Vista",
+                      "municipio": "Ribeirão Preto",
+                      "uf": "SP",
+                      "area_total": 500.5,
+                      "modulos_fiscais": 25.0,
+                      "cod_ibge": "3543402",
+                      "nome_detentor": "João Silva",
+                      "cpf_cnpj": "12345678901",
+                      "tipo_detentor": "Proprietário",
+                      "fracao": 100.0,
+                      "condicao_detentor": "Proprietário"
+                    }
+                  ],
+                  "propriedades_cafir": [
+                    {
+                      "nirf": "1234567890",
+                      "area_total": 500.5,
+                      "codigo_incra": "9200123456",
+                      "nome_imovel": "Fazenda Boa Vista",
+                      "situacao": "Ativo",
+                      "logradouro": "Estrada Rural km 5",
+                      "distrito": "Distrito Rural",
+                      "uf": "SP",
+                      "municipio": "Ribeirão Preto",
+                      "cep": "14000000",
+                      "data_atualizacao": "2023-01-15",
+                      "imune_isento": "Não",
+                      "codigo_sncr": "9200123456"
+                    }
+                  ],
+                  "transportes": {
+                    "total": 5,
+                    "volume_total": 250.0,
+                    "valor_total": 75000.0,
+                    "produtos": [
+                      "Eucalipto"
+                    ],
+                    "por_ano": [
+                      {
+                        "ano": 2023,
+                        "qtd": 3,
+                        "volume": 150.0
+                      },
+                      {
+                        "ano": 2024,
+                        "qtd": 2,
+                        "volume": 100.0
+                      }
+                    ],
+                    "por_produto": [
+                      {
+                        "produto": "Eucalipto",
+                        "qtd": 5,
+                        "volume": 250.0,
+                        "valor": 75000.0,
+                        "unidade": "m3"
+                      }
+                    ],
+                    "parceiros": [
+                      {
+                        "cpf_cnpj": "98765432000188",
+                        "nome": "Madeireira Central LTDA",
+                        "uf": "SP",
+                        "municipio": "Ribeirão Preto",
+                        "direcao": "destinatario",
+                        "qtd_operacoes": 5,
+                        "volume_total": 250.0,
+                        "valor_total": 75000.0,
+                        "produtos": [
+                          "Eucalipto"
+                        ],
+                        "por_produto": [
+                          {
+                            "produto": "Eucalipto",
+                            "qtd": 5,
+                            "volume": 250.0,
+                            "valor": 75000.0,
+                            "unidade": "m3"
+                          }
+                        ],
+                        "periodo": {
+                          "primeiro": "2023-03-10",
+                          "ultimo": "2024-08-20"
+                        },
+                        "operacoes": [
+                          {
+                            "data_emissao": "2024-08-20",
+                            "produto": "Eucalipto",
+                            "nome_popular": "Eucalipto",
+                            "volume": 50.0,
+                            "unidade": "m3",
+                            "valor_total": 15000.0
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "infracoes": [
+                    {
+                      "numero_auto": "9876543",
+                      "tipo_auto": "Multa",
+                      "cpf_cnpj": "12345678901",
+                      "nome_infrator": "João Silva",
+                      "municipio": "Ribeirão Preto",
+                      "uf": "SP",
+                      "descricao_dano": "Desmatamento irregular de área de preservação permanente",
+                      "area_embargada": 2.5,
+                      "latitude": -21.1767,
+                      "longitude": -47.8208,
+                      "data_auto": "2022-06-15",
+                      "valor_multa": 50000.0,
+                      "situacao_debito": "Em cobrança"
+                    }
+                  ],
+                  "resumo": {
+                    "area_total_ha": 500.5,
+                    "qtd_imoveis_sncr": 1,
+                    "qtd_imoveis_cafir": 1,
+                    "qtd_infracoes": 1,
+                    "valor_total_multas": 50000.0,
+                    "qtd_autorizacoes": 0,
+                    "qtd_transportes": 5,
+                    "estados": [
+                      "SP"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rural/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getRuralByCnpj",
+        "summary": "Perfil rural de uma empresa",
+        "tags": [
+          "Rural"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil rural completo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuralProfile"
+                },
+                "example": {
+                  "cpf_cnpj": "12345678000199",
+                  "propriedades_sncr": [
+                    {
+                      "codigo_imovel": "9200654321",
+                      "nome_imovel": "Fazenda Santa Clara",
+                      "municipio": "Campinas",
+                      "uf": "SP",
+                      "area_total": 1200.0,
+                      "modulos_fiscais": 60.0,
+                      "cod_ibge": "3509502",
+                      "nome_detentor": "Silva Comércio LTDA",
+                      "cpf_cnpj": "12345678000199",
+                      "tipo_detentor": "Proprietário",
+                      "fracao": 100.0,
+                      "condicao_detentor": "Proprietário"
+                    }
+                  ],
+                  "propriedades_cafir": [
+                    {
+                      "nirf": "9876543210",
+                      "area_total": 1200.0,
+                      "codigo_incra": "9200654321",
+                      "nome_imovel": "Fazenda Santa Clara",
+                      "situacao": "Ativo",
+                      "logradouro": "Rodovia SP-340 km 120",
+                      "distrito": "Distrito Industrial",
+                      "uf": "SP",
+                      "municipio": "Campinas",
+                      "cep": "13000000",
+                      "data_atualizacao": "2023-06-20",
+                      "imune_isento": "Não",
+                      "codigo_sncr": "9200654321"
+                    }
+                  ],
+                  "transportes": {
+                    "total": 0,
+                    "volume_total": 0,
+                    "valor_total": 0,
+                    "produtos": [],
+                    "por_ano": [],
+                    "por_produto": [],
+                    "parceiros": []
+                  },
+                  "infracoes": [],
+                  "resumo": {
+                    "area_total_ha": 1200.0,
+                    "qtd_imoveis_sncr": 1,
+                    "qtd_imoveis_cafir": 1,
+                    "qtd_infracoes": 0,
+                    "valor_total_multas": 0,
+                    "qtd_autorizacoes": 0,
+                    "qtd_transportes": 0,
+                    "estados": [
+                      "SP"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

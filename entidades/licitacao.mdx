@@ -1,0 +1,93 @@
+---
+title: "Licitação"
+description: "Licitacao publica e participacao em processos de contratacao governamental"
+icon: "gavel"
+---
+
+Uma **Licitacao** representa um processo de contratacao publica em que o CPF ou CNPJ participou como fornecedor, conforme registrado no PNCP.
+
+## Tipagem
+
+```json
+{
+  "id": "d6fcd05b-a94a-45ff-a1d2-91bde34ff84a",
+  "id_licitacao": "0759868300017010000012026",
+  "id_pregao": "",
+  "id_uasg": "2",
+  "titulo": "Edital de Chamamento Publico no 2102.001-2025/2026",
+  "descricao": "CREDENCIAMENTO DE LEILOEIROS OFICIAIS PARA A REALIZACAO DE LEILOES DESTINADOS A ALIENACAO DE BENS MOVEIS DA PREFEITURA MUNICIPAL DE MERUOCA/CE.",
+  "fonte": "PNCP",
+  "modalidade": "Credenciamento",
+  "tipo_disputa": "Aberto",
+  "data_publicacao": "2025-04-02",
+  "data_inicio": "2025-04-02",
+  "data_fim": "2026-04-02",
+  "uf": "CE",
+  "local": "Meruoca",
+  "exclusivoMEEPP": false,
+  "items": [
+    {
+      "id": "b4dddacb-fdeb-43ea-8595-c6708881fa7b",
+      "codigo": "1",
+      "descricao": "CREDENCIAMENTO DE LEILOEIROS OFICIAIS PARA A REALIZACAO DE LEILOES",
+      "quantidade": 1,
+      "valor_total": 100,
+      "decreto7174": false,
+      "exclusivoMEEPP": false
+    }
+  ],
+  "participantes": [
+    {
+      "id": "22bda7e1-a742-4ea4-ae94-0ee84c61a166",
+      "documento": "03916718630",
+      "nome": "FERNANDO CAETANO MOREIRA FILHO",
+      "tipo": "PF",
+      "totalLicitacoes": 47
+    }
+  ]
+}
+```
+
+## Campos
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| `id` | string (uuid) | ID interno da licitacao |
+| `id_licitacao` | string | Numero da licitacao no sistema de origem |
+| `id_pregao` | string | Numero do pregao (se houver) |
+| `id_uasg` | string | Codigo UASG do orgao contratante |
+| `titulo` | string | Titulo do edital |
+| `descricao` | string | Objeto da licitacao |
+| `fonte` | string | Fonte dos dados (`PNCP`) |
+| `modalidade` | string | Modalidade de contratacao (ex: `Pregao Eletronico`, `Credenciamento`) |
+| `tipo_disputa` | string | Tipo de disputa (ex: `Aberto`, `Fechado`) |
+| `data_publicacao` | string (date) | Data de publicacao |
+| `data_inicio` | string (date) | Inicio da vigencia |
+| `data_fim` | string (date) | Fim da vigencia |
+| `uf` | string | UF do orgao contratante |
+| `local` | string | Municipio do orgao contratante |
+| `exclusivoMEEPP` | boolean | Exclusivo para Microempresas e EPP |
+| `items` | array | Itens do edital |
+| `participantes` | array | Todos os participantes da licitacao |
+
+## Items
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| `id` | string (uuid) | ID do item |
+| `codigo` | string | Codigo do item no edital |
+| `descricao` | string | Descricao do item |
+| `quantidade` | number | Quantidade |
+| `valor_total` | number | Valor total estimado em reais |
+| `decreto7174` | boolean | Aplica preferencia Decreto 7174 |
+| `exclusivoMEEPP` | boolean | Item exclusivo para ME/EPP |
+
+## Participantes
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| `id` | string (uuid) | ID do participante |
+| `documento` | string | CPF ou CNPJ |
+| `nome` | string | Nome ou razao social |
+| `tipo` | string | `PF` (pessoa fisica) ou `PJ` (pessoa juridica) |
+| `totalLicitacoes` | number | Total de licitacoes do participante |

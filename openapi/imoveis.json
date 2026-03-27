@@ -1,0 +1,622 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Imoveis API",
+    "description": "Levantamento de imoveis urbanos via base unificada e portais IPTU de 1.400+ municipios. Busca por CPF ou CNPJ do proprietario, com filtro opcional por estado.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "Localizacao": {
+        "type": "object",
+        "properties": {
+          "logradouro": {
+            "type": "string"
+          },
+          "numero": {
+            "type": "string"
+          },
+          "complemento": {
+            "type": "string"
+          },
+          "bairro": {
+            "type": "string"
+          },
+          "cidade": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "cep": {
+            "type": "string"
+          }
+        }
+      },
+      "Proprietario": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "documento": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipoDocumento": {
+            "type": "string",
+            "enum": [
+              "CPF",
+              "CNPJ"
+            ]
+          }
+        }
+      },
+      "ImovelRecord": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "fonte": {
+            "type": "string",
+            "description": "Fonte dos dados (betha, sia, elotech, etc)"
+          },
+          "sql_iptu": {
+            "type": "string"
+          },
+          "inscricao": {
+            "type": "string"
+          },
+          "localizacao": {
+            "$ref": "#/components/schemas/Localizacao"
+          },
+          "area_terreno": {
+            "type": "number",
+            "description": "Area do terreno em m2"
+          },
+          "area_construida": {
+            "type": "number",
+            "description": "Area construida em m2"
+          },
+          "ano_construcao": {
+            "type": "integer"
+          },
+          "tipo_uso": {
+            "type": "string",
+            "description": "Residencial, comercial, etc"
+          },
+          "valor_venal": {
+            "type": "number",
+            "description": "Valor venal em reais"
+          },
+          "valor_iptu": {
+            "type": "number",
+            "description": "IPTU anual em reais"
+          },
+          "proprietario": {
+            "$ref": "#/components/schemas/Proprietario"
+          }
+        }
+      },
+      "EnderecoResidido": {
+        "type": "object",
+        "properties": {
+          "endereco": {
+            "$ref": "#/components/schemas/Localizacao"
+          },
+          "proprietarioReal": {
+            "$ref": "#/components/schemas/Proprietario"
+          },
+          "imovelRecord": {
+            "$ref": "#/components/schemas/ImovelRecord"
+          },
+          "vinculo": {
+            "type": "string",
+            "enum": [
+              "propriedade",
+              "aluguel",
+              "empresa_socia",
+              "indefinido"
+            ]
+          }
+        }
+      },
+      "ParenteImoveis": {
+        "type": "object",
+        "properties": {
+          "cpf": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "vinculo": {
+            "type": "string"
+          },
+          "propriedades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImovelRecord"
+            }
+          }
+        }
+      },
+      "ConsultaDocumentoResponse": {
+        "type": "object",
+        "properties": {
+          "documento": {
+            "type": "string"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "cpf",
+              "cnpj"
+            ]
+          },
+          "nome": {
+            "type": "string"
+          },
+          "propriedades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImovelRecord"
+            }
+          },
+          "enderecosResididos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnderecoResidido"
+            }
+          },
+          "parentes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParenteImoveis"
+            }
+          }
+        }
+      },
+      "EnderecoResponse": {
+        "type": "object",
+        "properties": {
+          "cep": {
+            "type": "string"
+          },
+          "numero": {
+            "type": "string"
+          },
+          "complemento": {
+            "type": "string",
+            "nullable": true
+          },
+          "propriedades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImovelRecord"
+            }
+          }
+        }
+      },
+      "AsyncJobCreated": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string"
+          },
+          "statusUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/imoveis/cpf/{cpf}": {
+      "get": {
+        "operationId": "getImoveisByCpf",
+        "summary": "Imoveis urbanos de uma pessoa",
+        "description": "Retorna imoveis, enderecos resididos e imoveis de parentes para um CPF em todos os estados.",
+        "tags": [
+          "Imoveis"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          },
+          {
+            "name": "parentes",
+            "in": "query",
+            "required": false,
+            "description": "Incluir imoveis de parentes (default: true)",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imoveis encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsultaDocumentoResponse"
+                },
+                "example": {
+                  "documento": "12345678901",
+                  "tipo": "cpf",
+                  "nome": "João Silva de Oliveira",
+                  "propriedades": [
+                    {
+                      "id": "sp-vm-031044-00941",
+                      "fonte": "prefeitura_sp",
+                      "sql_iptu": "031.044.0094-1",
+                      "inscricao": "031.044.0094-1",
+                      "localizacao": {
+                        "logradouro": "Rua Propriedade",
+                        "numero": "456",
+                        "complemento": "",
+                        "bairro": "Vila Mariana",
+                        "cidade": "São Paulo",
+                        "uf": "SP",
+                        "cep": "04101000"
+                      },
+                      "area_terreno": 250.0,
+                      "area_construida": 150.0,
+                      "ano_construcao": 2005,
+                      "tipo_uso": "Residencial",
+                      "valor_venal": 500000.00,
+                      "valor_iptu": 2500.00,
+                      "proprietario": {
+                        "nome": "João Silva",
+                        "documento": "12345678901",
+                        "tipoDocumento": "CPF"
+                      }
+                    }
+                  ],
+                  "enderecosResididos": [
+                    {
+                      "endereco": {
+                        "logradouro": "Rua das Flores",
+                        "numero": "123",
+                        "complemento": "Apto 10",
+                        "bairro": "Centro",
+                        "cidade": "São Paulo",
+                        "uf": "SP",
+                        "cep": "01310100"
+                      },
+                      "proprietarioReal": {
+                        "nome": "Maria Silva",
+                        "documento": "98765432100",
+                        "tipoDocumento": "CPF"
+                      },
+                      "imovelRecord": null,
+                      "vinculo": "aluguel"
+                    }
+                  ],
+                  "parentes": [
+                    {
+                      "cpf": "98765432100",
+                      "nome": "Maria Silva de Oliveira",
+                      "vinculo": "Cônjuge",
+                      "propriedades": []
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/imoveis/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getImoveisByCnpj",
+        "summary": "Imoveis urbanos de uma empresa",
+        "tags": [
+          "Imoveis"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          },
+          {
+            "name": "parentes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imoveis encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsultaDocumentoResponse"
+                },
+                "example": {
+                  "documento": "12345678000199",
+                  "tipo": "cnpj",
+                  "nome": "Silva Comércio LTDA",
+                  "propriedades": [
+                    {
+                      "id": "sp-cn-045012-00321",
+                      "fonte": "prefeitura_sp",
+                      "sql_iptu": "045.012.0032-1",
+                      "inscricao": "045.012.0032-1",
+                      "localizacao": {
+                        "logradouro": "Rua Exemplo",
+                        "numero": "123",
+                        "complemento": "Sala 10",
+                        "bairro": "Centro",
+                        "cidade": "São Paulo",
+                        "uf": "SP",
+                        "cep": "01310100"
+                      },
+                      "area_terreno": 400.0,
+                      "area_construida": 280.0,
+                      "ano_construcao": 2010,
+                      "tipo_uso": "Comercial",
+                      "valor_venal": 1200000.00,
+                      "valor_iptu": 8500.00,
+                      "proprietario": {
+                        "nome": "Silva Comércio LTDA",
+                        "documento": "12345678000199",
+                        "tipoDocumento": "CNPJ"
+                      }
+                    }
+                  ],
+                  "enderecosResididos": [],
+                  "parentes": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/imoveis/async/cpf/{cpf}": {
+      "post": {
+        "operationId": "asyncImoveisByCpf",
+        "summary": "Imoveis de pessoa (async)",
+        "tags": [
+          "Imoveis"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "uf",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "parentes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Job criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsyncJobCreated"
+                },
+                "example": {
+                  "jobId": "abc123",
+                  "statusUrl": "/imoveis/jobs/abc123"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/imoveis/async/cnpj/{cnpj}": {
+      "post": {
+        "operationId": "asyncImoveisByCnpj",
+        "summary": "Imoveis de empresa (async)",
+        "tags": [
+          "Imoveis"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "uf",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "parentes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Job criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsyncJobCreated"
+                },
+                "example": {
+                  "jobId": "def456",
+                  "statusUrl": "/imoveis/jobs/def456"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

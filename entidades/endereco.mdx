@@ -1,0 +1,44 @@
+---
+title: "Endereço"
+description: "Registro de endereco vinculado a um CPF"
+icon: "location-dot"
+---
+
+Um **Endereco** representa um local de residencia ou correspondencia associado a uma pessoa fisica. Enderecos quebrados (sem cidade, CEP zerado) sao filtrados automaticamente.
+
+## Tipagem
+
+```json
+{
+  "logradouro": "R HENRIQUE PASSINI",
+  "numero": "748",
+  "complemento": "401",
+  "bairro": "SERRA",
+  "cidade": "BELO HORIZONTE",
+  "uf": "MG",
+  "cep": "30220-380"
+}
+```
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| `logradouro` | string | Rua, avenida, etc. |
+| `numero` | string | Numero do imovel |
+| `complemento` | string | Apartamento, bloco, sala |
+| `bairro` | string | Bairro |
+| `cidade` | string | Cidade |
+| `uf` | string | Estado (2 letras) |
+| `cep` | string | CEP formatado (XXXXX-XXX) |
+
+## Filtros automaticos
+
+A API filtra automaticamente:
+- Enderecos com CEP `00000-000` e sem logradouro
+- Enderecos sem cidade ou UF
+- Duplicatas (mesmo CEP + logradouro + numero + bairro)
+
+## Conexoes
+
+- **Pessoa** — enderecos pertencem a um CPF
+- **Empresa** — empresas tem endereco cadastral
+- **Imovel** — enderecos podem ser cruzados com imoveis para confirmar propriedade

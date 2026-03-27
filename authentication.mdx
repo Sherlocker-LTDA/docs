@@ -1,0 +1,27 @@
+---
+title: "Autenticação"
+description: "Como autenticar suas requisições na API"
+icon: "key"
+---
+
+Todas as requisições à API do Sherlocker requerem autenticação via Bearer Token no header `Authorization`.
+
+## Utilizando o token
+
+Inclua o header em todas as requisições:
+
+```bash
+curl -H "Authorization: Bearer SEU_TOKEN" \
+  https://221b-api.sherlocker.com.br/api/v1/empresas/cnpj/12345678000100
+```
+
+## Erros de autenticação
+
+| Status | Descrição |
+|--------|-----------|
+| `401`  | Token ausente ou inválido |
+| `403`  | Token sem permissão para o recurso |
+
+<Warning>
+  Nunca exponha seu token em repositórios públicos ou código client-side.
+</Warning>

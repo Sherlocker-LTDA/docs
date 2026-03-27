@@ -1,0 +1,140 @@
+---
+title: "Enriquecimento de Leads"
+description: "Adicionar dados de contato, perfil e patrimônio a uma lista de CPFs ou telefones"
+icon: "bullseye-arrow"
+---
+
+Dado uma lista de CPFs — ou apenas telefones/emails — o Sherlocker permite construir um perfil completo de cada lead: nome, endereços, telefones, emails, vínculos empresariais e sinais patrimoniais.
+
+## Estratégia
+
+<Steps>
+  <Step title="Identificar o CPF">
+    Se você só tem telefone ou email, use a busca reversa para resolver para CPF
+  </Step>
+  <Step title="Buscar dados cadastrais">
+    Nome, endereços, telefones, emails e parentes a partir do CPF
+  </Step>
+  <Step title="Buscar vínculos empresariais">
+    Empresas onde a pessoa é sócia ou funcionária
+  </Step>
+  <Step title="Sinais patrimoniais (opcional)">
+    Imóveis e veículos para qualificar o lead por capacidade financeira
+  </Step>
+</Steps>
+
+## Implementação
+
+### Cenário 1 — Tem o CPF
+
+```python
+import requests
+from concurrent.futures import ThreadPoolExecutor
+
+BASE = "https://221b-api.sherlocker.com.br/api/v1"
+TOKEN = "SEU_TOKEN"
+
+def get(endpoint, **params):
+    params["token"] = TOKEN
+    return requests.get(f"{BASE}{endpoint}", params=params).json()
+
+cpf = "12345678901"
+
+# Busca paralela: cadastro + empresas + patrimônio
+with ThreadPoolExecutor(max_workers=4) as pool:
+    fut_pessoa   = pool.submit(get, f"/pessoas/cpf/{cpf}")
+    fut_empresas = pool.submit(get, f"/empresas/cpf/{cpf}")
+    fut_imoveis  = pool.submit(get, f"/imoveis/cpf/{cpf}")
+    fut_veiculos = pool.submit(get, f"/veiculos/cpf/{cpf}")
+
+pessoa   = fut_pessoa.result()
+empresas = fut_empresas.result()
+imoveis  = fut_imoveis.result()
+veiculos = fut_veiculos.result()
+
+lead = {
+    "cpf": cpf,
+    "nome": pessoa.get("nome_completo"),
+    "data_nascimento": pessoa.get("data_nascimento"),
+    "enderecos": pessoa.get("enderecos", []),
+    "telefones": [t.get("numero_completo") for t in pessoa.get("telefones", [])],
+    "emails": [e.get("email") for e in pessoa.get("emails", [])],
+    "empresas": [s.get("razao_social") for s in empresas.get("socios", [])],
+    "imoveis": len(imoveis.get("imoveis", [])),
+    "veiculos": len(veiculos.get("veiculos", [])),
+}
+```
+
+### Cenário 2 — Tem o telefone
+
+```python
+telefone = "11987654321"
+reverso = get(f"/pessoas/telefone/{telefone}")
+
+for resultado in reverso.get("resultados", []):
+    cpf = resultado["cpf"]
+    pessoa = get(f"/pessoas/cpf/{cpf}")
+    print(f"{cpf} — {pessoa.get('nome_completo')}")
+```
+
+### Cenário 3 — Enriquecer lista em lote
+
+```python
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+def enriquecer(cpf):
+    pessoa = get(f"/pessoas/cpf/{cpf}")
+    if not pessoa.get("nome_completo"):
+        return None
+    enderecos = pessoa.get("enderecos", [])
+    telefones = pessoa.get("telefones", [])
+    return {
+        "cpf": cpf,
+        "nome": pessoa["nome_completo"],
+        "cidade": enderecos[0].get("cidade") if enderecos else None,
+        "uf": enderecos[0].get("uf") if enderecos else None,
+        "telefones": [t.get("numero_completo") for t in telefones],
+        "emails": [e.get("email") for e in pessoa.get("emails", [])],
+    }
+
+lista_de_cpfs = ["12345678901", "98765432100", "11122233344"]
+
+resultados = []
+with ThreadPoolExecutor(max_workers=10) as pool:
+    futures = {pool.submit(enriquecer, cpf): cpf for cpf in lista_de_cpfs}
+    for fut in as_completed(futures):
+        r = fut.result()
+        if r:
+            resultados.append(r)
+```
+
+## Dados disponíveis por endpoint
+
+| Endpoint | Dados retornados |
+|----------|-----------------|
+| `/pessoas/cpf/{cpf}` | Nome, endereços, telefones, emails, parentes, data nascimento |
+| `/empresas/cpf/{cpf}` | Sociedades e empregos vinculados ao CPF |
+| `/imoveis/cpf/{cpf}` | Imóveis urbanos registrados |
+| `/veiculos/cpf/{cpf}` | Veículos registrados |
+| `/pessoas/telefone/{tel}` | Busca reversa: telefone → CPF |
+| `/emails/email/{email}` | Busca reversa: email → CPFs |
+
+## APIs utilizadas
+
+<CardGroup cols={3}>
+  <Card title="Pessoas" icon="user" href="/api-reference/pessoas/perfil-completo-de-uma-pessoa">
+    Nome, contatos, endereços, parentes
+  </Card>
+  <Card title="Busca por telefone" icon="phone" href="/api-reference/busca-reversa/identificar-pessoa-por-telefone">
+    Telefone → CPF
+  </Card>
+  <Card title="Empresas" icon="building" href="/api-reference/empresas/vinculos-societarios-de-uma-pessoa">
+    Sociedades e empregos
+  </Card>
+  <Card title="Imóveis" icon="house" href="/api-reference/imoveis/imoveis-urbanos-de-uma-pessoa">
+    Patrimônio imobiliário
+  </Card>
+  <Card title="Veículos" icon="car" href="/api-reference/veiculos/veiculos-de-uma-pessoa">
+    Frota registrada
+  </Card>
+</CardGroup>

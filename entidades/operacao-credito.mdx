@@ -1,0 +1,65 @@
+---
+title: "Operacao de Credito"
+description: "Operacao de analise de credito via Mycroft API"
+icon: "file-circle-check"
+---
+
+Uma **Operacao** representa uma analise de credito de um bordero CNAB 400. Cada operacao passa por filas de processamento e produz um resultado hierarquico com regras aplicadas.
+
+## Ciclo de vida
+
+```
+criada → queued → processing → completed / failed
+```
+
+## Campos principais
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| `operationId` | UUID | Identificador unico da operacao |
+| `status` | enum | `queued`, `processing`, `completed`, `failed` |
+| `engineId` | UUID | Motor de regras utilizado |
+| `fileName` | string | Nome do arquivo CNAB enviado |
+| `tituloCount` | number | Total de titulos processados |
+| `approvedCount` | number | Titulos aprovados |
+| `blockedCount` | number | Titulos bloqueados |
+| `alertCount` | number | Titulos com alerta |
+
+## Resultado da analise
+
+O resultado segue uma arvore hierarquica:
+
+```
+Cedente (empresa que cede os titulos)
+  └── Sacados (devedores)
+       └── Titulos (duplicatas/boletos)
+            └── Issues (regras violadas)
+```
+
+### Status de cada entidade
+
+- **approved** — Sem violacoes
+- **blocked** — Regra bloqueante violada
+- **alerted** — Regra de alerta violada
+
+### Issues (violacoes)
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| `ruleId` | string | ID da regra |
+| `ruleName` | string | Nome da regra |
+| `category` | enum | `blocking` ou `alert` |
+| `message` | string | Mensagem descritiva |
+| `detail.field` | string | Campo avaliado |
+| `detail.actual` | any | Valor encontrado |
+| `detail.expected` | any | Valor esperado |
+| `dataSource` | string | Fonte dos dados (ex: "XML NFe", "Sherlocker NFe") |
+
+### Summary
+
+| Campo | Descricao |
+|-------|-----------|
+| `totalTitulos` | Total de titulos |
+| `approved` / `blocked` / `alerted` | Contagem por status |
+| `totalValue` / `approvedValue` / `blockedValue` / `alertedValue` | Valores monetarios |
+| `sacados.total` / `sacados.withIssues` | Contagem de sacados |

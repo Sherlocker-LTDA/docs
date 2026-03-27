@@ -1,0 +1,301 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Perfis API",
+    "description": "Mapeamento de presenca digital por email: perfis em GitHub, Gravatar, Duolingo, Medium, Nike, Apple, Google, Pinterest, Vivino, Trello, ProtonMail e mais.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "PerfilResult": {
+        "type": "object",
+        "properties": {
+          "plataforma": {
+            "type": "string",
+            "description": "Nome da plataforma (github, gravatar, duolingo, etc)"
+          },
+          "existe": {
+            "type": "boolean"
+          },
+          "email_recuperacao": {
+            "type": "string",
+            "description": "Email de recuperacao mascarado"
+          },
+          "telefone": {
+            "type": "string",
+            "description": "Telefone mascarado"
+          },
+          "foto": {
+            "type": "string",
+            "description": "URL da foto de perfil"
+          },
+          "username": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      },
+      "PerfisResponse": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total de plataformas onde o email foi encontrado"
+          },
+          "resultados": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PerfilResult"
+            }
+          }
+        }
+      },
+      "AsyncJobCreated": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string"
+          },
+          "statusUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/perfis/email/{email}": {
+      "get": {
+        "operationId": "getPerfisByEmail",
+        "summary": "Presenca digital por email",
+        "description": "Verifica em quais plataformas o email possui conta. Retorna username, foto, telefone e email de recuperacao quando disponiveis.",
+        "tags": [
+          "Perfis"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "description": "Email para consultar",
+            "schema": {
+              "type": "string",
+              "example": "usuario@gmail.com"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfis encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerfisResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/perfis/async/email/{email}": {
+      "post": {
+        "operationId": "asyncPerfisByEmail",
+        "summary": "Presenca digital (async)",
+        "description": "Enfileira consulta assincrona. Consulte o status via GET /jobs/{jobId}.",
+        "tags": [
+          "Perfis"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "description": "Email para consultar",
+            "schema": {
+              "type": "string",
+              "example": "usuario@gmail.com"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Job criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsyncJobCreated"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/perfis/jobs/{jobId}": {
+      "get": {
+        "operationId": "getPerfisJobStatus",
+        "summary": "Status do job de perfis",
+        "tags": [
+          "Jobs"
+        ],
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status do job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "ID do job"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Status atual do job",
+                      "enum": ["pending", "processing", "completed", "failed"]
+                    },
+                    "progress": {
+                      "type": "integer",
+                      "description": "Progresso de 0 a 100"
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Resultado do job quando completo"
+                    }
+                  },
+                  "example": {
+                    "id": "abc123",
+                    "status": "completed",
+                    "progress": 100,
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

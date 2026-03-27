@@ -1,0 +1,3186 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Empresas API",
+    "description": "Perfil completo de empresas: dados cadastrais, quadro societario, funcionarios, dividas, veiculos, imoveis, processos, aeronaves, patentes, trabalhista, rural, beneficios fiscais e compliance. Ponto de entrada para investigacoes empresariais.",
+    "version": "2.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "Estabelecimento": {
+        "type": "object",
+        "properties": {
+          "cnpj": {
+            "type": "string"
+          },
+          "razao_social": {
+            "type": "string"
+          },
+          "nome_fantasia": {
+            "type": "string"
+          },
+          "natureza_juridica_descricao": {
+            "type": "string"
+          },
+          "capital_social": {
+            "type": "number",
+            "description": "Capital social em reais"
+          },
+          "porte_empresa": {
+            "type": "string",
+            "description": "ME, EPP, Demais"
+          },
+          "matriz_filial": {
+            "type": "string",
+            "description": "1=Matriz, 2=Filial"
+          },
+          "situacao_cadastral": {
+            "type": "string",
+            "description": "02=Ativa, 08=Baixada"
+          },
+          "data_situacao_cadastral": {
+            "type": "string"
+          },
+          "data_inicio_atividades": {
+            "type": "string"
+          },
+          "cnae_fiscal": {
+            "type": "string"
+          },
+          "cnae_fiscal_descricao": {
+            "type": "string"
+          },
+          "cnae_fiscal_secundaria": {
+            "type": "string"
+          },
+          "logradouro": {
+            "type": "string"
+          },
+          "numero": {
+            "type": "string"
+          },
+          "complemento": {
+            "type": "string"
+          },
+          "bairro": {
+            "type": "string"
+          },
+          "cep": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "municipio_nome": {
+            "type": "string"
+          },
+          "ddd1": {
+            "type": "string"
+          },
+          "telefone1": {
+            "type": "string"
+          },
+          "correio_eletronico": {
+            "type": "string"
+          }
+        }
+      },
+      "Socio": {
+        "type": "object",
+        "properties": {
+          "documento": {
+            "type": "string",
+            "description": "CPF ou CNPJ formatado do socio"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "tipo": {
+            "type": "string",
+            "description": "Pessoa Fisica, Pessoa Juridica"
+          },
+          "qualificacao": {
+            "type": "string"
+          },
+          "data_entrada": {
+            "type": "string"
+          },
+          "faixa_etaria": {
+            "type": "string",
+            "nullable": true
+          },
+          "data_nascimento": {
+            "type": "string",
+            "nullable": true,
+            "description": "Somente para Pessoa Fisica"
+          },
+          "sexo": {
+            "type": "string",
+            "nullable": true,
+            "description": "Somente para Pessoa Fisica"
+          },
+          "idade": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Somente para Pessoa Fisica"
+          },
+          "representante": {
+            "type": "object",
+            "nullable": true,
+            "description": "Somente para Pessoa Juridica",
+            "properties": {
+              "nome": {
+                "type": "string"
+              },
+              "documento": {
+                "type": "string"
+              },
+              "qualificacao": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Funcionario": {
+        "type": "object",
+        "properties": {
+          "cpf": {
+            "type": "string",
+            "description": "CPF formatado"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "data_nascimento": {
+            "type": "string",
+            "nullable": true
+          },
+          "sexo": {
+            "type": "string",
+            "nullable": true,
+            "description": "Masculino ou Feminino"
+          },
+          "cargo": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "ativo ou inativo"
+          },
+          "data_admissao": {
+            "type": "string",
+            "nullable": true
+          },
+          "data_desligamento": {
+            "type": "string",
+            "nullable": true
+          },
+          "remuneracao": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "valor": {
+                "type": "number",
+                "nullable": true
+              },
+              "estimativa_minima": {
+                "type": "number",
+                "nullable": true
+              },
+              "estimativa_maxima": {
+                "type": "number",
+                "nullable": true
+              },
+              "faixa": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          },
+          "vinculo": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "nivel": {
+                "type": "string",
+                "nullable": true
+              },
+              "setor": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "codigo": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "descricao": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          },
+          "contatos": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "telefone": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "ddi": {
+                    "type": "string"
+                  },
+                  "ddd": {
+                    "type": "string"
+                  },
+                  "numero": {
+                    "type": "string"
+                  },
+                  "numero_completo": {
+                    "type": "string"
+                  },
+                  "estado": {
+                    "type": "string"
+                  },
+                  "operadora": {
+                    "type": "string"
+                  }
+                }
+              },
+              "email": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "dominio": {
+                    "type": "string"
+                  },
+                  "corporativo": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Veiculo": {
+        "type": "object",
+        "properties": {
+          "placa": {
+            "type": "string",
+            "description": "Placa atual do veiculo"
+          },
+          "placa_antiga": {
+            "type": "string",
+            "description": "Placa formato antigo (ABC-1234)"
+          },
+          "chassi": {
+            "type": "string"
+          },
+          "renavam": {
+            "type": "string"
+          },
+          "marca": {
+            "type": "string"
+          },
+          "modelo": {
+            "type": "string"
+          },
+          "ano_fabricacao": {
+            "type": "integer"
+          },
+          "ano_modelo": {
+            "type": "integer"
+          },
+          "cor": {
+            "type": "string"
+          },
+          "combustivel": {
+            "type": "string"
+          },
+          "municipio": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "tipo_veiculo": {
+            "type": "string",
+            "description": "Automovel, Motocicleta, Caminhao, etc"
+          },
+          "especie_veiculo": {
+            "type": "string",
+            "description": "Passageiro, Carga, Misto, etc"
+          },
+          "situacao_veiculo": {
+            "type": "string",
+            "description": "Circulacao, Baixado, Roubado, etc"
+          },
+          "potencia": {
+            "type": "string"
+          },
+          "cilindradas": {
+            "type": "string"
+          },
+          "restricoes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Lista de restricoes do veiculo (ex: Alienacao Fiduciaria)"
+          }
+        }
+      },
+      "Parte": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "documento": {
+            "type": "string",
+            "description": "CPF ou CNPJ da parte"
+          },
+          "polo": {
+            "type": "string",
+            "description": "Autor, Reu, Terceiro, etc"
+          },
+          "tipo": {
+            "type": "string",
+            "description": "Fisica ou Juridica"
+          }
+        }
+      },
+      "Advogado": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "oab": {
+            "type": "string",
+            "description": "Numero OAB (ex: SP123456)"
+          }
+        }
+      },
+      "Processo": {
+        "type": "object",
+        "properties": {
+          "numero_processo": {
+            "type": "string"
+          },
+          "tribunal": {
+            "type": "string"
+          },
+          "classe_codigo": {
+            "type": "integer"
+          },
+          "classe_nome": {
+            "type": "string"
+          },
+          "grau": {
+            "type": "string"
+          },
+          "data_ajuizamento": {
+            "type": "string"
+          },
+          "orgao_julgador": {
+            "type": "string"
+          },
+          "assuntos": {
+            "type": "string"
+          },
+          "partes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Parte"
+            }
+          },
+          "advogados": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Advogado"
+            }
+          }
+        }
+      },
+      "Aeronaves": {
+        "type": "object",
+        "properties": {
+          "avioes": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "drones": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "Patente": {
+        "type": "object",
+        "properties": {
+          "numero_inpi": {
+            "type": "string"
+          },
+          "titulo": {
+            "type": "string"
+          },
+          "natureza": {
+            "type": "string"
+          },
+          "data_deposito": {
+            "type": "string"
+          },
+          "data_publicacao": {
+            "type": "string"
+          }
+        }
+      },
+      "EmpresaCompletaResponse": {
+        "type": "object",
+        "properties": {
+          "estabelecimento": {
+            "$ref": "#/components/schemas/Estabelecimento"
+          },
+          "socios": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Socio"
+            }
+          },
+          "funcionarios": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Funcionario"
+            }
+          },
+          "dividas": {
+            "$ref": "#/components/schemas/DividasResponse"
+          },
+          "veiculos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Veiculo"
+            }
+          },
+          "imoveis": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "processos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Processo"
+            }
+          },
+          "aeronaves": {
+            "$ref": "#/components/schemas/Aeronaves"
+          },
+          "patentes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Patente"
+            }
+          },
+          "trabalhista": {
+            "type": "object",
+            "nullable": true
+          },
+          "rural": {
+            "type": "object",
+            "nullable": true
+          },
+          "beneficios": {
+            "type": "object",
+            "nullable": true
+          },
+          "compliance": {
+            "type": "object",
+            "nullable": true
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      },
+      "HistoricoItem": {
+        "type": "object",
+        "properties": {
+          "situacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "valor": {
+            "type": "number",
+            "nullable": true
+          },
+          "data_inscricao": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "Divida": {
+        "type": "object",
+        "description": "Inscricao de divida federal agrupada por numero de inscricao",
+        "properties": {
+          "numero_inscricao": {
+            "type": "string",
+            "description": "Numero da inscricao na divida ativa"
+          },
+          "fonte": {
+            "type": "string",
+            "enum": [
+              "ativa_uniao",
+              "fgts",
+              "previdenciaria"
+            ],
+            "description": "Origem da divida"
+          },
+          "receita": {
+            "type": "string",
+            "nullable": true,
+            "description": "Tipo de tributo (IRPF, CSLL, FGTS, etc.)"
+          },
+          "ajuizado": {
+            "type": "boolean",
+            "description": "Se foi ajuizado judicialmente"
+          },
+          "data_inscricao": {
+            "type": "string",
+            "nullable": true,
+            "description": "Data da inscricao mais recente"
+          },
+          "valor_atual": {
+            "type": "number",
+            "nullable": true,
+            "description": "Valor consolidado mais recente em R$"
+          },
+          "uf": {
+            "type": "string",
+            "nullable": true,
+            "description": "UF do devedor"
+          },
+          "unidade_responsavel": {
+            "type": "string",
+            "nullable": true
+          },
+          "entidade_responsavel": {
+            "type": "string",
+            "nullable": true,
+            "description": "Somente FGTS"
+          },
+          "historico": {
+            "type": "array",
+            "description": "Historico de situacoes para o mesmo numero de inscricao",
+            "items": {
+              "type": "object",
+              "properties": {
+                "situacao": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "valor": {
+                  "type": "number",
+                  "nullable": true
+                },
+                "data_inscricao": {
+                  "type": "string",
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "DividasResponse": {
+        "type": "object",
+        "description": "Dividas federais agrupadas por numero de inscricao",
+        "properties": {
+          "documento": {
+            "type": "string",
+            "description": "CPF ou CNPJ consultado"
+          },
+          "nome": {
+            "type": "string",
+            "nullable": true,
+            "description": "Nome ou razao social do devedor"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total de inscricoes encontradas"
+          },
+          "valor_total": {
+            "type": "number",
+            "description": "Soma dos valores atuais em R$"
+          },
+          "ajuizado": {
+            "type": "boolean",
+            "description": "True se ao menos uma divida foi ajuizada"
+          },
+          "dividas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Divida"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/empresas/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getEmpresaByCnpj",
+        "summary": "Perfil completo",
+        "description": "Retorna o perfil completo da empresa: dados cadastrais, socios, funcionarios, dividas, veiculos, imoveis, processos, aeronaves, patentes, trabalhista, rural, beneficios fiscais e compliance. Ponto de entrada para due diligence empresarial.",
+        "tags": [
+          "Empresas"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil completo da empresa com todos os dados agregados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmpresaCompletaResponse"
+                },
+                "example": {
+                  "estabelecimento": {
+                    "cnpj": "12345678000199",
+                    "razao_social": "Silva Comércio LTDA",
+                    "nome_fantasia": "Silva Store",
+                    "natureza_juridica_descricao": "Sociedade Limitada",
+                    "capital_social": 100000,
+                    "porte_empresa": "ME",
+                    "matriz_filial": "1",
+                    "situacao_cadastral": "02",
+                    "data_situacao_cadastral": "2019-01-15",
+                    "data_inicio_atividades": "2019-01-15",
+                    "cnae_fiscal": "4729199",
+                    "cnae_fiscal_descricao": "Comércio varejista de outros produtos",
+                    "cnae_fiscal_secundaria": "4723700",
+                    "logradouro": "Rua Exemplo",
+                    "numero": "123",
+                    "complemento": "Sala 10",
+                    "bairro": "Centro",
+                    "cep": "01310100",
+                    "uf": "SP",
+                    "municipio_nome": "São Paulo",
+                    "ddd1": "11",
+                    "telefone1": "33334444",
+                    "correio_eletronico": "contato@silva.com.br"
+                  },
+                  "socios": [
+                    {
+                      "nome": "João Silva",
+                      "documento": "123.456.789-10",
+                      "tipo": "Pessoa Física",
+                      "qualificacao": "Sócio-Administrador",
+                      "data_entrada": "15/01/2019",
+                      "data_nascimento": "15/01/1990",
+                      "sexo": "Masculino",
+                      "idade": 34,
+                      "faixa_etaria": "30 a 40 anos",
+                      "representante": null
+                    },
+                    {
+                      "nome": "Empresa Parceira LTDA",
+                      "documento": "98.765.432/0001-10",
+                      "tipo": "Pessoa Jurídica",
+                      "qualificacao": "Sócio",
+                      "data_entrada": "15/01/2019",
+                      "data_nascimento": null,
+                      "sexo": null,
+                      "idade": null,
+                      "faixa_etaria": null,
+                      "representante": {
+                        "nome": "Carlos Representante",
+                        "documento": "111.222.333-44",
+                        "qualificacao": "Administrador"
+                      }
+                    }
+                  ],
+                  "funcionarios": [
+                    {
+                      "cpf": "123.456.789-10",
+                      "nome": "Maria Oliveira",
+                      "data_nascimento": "1992-03-20",
+                      "sexo": "Feminino",
+                      "cargo": "Gerente Comercial",
+                      "status": "ativo",
+                      "data_admissao": "2019-01-15",
+                      "data_desligamento": null,
+                      "remuneracao": {
+                        "valor": 5000.0,
+                        "estimativa_minima": 6072.0,
+                        "estimativa_maxima": 15180.0,
+                        "faixa": "4 a 10 SM"
+                      },
+                      "vinculo": {
+                        "nivel": "Gerente",
+                        "setor": {
+                          "tipo": "Privado",
+                          "codigo": "4729199",
+                          "descricao": "Comércio varejista de outros produtos"
+                        }
+                      },
+                      "contatos": {
+                        "telefone": {
+                          "ddi": "55",
+                          "ddd": "11",
+                          "numero": "999998888",
+                          "numero_completo": "5511999998888",
+                          "estado": "São Paulo",
+                          "operadora": "Vivo"
+                        },
+                        "email": {
+                          "email": "maria@silva.com.br",
+                          "dominio": "silva.com.br",
+                          "corporativo": true
+                        }
+                      }
+                    }
+                  ],
+                  "dividas": {
+                    "documento": "12345678000199",
+                    "nome": "EMPRESA EXEMPLO LTDA",
+                    "total": 2,
+                    "valor_total": 24150.5,
+                    "ajuizado": true,
+                    "dividas": [
+                      {
+                        "numero_inscricao": "80000000000001",
+                        "fonte": "ativa_uniao",
+                        "receita": "IRPF",
+                        "ajuizado": true,
+                        "data_inscricao": "2020-03-15",
+                        "valor_atual": 15420.5,
+                        "uf": "SP",
+                        "unidade_responsavel": "DRF CAMPINAS",
+                        "historico": [
+                          {
+                            "situacao": "Ativa Ajuizada",
+                            "valor": 15420.5,
+                            "data_inscricao": "2020-03-15"
+                          }
+                        ]
+                      },
+                      {
+                        "numero_inscricao": "80000000000002",
+                        "fonte": "fgts",
+                        "receita": "FGTS",
+                        "ajuizado": false,
+                        "data_inscricao": "2021-07-01",
+                        "valor_atual": 8730.0,
+                        "uf": "SP",
+                        "unidade_responsavel": "SRTE/SP",
+                        "entidade_responsavel": "CEF",
+                        "historico": [
+                          {
+                            "situacao": "Ativa",
+                            "valor": 8730.0,
+                            "data_inscricao": "2021-07-01"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "veiculos": [
+                    {
+                      "placa": "ABC1D23",
+                      "placa_antiga": "ABC1234",
+                      "chassi": "9BWAG45N1YT123456",
+                      "renavam": "12345678901",
+                      "modelo": "FIAT/STRADA TREK CE",
+                      "marca": "FIAT",
+                      "ano_fabricacao": 2021,
+                      "ano_modelo": 2022,
+                      "cor": "Prata",
+                      "combustivel": "Flex",
+                      "municipio": "São Paulo",
+                      "uf": "SP",
+                      "tipo_veiculo": "Automóvel",
+                      "especie_veiculo": "Passageiro",
+                      "situacao_veiculo": "Circulação",
+                      "potencia": "130",
+                      "cilindradas": "1300",
+                      "restricoes": [
+                        "Alienação Fiduciária"
+                      ]
+                    }
+                  ],
+                  "imoveis": [
+                    {
+                      "inscricao": "031.044.0094-1",
+                      "fonte": "prefeitura_sp",
+                      "localizacao": {
+                        "logradouro": "Rua Propriedade",
+                        "numero": "456",
+                        "complemento": "",
+                        "bairro": "Vila Mariana",
+                        "cidade": "São Paulo",
+                        "uf": "SP",
+                        "cep": "04101000"
+                      },
+                      "terreno": {
+                        "area": 250.0
+                      },
+                      "propriedade": {
+                        "areaConstruida": 150.0,
+                        "anoConstrucao": 2005,
+                        "tipoImovel": "Residencial"
+                      },
+                      "proprietario": {
+                        "nome": "João Silva",
+                        "documento": "12345678901"
+                      },
+                      "valoracao": {
+                        "valorVenalIptu": 500000.0,
+                        "valorIptu": 2500.0
+                      },
+                      "fontes": [
+                        "IPTU São Paulo"
+                      ],
+                      "images": {
+                        "fachada": null,
+                        "satelite": null
+                      }
+                    }
+                  ],
+                  "processos": [
+                    {
+                      "numero_processo": "0000001-23.2020.8.26.0100",
+                      "tribunal": "TJ-SP",
+                      "classe_codigo": 1234,
+                      "classe_nome": "Procedimento Comum Cível",
+                      "grau": "G1",
+                      "data_ajuizamento": "2020-01-15",
+                      "orgao_julgador": "1ª Vara Cível",
+                      "assuntos": "Indenização por Dano Moral",
+                      "partes": [
+                        {
+                          "nome": "João Silva de Oliveira",
+                          "documento": "12345678901",
+                          "polo": "Autor",
+                          "tipo": "Física"
+                        },
+                        {
+                          "nome": "Empresa X LTDA",
+                          "documento": "12345678000199",
+                          "polo": "Réu",
+                          "tipo": "Jurídica"
+                        }
+                      ],
+                      "advogados": [
+                        {
+                          "nome": "Dr. José Advogado",
+                          "oab": "SP123456"
+                        }
+                      ]
+                    }
+                  ],
+                  "aeronaves": {
+                    "avioes": [
+                      {
+                        "marca": "PT-ABC",
+                        "modelo": "EMB-110",
+                        "fabricante": "Embraer",
+                        "tipo": "Avião",
+                        "categoria": "TPP",
+                        "proprietario": "João Silva",
+                        "uf": "SP",
+                        "ano_fabricacao": "2010",
+                        "certificado_matricula": "12345",
+                        "numero_serie": "110-001",
+                        "classe": "CLT",
+                        "pmd": "5700",
+                        "tripulacao_minima": "2",
+                        "passageiros_maximo": "19",
+                        "tipo_motor": "Turboélice",
+                        "quantidade_motores": "2"
+                      }
+                    ],
+                    "drones": [
+                      {
+                        "codigo_aeronave": "PR-DRONE123",
+                        "modelo": "DJI Phantom 4 Pro",
+                        "fabricante": "DJI",
+                        "tipo_uso": "Recreação",
+                        "operador": "João Silva",
+                        "cpf_cnpj": "12345678901",
+                        "data_validade": "2025-12-31",
+                        "numero_serie": "ABC123456",
+                        "peso_maximo": "1.388 kg",
+                        "ramo_atividade": "Fotografia"
+                      }
+                    ]
+                  },
+                  "patentes": [
+                    {
+                      "numero_inpi": "BR1020200001234",
+                      "titulo": "Sistema de automação para irrigação agrícola",
+                      "natureza": "Patente de Invenção",
+                      "data_deposito": "2020-01-15",
+                      "data_publicacao": "2021-07-20"
+                    }
+                  ],
+                  "trabalhista": {
+                    "beneficiarias": [
+                      {
+                        "programa": "PAT",
+                        "cnpj": "12345678000199",
+                        "razao_social": "Silva LTDA",
+                        "data_inclusao": "2020-01-15"
+                      }
+                    ],
+                    "facilitadoras": [],
+                    "fornecedoras": []
+                  },
+                  "rural": {
+                    "sncr": [
+                      {
+                        "codigo_imovel": "9200123456",
+                        "nome_imovel": "Fazenda Boa Vista",
+                        "municipio": "Ribeirão Preto",
+                        "uf": "SP",
+                        "area_total": 500.5,
+                        "modulos_fiscais": 25.0,
+                        "cod_ibge": "3543402",
+                        "nome_detentor": "João Silva",
+                        "cpf_cnpj": "12345678901",
+                        "tipo_detentor": "Proprietário",
+                        "fracao": 100.0,
+                        "condicao_detentor": "Proprietário"
+                      }
+                    ],
+                    "cafir": [
+                      {
+                        "nirf": "1234567890",
+                        "area_total": 500.5,
+                        "codigo_incra": "9200123456",
+                        "nome_imovel": "Fazenda Boa Vista",
+                        "situacao": "Ativo",
+                        "logradouro": "Estrada Rural km 5",
+                        "distrito": "Distrito Rural",
+                        "uf": "SP",
+                        "municipio": "Ribeirão Preto",
+                        "cep": "14000000",
+                        "data_atualizacao": "2023-01-15",
+                        "imune_isento": "Não",
+                        "codigo_sncr": "9200123456"
+                      }
+                    ]
+                  },
+                  "beneficios": {
+                    "renuncias_fiscais": [
+                      {
+                        "cnpj": "12345678000199",
+                        "razao_social": "Silva Comércio LTDA",
+                        "nome_fantasia": "Silva Store",
+                        "cnae": "4729199",
+                        "municipio": "São Paulo",
+                        "uf": "SP",
+                        "ano_calendario": "2023",
+                        "tipo_renuncia": "Habilitação",
+                        "beneficio_fiscal": "Simples Nacional",
+                        "tributo": "IRPJ",
+                        "valor_renuncia": 12000.0
+                      }
+                    ]
+                  },
+                  "compliance": {
+                    "trabalho_escravo": [
+                      {
+                        "empregador": "Empresa X",
+                        "cnpj_cpf": "12345678000199",
+                        "uf": "SP",
+                        "trabalhadores_envolvidos": 10,
+                        "ano_acao_fiscal": "2020"
+                      }
+                    ],
+                    "ibama_embargos": [],
+                    "bcb_penalizados": [],
+                    "sancoes_internacionais": [],
+                    "ceis": [
+                      {
+                        "nome": "Empresa X",
+                        "cnpj_cpf": "12345678000199",
+                        "orgao_sancionador": "CGU",
+                        "data_inicio_sancao": "2020-01-15",
+                        "data_fim_sancao": "2025-01-15"
+                      }
+                    ],
+                    "cnep": [],
+                    "ceaf": [],
+                    "pep": []
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/empresas/cnpj/{cnpj}/socios": {
+      "get": {
+        "operationId": "getSociosByCnpj",
+        "summary": "Quadro societario",
+        "description": "Retorna socios e administradores com qualificacao, data de entrada e representante legal.",
+        "tags": [
+          "Empresas"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de socios",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "socios": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Socio"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "socios": [
+                    {
+                      "nome": "João Silva",
+                      "documento": "123.456.789-10",
+                      "tipo": "Pessoa Física",
+                      "qualificacao": "Sócio-Administrador",
+                      "data_entrada": "15/01/2019",
+                      "data_nascimento": "15/01/1990",
+                      "sexo": "Masculino",
+                      "idade": 34,
+                      "faixa_etaria": "30 a 40 anos",
+                      "representante": null
+                    },
+                    {
+                      "nome": "Empresa Parceira LTDA",
+                      "documento": "98.765.432/0001-10",
+                      "tipo": "Pessoa Jurídica",
+                      "qualificacao": "Sócio",
+                      "data_entrada": "15/01/2019",
+                      "data_nascimento": null,
+                      "sexo": null,
+                      "idade": null,
+                      "faixa_etaria": null,
+                      "representante": {
+                        "nome": "Carlos Representante",
+                        "documento": "111.222.333-44",
+                        "qualificacao": "Administrador"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/empresas/cnpj/{cnpj}/funcionarios": {
+      "get": {
+        "operationId": "getFuncionariosByCnpj",
+        "summary": "Quadro de funcionarios",
+        "description": "Retorna os funcionarios vinculados a uma empresa com cargo, funcao, remuneracao e situacao. Util para avaliar porte operacional.",
+        "tags": [
+          "Empresas"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de funcionarios",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "funcionarios": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Funcionario"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "funcionarios": [
+                    {
+                      "cpf": "123.456.789-10",
+                      "nome": "Maria Oliveira",
+                      "data_nascimento": "1992-03-20",
+                      "sexo": "Feminino",
+                      "cargo": "Gerente Comercial",
+                      "status": "ativo",
+                      "data_admissao": "2019-01-15",
+                      "data_desligamento": null,
+                      "remuneracao": {
+                        "valor": 5000.0,
+                        "estimativa_minima": 6072.0,
+                        "estimativa_maxima": 15180.0,
+                        "faixa": "4 a 10 SM"
+                      },
+                      "vinculo": {
+                        "nivel": "Gerente",
+                        "setor": {
+                          "tipo": "Privado",
+                          "codigo": "4729199",
+                          "descricao": "Comércio varejista de outros produtos"
+                        }
+                      },
+                      "contatos": {
+                        "telefone": {
+                          "ddi": "55",
+                          "ddd": "11",
+                          "numero": "999998888",
+                          "numero_completo": "5511999998888",
+                          "estado": "São Paulo",
+                          "operadora": "Vivo"
+                        },
+                        "email": {
+                          "email": "maria@silva.com.br",
+                          "dominio": "silva.com.br",
+                          "corporativo": true
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/empresas/cnpj/{cnpj}/dividas": {
+      "get": {
+        "operationId": "getDividasByCnpj",
+        "summary": "Dividas federais",
+        "description": "Retorna dividas inscritas na Divida Ativa da Uniao, FGTS e Previdenciaria da empresa.",
+        "tags": [
+          "Empresas"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dividas federais",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DividasResponse"
+                },
+                "example": {
+                  "documento": "12345678000199",
+                  "nome": "EMPRESA EXEMPLO LTDA",
+                  "total": 2,
+                  "valor_total": 24150.5,
+                  "ajuizado": true,
+                  "dividas": [
+                    {
+                      "numero_inscricao": "80000000000001",
+                      "fonte": "ativa_uniao",
+                      "receita": "IRPF",
+                      "ajuizado": true,
+                      "data_inscricao": "2020-03-15",
+                      "valor_atual": 15420.5,
+                      "uf": "SP",
+                      "unidade_responsavel": "DRF CAMPINAS",
+                      "historico": [
+                        {
+                          "situacao": "Ativa Ajuizada",
+                          "valor": 15420.5,
+                          "data_inscricao": "2020-03-15"
+                        }
+                      ]
+                    },
+                    {
+                      "numero_inscricao": "80000000000002",
+                      "fonte": "fgts",
+                      "receita": "FGTS",
+                      "ajuizado": false,
+                      "data_inscricao": "2021-07-01",
+                      "valor_atual": 8730.0,
+                      "uf": "SP",
+                      "unidade_responsavel": "SRTE/SP",
+                      "entidade_responsavel": "CEF",
+                      "historico": [
+                        {
+                          "situacao": "Ativa",
+                          "valor": 8730.0,
+                          "data_inscricao": "2021-07-01"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/empresas/cnpj/{cnpj}/veiculos": {
+      "get": {
+        "operationId": "getVeiculosByCnpj",
+        "summary": "Veiculos",
+        "description": "Retorna veiculos registrados em nome do CNPJ.",
+        "tags": [
+          "Empresas"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de veiculos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "veiculos": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Veiculo"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "veiculos": [
+                    {
+                      "placa": "ABC1D23",
+                      "placa_antiga": "ABC1234",
+                      "chassi": "9BWAG45N1YT123456",
+                      "renavam": "12345678901",
+                      "modelo": "FIAT/STRADA TREK CE",
+                      "marca": "FIAT",
+                      "ano_fabricacao": 2021,
+                      "ano_modelo": 2022,
+                      "cor": "Prata",
+                      "combustivel": "Flex",
+                      "municipio": "São Paulo",
+                      "uf": "SP",
+                      "tipo_veiculo": "Automóvel",
+                      "especie_veiculo": "Passageiro",
+                      "situacao_veiculo": "Circulação",
+                      "potencia": "130",
+                      "cilindradas": "1300",
+                      "restricoes": [
+                        "Alienação Fiduciária"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/empresas/cnpj/{cnpj}/imoveis": {
+      "get": {
+        "operationId": "getImoveisByCnpj",
+        "summary": "Imoveis",
+        "description": "Retorna imoveis urbanos vinculados ao CNPJ.",
+        "tags": [
+          "Empresas"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de imoveis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "imoveis": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "imoveis": [
+                    {
+                      "inscricao": "031.044.0094-1",
+                      "fonte": "prefeitura_sp",
+                      "localizacao": {
+                        "logradouro": "Rua Propriedade",
+                        "numero": "456",
+                        "complemento": "",
+                        "bairro": "Vila Mariana",
+                        "cidade": "São Paulo",
+                        "uf": "SP",
+                        "cep": "04101000"
+                      },
+                      "terreno": {
+                        "area": 250.0
+                      },
+                      "propriedade": {
+                        "areaConstruida": 150.0,
+                        "anoConstrucao": 2005,
+                        "tipoImovel": "Residencial"
+                      },
+                      "proprietario": {
+                        "nome": "João Silva",
+                        "documento": "12345678901"
+                      },
+                      "valoracao": {
+                        "valorVenalIptu": 500000.0,
+                        "valorIptu": 2500.0
+                      },
+                      "fontes": [
+                        "IPTU São Paulo"
+                      ],
+                      "images": {
+                        "fachada": null,
+                        "satelite": null
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/empresas/cnpj/{cnpj}/processos": {
+      "get": {
+        "operationId": "getProcessosByCnpj",
+        "summary": "Processos judiciais",
+        "description": "Retorna processos judiciais onde o CNPJ figura como parte.",
+        "tags": [
+          "Empresas"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de processos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "processos": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Processo"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "processos": [
+                    {
+                      "numero_processo": "0000001-23.2020.8.26.0100",
+                      "tribunal": "TJ-SP",
+                      "classe_codigo": 1234,
+                      "classe_nome": "Procedimento Comum Cível",
+                      "grau": "G1",
+                      "data_ajuizamento": "2020-01-15",
+                      "orgao_julgador": "1ª Vara Cível",
+                      "assuntos": "Indenização por Dano Moral",
+                      "partes": [
+                        {
+                          "nome": "João Silva de Oliveira",
+                          "documento": "12345678901",
+                          "polo": "Autor",
+                          "tipo": "Física"
+                        },
+                        {
+                          "nome": "Empresa X LTDA",
+                          "documento": "12345678000199",
+                          "polo": "Réu",
+                          "tipo": "Jurídica"
+                        }
+                      ],
+                      "advogados": [
+                        {
+                          "nome": "Dr. José Advogado",
+                          "oab": "SP123456"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/empresas/cnpj/{cnpj}/aeronaves": {
+      "get": {
+        "operationId": "getAeronavesByCnpj",
+        "summary": "Aeronaves",
+        "description": "Retorna aeronaves e drones registrados em nome do CNPJ.",
+        "tags": [
+          "Empresas"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aeronaves e drones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Aeronaves"
+                },
+                "example": {
+                  "avioes": [
+                    {
+                      "marca": "PT-ABC",
+                      "modelo": "EMB-110",
+                      "fabricante": "Embraer",
+                      "tipo": "Avião",
+                      "categoria": "TPP",
+                      "proprietario": "João Silva",
+                      "uf": "SP",
+                      "ano_fabricacao": "2010",
+                      "certificado_matricula": "12345",
+                      "numero_serie": "110-001",
+                      "classe": "CLT",
+                      "pmd": "5700",
+                      "tripulacao_minima": "2",
+                      "passageiros_maximo": "19",
+                      "tipo_motor": "Turboélice",
+                      "quantidade_motores": "2"
+                    }
+                  ],
+                  "drones": [
+                    {
+                      "codigo_aeronave": "PR-DRONE123",
+                      "modelo": "DJI Phantom 4 Pro",
+                      "fabricante": "DJI",
+                      "tipo_uso": "Recreação",
+                      "operador": "João Silva",
+                      "cpf_cnpj": "12345678901",
+                      "data_validade": "2025-12-31",
+                      "numero_serie": "ABC123456",
+                      "peso_maximo": "1.388 kg",
+                      "ramo_atividade": "Fotografia"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/empresas/cnpj/{cnpj}/patentes": {
+      "get": {
+        "operationId": "getPatentesByCnpj",
+        "summary": "Patentes",
+        "description": "Retorna patentes e registros de propriedade intelectual vinculados ao CNPJ no INPI.",
+        "tags": [
+          "Empresas"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de patentes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "patentes": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Patente"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "patentes": [
+                    {
+                      "numero_inpi": "BR1020200001234",
+                      "titulo": "Sistema de automação para irrigação agrícola",
+                      "natureza": "Patente de Invenção",
+                      "data_deposito": "2020-01-15",
+                      "data_publicacao": "2021-07-20"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/empresas/cnpj/{cnpj}/trabalhista": {
+      "get": {
+        "operationId": "getTrabalhistaByCnpj",
+        "summary": "Dados trabalhistas (PAT)",
+        "description": "Retorna dados do Programa de Alimentacao do Trabalhador (PAT) e informacoes trabalhistas da empresa.",
+        "tags": [
+          "Empresas"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados trabalhistas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "beneficiarias": [
+                    {
+                      "programa": "PAT",
+                      "cnpj": "12345678000199",
+                      "razao_social": "Silva LTDA",
+                      "data_inclusao": "2020-01-15"
+                    }
+                  ],
+                  "facilitadoras": [],
+                  "fornecedoras": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/empresas/cnpj/{cnpj}/rural": {
+      "get": {
+        "operationId": "getRuralByCnpj",
+        "summary": "Perfil rural",
+        "description": "Retorna dados do perfil rural do CNPJ: imoveis rurais, CAR, CAFIR e informacoes agropecuarias.",
+        "tags": [
+          "Empresas"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil rural",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "sncr": [
+                    {
+                      "codigo_imovel": "9200123456",
+                      "nome_imovel": "Fazenda Boa Vista",
+                      "municipio": "Ribeirão Preto",
+                      "uf": "SP",
+                      "area_total": 500.5,
+                      "modulos_fiscais": 25.0,
+                      "cod_ibge": "3543402",
+                      "nome_detentor": "João Silva",
+                      "cpf_cnpj": "12345678901",
+                      "tipo_detentor": "Proprietário",
+                      "fracao": 100.0,
+                      "condicao_detentor": "Proprietário"
+                    }
+                  ],
+                  "cafir": [
+                    {
+                      "nirf": "1234567890",
+                      "area_total": 500.5,
+                      "codigo_incra": "9200123456",
+                      "nome_imovel": "Fazenda Boa Vista",
+                      "situacao": "Ativo",
+                      "logradouro": "Estrada Rural km 5",
+                      "distrito": "Distrito Rural",
+                      "uf": "SP",
+                      "municipio": "Ribeirão Preto",
+                      "cep": "14000000",
+                      "data_atualizacao": "2023-01-15",
+                      "imune_isento": "Não",
+                      "codigo_sncr": "9200123456"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/empresas/cnpj/{cnpj}/beneficios": {
+      "get": {
+        "operationId": "getBeneficiosByCnpj",
+        "summary": "Renuncias fiscais",
+        "description": "Retorna beneficios e renuncias fiscais concedidos a empresa.",
+        "tags": [
+          "Empresas"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Beneficios fiscais",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "renuncias_fiscais": [
+                    {
+                      "cnpj": "12345678000199",
+                      "razao_social": "Silva Comércio LTDA",
+                      "nome_fantasia": "Silva Store",
+                      "cnae": "4729199",
+                      "municipio": "São Paulo",
+                      "uf": "SP",
+                      "ano_calendario": "2023",
+                      "tipo_renuncia": "Habilitação",
+                      "beneficio_fiscal": "Simples Nacional",
+                      "tributo": "IRPJ",
+                      "valor_renuncia": 12000.0
+                    }
+                  ],
+                  "empresas_habilitadas": [],
+                  "empresas_imunes": [],
+                  "renuncias_por_beneficiario": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/empresas/cpf/{cpf}": {
+      "get": {
+        "operationId": "getSociedadesByCpf",
+        "summary": "Vinculos societarios",
+        "description": "Busca reversa: retorna todas as empresas onde a pessoa consta como socia ou administradora. Essencial para mapear a rede empresarial de um investigado.",
+        "tags": [
+          "Busca Reversa"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF do socio (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          },
+          {
+            "name": "nome",
+            "in": "query",
+            "required": false,
+            "description": "Nome do socio (melhora precisao)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de sociedades",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "socios": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Socio"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "socios": [
+                    {
+                      "nome": "João Silva",
+                      "documento": "123.456.789-10",
+                      "tipo": "Pessoa Física",
+                      "qualificacao": "Sócio-Administrador",
+                      "data_entrada": "15/01/2019",
+                      "data_nascimento": "15/01/1990",
+                      "sexo": "Masculino",
+                      "idade": 34,
+                      "faixa_etaria": "30 a 40 anos",
+                      "representante": null
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/empresas/email/{email}": {
+      "get": {
+        "operationId": "getEmpresasByEmail",
+        "summary": "Identificar empresas por email",
+        "description": "Busca reversa: identifica empresas que possuem o email informado no cadastro da Receita Federal.",
+        "tags": [
+          "Busca Reversa"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "description": "Email cadastrado na empresa",
+            "schema": {
+              "type": "string",
+              "example": "contato@empresa.com.br"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Empresas encontradas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "empresas": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "cnpj": {
+                            "type": "string"
+                          },
+                          "ddd": {
+                            "type": "string"
+                          },
+                          "telefone": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "empresas": [
+                    {
+                      "cnpj": "12345678000199",
+                      "ddd": "11",
+                      "telefone": "33334444"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/empresas/telefone/{telefone}": {
+      "get": {
+        "operationId": "getEmpresasByTelefone",
+        "summary": "Identificar empresas por telefone",
+        "description": "Busca reversa: identifica empresas que possuem o telefone informado no cadastro da Receita Federal.",
+        "tags": [
+          "Busca Reversa"
+        ],
+        "parameters": [
+          {
+            "name": "telefone",
+            "in": "path",
+            "required": true,
+            "description": "Telefone com DDD (10-11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "11999998888"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Empresas encontradas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "empresas": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "cnpj": {
+                            "type": "string"
+                          },
+                          "ddd": {
+                            "type": "string"
+                          },
+                          "telefone": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "empresas": [
+                    {
+                      "cnpj": "12345678000199",
+                      "ddd": "11",
+                      "telefone": "33334444"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/empresas/empregos/cpf/{cpf}": {
+      "get": {
+        "operationId": "getEmpregosByCpf",
+        "summary": "Historico profissional",
+        "description": "Retorna historico completo de vinculos empregaticios via RAIS, CAGED e registros de servidores publicos, incluindo cargo, funcao, remuneracao e datas de admissao/desligamento.",
+        "tags": [
+          "Busca Reversa"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF do trabalhador (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historico de empregos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "empregos": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Funcionario"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "empregos": [
+                    {
+                      "cpf": "123.456.789-10",
+                      "nome": "Maria Oliveira",
+                      "data_nascimento": "1992-03-20",
+                      "sexo": "Feminino",
+                      "cargo": "Gerente Comercial",
+                      "status": "ativo",
+                      "data_admissao": "2019-01-15",
+                      "data_desligamento": null,
+                      "remuneracao": {
+                        "valor": 5000.0,
+                        "estimativa_minima": 6072.0,
+                        "estimativa_maxima": 15180.0,
+                        "faixa": "4 a 10 SM"
+                      },
+                      "vinculo": {
+                        "nivel": "Gerente",
+                        "setor": {
+                          "tipo": "Privado",
+                          "codigo": "4729199",
+                          "descricao": "Comércio varejista de outros produtos"
+                        }
+                      },
+                      "contatos": {
+                        "telefone": {
+                          "ddi": "55",
+                          "ddd": "11",
+                          "numero": "999998888",
+                          "numero_completo": "5511999998888",
+                          "estado": "São Paulo",
+                          "operadora": "Vivo"
+                        },
+                        "email": {
+                          "email": "maria@silva.com.br",
+                          "dominio": "silva.com.br",
+                          "corporativo": true
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/processos/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "empresas__processos_cnpj__cnpj_",
+        "summary": "Processos judiciais",
+        "description": "Processos judiciais da empresa",
+        "tags": [
+          "Juridico"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Processos judiciais da empresa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "processos": [
+                    {
+                      "numero_processo": "0000001-23.2020.8.26.0100",
+                      "tribunal": "TJ-SP",
+                      "classe_codigo": 1234,
+                      "classe_nome": "Procedimento Comum Cível",
+                      "grau": "G1",
+                      "data_ajuizamento": "2020-01-15",
+                      "orgao_julgador": "1ª Vara Cível",
+                      "assuntos": "Indenização por Dano Moral",
+                      "partes": [
+                        {
+                          "nome": "João Silva de Oliveira",
+                          "documento": "12345678901",
+                          "polo": "Autor",
+                          "tipo": "Física"
+                        },
+                        {
+                          "nome": "Empresa X LTDA",
+                          "documento": "12345678000199",
+                          "polo": "Réu",
+                          "tipo": "Jurídica"
+                        }
+                      ],
+                      "advogados": [
+                        {
+                          "nome": "Dr. José Advogado",
+                          "oab": "SP123456"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trabalhista/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "empresas__trabalhista_cnpj__cnpj_",
+        "summary": "Trabalhista",
+        "description": "PAT e irregularidades trabalhistas",
+        "tags": [
+          "Juridico"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PAT e irregularidades trabalhistas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "beneficiarias": [
+                    {
+                      "programa": "PAT",
+                      "cnpj": "12345678000199",
+                      "razao_social": "Silva LTDA",
+                      "data_inclusao": "2020-01-15"
+                    }
+                  ],
+                  "facilitadoras": [],
+                  "fornecedoras": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dividas/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "empresas__dividas_cnpj__cnpj_",
+        "summary": "Dividas federais",
+        "description": "Divida Ativa da Uniao e Previdenciaria",
+        "tags": [
+          "Financeiro"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Divida Ativa da Uniao e Previdenciaria",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "documento": "12345678000199",
+                  "nome": "EMPRESA EXEMPLO LTDA",
+                  "total": 2,
+                  "valor_total": 24150.5,
+                  "ajuizado": true,
+                  "dividas": [
+                    {
+                      "numero_inscricao": "80000000000001",
+                      "fonte": "ativa_uniao",
+                      "receita": "IRPF",
+                      "ajuizado": true,
+                      "data_inscricao": "2020-03-15",
+                      "valor_atual": 15420.5,
+                      "uf": "SP",
+                      "unidade_responsavel": "DRF CAMPINAS",
+                      "historico": [
+                        {
+                          "situacao": "Ativa Ajuizada",
+                          "valor": 15420.5,
+                          "data_inscricao": "2020-03-15"
+                        }
+                      ]
+                    },
+                    {
+                      "numero_inscricao": "80000000000002",
+                      "fonte": "fgts",
+                      "receita": "FGTS",
+                      "ajuizado": false,
+                      "data_inscricao": "2021-07-01",
+                      "valor_atual": 8730.0,
+                      "uf": "SP",
+                      "unidade_responsavel": "SRTE/SP",
+                      "entidade_responsavel": "CEF",
+                      "historico": [
+                        {
+                          "situacao": "Ativa",
+                          "valor": 8730.0,
+                          "data_inscricao": "2021-07-01"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficios/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "empresas__beneficios_cnpj__cnpj_",
+        "summary": "Renuncias fiscais",
+        "description": "Renuncias e beneficios fiscais",
+        "tags": [
+          "Financeiro"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Renuncias e beneficios fiscais",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "renuncias_fiscais": [
+                    {
+                      "cnpj": "12345678000199",
+                      "razao_social": "Silva Comércio LTDA",
+                      "nome_fantasia": "Silva Store",
+                      "cnae": "4729199",
+                      "municipio": "São Paulo",
+                      "uf": "SP",
+                      "ano_calendario": "2023",
+                      "tipo_renuncia": "Habilitação",
+                      "beneficio_fiscal": "Simples Nacional",
+                      "tributo": "IRPJ",
+                      "valor_renuncia": 12000.0
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/veiculos/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "empresas__veiculos_cnpj__cnpj_",
+        "summary": "Frota",
+        "description": "Veiculos da empresa",
+        "tags": [
+          "Patrimonio"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Veiculos da empresa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "veiculos": [
+                    {
+                      "placa": "ABC1D23",
+                      "placa_antiga": "ABC1234",
+                      "chassi": "9BWAG45N1YT123456",
+                      "renavam": "12345678901",
+                      "modelo": "FIAT/STRADA TREK CE",
+                      "marca": "FIAT",
+                      "ano_fabricacao": 2021,
+                      "ano_modelo": 2022,
+                      "cor": "Prata",
+                      "combustivel": "Flex",
+                      "municipio": "São Paulo",
+                      "uf": "SP",
+                      "tipo_veiculo": "Automóvel",
+                      "especie_veiculo": "Passageiro",
+                      "situacao_veiculo": "Circulação",
+                      "potencia": "130",
+                      "cilindradas": "1300",
+                      "restricoes": [
+                        "Alienação Fiduciária"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/imoveis/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "empresas__imoveis_cnpj__cnpj_",
+        "summary": "Imoveis",
+        "description": "Imoveis urbanos da empresa",
+        "tags": [
+          "Patrimonio"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imoveis urbanos da empresa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "imoveis": [
+                    {
+                      "inscricao": "031.044.0094-1",
+                      "fonte": "prefeitura_sp",
+                      "localizacao": {
+                        "logradouro": "Rua Propriedade",
+                        "numero": "456",
+                        "complemento": "",
+                        "bairro": "Vila Mariana",
+                        "cidade": "São Paulo",
+                        "uf": "SP",
+                        "cep": "04101000"
+                      },
+                      "terreno": {
+                        "area": 250.0
+                      },
+                      "propriedade": {
+                        "areaConstruida": 150.0,
+                        "anoConstrucao": 2005,
+                        "tipoImovel": "Residencial"
+                      },
+                      "proprietario": {
+                        "nome": "João Silva",
+                        "documento": "12345678901"
+                      },
+                      "valoracao": {
+                        "valorVenalIptu": 500000.0,
+                        "valorIptu": 2500.0
+                      },
+                      "fontes": [
+                        "IPTU São Paulo"
+                      ],
+                      "images": {
+                        "fachada": null,
+                        "satelite": null
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aeronaves/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "empresas__aeronaves_cnpj__cnpj_",
+        "summary": "Aeronaves",
+        "description": "Aeronaves e drones da empresa",
+        "tags": [
+          "Patrimonio"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aeronaves e drones da empresa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "avioes": [
+                    {
+                      "marca": "PT-ABC",
+                      "modelo": "EMB-110",
+                      "fabricante": "Embraer",
+                      "tipo": "Avião",
+                      "categoria": "TPP",
+                      "proprietario": "João Silva",
+                      "uf": "SP",
+                      "ano_fabricacao": "2010",
+                      "certificado_matricula": "12345",
+                      "numero_serie": "110-001",
+                      "classe": "CLT",
+                      "pmd": "5700",
+                      "tripulacao_minima": "2",
+                      "passageiros_maximo": "19",
+                      "tipo_motor": "Turboélice",
+                      "quantidade_motores": "2"
+                    }
+                  ],
+                  "drones": [
+                    {
+                      "codigo_aeronave": "PR-DRONE123",
+                      "modelo": "DJI Phantom 4 Pro",
+                      "fabricante": "DJI",
+                      "tipo_uso": "Recreação",
+                      "operador": "João Silva",
+                      "cpf_cnpj": "12345678901",
+                      "data_validade": "2025-12-31",
+                      "numero_serie": "ABC123456",
+                      "peso_maximo": "1.388 kg",
+                      "ramo_atividade": "Fotografia"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/patentes/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "empresas__patentes_cnpj__cnpj_",
+        "summary": "Patentes",
+        "description": "Patentes e marcas da empresa",
+        "tags": [
+          "Patrimonio"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Patentes e marcas da empresa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "patentes": [
+                    {
+                      "numero_inpi": "BR1020200001234",
+                      "titulo": "Sistema de automação para irrigação agrícola",
+                      "natureza": "Patente de Invenção",
+                      "data_deposito": "2020-01-15",
+                      "data_publicacao": "2021-07-20"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rural/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "empresas__rural_cnpj__cnpj_",
+        "summary": "Rural",
+        "description": "Imoveis rurais da empresa",
+        "tags": [
+          "Patrimonio"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imoveis rurais da empresa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "sncr": [
+                    {
+                      "codigo_imovel": "9200123456",
+                      "nome_imovel": "Fazenda Boa Vista",
+                      "municipio": "Ribeirão Preto",
+                      "uf": "SP",
+                      "area_total": 500.5,
+                      "modulos_fiscais": 25.0,
+                      "cod_ibge": "3543402",
+                      "nome_detentor": "João Silva",
+                      "cpf_cnpj": "12345678901",
+                      "tipo_detentor": "Proprietário",
+                      "fracao": 100.0,
+                      "condicao_detentor": "Proprietário"
+                    }
+                  ],
+                  "cafir": [
+                    {
+                      "nirf": "1234567890",
+                      "area_total": 500.5,
+                      "codigo_incra": "9200123456",
+                      "nome_imovel": "Fazenda Boa Vista",
+                      "situacao": "Ativo",
+                      "logradouro": "Estrada Rural km 5",
+                      "distrito": "Distrito Rural",
+                      "uf": "SP",
+                      "municipio": "Ribeirão Preto",
+                      "cep": "14000000",
+                      "data_atualizacao": "2023-01-15",
+                      "imune_isento": "Não",
+                      "codigo_sncr": "9200123456"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

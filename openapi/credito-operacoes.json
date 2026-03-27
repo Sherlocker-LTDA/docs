@@ -1,0 +1,558 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Credito - Operacoes API",
+    "description": "Analise de credito: criar operacoes CNAB 400, consultar status e resultados hierarquicos (Mycroft API).",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "Issue": {
+        "type": "object",
+        "properties": {
+          "ruleId": {
+            "type": "string"
+          },
+          "ruleName": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "blocking",
+              "alert"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "blocked",
+              "alerted"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "actual": {},
+              "expected": {},
+              "threshold": {
+                "type": "number",
+                "nullable": true
+              }
+            }
+          },
+          "dataSource": {
+            "type": "string"
+          }
+        }
+      },
+      "Titulo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "numero": {
+            "type": "string"
+          },
+          "valor": {
+            "type": "number"
+          },
+          "dataVencimento": {
+            "type": "string"
+          },
+          "nfeChave": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "blocked",
+              "alerted"
+            ]
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Issue"
+            }
+          }
+        }
+      },
+      "Sacado": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "cnpjCpf": {
+            "type": "string"
+          },
+          "razaoSocial": {
+            "type": "string"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "PJ",
+              "PF"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "blocked",
+              "alerted"
+            ]
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Issue"
+            }
+          },
+          "titulos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Titulo"
+            }
+          }
+        }
+      },
+      "Cedente": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "cnpj": {
+            "type": "string"
+          },
+          "razaoSocial": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "blocked",
+              "alerted"
+            ]
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Issue"
+            }
+          },
+          "sacados": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Sacado"
+            }
+          }
+        }
+      },
+      "Summary": {
+        "type": "object",
+        "properties": {
+          "totalTitulos": {
+            "type": "integer"
+          },
+          "approved": {
+            "type": "integer"
+          },
+          "blocked": {
+            "type": "integer"
+          },
+          "alerted": {
+            "type": "integer"
+          },
+          "totalValue": {
+            "type": "number"
+          },
+          "approvedValue": {
+            "type": "number"
+          },
+          "blockedValue": {
+            "type": "number"
+          },
+          "alertedValue": {
+            "type": "number"
+          },
+          "sacados": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer"
+              },
+              "withIssues": {
+                "type": "integer"
+              }
+            }
+          },
+          "cedente": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/credito/operacoes": {
+      "post": {
+        "operationId": "OperacoesController_create",
+        "summary": "Criar nova operacao de analise de credito",
+        "description": "Upload de arquivo CNAB 400 remessa com XMLs opcionais de NFe para analise de credito.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "cedenteCnpj"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Arquivo CNAB 400 remessa"
+                  },
+                  "cedenteCnpj": {
+                    "type": "string",
+                    "description": "CNPJ do cedente"
+                  },
+                  "engineId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "ID do engine (opcional)"
+                  },
+                  "xmls": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "ZIP com XMLs de NFe (opcional)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Operacao criada e enfileirada para processamento",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "operationId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro de validacao"
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Credito - Operacoes"
+        ]
+      }
+    },
+    "/credito/operacoes/{id}": {
+      "get": {
+        "operationId": "OperacoesController_getStatus",
+        "summary": "Consultar status de uma operacao",
+        "description": "Retorna o status atual da operacao de analise de credito.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "ID da operacao (UUID)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status da operacao",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "queued",
+                        "processing",
+                        "completed",
+                        "failed"
+                      ]
+                    },
+                    "fileName": {
+                      "type": "string"
+                    },
+                    "fileSize": {
+                      "type": "integer"
+                    },
+                    "engineId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tituloCount": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "approvedCount": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "blockedCount": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "alertCount": {
+                      "type": "integer",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "queuedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "processingAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "completedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Operacao nao encontrada"
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Credito - Operacoes"
+        ]
+      }
+    },
+    "/credito/operacoes/{id}/result": {
+      "get": {
+        "operationId": "OperacoesController_getResult",
+        "summary": "Obter resultado da analise de credito",
+        "description": "Retorna resultado hierarquico da analise: cedente > sacados > titulos com issues detalhadas.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "ID da operacao (UUID)"
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "issues",
+                "all"
+              ]
+            },
+            "description": "Filtro: 'issues' mostra apenas problemas, 'all' retorna arvore completa"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado da analise",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "operationId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "engineId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "engineName": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "cedente": {
+                      "$ref": "#/components/schemas/Cedente"
+                    },
+                    "summary": {
+                      "$ref": "#/components/schemas/Summary"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Operacao nao encontrada"
+          },
+          "409": {
+            "description": "Operacao ainda nao concluida"
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Credito - Operacoes"
+        ]
+      }
+    }
+  }
+}

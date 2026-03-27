@@ -1,0 +1,159 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Encomendas API",
+    "description": "Rastreamento de encomendas e pacotes por CPF do destinatario.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "Encomenda": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "description": "Codigo de rastreamento"
+          },
+          "numero_pedido": {
+            "type": "string"
+          },
+          "destinatario": {
+            "type": "string"
+          },
+          "remetente": {
+            "type": "string"
+          },
+          "situacao": {
+            "type": "string",
+            "description": "Status atual (entregue, em transito, etc)"
+          },
+          "empresa": {
+            "type": "string",
+            "description": "Transportadora/loja"
+          },
+          "data_prevista": {
+            "type": "string"
+          },
+          "ultima_ocorrencia": {
+            "type": "string"
+          },
+          "cidade_destino": {
+            "type": "string"
+          },
+          "estado_destino": {
+            "type": "string"
+          },
+          "url_logo": {
+            "type": "string"
+          },
+          "fornecedor_telefone": {
+            "type": "string"
+          },
+          "fornecedor_email": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/encomendas/cpf/{cpf}": {
+      "get": {
+        "operationId": "getEncomendasByCpf",
+        "summary": "Encomendas de uma pessoa",
+        "description": "Retorna encomendas e pacotes associados ao CPF do destinatario.",
+        "tags": [
+          "Encomendas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF do destinatario (com ou sem formatacao)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de encomendas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Encomenda"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

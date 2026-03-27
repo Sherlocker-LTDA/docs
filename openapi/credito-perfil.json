@@ -1,0 +1,225 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Perfil Credito API",
+    "description": "Perfil de credito por CPF ou CNPJ — agrega dividas, beneficios e dados de analise de credito (Mycroft).",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/perfil/credito/cpf/{cpf}": {
+      "get": {
+        "operationId": "CreditoController_findByCpf",
+        "summary": "Perfil de credito por CPF",
+        "description": "Retorna dividas, beneficios e dados de credito associados ao CPF.",
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "CPF (11 digitos)",
+            "example": "12345678901"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dividas, beneficios e dados de credito associados ao CPF",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cpf": {
+                      "type": "string"
+                    },
+                    "dividas": {
+                      "type": "object",
+                      "nullable": true
+                    },
+                    "beneficios": {
+                      "type": "object",
+                      "nullable": true
+                    },
+                    "credito": {
+                      "type": "object",
+                      "properties": {
+                        "engines": {
+                          "type": "array",
+                          "nullable": true,
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "apiDisponivel": {
+                          "type": "boolean"
+                        },
+                        "baseUrl": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Perfil Credito"
+        ]
+      }
+    },
+    "/perfil/credito/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "CreditoController_findByCnpj",
+        "summary": "Perfil de credito por CNPJ",
+        "description": "Retorna dividas, beneficios e dados de credito associados ao CNPJ.",
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "CNPJ (14 digitos)",
+            "example": "12345678000199"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dividas, beneficios e dados de credito associados ao CNPJ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cnpj": {
+                      "type": "string"
+                    },
+                    "dividas": {
+                      "type": "object",
+                      "nullable": true
+                    },
+                    "beneficios": {
+                      "type": "object",
+                      "nullable": true
+                    },
+                    "credito": {
+                      "type": "object",
+                      "properties": {
+                        "engines": {
+                          "type": "array",
+                          "nullable": true,
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "apiDisponivel": {
+                          "type": "boolean"
+                        },
+                        "baseUrl": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Perfil Credito"
+        ]
+      }
+    }
+  }
+}

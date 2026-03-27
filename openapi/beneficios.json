@@ -1,0 +1,454 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Beneficios API",
+    "description": "Mapeamento de beneficios sociais (Auxilio Brasil, Bolsa Familia, BPC, Auxilio Emergencial) por CPF e renuncias fiscais por CNPJ.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "AuxilioBrasil": {
+        "type": "object",
+        "properties": {
+          "cpf_favorecido": {
+            "type": "string"
+          },
+          "nis_favorecido": {
+            "type": "string"
+          },
+          "nome_favorecido": {
+            "type": "string"
+          },
+          "mes_competencia": {
+            "type": "string"
+          },
+          "mes_referencia": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "codigo_municipio": {
+            "type": "string"
+          },
+          "nome_municipio": {
+            "type": "string"
+          },
+          "valor_parcela": {
+            "type": "number"
+          }
+        }
+      },
+      "AuxilioEmergencial": {
+        "type": "object",
+        "properties": {
+          "cpf_beneficiario": {
+            "type": "string"
+          },
+          "nis_beneficiario": {
+            "type": "string"
+          },
+          "nome_beneficiario": {
+            "type": "string"
+          },
+          "cpf_responsavel": {
+            "type": "string"
+          },
+          "nome_responsavel": {
+            "type": "string"
+          },
+          "mes_disponibilizacao": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "nome_municipio": {
+            "type": "string"
+          },
+          "enquadramento": {
+            "type": "string"
+          },
+          "parcela": {
+            "type": "string"
+          },
+          "valor_beneficio": {
+            "type": "number"
+          }
+        }
+      },
+      "Bpc": {
+        "type": "object",
+        "properties": {
+          "cpf_beneficiario": {
+            "type": "string"
+          },
+          "nis_beneficiario": {
+            "type": "string"
+          },
+          "nome_beneficiario": {
+            "type": "string"
+          },
+          "mes_competencia": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "nome_municipio": {
+            "type": "string"
+          },
+          "numero_beneficio": {
+            "type": "string"
+          },
+          "beneficio_judicial": {
+            "type": "string"
+          },
+          "valor_parcela": {
+            "type": "number"
+          }
+        }
+      },
+      "RenunciaFiscal": {
+        "type": "object",
+        "properties": {
+          "cnpj": {
+            "type": "string"
+          },
+          "razao_social": {
+            "type": "string"
+          },
+          "nome_fantasia": {
+            "type": "string"
+          },
+          "cnae": {
+            "type": "string"
+          },
+          "municipio": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "ano_calendario": {
+            "type": "string"
+          },
+          "tipo_renuncia": {
+            "type": "string"
+          },
+          "beneficio_fiscal": {
+            "type": "string"
+          },
+          "tributo": {
+            "type": "string"
+          },
+          "valor_renuncia": {
+            "type": "number"
+          }
+        }
+      },
+      "BeneficiosCpfResponse": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "auxilio_brasil": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuxilioBrasil"
+            }
+          },
+          "auxilio_emergencial": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuxilioEmergencial"
+            }
+          },
+          "bolsa_familia": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuxilioBrasil"
+            }
+          },
+          "bpc": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Bpc"
+            }
+          }
+        }
+      },
+      "BeneficiosCnpjResponse": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "empresas_habilitadas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RenunciaFiscal"
+            }
+          },
+          "empresas_imunes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RenunciaFiscal"
+            }
+          },
+          "renuncias_fiscais": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RenunciaFiscal"
+            }
+          },
+          "renuncias_por_beneficiario": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RenunciaFiscal"
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/beneficios/cpf/{cpf}": {
+      "get": {
+        "operationId": "getBeneficiosByCpf",
+        "summary": "Beneficios sociais de uma pessoa",
+        "description": "Retorna beneficios sociais recebidos: Auxilio Brasil, Bolsa Familia, BPC e Auxilio Emergencial.",
+        "tags": [
+          "Beneficios"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF do beneficiario (apenas digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          },
+          {
+            "name": "nome",
+            "in": "query",
+            "required": false,
+            "description": "Filtrar por nome do beneficiario",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Beneficios encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BeneficiosCpfResponse"
+                },
+                "example": {
+                  "total": 4,
+                  "auxilio_brasil": [
+                    {
+                      "cpf_favorecido": "12345678901",
+                      "nis_favorecido": "12345678901",
+                      "nome_favorecido": "João Silva de Oliveira",
+                      "mes_competencia": "2023-01",
+                      "mes_referencia": "2023-01",
+                      "uf": "SP",
+                      "codigo_municipio": "3550308",
+                      "nome_municipio": "São Paulo",
+                      "valor_parcela": 600.0
+                    }
+                  ],
+                  "bolsa_familia": [
+                    {
+                      "cpf_favorecido": "12345678901",
+                      "nis_favorecido": "12345678901",
+                      "nome_favorecido": "João Silva de Oliveira",
+                      "mes_competencia": "2022-12",
+                      "mes_referencia": "2022-12",
+                      "uf": "SP",
+                      "codigo_municipio": "3550308",
+                      "nome_municipio": "São Paulo",
+                      "valor_parcela": 400.0
+                    }
+                  ],
+                  "auxilio_emergencial": [
+                    {
+                      "cpf_beneficiario": "12345678901",
+                      "nis_beneficiario": "12345678901",
+                      "nome_beneficiario": "João Silva de Oliveira",
+                      "cpf_responsavel": "12345678901",
+                      "nome_responsavel": "João Silva de Oliveira",
+                      "mes_disponibilizacao": "2020-04",
+                      "uf": "SP",
+                      "nome_municipio": "São Paulo",
+                      "enquadramento": "Informal",
+                      "parcela": "1",
+                      "valor_beneficio": 600.0
+                    }
+                  ],
+                  "bpc": [
+                    {
+                      "cpf_beneficiario": "12345678901",
+                      "nis_beneficiario": "12345678901",
+                      "nome_beneficiario": "João Silva de Oliveira",
+                      "mes_competencia": "2023-01",
+                      "uf": "SP",
+                      "nome_municipio": "São Paulo",
+                      "numero_beneficio": "1234567890",
+                      "beneficio_judicial": "Não",
+                      "valor_parcela": 1518.0
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/beneficios/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getBeneficiosByCnpj",
+        "summary": "Renuncias fiscais de uma empresa",
+        "description": "Retorna renuncias fiscais, habilitacoes e imunidades tributarias da empresa.",
+        "tags": [
+          "Beneficios"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ (apenas digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Renuncias fiscais encontradas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BeneficiosCnpjResponse"
+                },
+                "example": {
+                  "total": 1,
+                  "empresas_habilitadas": [],
+                  "empresas_imunes": [],
+                  "renuncias_fiscais": [
+                    {
+                      "cnpj": "12345678000199",
+                      "razao_social": "Silva Comércio LTDA",
+                      "nome_fantasia": "Silva Store",
+                      "cnae": "4729199",
+                      "municipio": "São Paulo",
+                      "uf": "SP",
+                      "ano_calendario": "2023",
+                      "tipo_renuncia": "Habilitação",
+                      "beneficio_fiscal": "Simples Nacional",
+                      "tributo": "IRPJ",
+                      "valor_renuncia": 12000.0
+                    }
+                  ],
+                  "renuncias_por_beneficiario": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

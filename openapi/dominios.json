@@ -1,0 +1,310 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Dominios API",
+    "description": "Consulta de dominios registrados via reverse WHOIS com enriquecimento individual por dominio",
+    "version": "2.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      },
+      "Telefone": {
+        "type": "object",
+        "properties": {
+          "ddi": { "type": "string", "example": "55" },
+          "ddd": { "type": "string", "example": "11" },
+          "numero": { "type": "string", "example": "987654321" },
+          "numero_completo": { "type": "string", "example": "5511987654321" },
+          "estado": { "type": "string", "example": "SP" },
+          "operadora": { "type": "string", "example": "" },
+          "tem_whatsapp": { "type": "boolean", "example": false }
+        }
+      },
+      "Email": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "example": "contato@empresa.com.br" },
+          "dominio": { "type": "string", "example": "empresa.com.br" },
+          "corporativo": { "type": "boolean", "example": true }
+        }
+      },
+      "Registrador": {
+        "type": "object",
+        "properties": {
+          "nome": { "type": "string", "example": "Registro.br" },
+          "url": { "type": "string", "example": "https://registro.br" }
+        }
+      },
+      "Registrante": {
+        "type": "object",
+        "properties": {
+          "nome": { "type": "string", "example": "João da Silva" },
+          "empresa": { "type": "string", "example": "Silva Ltda" },
+          "pais": { "type": "string", "example": "Brazil" },
+          "telefone": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/Telefone" }]
+          },
+          "email": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/Email" }]
+          }
+        }
+      },
+      "Dominio": {
+        "type": "object",
+        "properties": {
+          "dominio": {
+            "type": "string",
+            "description": "Nome do dominio",
+            "example": "empresa.com.br"
+          },
+          "registrado": {
+            "type": "boolean",
+            "description": "Se o dominio esta ativo/registrado",
+            "example": true
+          },
+          "data_criacao": {
+            "type": "string",
+            "description": "Data de criacao do registro",
+            "example": "2015-03-12"
+          },
+          "data_atualizacao": {
+            "type": "string",
+            "description": "Data da ultima atualizacao",
+            "example": "2023-11-01"
+          },
+          "data_expiracao": {
+            "type": "string",
+            "description": "Data de expiracao do registro",
+            "example": "2025-03-12"
+          },
+          "registrador": {
+            "$ref": "#/components/schemas/Registrador"
+          },
+          "registrante": {
+            "$ref": "#/components/schemas/Registrante"
+          }
+        }
+      },
+      "DominiosResponse": {
+        "type": "object",
+        "properties": {
+          "documento": {
+            "type": "string",
+            "description": "CPF ou CNPJ consultado"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total de dominios encontrados",
+            "example": 2
+          },
+          "dominios": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Dominio"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/dominios/cpf/{cpf}": {
+      "get": {
+        "operationId": "getDominiosByCpf",
+        "summary": "Dominios por CPF",
+        "description": "Busca dominios registrados vinculados aos emails do CPF via reverse WHOIS. Cada dominio encontrado e enriquecido com lookup individual de WHOIS contendo dados do registrante e registrador.",
+        "tags": ["Dominios"],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dominios encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DominiosResponse"
+                },
+                "example": {
+                  "documento": "12345678901",
+                  "total": 1,
+                  "dominios": [
+                    {
+                      "dominio": "empresa.com.br",
+                      "registrado": true,
+                      "data_criacao": "2015-03-12",
+                      "data_atualizacao": "2023-11-01",
+                      "data_expiracao": "2025-03-12",
+                      "registrador": {
+                        "nome": "Registro.br",
+                        "url": "https://registro.br"
+                      },
+                      "registrante": {
+                        "nome": "João da Silva",
+                        "empresa": "Silva Ltda",
+                        "pais": "Brazil",
+                        "telefone": {
+                          "ddi": "55",
+                          "ddd": "11",
+                          "numero": "987654321",
+                          "numero_completo": "5511987654321",
+                          "estado": "",
+                          "operadora": "",
+                          "tem_whatsapp": false
+                        },
+                        "email": {
+                          "email": "joao@empresa.com.br",
+                          "dominio": "empresa.com.br",
+                          "corporativo": true
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dominios/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getDominiosByCnpj",
+        "summary": "Dominios por CNPJ",
+        "description": "Busca dominios registrados vinculados aos emails da empresa via reverse WHOIS. Cada dominio e enriquecido com lookup individual de WHOIS.",
+        "tags": ["Dominios"],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dominios encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DominiosResponse"
+                },
+                "example": {
+                  "documento": "12345678000199",
+                  "total": 1,
+                  "dominios": [
+                    {
+                      "dominio": "empresa.com.br",
+                      "registrado": true,
+                      "data_criacao": "2015-03-12",
+                      "data_atualizacao": "2023-11-01",
+                      "data_expiracao": "2025-03-12",
+                      "registrador": {
+                        "nome": "Registro.br",
+                        "url": "https://registro.br"
+                      },
+                      "registrante": {
+                        "nome": "João da Silva",
+                        "empresa": "Silva Ltda",
+                        "pais": "Brazil",
+                        "telefone": null,
+                        "email": {
+                          "email": "contato@empresa.com.br",
+                          "dominio": "empresa.com.br",
+                          "corporativo": true
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

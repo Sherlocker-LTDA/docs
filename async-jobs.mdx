@@ -1,0 +1,104 @@
+---
+title: "Jobs Assíncronos"
+description: "Como funciona o processamento assincrono"
+icon: "clock"
+---
+
+Algumas consultas dependem de scraping em plataformas externas e podem demorar mais que o timeout padrao. Nesses casos, a API processa a requisicao de forma assincrona — voce recebe o resultado quando estiver pronto.
+
+## Quando uma rota e assincrona?
+
+A API decide automaticamente. Rotas que fazem scraping externo (como registros digitais e comerciais) sao processadas de forma assincrona. Rotas que consultam apenas o banco de dados retornam de forma sincrona.
+
+| Rota | Tipo | Motivo |
+|------|------|--------|
+| `/registro/email/{email}` | Assincrono | Scraping em 13 plataformas |
+| `/registro/cpf/{cpf}` | Assincrono | Scraping em 7 lojas + encomendas |
+| `/bancos/cpf/{cpf}` | Assincrono | Scraping em 4 bancos |
+| `/perfil/cadastral/cpf/{cpf}` | Sincrono | Apenas ClickHouse |
+| `/perfil/patrimonial/cpf/{cpf}` | Sincrono | Apenas ClickHouse |
+| `/veiculos/cpf/{cpf}` | Sincrono | Apenas ClickHouse |
+| `/processos/cpf/{cpf}` | Sincrono | Apenas ClickHouse |
+
+Todas as rotas da tab **Comportamento** sao assincronas. As demais sao sincronas.
+
+## Como funciona
+
+### Rota sincrona (maioria)
+
+```
+GET /veiculos/cpf/12345678901?token=SEU_TOKEN
+→ 200 OK (resposta imediata)
+```
+
+### Rota assincrona
+
+```
+GET /registro/email/usuario@gmail.com?token=SEU_TOKEN
+→ 202 Accepted
+```
+
+```json
+{
+  "jobId": "abc-123-def",
+  "status": "processing",
+  "statusUrl": "/registro/jobs/abc-123-def"
+}
+```
+
+Consulte o resultado com polling:
+
+```
+GET /registro/jobs/abc-123-def?token=SEU_TOKEN
+```
+
+```json
+{
+  "status": "completed",
+  "resultado": {
+    "email": "usuario@gmail.com",
+    "total": 5,
+    "registros": [...]
+  }
+}
+```
+
+### Status possiveis
+
+| Status | Descricao |
+|--------|-----------|
+| `processing` | Job em andamento |
+| `completed` | Resultado disponivel no campo `resultado` |
+| `failed` | Erro — detalhes no campo `erro` |
+
+## Exemplo em Python
+
+```python
+import requests
+import time
+
+BASE = "https://221b-api.sherlocker.com.br/api/v1"
+TOKEN = "seu_token"
+
+# 1. Fazer a requisicao
+resp = requests.get(f"{BASE}/registro/email/usuario@gmail.com", params={"token": TOKEN})
+
+if resp.status_code == 200:
+    # Sincrono — resultado imediato
+    dados = resp.json()
+elif resp.status_code == 202:
+    # Assincrono — polling
+    job = resp.json()
+    while True:
+        time.sleep(2)
+        status = requests.get(f"{BASE}{job['statusUrl']}", params={"token": TOKEN}).json()
+        if status["status"] == "completed":
+            dados = status["resultado"]
+            break
+        elif status["status"] == "failed":
+            raise Exception(status.get("erro", "Erro desconhecido"))
+```
+
+<Tip>
+  Voce nao precisa se preocupar em escolher entre sincrono e assincrono — a API decide automaticamente. Basta tratar o status code: `200` = resultado imediato, `202` = polling.
+</Tip>

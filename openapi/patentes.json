@@ -1,0 +1,236 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Patentes API",
+    "description": "Levantamento de propriedade intelectual registrada no INPI: patentes por CPF ou CNPJ do titular.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "UltimoDespacho": {
+        "type": "object",
+        "properties": {
+          "codigo": { "type": "string", "description": "Codigo do despacho INPI (ex: 25.4)" },
+          "data": { "type": "string", "nullable": true, "description": "Data do despacho (YYYY-MM-DD)" },
+          "complemento": { "type": "string", "nullable": true, "description": "Texto complementar do despacho" }
+        }
+      },
+      "Patente": {
+        "type": "object",
+        "properties": {
+          "numero_inpi": { "type": "string", "description": "Numero do processo no INPI" },
+          "titulo": { "type": "string", "nullable": true, "description": "Titulo da patente" },
+          "resumo": { "type": "string", "nullable": true, "description": "Resumo do conteudo da patente" },
+          "depositante": { "type": "string", "description": "Nome do titular/depositante" },
+          "documento": { "type": "string", "description": "CPF ou CNPJ do depositante" },
+          "tipo_pessoa": { "type": "string", "description": "Pessoa Fisica ou Juridica" },
+          "pais": { "type": "string", "example": "BR" },
+          "estado": { "type": "string", "nullable": true, "example": "SP" },
+          "data_inicio": { "type": "string", "nullable": true, "description": "Inicio da titularidade (YYYY-MM-DD)" },
+          "data_fim": { "type": "string", "nullable": true, "description": "Fim da titularidade, null se vigente" },
+          "data_deposito": { "type": "string", "nullable": true, "description": "Data de deposito no INPI" },
+          "data_publicacao": { "type": "string", "nullable": true, "description": "Data de publicacao na RPI" },
+          "classificacao_ipc": { "type": "string", "nullable": true, "description": "Classificacao IPC (ex: H04N 7/18)" },
+          "ultimo_despacho": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/UltimoDespacho" }]
+          },
+          "inventores": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Nomes dos inventores"
+          },
+          "procuradores": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Nomes dos procuradores/escritorios"
+          }
+        }
+      },
+      "PatentesResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "documento": { "type": "string" },
+          "tipo": { "type": "string", "enum": ["cpf", "cnpj"] },
+          "total": { "type": "integer" },
+          "patentes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Patente" }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": false },
+          "error": { "type": "string" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/patentes/cpf/{cpf}": {
+      "get": {
+        "operationId": "getPatentsByCpf",
+        "summary": "Patentes por CPF",
+        "description": "Retorna todas as patentes registradas no INPI vinculadas ao CPF informado.",
+        "tags": ["Patentes"],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF do titular (11 digitos)",
+            "schema": { "type": "string", "example": "12345678901" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Patentes encontradas",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PatentesResponse" },
+                "example": {
+                  "success": true,
+                  "documento": "12345678901",
+                  "tipo": "cpf",
+                  "total": 1,
+                  "patentes": [
+                    {
+                      "numero_inpi": "102015028792",
+                      "titulo": "EQUIPAMENTO VEICULAR COM INDICADORES DE INFORMACOES VISUAIS E SONORAS",
+                      "resumo": "Equipamento eletronico para veiculos automotivos que analisa dados do computador de bordo em tempo real.",
+                      "depositante": "FULANO DE TAL",
+                      "documento": "12345678901",
+                      "tipo_pessoa": "Pessoa Fisica",
+                      "pais": "BR",
+                      "estado": "PR",
+                      "data_inicio": "2015-11-17",
+                      "data_fim": null,
+                      "data_deposito": "2015-11-17",
+                      "data_publicacao": "2016-07-19",
+                      "classificacao_ipc": "F16H 61/00",
+                      "ultimo_despacho": {
+                        "codigo": "25.12",
+                        "data": "2025-12-23",
+                        "complemento": null
+                      },
+                      "inventores": ["GIOVANI BENEDETTI PENHA", "VITOR CAZZANTI TAMAROZI"],
+                      "procuradores": ["P. A. PRODUTORES ASSOCIADOS MARCAS E PATENTES LTDA."]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "CPF invalido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/patentes/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getPatentsByCnpj",
+        "summary": "Patentes por CNPJ",
+        "description": "Retorna todas as patentes registradas no INPI vinculadas ao CNPJ informado.",
+        "tags": ["Patentes"],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (14 digitos)",
+            "schema": { "type": "string", "example": "11325650000123" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Patentes encontradas",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PatentesResponse" },
+                "example": {
+                  "success": true,
+                  "documento": "11325650000123",
+                  "tipo": "cnpj",
+                  "total": 3,
+                  "patentes": [
+                    {
+                      "numero_inpi": "102012007224",
+                      "titulo": "SISTEMA DE CONTROLE E GERENCIAMENTO DE VEICULOS COLETIVOS URBANOS E RODOVIARIOS",
+                      "resumo": "Sistema para gerenciamento automatizado de operacoes de transporte de passageiros, com contagem de passageiros, analise de fluxo, telemetria e rastreamento GPS integrados.",
+                      "depositante": "TRIMBLE BRASIL LTDA.",
+                      "documento": "11325650000123",
+                      "tipo_pessoa": "Pessoa Juridica",
+                      "pais": "BR",
+                      "estado": "SP",
+                      "data_inicio": "2026-02-03",
+                      "data_fim": null,
+                      "data_deposito": "2012-03-30",
+                      "data_publicacao": "2017-04-25",
+                      "classificacao_ipc": "H04N 7/18",
+                      "ultimo_despacho": {
+                        "codigo": "25.4",
+                        "data": "2026-02-03",
+                        "complemento": null
+                      },
+                      "inventores": ["GIOVANI BENEDETTI PENHA", "VITOR CAZZANTI TAMAROZI"],
+                      "procuradores": ["P A PRODUTORES ASSOCIADOS MARCAS E PATENTES LTDA"]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "CNPJ invalido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+---
+title: "Documento"
+description: "Busca textual em fontes públicas e diários oficiais"
+icon: "file-lines"
+---
+
+# Inteligência Documental
+
+O Sherlocker permite busca full-text em documentos públicos, diários oficiais e publicações governamentais. Diferente das consultas estruturadas por CPF/CNPJ, aqui você trabalha com **texto livre**.
+
+## Endpoint
+
+<Card title="Busca textual" icon="magnifying-glass" href="/api-reference/documentos/buscar-em-fontes-publicas">
+  `GET /documentos/busca?q={termo}`
+</Card>
+
+## Fontes cobertas
+
+- **DOU** — Diário Oficial da União
+- **DJSP** — Diário da Justiça de São Paulo
+- Outras fontes públicas e governamentais
+
+## Como usar
+
+### Busca por nome
+
+```bash
+GET /documentos/busca?q=JOAO SILVA SANTOS
+```
+
+Retorna publicações onde o nome aparece — nomeações, exonerações, licitações, sanções, publicações de editais.
+
+### Busca por CNPJ/CPF
+
+```bash
+GET /documentos/busca?q=12345678000199
+```
+
+Encontra publicações oficiais mencionando o documento.
+
+### Busca por tema
+
+```bash
+GET /documentos/busca?q=licitacao prefeitura campinas pavimentacao
+```
+
+Busca textual livre por assunto.
+
+## Interpretando resultados
+
+Cada resultado contém:
+- **Fonte**: diário/publicação de origem
+- **Data**: data da publicação
+- **Trecho**: texto com o contexto da menção
+- **Relevância**: score de relevância
+
+## Quando usar
+
+A busca documental é especialmente útil para:
+
+- **Nomeações e exonerações** — cargos públicos
+- **Licitações** — participação em processos licitatórios
+- **Sanções** — penalidades aplicadas por órgãos públicos
+- **Publicações oficiais** — qualquer menção em diários oficiais
+- **Complementar investigação** — encontrar informações que não aparecem nas consultas estruturadas

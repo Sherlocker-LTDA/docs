@@ -1,0 +1,308 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Bancos API",
+    "description": "Identificacao de contas bancarias por CPF em multiplos bancos (BB, Caixa, Caixa Tem, Bradesco).",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "BancoResult": {
+        "type": "object",
+        "properties": {
+          "banco": {
+            "type": "string",
+            "description": "Nome do banco"
+          },
+          "existe": {
+            "type": "boolean"
+          },
+          "tipo": {
+            "type": "string",
+            "description": "Tipo da conta"
+          },
+          "telefones": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "email": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      },
+      "BancosResponse": {
+        "type": "object",
+        "properties": {
+          "cpf": {
+            "type": "string"
+          },
+          "resultados": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "banco": {
+                  "type": "string"
+                },
+                "resultado": {
+                  "$ref": "#/components/schemas/BancoResult"
+                },
+                "erro": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "total_encontrados": {
+            "type": "integer"
+          }
+        }
+      },
+      "AsyncJobCreated": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string"
+          },
+          "statusUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/bancos/cpf/{cpf}": {
+      "get": {
+        "operationId": "getBancosByCpf",
+        "summary": "Contas bancarias de uma pessoa",
+        "description": "Verifica se o CPF possui contas em BB, Caixa, Caixa Tem e Bradesco. Retorna telefones e emails de recuperacao quando disponiveis.",
+        "tags": [
+          "Bancos"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos, com ou sem formatacao)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado da consulta por banco",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BancosResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bancos/async/cpf/{cpf}": {
+      "post": {
+        "operationId": "asyncBancosByCpf",
+        "summary": "Contas bancarias (async)",
+        "description": "Enfileira consulta assincrona. Consulte o status via GET /jobs/{jobId}.",
+        "tags": [
+          "Bancos"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Job criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsyncJobCreated"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bancos/jobs/{jobId}": {
+      "get": {
+        "operationId": "getBancosJobStatus",
+        "summary": "Status do job de bancos",
+        "description": "Retorna status e resultado do job assincrono.",
+        "tags": [
+          "Jobs"
+        ],
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "description": "ID do job",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status do job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "ID do job"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Status atual do job",
+                      "enum": ["pending", "processing", "completed", "failed"]
+                    },
+                    "progress": {
+                      "type": "integer",
+                      "description": "Progresso de 0 a 100"
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Resultado do job quando completo"
+                    }
+                  },
+                  "example": {
+                    "id": "abc123",
+                    "status": "completed",
+                    "progress": 100,
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,63 @@
+---
+title: "Registro Comercial"
+description: "Cadastros em lojas, farmacias, fidelidade e historico de encomendas"
+icon: "store"
+---
+
+Um **Registro Comercial** representa a existencia de cadastro ou atividade de consumo vinculada a um CPF — inclui contas em lojas, farmacias, programas de fidelidade e historico de encomendas.
+
+## Tipagem — Cadastro
+
+```json
+{
+  "plataforma": "drogasil",
+  "existe": true,
+  "telefone": "5511987654321",
+  "email": "mar***@gmail.com",
+  "metadata": {
+    "programa_fidelidade": true
+  }
+}
+```
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| `plataforma` | string | Nome da loja ou servico |
+| `existe` | boolean | Se o cadastro foi encontrado |
+| `telefone` | string | Telefone vinculado (pode ser mascarado) |
+| `email` | string | Email vinculado (pode ser mascarado) |
+| `metadata` | object | Dados adicionais (fidelidade, preferencias, etc.) |
+
+## Plataformas verificadas
+
+Drogasil, Drogaraia, Carrefour, Atacadao, Petz, Fastshop, Livelo.
+
+## Identificador de busca
+
+O **CPF** e o identificador — verificamos cadastros e encomendas vinculadas ao documento.
+
+## Conexoes
+
+```mermaid
+graph LR
+  RC[Registro Comercial] --> P[Pessoa<br/>CPF]
+  RC --> T[Telefone<br/>descoberto]
+  RC --> E[Email<br/>descoberto]
+  P --> RC
+```
+
+- **Pessoa** — cadastros verificados por CPF
+- **Telefone / Email** — registros comerciais frequentemente revelam contatos nao encontrados em outras fontes
+
+## Valor investigativo
+
+- **Descobrir contatos ocultos** — farmacias e lojas guardam telefones e emails de cadastro
+- **Confirmar atividade** — encomendas recentes confirmam endereco e atividade da pessoa
+- **Mapear habitos** — tipo de loja indica perfil de consumo
+
+## Endpoints
+
+| Rota | Descricao |
+|------|-----------|
+| `GET /cadastros/cpf/{cpf}` | Cadastros em 7 lojas e farmacias |
+| `GET /encomendas/cpf/{cpf}` | Historico de encomendas |

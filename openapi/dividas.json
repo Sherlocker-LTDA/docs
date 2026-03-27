@@ -1,0 +1,263 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Dívidas API",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "HistoricoItem": {
+        "type": "object",
+        "properties": {
+          "situacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "valor": {
+            "type": "number",
+            "nullable": true
+          },
+          "data_inscricao": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "Divida": {
+        "type": "object",
+        "properties": {
+          "numero_inscricao": {
+            "type": "string"
+          },
+          "fonte": {
+            "type": "string",
+            "enum": [
+              "ativa_uniao",
+              "fgts",
+              "previdenciaria"
+            ]
+          },
+          "receita": {
+            "type": "string",
+            "nullable": true
+          },
+          "ajuizado": {
+            "type": "boolean"
+          },
+          "data_inscricao": {
+            "type": "string",
+            "nullable": true
+          },
+          "valor_atual": {
+            "type": "number",
+            "nullable": true
+          },
+          "uf": {
+            "type": "string",
+            "nullable": true
+          },
+          "unidade_responsavel": {
+            "type": "string",
+            "nullable": true
+          },
+          "entidade_responsavel": {
+            "type": "string",
+            "nullable": true
+          },
+          "historico": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HistoricoItem"
+            }
+          }
+        }
+      },
+      "DividasResponse": {
+        "type": "object",
+        "properties": {
+          "documento": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string",
+            "nullable": true
+          },
+          "total": {
+            "type": "integer"
+          },
+          "valor_total": {
+            "type": "number"
+          },
+          "ajuizado": {
+            "type": "boolean"
+          },
+          "dividas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Divida"
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/dividas/cpf/{cpf}": {
+      "get": {
+        "operationId": "getDividasByCpf",
+        "summary": "Dívidas federais por CPF",
+        "description": "Retorna dívidas na Dívida Ativa da União, FGTS e Previdenciária vinculadas ao CPF. Inscrições com o mesmo número são agrupadas como histórico.",
+        "tags": [
+          "Dívidas"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dívidas encontradas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DividasResponse"
+                },
+                "example": {
+                  "documento": "12345678901",
+                  "nome": "FULANO DE TAL",
+                  "total": 2,
+                  "valor_total": 21230.5,
+                  "ajuizado": true,
+                  "dividas": [
+                    {
+                      "numero_inscricao": "80000000000001",
+                      "fonte": "ativa_uniao",
+                      "receita": "IRPF",
+                      "ajuizado": true,
+                      "data_inscricao": "2019-03-15",
+                      "valor_atual": 12500.0,
+                      "uf": "SP",
+                      "unidade_responsavel": "DRF CAMPINAS",
+                      "historico": [
+                        {
+                          "situacao": "Ativa",
+                          "valor": 12500.0,
+                          "data_inscricao": "2019-03-15"
+                        }
+                      ]
+                    },
+                    {
+                      "numero_inscricao": "80000000000002",
+                      "fonte": "fgts",
+                      "receita": "FGTS",
+                      "ajuizado": false,
+                      "data_inscricao": "2020-06-01",
+                      "valor_atual": 8730.5,
+                      "uf": "SP",
+                      "unidade_responsavel": "SRTE/SP",
+                      "entidade_responsavel": "CEF",
+                      "historico": [
+                        {
+                          "situacao": "Ativa",
+                          "valor": 8730.5,
+                          "data_inscricao": "2020-06-01"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dividas/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getDividasByCnpj",
+        "summary": "Dívidas federais por CNPJ",
+        "description": "Retorna dívidas na Dívida Ativa da União, FGTS e Previdenciária vinculadas ao CNPJ.",
+        "tags": [
+          "Dívidas"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dívidas encontradas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DividasResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

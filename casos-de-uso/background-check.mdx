@@ -1,0 +1,259 @@
+---
+title: "Background Check"
+description: "Verificação completa de antecedentes de pessoa física ou jurídica"
+icon: "shield-check"
+---
+
+Verificação sistemática de antecedentes para contratação, locação, crédito ou parcerias comerciais. O Sherlocker conecta **7 dimensões** em um único fluxo: identidade, jurídico, financeiro, compliance, patrimônio, vínculos empresariais e presença digital.
+
+## O problema
+
+Um background check manual exige consulta em dezenas de fontes isoladas — Receita Federal, tribunais, IBAMA, listas restritivas, cartório de protestos, portais IPTU. O Sherlocker unifica tudo via API, permitindo automatizar o processo inteiro.
+
+## Dimensões verificadas
+
+<Steps>
+  <Step title="Identidade">
+    Nome, RG, endereços, telefones, emails, parentes
+  </Step>
+  <Step title="Antecedentes judiciais">
+    Processos criminais, cíveis e trabalhistas — como autor ou réu
+  </Step>
+  <Step title="Situação financeira">
+    Dívida ativa, FGTS, previdenciária, benefícios sociais
+  </Step>
+  <Step title="Compliance">
+    Sanções, IBAMA, trabalho escravo, listas restritivas, Banco Central
+  </Step>
+  <Step title="Vínculos empresariais">
+    Sociedades + compliance de cada empresa vinculada
+  </Step>
+  <Step title="Patrimônio">
+    Imóveis, veículos, rural, aeronaves, patentes
+  </Step>
+  <Step title="Presença digital">
+    Perfis online vinculados aos emails encontrados
+  </Step>
+</Steps>
+
+## Implementação
+
+### Passo 1 — Identidade e rede familiar
+
+A primeira chamada já retorna o perfil completo: nome, RG, endereços, telefones, emails, parentes e IRPF.
+
+```python
+import requests
+from concurrent.futures import ThreadPoolExecutor
+
+BASE = "https://221b-api.sherlocker.com.br/api/v1"
+TOKEN = "SEU_TOKEN"
+
+def get(endpoint, **params):
+    params["token"] = TOKEN
+    return requests.get(f"{BASE}{endpoint}", params=params).json()
+
+# Perfil completo em uma chamada
+perfil = get(f"/pessoas/cpf/{cpf}")
+
+parentes = perfil.get("parentes", [])
+enderecos = perfil.get("enderecos", [])
+
+# Extrair CPFs dos parentes para check cruzado
+cpfs_parentes = [p["cpf"] for p in parentes if p.get("cpf")]
+```
+
+**O que validar:**
+- Nome confere com o informado?
+- Endereços são compatíveis com a região declarada?
+
+### Passo 2 — Antecedentes judiciais
+
+```python
+# Processos do candidato
+processos = get(f"/processos/cpf/{cpf}", pagina=1, por_pagina=100)
+
+# Classificar por gravidade
+criminais = []
+civeis = []
+trabalhistas = []
+
+for p in processos.get("processos", []):
+    classe = p["processo"].get("classe_judicial", "").lower()
+    if any(t in classe for t in ["criminal", "penal", "execucao penal"]):
+        criminais.append(p)
+    elif "trabalhista" in classe:
+        trabalhistas.append(p)
+    else:
+        civeis.append(p)
+
+# Verificar polo — e autor ou reu?
+for p in processos.get("processos", []):
+    for part in p.get("partes", []):
+        if part.get("documento") == cpf:
+            p["_papel"] = part.get("polo")  # Autor, Reu, etc
+```
+
+**Red flags:**
+- Processos criminais como réu
+- Execuções fiscais (dívidas tributárias em cobrança)
+- Volume alto de ações trabalhistas como réu (se for PJ)
+
+### Passo 3 — Situação financeira
+
+```python
+# Executar em paralelo — 3 fontes independentes
+with ThreadPoolExecutor(max_workers=3) as pool:
+    fut_dividas = pool.submit(get, f"/dividas/cpf/{cpf}")
+    fut_beneficios = pool.submit(get, f"/beneficios/cpf/{cpf}")
+    fut_regularidade = pool.submit(get, f"/regularidade/cpf/{cpf}")
+
+dividas = fut_dividas.result()
+beneficios = fut_beneficios.result()
+regularidade = fut_regularidade.result()
+```
+
+**O que analisar:**
+- **Dívidas**: Dívida Ativa, FGTS, Previdenciária — volume e antiguidade
+- **Benefícios**: recebe Bolsa Família ou BPC? Pode indicar incompatibilidade com cargo/renda declarada
+- **Regularidade**: protestos, falências, restrições no Banco Central
+
+### Passo 4 — Compliance e listas restritivas
+
+O endpoint de regularidade já cobre IBAMA, sanções nacionais e internacionais, Banco Central, falências e protestos. Se o candidato tem vínculos empresariais, verifique as empresas também:
+
+```python
+# Empresas do candidato
+sociedades = get(f"/empresas/cpf/{cpf}")
+
+# Check de compliance de cada empresa
+for empresa in sociedades.get("empresas", []):
+    cnpj = empresa["cnpj"]
+
+    with ThreadPoolExecutor(max_workers=3) as pool:
+        fut_reg = pool.submit(get, f"/regularidade/cnpj/{cnpj}")
+        fut_trab = pool.submit(get, f"/trabalhista/cnpj/{cnpj}")
+        fut_div = pool.submit(get, f"/dividas/cnpj/{cnpj}")
+
+    reg_empresa = fut_reg.result()
+    trab_empresa = fut_trab.result()
+    div_empresa = fut_div.result()
+
+    # Red flags criticos
+    trabalho_escravo = trab_empresa.get("trabalho_escravo", {}).get("found", False)
+    if trabalho_escravo:
+        print(f"ALERTA: {cnpj} na lista de trabalho escravo")
+```
+
+### Passo 5 — Patrimônio
+
+```python
+with ThreadPoolExecutor(max_workers=5) as pool:
+    fut_imoveis = pool.submit(get, f"/imoveis/cpf/{cpf}")
+    fut_veiculos = pool.submit(get, f"/veiculos/cpf/{cpf}")
+    fut_rural = pool.submit(get, f"/rural/cpf/{cpf}")
+    fut_aeronaves = pool.submit(get, f"/aeronaves/cpf/{cpf}")
+    fut_patentes = pool.submit(get, f"/patentes/cpf/{cpf}")
+
+patrimonio = {
+    "imoveis": fut_imoveis.result(),
+    "veiculos": fut_veiculos.result(),
+    "rural": fut_rural.result(),
+    "aeronaves": fut_aeronaves.result(),
+    "patentes": fut_patentes.result(),
+}
+```
+
+### Passo 6 — Presença digital
+
+```python
+# Para cada email encontrado no perfil
+emails = [e["email"] for e in perfil.get("emails", [])]
+
+perfis_digitais = {}
+for email in emails:
+    perfis_digitais[email] = get(f"/perfis/email/{email}")
+```
+
+### Passo 7 — Check de parentes (opcional)
+
+Para background checks de alta criticidade, verifique os parentes mais próximos:
+
+```python
+# Conjuge e pais — check simplificado
+parentes_criticos = [p for p in parentes if p.get("vinculo_nome") in ("Cônjuge", "Mãe", "Pai")]
+
+for parente in parentes_criticos:
+    cpf_p = parente["cpf"]
+    reg = get(f"/regularidade/cpf/{cpf_p}")
+    proc = get(f"/processos/cpf/{cpf_p}", pagina=1, por_pagina=10)
+    # Avaliar red flags
+```
+
+## Montando o relatório
+
+```python
+total_dividas = dividas.get("total", 0)
+
+relatorio = {
+    "candidato": {
+        "cpf": cpf,
+        "nome": perfil["nome_completo"],
+        "data_nascimento": perfil.get("data_nascimento"),
+    },
+    "antecedentes": {
+        "processos_criminais": len(criminais),
+        "processos_civeis": len(civeis),
+        "processos_trabalhistas": len(trabalhistas),
+    },
+    "financeiro": {
+        "dividas_ativas": total_dividas,
+        "beneficios_sociais": beneficios.get("total", 0),
+        "protestos": bool(regularidade.get("protestos", {}).get("found")),
+    },
+    "compliance": {
+        "sancoes": bool(regularidade.get("sancao-nacional", {}).get("found")),
+        "ibama": bool(regularidade.get("ibama", {}).get("found")),
+        "empresas_com_problemas": [],  # preenchido no passo 4
+    },
+    "patrimonio": {
+        "imoveis": len(patrimonio["imoveis"].get("imoveis", [])),
+        "veiculos": len(patrimonio["veiculos"].get("veiculos", [])),
+    },
+    "vinculos_empresariais": len(sociedades.get("socios", [])),
+}
+```
+
+A força do background check está no cruzamento: o candidato pode estar limpo, mas ser sócio de uma empresa na lista de trabalho escravo. Cada entidade ilumina uma dimensão diferente — juntas, formam o quadro completo.
+
+## APIs utilizadas
+
+<CardGroup cols={3}>
+  <Card title="Pessoas" icon="user" href="/api-reference/pessoas/perfil-completo-de-uma-pessoa">
+    Identidade, contatos, parentes
+  </Card>
+  <Card title="Processos" icon="scale-balanced" href="/api-reference/processos/processos-judiciais-de-uma-pessoa">
+    Antecedentes judiciais
+  </Card>
+  <Card title="Dívidas" icon="file-invoice-dollar" href="/api-reference/dividas/dividas-federais-de-uma-pessoa">
+    Dívida ativa, FGTS, previdenciária
+  </Card>
+  <Card title="Regularidade" icon="shield-check" href="/api-reference/regularidade/restricoes-e-sancoes-de-uma-pessoa">
+    Sanções, IBAMA, protestos
+  </Card>
+  <Card title="Empresas" icon="building" href="/api-reference/empresas/perfil-completo-de-uma-empresa">
+    Dados cadastrais, sócios
+  </Card>
+  <Card title="Trabalhista" icon="briefcase" href="/api-reference/trabalhista/irregularidades-trabalhistas-de-uma-empresa">
+    PAT, trabalho escravo
+  </Card>
+  <Card title="Imóveis" icon="house" href="/api-reference/imoveis/imoveis-urbanos-de-uma-pessoa">
+    Propriedades urbanas
+  </Card>
+  <Card title="Veículos" icon="car" href="/api-reference/veiculos/veiculos-de-uma-pessoa">
+    Frota de veículos
+  </Card>
+  <Card title="Perfis Digitais" icon="globe" href="/api-reference/perfis/presenca-digital-por-email">
+    Presença digital
+  </Card>
+</CardGroup>

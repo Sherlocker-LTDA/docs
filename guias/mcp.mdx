@@ -1,0 +1,277 @@
+---
+title: "MCP Server"
+description: "Integre o Sherlocker com Claude, Cursor e outros clientes MCP"
+icon: "robot"
+---
+
+# MCP Server
+
+O Sherlocker disponibiliza um servidor [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) que permite que agentes de IA como **Claude**, **Cursor**, **Windsurf** e outros clientes compatíveis consultem dados investigativos diretamente.
+
+## Endpoint remoto
+
+O servidor MCP do Sherlocker esta disponivel na nuvem — nao precisa instalar nada:
+
+```
+https://mcp.sherlocker.com.br/mcp?token=SEU_TOKEN
+```
+
+Basta conectar seu cliente MCP a essa URL passando seu token de acesso.
+
+## Conectando no Claude Desktop
+
+<Steps>
+  <Step title="Abrir configuracoes">
+    No Claude Desktop, va em **Settings** → **Developer** → **Edit Config** (ou edite o arquivo `claude_desktop_config.json` diretamente).
+  </Step>
+  <Step title="Adicionar o servidor">
+    Adicione a seguinte configuracao no bloco `mcpServers`:
+
+    ```json
+    {
+      "mcpServers": {
+        "sherlocker": {
+          "type": "url",
+          "url": "https://mcp.sherlocker.com.br/mcp?token=SEU_TOKEN"
+        }
+      }
+    }
+    ```
+
+    Substitua `SEU_TOKEN` pelo seu token de acesso.
+  </Step>
+  <Step title="Reiniciar o Claude">
+    Feche e reabra o Claude Desktop. O Sherlocker aparecera como servidor MCP conectado.
+  </Step>
+  <Step title="Testar">
+    Envie uma mensagem como:
+
+    > "Investigue o CPF 12345678900 e me mostre telefones e empresas"
+
+    O Claude usara automaticamente as tools do Sherlocker para buscar os dados.
+  </Step>
+</Steps>
+
+## Conectando no Claude Code
+
+No terminal, adicione o servidor com o comando:
+
+```bash
+claude mcp add sherlocker --transport http "https://mcp.sherlocker.com.br/mcp?token=SEU_TOKEN"
+```
+
+Pronto — o Claude Code ja podera usar as tools do Sherlocker nas suas conversas.
+
+## Conectando no Cursor
+
+<Steps>
+  <Step title="Abrir configuracoes MCP">
+    Va em **Cursor Settings** → **MCP** → **Add new MCP server**.
+  </Step>
+  <Step title="Configurar">
+    - **Name:** `sherlocker`
+    - **Type:** `http`
+    - **URL:** `https://mcp.sherlocker.com.br/mcp?token=SEU_TOKEN`
+  </Step>
+  <Step title="Salvar e testar">
+    Salve e o Cursor detectara as tools automaticamente. Voce pode pedir ao agente para investigar CPFs e CNPJs diretamente no chat.
+  </Step>
+</Steps>
+
+## Tools disponiveis
+
+O servidor MCP expoe 5 tools que os agentes podem chamar:
+
+### investigar_pessoa
+
+Investiga uma pessoa fisica por CPF. Aceita selecao de modulos especificos ou `"todos"`.
+
+```json
+{
+  "cpf": "12345678900",
+  "modulos": ["info", "telefones", "empresasSocio"]
+}
+```
+
+**Modulos disponiveis:**
+
+| Modulo | Custo | Tempo | O que retorna |
+|--------|-------|-------|---------------|
+| `info` | gratuito | ~10s | Nome, CPF, nascimento, sexo, mae, situacao fiscal |
+| `telefones` | 2 tokens | ~30s | Numeros, operadora, WhatsApp, foto do perfil |
+| `enderecos` | 2 tokens | ~10s | Enderecos com CEP, foto Street View |
+| `emails` | 2 tokens | ~10s | Emails vinculados ao CPF |
+| `bancos` | 2 tokens | ~10s | Contas bancarias e chaves PIX |
+| `documentos` | 2 tokens | ~10s | Certidoes e publicacoes em diarios oficiais |
+| `irregularidades` | 2 tokens | ~30s | Restricoes financeiras e pendencias |
+| `pessoasRelacionadas` | 2 tokens | ~60s | Familiares, socios, vizinhos |
+| `empresasRelacionadas` | 1 token | ~30s | Vinculos empresariais cruzados |
+| `empresasSocio` | gratuito | ~10s | Empresas onde e socio/administrador |
+| `relacionamentos` | gratuito | ~10s | Grafo de parentesco |
+| `veiculos` | gratuito | ~10s | Veiculos registrados |
+| `aeronaves` | gratuito | ~10s | Aeronaves e drones (ANAC) |
+| `historicoEmpregos` | gratuito | ~10s | Vinculos empregatícios, cargo, salario |
+| `dominios` | 1 token | ~30s | Dominios de internet registrados |
+| `redesSociais` | 5 tokens | ~3min | Perfis em redes sociais |
+| `vazamentos` | 5 tokens | ~30s | Credenciais expostas em data breaches |
+| `registroEstabelecimentos` | 5 tokens | ~60s | Padroes de consumo |
+| `processos` | 17 tokens | ~2min | Processos judiciais |
+| `licitacoes` | 3 tokens | ~15s | Participacao em licitacoes |
+| `dividas` | 5 tokens | ~5s | Divida ativa |
+| `protestos` | 4 tokens | ~5min | Protestos em cartorio (CENPROT) |
+| `beneficiosGoverno` | 3 tokens | ~10s | Bolsa Familia, BPC, Auxilio |
+| `propriedadesRurais` | 10 tokens | ~20s | Fazendas e terrenos rurais |
+
+<Tip>
+  Comece sempre por `info` para dados basicos. Use `"todos"` apenas para investigacao completa — custa ate ~73 tokens e pode levar varios minutos.
+</Tip>
+
+### investigar_empresa
+
+Investiga uma empresa por CNPJ. Mesma logica de selecao de modulos.
+
+```json
+{
+  "cnpj": "12345678000100",
+  "modulos": ["info", "socios"]
+}
+```
+
+**Modulos disponiveis:** info, socios, funcionariosPat, rendaImpostos, historicoEmpresa, telefones, enderecos, emails, bancos, documentos, irregularidades, dominios, redesSociais, vazamentos, processos, licitacoes, dividas, protestos.
+
+<Info>
+  Custo total de todos os modulos de empresa: ~59 tokens.
+</Info>
+
+### investigar_veiculo
+
+Investiga um veiculo por placa.
+
+```json
+{
+  "placa": "ABC1D23",
+  "modulos": ["dados", "proprietarios"]
+}
+```
+
+Ambos os modulos (`dados` e `proprietarios`) sao **gratuitos**.
+
+### investigar_email
+
+Busca empresas vinculadas a um email. Gratuito.
+
+```json
+{
+  "email": "contato@empresa.com"
+}
+```
+
+### investigar_telefone
+
+Busca empresas vinculadas a um telefone. Gratuito.
+
+```json
+{
+  "telefone": "11987654321"
+}
+```
+
+## Formato de resposta
+
+Todas as tools retornam um objeto com `results` e `errors`:
+
+```json
+{
+  "results": {
+    "info": {
+      "success": true,
+      "results": [
+        {
+          "name": "Joao da Silva",
+          "cpf": "12345678900",
+          "birth_date": "1990-01-15"
+        }
+      ]
+    },
+    "telefones": {
+      "success": true,
+      "results": [
+        {
+          "phone": "11987654321",
+          "operator": "Vivo",
+          "whatsapp": "success"
+        }
+      ]
+    }
+  },
+  "errors": {}
+}
+```
+
+Quando um modulo falha, o erro aparece no objeto `errors`:
+
+```json
+{
+  "results": { "info": { "..." : "..." } },
+  "errors": {
+    "processos": {
+      "error_code": "insufficient_tokens",
+      "message": "Insufficient tokens. Required: 17, Balance: 5",
+      "required_tokens": 17,
+      "balance": 5
+    }
+  }
+}
+```
+
+| Codigo de erro | Descricao |
+|----------------|-----------|
+| `insufficient_tokens` | Saldo insuficiente para o modulo |
+| `auth_error` | Token invalido ou ausente |
+| `timeout` | Modulo excedeu o limite de tempo |
+| `module_exception` | Erro interno na execucao |
+| `invalid_module` | Nome de modulo nao reconhecido |
+
+## Resource: sherlocker://modules
+
+Alem das tools, o servidor MCP expoe um resource `sherlocker://modules` que contem a referencia completa de todos os modulos — quando usar cada um, campos retornados, custo e tempo estimado. Agentes inteligentes consultam esse resource automaticamente para decidir quais modulos usar.
+
+## Rodando localmente (opcional)
+
+Se preferir rodar o servidor MCP na sua maquina em vez de usar o endpoint remoto:
+
+```bash
+# Via npx (sem instalar)
+npx @sherlocker/sdk sherlocker mcp stdio
+
+# Ou via HTTP local
+npx @sherlocker/sdk sherlocker mcp http --port 3100
+```
+
+Para o modo stdio, configure no Claude Desktop:
+
+```json
+{
+  "mcpServers": {
+    "sherlocker": {
+      "command": "npx",
+      "args": ["@sherlocker/sdk", "sherlocker", "mcp", "stdio"],
+      "env": {
+        "SHERLOCKER_TOKEN": "SEU_TOKEN"
+      }
+    }
+  }
+}
+```
+
+## Exemplos de uso com agentes
+
+Depois de conectar, basta pedir ao agente em linguagem natural:
+
+- *"Investigue o CPF 12345678900 — quero saber nome, telefones e se tem empresas"*
+- *"Faca uma due diligence completa do CNPJ 12345678000100"*
+- *"Descubra quem e o dono da placa ABC1D23"*
+- *"Busque empresas vinculadas ao email contato@empresa.com"*
+- *"Faca um background check completo dessa pessoa: CPF 12345678900"*
+
+O agente selecionara automaticamente os modulos mais relevantes para cada solicitacao.

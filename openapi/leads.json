@@ -1,0 +1,644 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Sherlocker Leads API",
+    "description": "Enriquecimento de leads e geracao de leads B2B",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "paths": {
+    "/leads/enriquecer": {
+      "post": {
+        "operationId": "enriquecer",
+        "summary": "Enriquecimento de leads em lote",
+        "description": "Recebe lista de contatos (CPF, telefone ou email) e retorna perfil enriquecido com scoring de renda. Sincrono por padrao (max 100). Com `?async=true`, enfileira o job (max 1000) e retorna jobId.",
+        "tags": [
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "async",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Se true, enfileira e retorna jobId (HTTP 202). Max 1000 contatos."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnriquecerRequest"
+              },
+              "example": {
+                "contatos": [
+                  {
+                    "cpf": "12345678901"
+                  },
+                  {
+                    "telefone": "11987654321"
+                  },
+                  {
+                    "email": "joao@empresa.com"
+                  }
+                ],
+                "campos": [
+                  "identidade",
+                  "renda",
+                  "contatos",
+                  "empresas"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resultados do enriquecimento (sincrono)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnriquecerResponse"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Job enfileirado (async=true)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "jobId": {
+                      "type": "string",
+                      "example": "42"
+                    },
+                    "statusUrl": {
+                      "type": "string",
+                      "example": "/leads/jobs/42"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/leads/gerar": {
+      "post": {
+        "operationId": "gerarLeads",
+        "summary": "Geracao de leads B2B",
+        "description": "Filtra empresas por CNAE, UF, porte e capital e retorna com contatos dos socios.",
+        "tags": [
+          "Leads"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GerarLeadsRequest"
+              },
+              "example": {
+                "filtros": {
+                  "cnae": "6201",
+                  "uf": "SP",
+                  "cidade": "Sao Paulo",
+                  "porte": "Demais",
+                  "capital_min": 100000
+                },
+                "limite": 50,
+                "incluir_contatos_socios": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lista de empresas com socios",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GerarLeadsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/leads/jobs/{jobId}": {
+      "get": {
+        "operationId": "getJobStatus",
+        "summary": "Status de job assincrono",
+        "description": "Consulta o status de um job de enriquecimento assincrono.",
+        "tags": [
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID do job retornado pelo POST com ?async=true"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status do job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "jobId": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "waiting",
+                        "active",
+                        "completed",
+                        "failed"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "number"
+                    },
+                    "result": {
+                      "type": "object"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "finishedAt": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Contato": {
+        "type": "object",
+        "description": "Identificador de contato — fornecer ao menos um campo",
+        "properties": {
+          "cpf": {
+            "type": "string",
+            "example": "12345678901"
+          },
+          "telefone": {
+            "type": "string",
+            "example": "11987654321"
+          },
+          "email": {
+            "type": "string",
+            "example": "joao@empresa.com"
+          }
+        }
+      },
+      "EnriquecerRequest": {
+        "type": "object",
+        "required": [
+          "contatos"
+        ],
+        "properties": {
+          "contatos": {
+            "type": "array",
+            "maxItems": 1000,
+            "items": {
+              "$ref": "#/components/schemas/Contato"
+            },
+            "description": "Max 100 sincrono, max 1000 com ?async=true"
+          },
+          "campos": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "identidade",
+                "renda",
+                "contatos",
+                "empresas",
+                "endereco"
+              ]
+            },
+            "description": "Campos a retornar (omitir = todos)"
+          }
+        }
+      },
+      "ScoreRenda": {
+        "type": "object",
+        "properties": {
+          "faixa": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D",
+              "E"
+            ],
+            "example": "B"
+          },
+          "score": {
+            "type": "integer",
+            "example": 62
+          },
+          "sinais": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "imoveis_2_valor_850k",
+              "1_veiculo",
+              "remuneracao_12k"
+            ]
+          }
+        }
+      },
+      "ResultadoEnriquecimento": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/Contato"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "nao_encontrado",
+              "erro"
+            ]
+          },
+          "cpf": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string",
+            "example": "Joao Silva"
+          },
+          "data_nascimento": {
+            "type": "string",
+            "example": "1985-03-15"
+          },
+          "sexo": {
+            "type": "string",
+            "example": "M"
+          },
+          "score_renda": {
+            "$ref": "#/components/schemas/ScoreRenda"
+          },
+          "contatos": {
+            "type": "object",
+            "properties": {
+              "telefones": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "emails": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "endereco": {
+            "type": "object",
+            "properties": {
+              "cidade": {
+                "type": "string"
+              },
+              "uf": {
+                "type": "string"
+              },
+              "bairro": {
+                "type": "string"
+              }
+            }
+          },
+          "empresas": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "cnpj": {
+                  "type": "string"
+                },
+                "razao_social": {
+                  "type": "string"
+                },
+                "qualificacao": {
+                  "type": "string"
+                },
+                "capital_social": {
+                  "type": "number"
+                },
+                "cnae": {
+                  "type": "string"
+                },
+                "porte": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "patrimonio_resumo": {
+            "type": "object",
+            "properties": {
+              "imoveis": {
+                "type": "integer"
+              },
+              "veiculos": {
+                "type": "integer"
+              },
+              "valor_imoveis_estimado": {
+                "type": "number"
+              }
+            }
+          },
+          "remuneracao_atual": {
+            "type": "number"
+          }
+        }
+      },
+      "EnriquecerResponse": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "example": 3
+          },
+          "enriquecidos": {
+            "type": "integer",
+            "example": 2
+          },
+          "erros": {
+            "type": "integer",
+            "example": 1
+          },
+          "resultados": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResultadoEnriquecimento"
+            }
+          }
+        }
+      },
+      "FiltrosEmpresa": {
+        "type": "object",
+        "required": [
+          "cnae",
+          "uf"
+        ],
+        "properties": {
+          "cnae": {
+            "type": "string",
+            "example": "6201",
+            "description": "Prefixo CNAE (startsWith)"
+          },
+          "uf": {
+            "type": "string",
+            "example": "SP"
+          },
+          "cidade": {
+            "type": "string",
+            "example": "Sao Paulo"
+          },
+          "porte": {
+            "type": "string",
+            "enum": [
+              "ME",
+              "EPP",
+              "Demais"
+            ]
+          },
+          "capital_min": {
+            "type": "number",
+            "example": 100000
+          },
+          "capital_max": {
+            "type": "number",
+            "example": 5000000
+          }
+        }
+      },
+      "GerarLeadsRequest": {
+        "type": "object",
+        "required": [
+          "filtros"
+        ],
+        "properties": {
+          "filtros": {
+            "$ref": "#/components/schemas/FiltrosEmpresa"
+          },
+          "limite": {
+            "type": "integer",
+            "default": 50,
+            "maximum": 500
+          },
+          "incluir_contatos_socios": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "Socio": {
+        "type": "object",
+        "properties": {
+          "cpf": {
+            "type": "string",
+            "example": "123***901"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "qualificacao": {
+            "type": "string"
+          },
+          "telefones": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "EmpresaLead": {
+        "type": "object",
+        "properties": {
+          "cnpj": {
+            "type": "string"
+          },
+          "razao_social": {
+            "type": "string"
+          },
+          "nome_fantasia": {
+            "type": "string"
+          },
+          "cnae": {
+            "type": "string"
+          },
+          "cnae_descricao": {
+            "type": "string"
+          },
+          "porte": {
+            "type": "string"
+          },
+          "capital_social": {
+            "type": "number"
+          },
+          "cidade": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "telefone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "socios": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Socio"
+            }
+          }
+        }
+      },
+      "GerarLeadsResponse": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "filtros_aplicados": {
+            "$ref": "#/components/schemas/FiltrosEmpresa"
+          },
+          "empresas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmpresaLead"
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

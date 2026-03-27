@@ -1,0 +1,194 @@
+---
+title: "Levantamento Patrimonial para Execução"
+description: "Localizar bens de devedores para penhora e cumprimento de sentença"
+icon: "landmark"
+---
+
+Após vencer uma ação judicial, o próximo desafio é **localizar bens** do devedor para garantir o pagamento. O Sherlocker permite mapear patrimônio de pessoa física ou jurídica — e expandir a busca para cônjuge, empresas vinculadas e sócios.
+
+## O problema
+
+O devedor raramente tem bens em nome próprio. Patrimônio pode estar em nome do cônjuge, de empresas, de parentes ou em estados diferentes. Um levantamento manual exige consultas em dezenas de cartórios, Detrans e portais IPTU.
+
+## Estratégia de busca
+
+<Steps>
+  <Step title="Patrimônio direto do devedor">
+    Imóveis, veículos, aeronaves, rural e patentes em nome do CPF/CNPJ
+  </Step>
+  <Step title="Identificar cônjuge e parentes">
+    Buscar parentes — especialmente cônjuge (comunhão de bens)
+  </Step>
+  <Step title="Patrimônio do cônjuge">
+    Repetir busca patrimonial no CPF do cônjuge
+  </Step>
+  <Step title="Empresas vinculadas">
+    Sociedades onde o devedor é sócio — podem ter bens penhoráveis
+  </Step>
+  <Step title="Patrimônio das empresas">
+    Imóveis e veículos em nome dos CNPJs vinculados
+  </Step>
+  <Step title="Consolidar e avaliar">
+    Montar relatório com todos os bens encontrados e valores estimados
+  </Step>
+</Steps>
+
+## Implementação
+
+### Passo 1 — Patrimônio direto
+
+```python
+import requests
+from concurrent.futures import ThreadPoolExecutor
+
+BASE = "https://221b-api.sherlocker.com.br/api/v1"
+TOKEN = "SEU_TOKEN"
+
+def get(endpoint, **params):
+    params["token"] = TOKEN
+    return requests.get(f"{BASE}{endpoint}", params=params).json()
+
+cpf_devedor = "12345678901"
+
+# 5 consultas em paralelo
+with ThreadPoolExecutor(max_workers=5) as pool:
+    fut_imoveis = pool.submit(get, f"/imoveis/cpf/{cpf_devedor}")
+    fut_veiculos = pool.submit(get, f"/veiculos/cpf/{cpf_devedor}")
+    fut_aeronaves = pool.submit(get, f"/aeronaves/cpf/{cpf_devedor}")
+    fut_rural = pool.submit(get, f"/rural/cpf/{cpf_devedor}")
+    fut_patentes = pool.submit(get, f"/patentes/cpf/{cpf_devedor}")
+
+patrimonio = {
+    "imoveis": fut_imoveis.result(),
+    "veiculos": fut_veiculos.result(),
+    "aeronaves": fut_aeronaves.result(),
+    "rural": fut_rural.result(),
+    "patentes": fut_patentes.result(),
+}
+```
+
+### Passo 2 — Cônjuge e parentes
+
+```python
+perfil = get(f"/pessoas/cpf/{cpf_devedor}")
+parentes = perfil.get("parentes", [])
+
+conjuge = next(
+    (p for p in parentes if p.get("vinculo_nome") == "Cônjuge"),
+    None
+)
+
+# Se tem conjuge, buscar patrimonio dele tambem
+if conjuge and conjuge.get("cpf"):
+    cpf_conjuge = conjuge["cpf"]
+
+    with ThreadPoolExecutor(max_workers=3) as pool:
+        fut_im = pool.submit(get, f"/imoveis/cpf/{cpf_conjuge}")
+        fut_ve = pool.submit(get, f"/veiculos/cpf/{cpf_conjuge}")
+        fut_ru = pool.submit(get, f"/rural/cpf/{cpf_conjuge}")
+
+    patrimonio["imoveis_conjuge"] = fut_im.result()
+    patrimonio["veiculos_conjuge"] = fut_ve.result()
+    patrimonio["rural_conjuge"] = fut_ru.result()
+```
+
+### Passo 3 — Empresas vinculadas
+
+```python
+sociedades = get(f"/empresas/cpf/{cpf_devedor}")
+
+for socio in sociedades.get("socios", []):
+    cnpj = socio["cnpj"]
+
+    # Patrimonio da empresa
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        fut_im = pool.submit(get, f"/imoveis/cnpj/{cnpj}")
+        fut_ve = pool.submit(get, f"/veiculos/cnpj/{cnpj}")
+
+    patrimonio[f"imoveis_empresa_{cnpj}"] = fut_im.result()
+    patrimonio[f"veiculos_empresa_{cnpj}"] = fut_ve.result()
+```
+
+### Passo 4 — Consolidar relatório
+
+```python
+def contar_bens(patrimonio):
+    imoveis = patrimonio.get("imoveis", {}).get("imoveis", [])
+    veiculos = patrimonio.get("veiculos", {}).get("veiculos", [])
+    valor_total = sum(float(im.get("valor_venal", 0) or 0) for im in imoveis)
+
+    return {
+        "imoveis": len(imoveis),
+        "valor_imoveis": valor_total,
+        "veiculos": len(veiculos),
+        "aeronaves": len(patrimonio.get("aeronaves", {}).get("aeronaves", [])),
+        "rurais": len(patrimonio.get("rural", {}).get("propriedades_sncr", [])),
+    }
+
+relatorio = contar_bens(patrimonio)
+
+# Adicionar bens do conjuge
+if conjuge:
+    relatorio["conjuge"] = {
+        "cpf": cpf_conjuge,
+        "nome": conjuge.get("nome"),
+        "imoveis": len(patrimonio.get("imoveis_conjuge", {}).get("imoveis", [])),
+        "veiculos": len(patrimonio.get("veiculos_conjuge", {}).get("veiculos", [])),
+    }
+
+# Adicionar bens das empresas
+relatorio["empresas"] = []
+for socio in sociedades.get("socios", []):
+    cnpj = socio["cnpj"]
+    relatorio["empresas"].append({
+        "cnpj": cnpj,
+        "razao_social": socio.get("razao_social"),
+        "imoveis": len(patrimonio.get(f"imoveis_empresa_{cnpj}", {}).get("imoveis", [])),
+        "veiculos": len(patrimonio.get(f"veiculos_empresa_{cnpj}", {}).get("veiculos", [])),
+    })
+```
+
+## Dica: triagem rápida antes do levantamento completo
+
+Antes de iniciar todas as consultas, verifique imóveis e veículos para saber se vale prosseguir:
+
+```python
+with ThreadPoolExecutor(max_workers=2) as pool:
+    fut_im = pool.submit(get, f"/imoveis/cpf/{cpf_devedor}")
+    fut_ve = pool.submit(get, f"/veiculos/cpf/{cpf_devedor}")
+
+imoveis_rapido = fut_im.result().get("imoveis", [])
+veiculos_rapido = fut_ve.result().get("veiculos", [])
+
+total_bens = len(imoveis_rapido) + len(veiculos_rapido)
+if total_bens == 0:
+    print("Nenhum bem detectado — considere priorizar outros devedores")
+else:
+    print(f"{total_bens} bens encontrados — prosseguir com levantamento completo")
+```
+
+## APIs utilizadas
+
+<CardGroup cols={3}>
+  <Card title="Imóveis" icon="house" href="/api-reference/imoveis/imoveis-urbanos-de-uma-pessoa">
+    Propriedades urbanas por CPF/CNPJ
+  </Card>
+  <Card title="Veículos" icon="car" href="/api-reference/veiculos/veiculos-de-uma-pessoa">
+    Frota registrada
+  </Card>
+  <Card title="Rural" icon="tractor" href="/api-reference/rural/perfil-rural-de-uma-pessoa">
+    Imóveis rurais e SNCR
+  </Card>
+  <Card title="Aeronaves" icon="plane" href="/api-reference/aeronaves/aeronaves-de-uma-pessoa">
+    Aeronaves e drones
+  </Card>
+  <Card title="Pessoas" icon="user" href="/api-reference/pessoas/perfil-completo-de-uma-pessoa">
+    Parentes e cônjuge
+  </Card>
+  <Card title="Empresas" icon="building" href="/api-reference/empresas/vinculos-societarios-de-uma-pessoa">
+    Sociedades vinculadas
+  </Card>
+  <Card title="Propriedade Intelectual" icon="lightbulb" href="/api-reference/patentes/patentes-e-marcas-de-uma-pessoa">
+    Propriedade intelectual
+  </Card>
+</CardGroup>

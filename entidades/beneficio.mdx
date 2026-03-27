@@ -1,0 +1,95 @@
+---
+title: "Benefício Social"
+description: "Beneficio social ou renuncia fiscal do governo federal"
+icon: "hand-holding-dollar"
+---
+
+Um **Beneficio Social** representa um pagamento de programa social do governo federal vinculado a um CPF, ou uma renuncia fiscal vinculada a um CNPJ.
+
+## Tipagem — Pessoa Fisica
+
+```json
+{
+  "auxilio_brasil": [
+    {
+      "nome_favorecido": "MARIA DA SILVA",
+      "mes_competencia": "202301",
+      "valor_parcela": 600.00,
+      "uf": "MG",
+      "nome_municipio": "BELO HORIZONTE"
+    }
+  ],
+  "bolsa_familia": [],
+  "auxilio_emergencial": [],
+  "bpc": []
+}
+```
+
+## Programas disponíveis
+
+| Programa | Descricao |
+|----------|-----------|
+| **Auxilio Brasil** | Programa de transferencia de renda (substituto do Bolsa Familia) |
+| **Bolsa Familia** | Programa historico de transferencia de renda |
+| **Auxilio Emergencial** | Pagamentos durante a pandemia (2020-2021) |
+| **BPC** | Beneficio de Prestacao Continuada (idosos e deficientes) |
+
+## Tipagem — Pessoa Juridica (Renuncias Fiscais)
+
+```json
+{
+  "renuncias_fiscais": [
+    {
+      "ano_calendario": "2023",
+      "cnpj": "12345678000199",
+      "razao_social": "EMPRESA LTDA",
+      "nome_fantasia": "EMPRESA",
+      "codigo_cnae": "64221",
+      "cnae": "Bancos multiplos, com carteira comercial",
+      "municipio": "SAO PAULO",
+      "uf": "SP",
+      "tipo_renuncia": "Declarado pelo Contribuinte para Apuracao do IRPJ e da CSLL",
+      "beneficio_fiscal": "Empresa Cidada",
+      "fundamento_legal": "Lei 11.770/2008",
+      "descricao": "Salario-maternidade/paternidade estendido",
+      "tributo": "IRPJ",
+      "forma_tributacao": "Lucro Real",
+      "valor_renuncia_fiscal": "50000.00",
+      "created_at": "2024-01-15 00:00:00"
+    }
+  ]
+}
+```
+
+### Campos
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| `ano_calendario` | `string` | Ano-base da renuncia |
+| `cnpj` | `string` | CNPJ da empresa beneficiaria |
+| `razao_social` | `string` | Razao social |
+| `nome_fantasia` | `string` | Nome fantasia |
+| `codigo_cnae` | `string \| null` | Codigo CNAE da atividade economica |
+| `cnae` | `string \| null` | Descricao da atividade economica |
+| `municipio` | `string` | Municipio da empresa |
+| `uf` | `string \| null` | Unidade federativa |
+| `tipo_renuncia` | `string` | Tipo/categoria da renuncia (ex: isencao, deducao) |
+| `beneficio_fiscal` | `string` | Nome do beneficio fiscal (ex: Empresa Cidada, Simples Nacional) |
+| `fundamento_legal` | `string` | Base legal que ampara o beneficio |
+| `descricao` | `string` | Descricao detalhada do beneficio |
+| `tributo` | `string` | Tributo afetado (ex: IRPJ, CSLL, PIS, COFINS) |
+| `forma_tributacao` | `string \| null` | Regime de tributacao (ex: Lucro Real, Simples) |
+| `valor_renuncia_fiscal` | `string` | Valor monetario da renuncia em BRL |
+| `created_at` | `string` | Data de carga do registro |
+
+## Conexoes
+
+- **Pessoa** — como beneficiario (CPF)
+- **Empresa** — como beneficiaria de renuncia fiscal (CNPJ)
+
+## Endpoints
+
+| Rota | Descricao |
+|------|-----------|
+| `GET /beneficios/cpf/{cpf}` | Beneficios sociais por CPF |
+| `GET /beneficios/cnpj/{cnpj}` | Renuncias fiscais por CNPJ |

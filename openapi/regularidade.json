@@ -1,0 +1,308 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Regularidade API",
+    "description": "Verificacao de compliance e restricoes: IBAMA, sancoes nacionais e internacionais, Banco Central e protestos.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "CheckerResult": {
+        "type": "object",
+        "properties": {
+          "found": {
+            "type": "boolean",
+            "description": "Se foram encontrados registros"
+          },
+          "data": {
+            "description": "Dados especificos do modulo (varia por tipo)"
+          },
+          "error": {
+            "type": "string",
+            "description": "Mensagem de erro se a consulta falhou"
+          }
+        }
+      },
+      "RegularidadeResponse": {
+        "type": "object",
+        "description": "Cada chave corresponde a um modulo consultado",
+        "properties": {
+          "ibama": {
+            "$ref": "#/components/schemas/CheckerResult"
+          },
+          "sancao-nacional": {
+            "$ref": "#/components/schemas/CheckerResult"
+          },
+          "banco-central": {
+            "$ref": "#/components/schemas/CheckerResult"
+          },
+          "sancao-internacional": {
+            "$ref": "#/components/schemas/CheckerResult"
+          },
+          "protestos": {
+            "$ref": "#/components/schemas/CheckerResult"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/regularidade/cpf/{cpf}": {
+      "get": {
+        "operationId": "getRegularidadeByCpf",
+        "summary": "Restricoes e sancoes de uma pessoa",
+        "description": "Consulta multiplos modulos de regularidade para uma pessoa fisica. Cada modulo retorna found=true se ha restricoes.",
+        "tags": [
+          "Regularidade"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF do titular (com ou sem formatacao)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          },
+          {
+            "name": "modulos",
+            "in": "query",
+            "required": false,
+            "description": "Modulos a consultar separados por virgula. Opcoes: ibama, sancao-nacional, banco-central, sancao-internacional, protestos. Se omitido, consulta todos.",
+            "schema": {
+              "type": "string",
+              "example": "ibama,protestos"
+            }
+          },
+          {
+            "name": "nome",
+            "in": "query",
+            "required": false,
+            "description": "Nome (necessario para banco-central e sancao-nacional)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado por modulo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegularidadeResponse"
+                },
+                "example": {
+                  "ibama": {
+                    "found": true,
+                    "data": [
+                      {
+                        "nome_embargado": "João Silva",
+                        "cpf_cnpj": "12345678901",
+                        "uf": "SP",
+                        "data_embargo": "2020-01-15",
+                        "area_embargada": 50.0,
+                        "bioma": "Cerrado"
+                      }
+                    ],
+                    "error": null
+                  },
+                  "sancao-nacional": {
+                    "found": false,
+                    "data": null,
+                    "error": null
+                  },
+                  "banco-central": {
+                    "found": true,
+                    "data": [
+                      {
+                        "nome": "João Silva",
+                        "penalidade": "Inabilitação",
+                        "prazo_anos": 5,
+                        "inicio_cumprimento": "2020-01-15"
+                      }
+                    ],
+                    "error": null
+                  },
+                  "sancao-internacional": {
+                    "found": false,
+                    "data": null,
+                    "error": null
+                  },
+                  "protestos": {
+                    "found": false,
+                    "data": null,
+                    "error": null
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/regularidade/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getRegularidadeByCnpj",
+        "summary": "Restricoes e sancoes de uma empresa",
+        "description": "Consulta multiplos modulos de regularidade para uma empresa.",
+        "tags": [
+          "Regularidade"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (com ou sem formatacao)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          },
+          {
+            "name": "modulos",
+            "in": "query",
+            "required": false,
+            "description": "Modulos a consultar separados por virgula. Opcoes: ibama, sancao-nacional, sancao-internacional, protestos",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado por modulo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegularidadeResponse"
+                },
+                "example": {
+                  "ibama": {
+                    "found": false,
+                    "data": null,
+                    "error": null
+                  },
+                  "sancao-nacional": {
+                    "found": true,
+                    "data": [
+                      {
+                        "nome": "Silva Comércio LTDA",
+                        "cnpj_cpf": "12345678000199",
+                        "orgao_sancionador": "CGU",
+                        "data_inicio_sancao": "2020-01-15",
+                        "data_fim_sancao": "2025-01-15"
+                      }
+                    ],
+                    "error": null
+                  },
+                  "sancao-internacional": {
+                    "found": false,
+                    "data": null,
+                    "error": null
+                  },
+                  "protestos": {
+                    "found": true,
+                    "data": [
+                      {
+                        "valor": 15000.00,
+                        "data_protesto": "2023-03-10",
+                        "cartorio": "1º Tabelião de Protestos de São Paulo",
+                        "uf": "SP"
+                      }
+                    ],
+                    "error": null
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,447 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Registros API",
+    "description": "Registros digitais e comerciais por email, CPF ou telefone. Cada registro indica a existencia de uma conta ou cadastro em uma plataforma externa.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "Registro": {
+        "type": "object",
+        "properties": {
+          "plataforma": {
+            "type": "string",
+            "description": "Nome da plataforma (github, drogasil, linkedin, etc.)",
+            "example": "GitHub"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "digital",
+              "comercial",
+              "bancario"
+            ],
+            "description": "Tipo do registro: 'digital' para plataformas online, 'comercial' para lojas e farmacias, 'bancario' para instituicoes financeiras",
+            "example": "digital"
+          },
+          "existe": {
+            "type": "boolean",
+            "description": "Se a conta/cadastro foi encontrado",
+            "example": true
+          },
+          "telefone": {
+            "type": "string",
+            "description": "Telefone vinculado (parcialmente mascarado)",
+            "example": "55119****4321"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email vinculado",
+            "example": "mar***@gmail.com"
+          },
+          "foto": {
+            "type": "string",
+            "description": "URL da foto de perfil",
+            "example": "https://avatars.githubusercontent.com/u/12345"
+          },
+          "username": {
+            "type": "string",
+            "description": "Nome de usuario na plataforma (quando disponivel)",
+            "example": "mariasilva"
+          },
+          "nome": {
+            "type": "string",
+            "description": "Nome de exibicao",
+            "example": "Maria Silva"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Dados adicionais especificos da plataforma",
+            "example": {
+              "repos": 15,
+              "followers": 42
+            }
+          }
+        },
+        "required": [
+          "plataforma",
+          "tipo",
+          "existe"
+        ]
+      },
+      "RegistroPorEmailResponse": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email consultado",
+            "example": "usuario@gmail.com"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total de registros encontrados",
+            "example": 5
+          },
+          "registros": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Registro"
+            },
+            "description": "Lista de registros encontrados (todos com tipo 'digital')"
+          }
+        }
+      },
+      "RegistroPorCpfResponse": {
+        "type": "object",
+        "properties": {
+          "cpf": {
+            "type": "string",
+            "description": "CPF consultado",
+            "example": "12345678901"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total de registros encontrados",
+            "example": 5
+          },
+          "registros": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Registro"
+            },
+            "description": "Lista de registros encontrados"
+          }
+        }
+      },
+      "RegistroPorTelefoneResponse": {
+        "type": "object",
+        "properties": {
+          "telefone": {
+            "type": "string",
+            "description": "Telefone consultado",
+            "example": "5511987654321"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total de registros encontrados",
+            "example": 5
+          },
+          "registros": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Registro"
+            },
+            "description": "Lista de registros encontrados"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/registro/email/{email}": {
+      "get": {
+        "operationId": "getRegistrosPorEmail",
+        "summary": "Registros por email",
+        "description": "Verifica a existencia de contas em plataformas digitais e redes sociais a partir de um email. Retorna um array de registros, cada um com `tipo: 'digital'`.\n\n**Plataformas verificadas:** GitHub, Gravatar, Duolingo, Medium, Nike, Apple, Google, Pinterest, Vivino, Trello, Protonmail, Runkeeper, USP.",
+        "tags": [
+          "Registros"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "description": "Endereco de email para verificar",
+            "schema": {
+              "type": "string",
+              "example": "usuario@gmail.com"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Registros digitais encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistroPorEmailResponse"
+                },
+                "example": {
+                  "email": "usuario@gmail.com",
+                  "total": 3,
+                  "registros": [
+                    {
+                      "plataforma": "github",
+                      "tipo": "digital",
+                      "existe": true,
+                      "username": "mariasilva",
+                      "nome": "Maria Silva",
+                      "foto": "https://avatars.githubusercontent.com/u/12345",
+                      "metadata": {
+                        "repos": 15,
+                        "followers": 42
+                      }
+                    },
+                    {
+                      "plataforma": "google",
+                      "tipo": "digital",
+                      "existe": true,
+                      "nome": "Maria Silva",
+                      "foto": "https://lh3.googleusercontent.com/...",
+                      "metadata": {}
+                    },
+                    {
+                      "plataforma": "duolingo",
+                      "tipo": "digital",
+                      "existe": true,
+                      "username": "maria.silva",
+                      "nome": "Maria",
+                      "metadata": {
+                        "streak": 120
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/registro/cpf/{cpf}": {
+      "get": {
+        "operationId": "getRegistrosPorCpf",
+        "summary": "Registros por CPF",
+        "description": "Verifica cadastros em lojas, farmacias, programas de fidelidade e instituicoes financeiras a partir de um CPF. Retorna um array de registros com tipos 'comercial', 'digital' ou 'bancario'.\n\n**Plataformas verificadas:** Drogasil, Drogaraia, Carrefour, Atacadao, Petz, Fastshop, Livelo.",
+        "tags": [
+          "Registros"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos, somente numeros)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          },
+          {
+            "name": "tipo",
+            "in": "query",
+            "required": false,
+            "description": "Filtrar por tipo (digital, comercial, bancario). Separar por virgula para multiplos.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Registros encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistroPorCpfResponse"
+                },
+                "example": {
+                  "cpf": "12345678901",
+                  "total": 5,
+                  "registros": [
+                    {
+                      "tipo": "comercial",
+                      "plataforma": "Drogasil",
+                      "existe": true,
+                      "telefone": "5511987654321",
+                      "email": "mar***@gmail.com",
+                      "metadata": {
+                        "programa_fidelidade": true
+                      }
+                    },
+                    {
+                      "tipo": "digital",
+                      "plataforma": "GitHub",
+                      "existe": true,
+                      "username": "mariasilva",
+                      "nome": "Maria Silva",
+                      "foto": "https://avatars.githubusercontent.com/u/12345",
+                      "metadata": {
+                        "repos": 15
+                      }
+                    },
+                    {
+                      "tipo": "bancario",
+                      "plataforma": "Nubank",
+                      "existe": true,
+                      "nome": "Maria Silva",
+                      "metadata": {}
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/registro/telefone/{telefone}": {
+      "get": {
+        "operationId": "getRegistrosPorTelefone",
+        "summary": "Registros por telefone",
+        "description": "Verifica a existencia de contas e cadastros em plataformas digitais a partir de um numero de telefone. Retorna um array de registros encontrados.",
+        "tags": [
+          "Registros"
+        ],
+        "parameters": [
+          {
+            "name": "telefone",
+            "in": "path",
+            "required": true,
+            "description": "Numero de telefone (somente numeros, com DDD e codigo do pais)",
+            "schema": {
+              "type": "string",
+              "example": "5511987654321"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Registros encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistroPorTelefoneResponse"
+                },
+                "example": {
+                  "telefone": "5511987654321",
+                  "total": 2,
+                  "registros": [
+                    {
+                      "tipo": "digital",
+                      "plataforma": "WhatsApp",
+                      "existe": true,
+                      "nome": "Maria Silva",
+                      "foto": "https://example.com/photo.jpg",
+                      "metadata": {}
+                    },
+                    {
+                      "tipo": "digital",
+                      "plataforma": "Telegram",
+                      "existe": true,
+                      "username": "mariasilva",
+                      "nome": "Maria",
+                      "metadata": {}
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

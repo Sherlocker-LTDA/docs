@@ -1,0 +1,162 @@
+---
+title: "Due Diligence Empresarial"
+description: "Investigação completa de empresa antes de fechar negócio, fusão ou parceria"
+icon: "building-magnifying-glass"
+---
+
+Antes de fechar um contrato, investir em uma empresa ou formar uma parceria, é essencial verificar a saúde jurídica, financeira e reputacional da empresa e seus sócios. O Sherlocker cruza **cadastro, compliance, processos, dívidas, trabalhista e patrimônio** em um único fluxo.
+
+## O problema
+
+Uma empresa pode ter CNPJ ativo e site bonito, mas estar com dívidas bilionárias, sócios na lista de trabalho escravo, ou dezenas de execuções fiscais. Sem due diligence, você descobre tarde demais.
+
+## Dimensões verificadas
+
+<Steps>
+  <Step title="Dados cadastrais">
+    Situação na RF, capital social, porte, CNAE, sócios e quadro societário
+  </Step>
+  <Step title="Compliance e listas restritivas">
+    CEIS, CNEP, CEPIM, trabalho escravo, IBAMA, sanções internacionais, PEP
+  </Step>
+  <Step title="Situação financeira">
+    Dívida ativa da União, FGTS, previdenciária
+  </Step>
+  <Step title="Processos judiciais">
+    Ações como réu — especialmente execuções, falências e trabalhistas
+  </Step>
+  <Step title="Trabalhista">
+    Lista de trabalho escravo, PAT (Programa de Alimentação do Trabalhador)
+  </Step>
+  <Step title="Sócios — check individual">
+    Para cada sócio: regularidade pessoal, processos, patrimônio
+  </Step>
+</Steps>
+
+## Implementação
+
+### Passo 1 — Dados cadastrais e sócios
+
+```python
+import requests
+from concurrent.futures import ThreadPoolExecutor
+
+BASE = "https://221b-api.sherlocker.com.br/api/v1"
+TOKEN = "SEU_TOKEN"
+
+def get(endpoint, **params):
+    params["token"] = TOKEN
+    return requests.get(f"{BASE}{endpoint}", params=params).json()
+
+cnpj = "12345678000199"
+
+empresa = get(f"/empresas/cnpj/{cnpj}")
+socios = empresa.get("socios", [])
+
+print(f"Empresa: {empresa.get('razao_social')}")
+print(f"Situacao: {empresa.get('situacao')}")
+print(f"Capital: R$ {empresa.get('capital_social', 0):,.0f}")
+print(f"Socios: {len(socios)}")
+```
+
+### Passo 2 — Compliance e financeiro
+
+```python
+with ThreadPoolExecutor(max_workers=4) as pool:
+    fut_reg = pool.submit(get, f"/regularidade/cnpj/{cnpj}")
+    fut_div = pool.submit(get, f"/dividas/cnpj/{cnpj}")
+    fut_trab = pool.submit(get, f"/trabalhista/cnpj/{cnpj}")
+    fut_proc = pool.submit(get, f"/processos/cnpj/{cnpj}")
+
+regularidade = fut_reg.result()
+dividas = fut_div.result()
+trabalhista = fut_trab.result()
+processos = fut_proc.result()
+
+# Red flags criticos
+red_flags = []
+
+if trabalhista.get("trabalho_escravo", {}).get("found"):
+    red_flags.append("TRABALHO ESCRAVO")
+
+if regularidade.get("sancao-nacional", {}).get("found"):
+    red_flags.append("SANCAO NACIONAL (CEIS/CNEP/CEPIM)")
+
+if regularidade.get("ibama", {}).get("found"):
+    red_flags.append("IBAMA: embargo ou infracao ambiental")
+
+total_dividas = dividas.get("valor_total", 0)
+if total_dividas > 0:
+    red_flags.append(f"Dividas: R$ {total_dividas:,.0f}")
+
+# Processos como reu
+processos_reu = [p for p in processos.get("processos", [])
+    if any(part.get("polo", "").lower() == "reu"
+           for part in p.get("partes", []))]
+
+if len(processos_reu) > 10:
+    red_flags.append(f"{len(processos_reu)} processos como reu")
+```
+
+### Passo 3 — Check dos sócios
+
+```python
+# Extrair CPFs dos socios (documento vem formatado, ex: "123.456.789-10")
+cpfs_socios = [
+    s["documento"].replace(".", "").replace("-", "").replace("/", "")
+    for s in socios
+    if len(s.get("documento", "").replace(".", "").replace("-", "").replace("/", "")) == 11
+]
+
+# Check de regularidade de cada socio
+for cpf in cpfs_socios:
+    reg_socio = get(f"/regularidade/cpf/{cpf}")
+    if reg_socio.get("sancao-nacional", {}).get("found"):
+        red_flags.append(f"Socio {cpf[:3]}*** em lista de sancoes nacionais (CEIS/PEP/etc)")
+    if reg_socio.get("sancao-internacional", {}).get("found"):
+        red_flags.append(f"Socio {cpf[:3]}*** em lista de sancoes internacionais")
+```
+
+### Passo 4 — Relatório final
+
+```python
+relatorio = {
+    "empresa": {
+        "cnpj": cnpj,
+        "razao_social": empresa.get("razao_social"),
+        "situacao": empresa.get("situacao"),
+        "capital_social": empresa.get("capital_social"),
+    },
+    "red_flags": red_flags,
+    "risco": "ALTO" if red_flags else "BAIXO",
+    "socios": len(socios),
+    "processos_total": len(processos.get("processos", [])),
+    "processos_como_reu": len(processos_reu),
+    "dividas_total": total_dividas,
+}
+
+if red_flags:
+    print("⚠ RED FLAGS ENCONTRADOS:")
+    for flag in red_flags:
+        print(f"  - {flag}")
+```
+
+## APIs utilizadas
+
+<CardGroup cols={3}>
+  <Card title="Empresas" icon="building" href="/api-reference/empresas/perfil-completo-de-uma-empresa">
+    Cadastro, sócios, capital social
+  </Card>
+  <Card title="Regularidade" icon="shield-check" href="/api-reference/regularidade/restricoes-e-sancoes-de-uma-empresa">
+    CEIS, CNEP, IBAMA, sanções, PEP
+  </Card>
+  <Card title="Dívidas" icon="file-invoice-dollar" href="/api-reference/dividas/dividas-federais-de-uma-empresa">
+    Dívida ativa, FGTS, previdenciária
+  </Card>
+  <Card title="Processos" icon="scale-balanced" href="/api-reference/processos/processos-judiciais-de-uma-empresa">
+    Ações judiciais da empresa
+  </Card>
+  <Card title="Trabalhista" icon="briefcase" href="/api-reference/trabalhista/irregularidades-trabalhistas-de-uma-empresa">
+    Trabalho escravo, PAT
+  </Card>
+</CardGroup>

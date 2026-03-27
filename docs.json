@@ -1,0 +1,230 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
+  "appearance": {
+    "default": "dark"
+  },
+  "name": "Sherlocker",
+  "description": "Plataforma de inteligência investigativa - Documentação da API",
+  "colors": {
+    "primary": "#6C63FF",
+    "light": "#F0EFFF",
+    "dark": "#1A1A2E"
+  },
+  "logo": {
+    "light": "/logo-light.svg",
+    "dark": "/logo-dark.svg"
+  },
+  "favicon": "/favicon.svg",
+  "api": {
+    "baseUrl": "https://221b-api.sherlocker.com.br/api/v1",
+    "auth": {
+      "method": "key",
+      "name": "token",
+      "inputPrefix": ""
+    },
+    "playground": {
+      "mode": "simple"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guias",
+        "icon": "book",
+        "groups": [
+          {
+            "group": "Início",
+            "pages": [
+              "introduction",
+              "custos",
+              "authentication",
+              "guias/integracao-api",
+              "guias/postman"
+            ]
+          },
+          {
+            "group": "Perfis",
+            "pages": [
+              "areas/contatos",
+              "areas/patrimonio",
+              "areas/juridico"
+            ]
+          },
+          {
+            "group": "Casos de Uso",
+            "pages": [
+              "casos-de-uso/background-check",
+              "casos-de-uso/enriquecimento-leads",
+              "casos-de-uso/segmentacao-patrimonial",
+              "casos-de-uso/due-diligence",
+              "casos-de-uso/levantamento-patrimonial",
+              "casos-de-uso/localizacao-partes"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Cadastro",
+        "icon": "users",
+        "groups": [
+          {
+            "group": "Perfil Completo",
+            "openapi": "/openapi/perfil.json",
+            "pages": [
+              "GET /perfil/cadastral/cpf/{cpf}",
+              "GET /perfil/cadastral/cnpj/{cnpj}"
+            ]
+          },
+          {
+            "group": "Entidades",
+            "pages": [
+              "entidades/pessoa",
+              "entidades/empresa",
+              "entidades/telefone",
+              "entidades/email",
+              "entidades/endereco",
+              "entidades/divida",
+              "entidades/beneficio"
+            ]
+          },
+          {
+            "group": "Pessoa Física",
+            "openapi": "/openapi/pessoas.json",
+            "pages": [
+              "GET /pessoas/cpf/{cpf}",
+              "GET /pessoas/cpf/{cpf}/enderecos",
+              "GET /pessoas/cpf/{cpf}/empregos"
+            ]
+          },
+          {
+            "group": "Pessoa Jurídica",
+            "openapi": "/openapi/empresas.json",
+            "pages": [
+              "GET /empresas/cnpj/{cnpj}",
+              "GET /empresas/cnpj/{cnpj}/funcionarios",
+              "GET /empresas/cnpj/{cnpj}/dividas",
+              "GET /empresas/cnpj/{cnpj}/beneficios"
+            ]
+          },
+          {
+            "group": "Telefones & Emails",
+            "openapi": "/openapi/pessoas.json",
+            "pages": [
+              "GET /telefones/cpf/{cpf}",
+              "GET /emails/cpf/{cpf}"
+            ]
+          },
+          {
+            "group": "Busca Reversa",
+            "openapi": "/openapi/pessoas.json",
+            "pages": [
+              "GET /pessoas/telefone/{telefone}",
+              "GET /pessoas/email/{email}"
+            ]
+          },
+          {
+            "group": "Busca por Empresa",
+            "openapi": "/openapi/empresas.json",
+            "pages": [
+              "GET /empresas/cpf/{cpf}",
+              "GET /empresas/email/{email}",
+              "GET /empresas/telefone/{telefone}"
+            ]
+          },
+          {
+            "group": "Dívidas",
+            "openapi": "/openapi/dividas.json",
+            "pages": ["GET /dividas/cpf/{cpf}", "GET /dividas/cnpj/{cnpj}"]
+          },
+          {
+            "group": "Benefícios Sociais",
+            "openapi": "/openapi/beneficios.json",
+            "pages": ["GET /beneficios/cpf/{cpf}", "GET /beneficios/cnpj/{cnpj}"]
+          },
+          {
+            "group": "Licitações",
+            "openapi": "/openapi/licitacoes.json",
+            "pages": [
+              "entidades/licitacao",
+              "GET /licitacoes/cpf/{cpf}",
+              "GET /licitacoes/cnpj/{cnpj}"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Patrimônio",
+        "icon": "landmark",
+        "groups": [
+          {
+            "group": "Perfil Completo",
+            "openapi": "/openapi/perfil.json",
+            "pages": [
+              "GET /perfil/patrimonial/cpf/{cpf}",
+              "GET /perfil/patrimonial/cnpj/{cnpj}"
+            ]
+          },
+          {
+            "group": "Entidades",
+            "pages": [
+              "entidades/propriedade-urbana",
+              "entidades/propriedade-rural",
+              "entidades/veiculo",
+              "entidades/aeronave",
+              "entidades/patente"
+            ]
+          },
+          {
+            "group": "Propriedades Urbanas",
+            "openapi": "/openapi/imoveis.json",
+            "pages": ["GET /imoveis/cpf/{cpf}", "GET /imoveis/cnpj/{cnpj}"]
+          },
+          {
+            "group": "Propriedades Rurais",
+            "openapi": "/openapi/rural.json",
+            "pages": [
+              "GET /rural/cpf/{cpf}",
+              "GET /rural/cnpj/{cnpj}"
+            ]
+          },
+          {
+            "group": "Veículos",
+            "openapi": "/openapi/veiculos.json",
+            "pages": ["GET /veiculos/cpf/{cpf}", "GET /veiculos/cnpj/{cnpj}", "GET /veiculos/placa/{placa}"]
+          },
+          {
+            "group": "Aeronaves",
+            "openapi": "/openapi/aeronaves.json",
+            "pages": ["GET /aeronaves/cpf/{cpf}", "GET /aeronaves/cnpj/{cnpj}"]
+          },
+          {
+            "group": "Patentes",
+            "openapi": "/openapi/patentes.json",
+            "pages": ["GET /patentes/cpf/{cpf}", "GET /patentes/cnpj/{cnpj}"]
+          }
+        ]
+      },
+      {
+        "tab": "Jurídico",
+        "icon": "scale-balanced",
+        "groups": [
+          {
+            "group": "Entidades",
+            "pages": ["entidades/processo", "entidades/parte", "entidades/advogado", "entidades/documento"]
+          },
+          {
+            "group": "Processos",
+            "openapi": "/openapi/processos.json",
+            "pages": ["GET /processos/cpf/{cpf}", "GET /processos/cnpj/{cnpj}", "GET /processos/numero/{numero}"]
+          },
+          {
+            "group": "Documentos Públicos",
+            "openapi": "/openapi/documentos.json",
+            "pages": ["GET /documentos/busca"]
+          }
+        ]
+      }
+    ]
+  }
+}

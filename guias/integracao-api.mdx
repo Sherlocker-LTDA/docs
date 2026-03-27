@@ -1,0 +1,236 @@
+---
+title: "Integração API"
+description: "Como integrar diretamente com a API REST do Sherlocker"
+icon: "plug"
+---
+
+# Integracao via API REST
+
+Integre diretamente com a API REST do Sherlocker usando qualquer linguagem ou ferramenta HTTP. Nenhuma biblioteca adicional e necessaria.
+
+## Base URL
+
+```
+https://221b-api.sherlocker.com.br/api/v1
+```
+
+Autenticacao via Bearer token — veja [Autenticacao](/authentication) para detalhes.
+
+## Primeira requisicao
+
+### cURL
+
+```bash
+curl "https://221b-api.sherlocker.com.br/api/v1/pessoas/cpf/12345678900" \
+  -H "Authorization: Bearer SEU_TOKEN"
+```
+
+### Python
+
+```python
+import requests
+
+BASE_URL = "https://221b-api.sherlocker.com.br/api/v1"
+TOKEN = "SEU_TOKEN"
+
+response = requests.get(
+    f"{BASE_URL}/pessoas/cpf/12345678900",
+    headers={"Authorization": f"Bearer {TOKEN}"}
+)
+
+data = response.json()
+print(data["nome_completo"])
+```
+
+### Node.js
+
+```javascript
+const BASE_URL = "https://221b-api.sherlocker.com.br/api/v1";
+const TOKEN = "SEU_TOKEN";
+
+const response = await fetch(`${BASE_URL}/pessoas/cpf/12345678900`, {
+  headers: { Authorization: `Bearer ${TOKEN}` }
+});
+
+const data = await response.json();
+console.log(data.nome_completo);
+```
+
+### PHP
+
+```php
+$baseUrl = "https://221b-api.sherlocker.com.br/api/v1";
+$token = "SEU_TOKEN";
+
+$context = stream_context_create([
+    "http" => [
+        "header" => "Authorization: Bearer {$token}"
+    ]
+]);
+
+$response = file_get_contents("{$baseUrl}/pessoas/cpf/12345678900", false, $context);
+$data = json_decode($response, true);
+echo $data['nome_completo'];
+```
+
+## Padrao de resposta
+
+As respostas sao objetos JSON diretos — sem wrapper `success`/`results`. Cada endpoint retorna os dados no formato do recurso consultado. Exemplo para `/pessoas/cpf/{cpf}`:
+
+```json
+{
+  "cpf": "12345678900",
+  "nome_completo": "Joao da Silva",
+  "genero": "Masculino",
+  "data_nascimento": "15/01/1990",
+  "enderecos": [...],
+  "telefones": [...],
+  "emails": [...],
+  "parentes": [...]
+}
+```
+
+Em caso de erro, a resposta segue o formato:
+
+```json
+{
+  "success": false,
+  "erro": {
+    "codigo": "NOT_FOUND",
+    "mensagem": "CPF nao encontrado"
+  }
+}
+```
+
+## Erros
+
+| Status HTTP | Descricao | Acao |
+|-------------|-----------|------|
+| `401` | Token ausente ou invalido | Verifique seu token |
+| `402` | Tokens insuficientes | Recarregue seu saldo |
+| `404` | Recurso nao encontrado | Verifique CPF/CNPJ |
+| `429` | Rate limit atingido | Aguarde e tente novamente |
+| `500` | Erro interno | Contate o suporte |
+
+## Consultas paralelas
+
+Para melhor performance, execute consultas independentes em paralelo:
+
+### Python (asyncio)
+
+```python
+import asyncio
+import aiohttp
+
+async def investigar_pessoa(cpf: str, token: str):
+    base = "https://221b-api.sherlocker.com.br/api/v1"
+    headers = {"Authorization": f"Bearer {token}"}
+
+    async with aiohttp.ClientSession(headers=headers) as session:
+        endpoints = [
+            f"{base}/pessoas/cpf/{cpf}",
+            f"{base}/empresas/cpf/{cpf}",
+            f"{base}/veiculos/cpf/{cpf}",
+            f"{base}/dividas/cpf/{cpf}",
+        ]
+
+        tasks = [session.get(url) for url in endpoints]
+        responses = await asyncio.gather(*tasks)
+        results = [await r.json() for r in responses]
+
+    return {
+        "pessoa": results[0],
+        "empresas": results[1],
+        "veiculos": results[2],
+        "dividas": results[3],
+    }
+```
+
+### Node.js (Promise.all)
+
+```javascript
+async function investigarPessoa(cpf, token) {
+  const base = "https://221b-api.sherlocker.com.br/api/v1";
+  const headers = { Authorization: `Bearer ${token}` };
+
+  const [pessoa, empresas, veiculos, dividas] = await Promise.all([
+    fetch(`${base}/pessoas/cpf/${cpf}`, { headers }).then(r => r.json()),
+    fetch(`${base}/empresas/cpf/${cpf}`, { headers }).then(r => r.json()),
+    fetch(`${base}/veiculos/cpf/${cpf}`, { headers }).then(r => r.json()),
+    fetch(`${base}/dividas/cpf/${cpf}`, { headers }).then(r => r.json()),
+  ]);
+
+  return { pessoa, empresas, veiculos, dividas };
+}
+```
+
+## Endpoints async
+
+Modulos demorados (processos, perfis, bancos, cadastros) oferecem modo async:
+
+```bash
+# 1. Inicia o job
+curl -X POST "https://221b-api.sherlocker.com.br/api/v1/processos/async/cpf/12345678900" \
+  -H "Authorization: Bearer SEU_TOKEN"
+
+# Resposta: { "job_id": "abc123", "status": "processing" }
+
+# 2. Consulta o status (repita ate "completed")
+curl "https://221b-api.sherlocker.com.br/api/v1/processos/jobs/abc123" \
+  -H "Authorization: Bearer SEU_TOKEN"
+
+# Resposta final: { "status": "completed", "results": [...] }
+```
+
+### Polling em Python
+
+```python
+import time
+import requests
+
+def executar_async(endpoint: str, cpf: str, token: str):
+    base = "https://221b-api.sherlocker.com.br/api/v1"
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Inicia o job
+    resp = requests.post(f"{base}/{endpoint}/async/cpf/{cpf}", headers=headers)
+    job_id = resp.json()["job_id"]
+
+    # Polling
+    while True:
+        result = requests.get(f"{base}/{endpoint}/jobs/{job_id}", headers=headers).json()
+
+        if result["status"] == "completed":
+            return result["results"]
+        elif result["status"] == "error":
+            raise Exception(result.get("error", "Erro desconhecido"))
+
+        time.sleep(2)
+```
+
+## Rate limits
+
+| Plano | Limite |
+|-------|--------|
+| Padrao | 60 requests/minuto |
+
+Ao atingir o limite, a API retorna `429 Too Many Requests`. Implemente backoff exponencial:
+
+```python
+import time
+import requests
+
+def request_with_retry(url, headers, max_retries=3):
+    for attempt in range(max_retries):
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 429:
+            wait = 2 ** attempt  # 1s, 2s, 4s
+            time.sleep(wait)
+            continue
+
+        return response.json()
+
+    raise Exception("Rate limit excedido apos retentativas")
+```
+

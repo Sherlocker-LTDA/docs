@@ -1,0 +1,2271 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Perfis Agregados",
+    "description": "Endpoints de perfil que agregam dados de multiplas fontes em uma unica chamada.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Perfil Cadastral",
+      "description": "Dados cadastrais agregados de pessoas fisicas e juridicas"
+    },
+    {
+      "name": "Perfil Patrimonial",
+      "description": "Patrimonio agregado: veiculos, imoveis, aeronaves, patentes e propriedades rurais"
+    },
+    {
+      "name": "Perfil Juridico",
+      "description": "Processos judiciais, trabalhistas e compliance"
+    },
+    {
+      "name": "Perfil Financeiro",
+      "description": "Dividas federais, beneficios sociais e renuncias fiscais"
+    }
+  ],
+  "paths": {
+    "/perfil/cadastral/cpf/{cpf}": {
+      "get": {
+        "operationId": "perfilCadastralCpf",
+        "summary": "Perfil Cadastral por CPF",
+        "description": "Agrega em uma chamada: identidade, enderecos, telefones, emails, parentes, empresas e empregos.",
+        "tags": [
+          "Perfil Cadastral"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF da pessoa fisica (somente digitos, 11 caracteres)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil cadastral completo da pessoa fisica",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerfilCadastralCpfResponse"
+                },
+                "example": {
+                  "cpf": "12345678901",
+                  "nome_completo": "MARIA SILVA SANTOS",
+                  "genero": "Feminino",
+                  "data_nascimento": "02/01/1996",
+                  "enderecos": [
+                    {
+                      "logradouro": "R HENRIQUE PASSINI",
+                      "numero": "748",
+                      "complemento": "401",
+                      "bairro": "SERRA",
+                      "cidade": "BELO HORIZONTE",
+                      "uf": "MG",
+                      "cep": "30220-380"
+                    }
+                  ],
+                  "telefones": [
+                    {
+                      "ddi": "55",
+                      "ddd": "31",
+                      "numero": "987654321",
+                      "numero_completo": "5531987654321",
+                      "estado": "MG",
+                      "operadora": "Vivo",
+                      "tem_whatsapp": false
+                    }
+                  ],
+                  "emails": [
+                    {
+                      "email": "maria@gmail.com",
+                      "dominio": "gmail.com",
+                      "corporativo": false
+                    }
+                  ],
+                  "parentes": [
+                    {
+                      "nome": "JOAO DA SILVA",
+                      "cpf": "98765432100",
+                      "vinculo_codigo": "03",
+                      "vinculo_nome": "Pai"
+                    }
+                  ],
+                  "empresas": [
+                    {
+                      "cnpj": "12345678000195",
+                      "razao_social": "EMPRESA LTDA",
+                      "nome_fantasia": "EMPRESA"
+                    }
+                  ],
+                  "empregos": [
+                    {
+                      "cnpj_empregador": "12.345.678/0001-95",
+                      "nome_empregador": "EMPRESA LTDA",
+                      "cargo": "ANALISTA",
+                      "status": "ativo",
+                      "data_admissao": "2020-03-15",
+                      "data_desligamento": null,
+                      "remuneracao": {
+                        "valor": 4500.0,
+                        "estimativa_minima": 5060.0,
+                        "estimativa_maxima": 12650.0,
+                        "faixa": "4 a 10 SM"
+                      },
+                      "vinculo": {
+                        "nivel": "Funcionário",
+                        "setor": {
+                          "tipo": "Privado",
+                          "codigo": "6209100",
+                          "descricao": "Suporte tecnico em TI"
+                        }
+                      },
+                      "contatos": {
+                        "telefone": {
+                          "ddi": "55",
+                          "ddd": "31",
+                          "numero": "987654321",
+                          "numero_completo": "5531987654321",
+                          "estado": "MG",
+                          "operadora": "Vivo"
+                        },
+                        "email": {
+                          "email": "maria@empresa.com.br",
+                          "dominio": "empresa.com.br",
+                          "corporativo": true
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/perfil/cadastral/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "perfilCadastralCnpj",
+        "summary": "Perfil Cadastral por CNPJ",
+        "description": "Agrega em uma chamada: dados cadastrais, socios e funcionarios.",
+        "tags": [
+          "Perfil Cadastral"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (somente digitos, 14 caracteres)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000195"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil cadastral completo da empresa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerfilCadastralCnpjResponse"
+                },
+                "example": {
+                  "cnpj": "12345678000195",
+                  "razao_social": "TECHNOVACAO DIGITAL LTDA",
+                  "nome_fantasia": "TECHNOVACAO",
+                  "cnaes": [
+                    {
+                      "codigo": "6209100",
+                      "descricao": "Suporte tecnico em TI"
+                    }
+                  ],
+                  "situacao": "ATIVA",
+                  "data_abertura": "2016-01-20",
+                  "capital_social": 50000.0,
+                  "natureza_juridica": "Sociedade Limitada",
+                  "endereco": {
+                    "logradouro": "AVENIDA PAULISTA",
+                    "numero": "1000",
+                    "complemento": "SALA 1201",
+                    "bairro": "BELA VISTA",
+                    "cidade": "SAO PAULO",
+                    "uf": "SP",
+                    "cep": "01310-100"
+                  },
+                  "telefones": [
+                    {
+                      "ddi": "55",
+                      "ddd": "11",
+                      "numero": "34567890",
+                      "numero_completo": "551134567890",
+                      "estado": "SP",
+                      "operadora": "Fixo",
+                      "tem_whatsapp": false
+                    }
+                  ],
+                  "emails": [
+                    {
+                      "email": "contato@technovacao.com.br",
+                      "dominio": "technovacao.com.br",
+                      "corporativo": true
+                    }
+                  ],
+                  "socios": [
+                    {
+                      "nome": "MARIA DA SILVA",
+                      "documento": "123.456.789-01",
+                      "tipo": "Pessoa Fisica",
+                      "qualificacao": "Socio-Administrador",
+                      "data_entrada": "2016-01-20"
+                    }
+                  ],
+                  "funcionarios": [
+                    {
+                      "cpf": "987.654.321-00",
+                      "nome": "JOAO PEREIRA",
+                      "data_nascimento": "1995-08-10",
+                      "sexo": "Masculino",
+                      "cargo": "ANALISTA",
+                      "status": "ativo",
+                      "data_admissao": "2020-03-15",
+                      "data_desligamento": null,
+                      "remuneracao": {
+                        "valor": 4500.0,
+                        "estimativa_minima": 5060.0,
+                        "estimativa_maxima": 12650.0,
+                        "faixa": "4 a 10 SM"
+                      },
+                      "vinculo": {
+                        "nivel": "Funcionário",
+                        "setor": {
+                          "tipo": "Privado",
+                          "codigo": "6209100",
+                          "descricao": "Suporte tecnico em TI"
+                        }
+                      },
+                      "contatos": {
+                        "telefone": {
+                          "ddi": "55",
+                          "ddd": "11",
+                          "numero": "912345678",
+                          "numero_completo": "5511912345678",
+                          "estado": "SP",
+                          "operadora": "Claro"
+                        },
+                        "email": {
+                          "email": "joao.pereira@technovacao.com.br",
+                          "dominio": "technovacao.com.br",
+                          "corporativo": true
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/perfil/patrimonial/cpf/{cpf}": {
+      "get": {
+        "operationId": "perfilPatrimonialCpf",
+        "summary": "Perfil Patrimonial por CPF",
+        "description": "Agrega em uma chamada: veiculos, imoveis, aeronaves, patentes e perfil rural.",
+        "tags": [
+          "Perfil Patrimonial"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF da pessoa fisica (somente digitos, 11 caracteres)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil patrimonial completo da pessoa fisica",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerfilPatrimonialResponse"
+                },
+                "example": {
+                  "veiculos": [
+                    {
+                      "placa": "ABC1D23",
+                      "placa_antiga": "ABC1234",
+                      "chassi": "9BWAG45N1YT123456",
+                      "renavam": "12345678901",
+                      "modelo": "GOL 1.0",
+                      "marca": "VW/VOLKSWAGEN",
+                      "ano_fabricacao": 2019,
+                      "ano_modelo": 2020,
+                      "cor": "Prata",
+                      "combustivel": "Flex",
+                      "municipio": "Sao Paulo",
+                      "uf": "SP",
+                      "tipo_veiculo": "Automovel",
+                      "especie_veiculo": "Passageiro",
+                      "situacao_veiculo": "Circulacao",
+                      "potencia": "75",
+                      "cilindradas": "999",
+                      "restricoes": []
+                    }
+                  ],
+                  "imoveis": [
+                    {
+                      "id": "a1b2c3",
+                      "fonte": "bh",
+                      "sql_iptu": "0123456789",
+                      "localizacao": {
+                        "logradouro": "R EXEMPLO",
+                        "numero": "100",
+                        "complemento": "",
+                        "bairro": "CENTRO",
+                        "cidade": "BELO HORIZONTE",
+                        "uf": "MG",
+                        "cep": "30130-000"
+                      },
+                      "area_terreno": 360.0,
+                      "area_construida": 180.0,
+                      "ano_construcao": 1995,
+                      "tipo_uso": "RESIDENCIAL",
+                      "valor_venal": 450000.0,
+                      "valor_iptu": 2400.0
+                    }
+                  ],
+                  "aeronaves": {
+                    "avioes": [],
+                    "drones": []
+                  },
+                  "patentes": [
+                    {
+                      "numero_inpi": "BR102020012345",
+                      "titulo": "DISPOSITIVO PARA FILTRAGEM",
+                      "natureza": "PATENTE DE INVENCAO",
+                      "data_deposito": "2020-06-15",
+                      "data_publicacao": "2021-12-21"
+                    }
+                  ],
+                  "rural": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/perfil/patrimonial/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "perfilPatrimonialCnpj",
+        "summary": "Perfil Patrimonial por CNPJ",
+        "description": "Agrega em uma chamada: veiculos, imoveis, aeronaves, patentes e rural da empresa.",
+        "tags": [
+          "Perfil Patrimonial"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (somente digitos, 14 caracteres)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000195"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil patrimonial completo da empresa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerfilPatrimonialResponse"
+                },
+                "example": {
+                  "veiculos": [
+                    {
+                      "placa": "DEF2G34",
+                      "placa_antiga": "DEF2345",
+                      "chassi": "9BGRD08X04G123456",
+                      "renavam": "98765432101",
+                      "modelo": "FIAT/STRADA TREK CE",
+                      "marca": "FIAT",
+                      "ano_fabricacao": 2021,
+                      "ano_modelo": 2022,
+                      "cor": "Branca",
+                      "combustivel": "Flex",
+                      "municipio": "Sao Paulo",
+                      "uf": "SP",
+                      "tipo_veiculo": "Automovel",
+                      "especie_veiculo": "Carga",
+                      "situacao_veiculo": "Circulacao",
+                      "potencia": "130",
+                      "cilindradas": "1300",
+                      "restricoes": [
+                        "Alienacao Fiduciaria"
+                      ]
+                    }
+                  ],
+                  "imoveis": [
+                    {
+                      "id": "a1b2c3",
+                      "fonte": "bh",
+                      "sql_iptu": "0123456789",
+                      "localizacao": {
+                        "logradouro": "R EXEMPLO",
+                        "numero": "100",
+                        "complemento": "",
+                        "bairro": "CENTRO",
+                        "cidade": "BELO HORIZONTE",
+                        "uf": "MG",
+                        "cep": "30130-000"
+                      },
+                      "area_terreno": 360.0,
+                      "area_construida": 180.0,
+                      "ano_construcao": 1995,
+                      "tipo_uso": "RESIDENCIAL",
+                      "valor_venal": 450000.0,
+                      "valor_iptu": 2400.0
+                    }
+                  ],
+                  "aeronaves": {
+                    "avioes": [],
+                    "drones": []
+                  },
+                  "patentes": [
+                    {
+                      "numero_inpi": "BR102020012345",
+                      "titulo": "DISPOSITIVO PARA FILTRAGEM",
+                      "natureza": "PATENTE DE INVENCAO",
+                      "data_deposito": "2020-06-15",
+                      "data_publicacao": "2021-12-21"
+                    }
+                  ],
+                  "rural": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/perfil/juridico/cpf/{cpf}": {
+      "get": {
+        "operationId": "perfilJuridicoCpf",
+        "summary": "Perfil Juridico por CPF",
+        "description": "Agrega em uma chamada: processos judiciais da pessoa fisica.",
+        "tags": [
+          "Perfil Juridico"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF da pessoa fisica (somente digitos, 11 caracteres)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil juridico completo da pessoa fisica",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerfilJuridicoCpfResponse"
+                },
+                "example": {
+                  "processos": [
+                    {
+                      "numero_processo": "0000001-23.2020.8.26.0100",
+                      "tribunal": "TJ-SP",
+                      "classe_codigo": 7,
+                      "classe_nome": "Procedimento Comum Civel",
+                      "data_ajuizamento": "2023-05-15",
+                      "partes": [
+                        {
+                          "nome": "MARIA DA SILVA",
+                          "documento": "12345678901",
+                          "polo": "Autor",
+                          "tipo": "Fisica"
+                        }
+                      ],
+                      "advogados": [
+                        {
+                          "nome": "Dr. Jose Advogado",
+                          "oab": "SP123456"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/perfil/juridico/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "perfilJuridicoCnpj",
+        "summary": "Perfil Juridico por CNPJ",
+        "description": "Agrega em uma chamada: processos, trabalhista, regularidade e compliance.",
+        "tags": [
+          "Perfil Juridico"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (somente digitos, 14 caracteres)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000195"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil juridico completo da empresa, incluindo processos, trabalhista e compliance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerfilJuridicoCnpjResponse"
+                },
+                "example": {
+                  "processos": [
+                    {
+                      "numero_processo": "0000001-23.2020.8.26.0100",
+                      "tribunal": "TJ-SP",
+                      "classe_codigo": 7,
+                      "classe_nome": "Procedimento Comum Civel",
+                      "data_ajuizamento": "2023-05-15",
+                      "partes": [
+                        {
+                          "nome": "TECHNOVACAO DIGITAL LTDA",
+                          "documento": "12345678000195",
+                          "polo": "Reu",
+                          "tipo": "Juridica"
+                        }
+                      ],
+                      "advogados": [
+                        {
+                          "nome": "Dr. Jose Advogado",
+                          "oab": "SP123456"
+                        }
+                      ]
+                    }
+                  ],
+                  "trabalhista": {
+                    "beneficiarias": [],
+                    "facilitadoras": [],
+                    "fornecedoras": []
+                  },
+                  "compliance": {
+                    "trabalho_escravo": [],
+                    "ibama_embargos": [],
+                    "ceis": [],
+                    "cnep": [],
+                    "ceaf": [],
+                    "pep": []
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/perfil/financeiro/cpf/{cpf}": {
+      "get": {
+        "operationId": "perfilFinanceiroCpf",
+        "summary": "Perfil Financeiro por CPF",
+        "description": "Agrega em uma chamada: dividas federais e beneficios sociais.",
+        "tags": [
+          "Perfil Financeiro"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF da pessoa fisica (somente digitos, 11 caracteres)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil financeiro completo da pessoa fisica",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerfilFinanceiroCpfResponse"
+                },
+                "example": {
+                  "dividas": {
+                    "documento": "12345678901",
+                    "nome": "MARIA DA SILVA",
+                    "total": 2,
+                    "valor_total": 24150.5,
+                    "ajuizado": true,
+                    "dividas": [
+                      {
+                        "numero_inscricao": "80000000000001",
+                        "fonte": "ativa_uniao",
+                        "receita": "IRPF",
+                        "ajuizado": true,
+                        "data_inscricao": "2020-03-15",
+                        "valor_atual": 15420.5,
+                        "uf": "SP",
+                        "unidade_responsavel": "DRF CAMPINAS",
+                        "historico": [
+                          {
+                            "situacao": "Ativa Ajuizada",
+                            "valor": 15420.5,
+                            "data_inscricao": "2020-03-15"
+                          }
+                        ]
+                      },
+                      {
+                        "numero_inscricao": "80000000000002",
+                        "fonte": "fgts",
+                        "receita": "FGTS",
+                        "ajuizado": false,
+                        "data_inscricao": "2021-07-01",
+                        "valor_atual": 8730.0,
+                        "uf": "SP",
+                        "unidade_responsavel": "SRTE/SP",
+                        "entidade_responsavel": "CEF",
+                        "historico": [
+                          {
+                            "situacao": "Ativa",
+                            "valor": 8730.0,
+                            "data_inscricao": "2021-07-01"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "beneficios": {
+                    "auxilio_brasil": [],
+                    "bolsa_familia": [],
+                    "auxilio_emergencial": [],
+                    "bpc": []
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/perfil/financeiro/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "perfilFinanceiroCnpj",
+        "summary": "Perfil Financeiro por CNPJ",
+        "description": "Agrega em uma chamada: dividas federais e renuncias fiscais.",
+        "tags": [
+          "Perfil Financeiro"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (somente digitos, 14 caracteres)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000195"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil financeiro completo da empresa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerfilFinanceiroCnpjResponse"
+                },
+                "example": {
+                  "dividas": {
+                    "documento": "12345678901",
+                    "nome": "MARIA DA SILVA",
+                    "total": 2,
+                    "valor_total": 24150.5,
+                    "ajuizado": true,
+                    "dividas": [
+                      {
+                        "numero_inscricao": "80000000000001",
+                        "fonte": "ativa_uniao",
+                        "receita": "IRPF",
+                        "ajuizado": true,
+                        "data_inscricao": "2020-03-15",
+                        "valor_atual": 15420.5,
+                        "uf": "SP",
+                        "unidade_responsavel": "DRF CAMPINAS",
+                        "historico": [
+                          {
+                            "situacao": "Ativa Ajuizada",
+                            "valor": 15420.5,
+                            "data_inscricao": "2020-03-15"
+                          }
+                        ]
+                      },
+                      {
+                        "numero_inscricao": "80000000000002",
+                        "fonte": "fgts",
+                        "receita": "FGTS",
+                        "ajuizado": false,
+                        "data_inscricao": "2021-07-01",
+                        "valor_atual": 8730.0,
+                        "uf": "SP",
+                        "unidade_responsavel": "SRTE/SP",
+                        "entidade_responsavel": "CEF",
+                        "historico": [
+                          {
+                            "situacao": "Ativa",
+                            "valor": 8730.0,
+                            "data_inscricao": "2021-07-01"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "beneficios": {
+                    "renuncias_fiscais": [
+                      {
+                        "cnpj": "12345678000195",
+                        "razao_social": "EMPRESA LTDA",
+                        "tipo_renuncia": "ISENCAO",
+                        "tributo": "IRPJ",
+                        "valor_renuncia": 50000.0,
+                        "ano_calendario": "2023"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "Endereco": {
+        "type": "object",
+        "description": "Endereco completo",
+        "properties": {
+          "logradouro": {
+            "type": "string",
+            "description": "Nome da rua, avenida ou logradouro",
+            "example": "R HENRIQUE PASSINI"
+          },
+          "numero": {
+            "type": "string",
+            "description": "Numero do imovel",
+            "example": "748"
+          },
+          "complemento": {
+            "type": "string",
+            "description": "Complemento do endereco (apartamento, sala, etc.)",
+            "example": "401"
+          },
+          "bairro": {
+            "type": "string",
+            "description": "Nome do bairro",
+            "example": "SERRA"
+          },
+          "cidade": {
+            "type": "string",
+            "description": "Nome da cidade",
+            "example": "BELO HORIZONTE"
+          },
+          "uf": {
+            "type": "string",
+            "description": "Sigla da unidade federativa (estado)",
+            "example": "MG"
+          },
+          "cep": {
+            "type": "string",
+            "description": "CEP no formato 00000-000",
+            "example": "30220-380"
+          }
+        }
+      },
+      "Telefone": {
+        "type": "object",
+        "description": "Informacoes de telefone com detalhes da operadora",
+        "properties": {
+          "ddi": {
+            "type": "string",
+            "description": "Codigo DDI do pais",
+            "example": "55"
+          },
+          "ddd": {
+            "type": "string",
+            "description": "Codigo DDD da regiao",
+            "example": "31"
+          },
+          "numero": {
+            "type": "string",
+            "description": "Numero do telefone sem DDD",
+            "example": "987654321"
+          },
+          "numero_completo": {
+            "type": "string",
+            "description": "Numero completo com DDI + DDD + numero",
+            "example": "5531987654321"
+          },
+          "estado": {
+            "type": "string",
+            "description": "UF associada ao DDD",
+            "example": "MG"
+          },
+          "operadora": {
+            "type": "string",
+            "description": "Nome da operadora de telefonia",
+            "example": "Vivo"
+          },
+          "tem_whatsapp": {
+            "type": "boolean",
+            "description": "Indica se o numero possui WhatsApp ativo",
+            "example": false
+          }
+        }
+      },
+      "Email": {
+        "type": "object",
+        "description": "Endereco de email com classificacao",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Endereco de email completo",
+            "example": "maria@gmail.com"
+          },
+          "dominio": {
+            "type": "string",
+            "description": "Dominio do email",
+            "example": "gmail.com"
+          },
+          "corporativo": {
+            "type": "boolean",
+            "description": "Indica se o email e corporativo (dominio proprio)",
+            "example": false
+          }
+        }
+      },
+      "Parente": {
+        "type": "object",
+        "description": "Vinculo familiar da pessoa",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "description": "Nome completo do parente",
+            "example": "JOAO DA SILVA"
+          },
+          "cpf": {
+            "type": "string",
+            "description": "CPF do parente (somente digitos)",
+            "example": "98765432100"
+          },
+          "vinculo_codigo": {
+            "type": "string",
+            "description": "Codigo do vinculo familiar (ex: 01)",
+            "example": "01"
+          },
+          "vinculo_nome": {
+            "type": "string",
+            "description": "Descricao do vinculo (Conjuge, Pai, Mae, Filho, etc.)",
+            "example": "Pai"
+          }
+        }
+      },
+      "EmpresaVinculada": {
+        "type": "object",
+        "description": "Empresa vinculada a pessoa fisica (como socio ou responsavel)",
+        "properties": {
+          "cnpj": {
+            "type": "string",
+            "description": "CNPJ da empresa (somente digitos)",
+            "example": "12345678000195"
+          },
+          "razao_social": {
+            "type": "string",
+            "description": "Razao social da empresa",
+            "example": "EMPRESA LTDA"
+          },
+          "nome_fantasia": {
+            "type": "string",
+            "description": "Nome fantasia da empresa",
+            "example": "EMPRESA"
+          }
+        }
+      },
+      "Emprego": {
+        "type": "object",
+        "description": "Vinculo empregaticio da pessoa fisica",
+        "properties": {
+          "cnpj_empregador": {
+            "type": "string",
+            "description": "CNPJ do empregador",
+            "example": "12.345.678/0001-99"
+          },
+          "nome_empregador": {
+            "type": "string",
+            "description": "Razao social do empregador",
+            "example": "Silva Comercio LTDA"
+          },
+          "cargo": {
+            "type": "string",
+            "description": "Cargo ou funcao exercida",
+            "example": "Gerente Comercial"
+          },
+          "status": {
+            "type": "string",
+            "description": "ativo ou inativo"
+          },
+          "data_admissao": {
+            "type": "string",
+            "description": "Data de admissao",
+            "example": "2019-01-15"
+          },
+          "data_desligamento": {
+            "type": "string",
+            "nullable": true,
+            "description": "Data de desligamento (null se ainda empregado)"
+          },
+          "remuneracao": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "valor": {
+                "type": "number",
+                "nullable": true
+              },
+              "estimativa_minima": {
+                "type": "number",
+                "nullable": true
+              },
+              "estimativa_maxima": {
+                "type": "number",
+                "nullable": true
+              },
+              "faixa": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          },
+          "vinculo": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "nivel": {
+                "type": "string",
+                "nullable": true
+              },
+              "setor": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "codigo": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "descricao": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          },
+          "contatos": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "telefone": {
+                "$ref": "#/components/schemas/Telefone"
+              },
+              "email": {
+                "$ref": "#/components/schemas/Email"
+              }
+            }
+          }
+        }
+      },
+      "Cnae": {
+        "type": "object",
+        "description": "Classificacao Nacional de Atividades Economicas",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "description": "Codigo CNAE (7 digitos)",
+            "example": "6209100"
+          },
+          "descricao": {
+            "type": "string",
+            "description": "Descricao da atividade economica",
+            "example": "Suporte tecnico em TI"
+          }
+        }
+      },
+      "Socio": {
+        "type": "object",
+        "description": "Socio ou administrador da empresa",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "description": "Nome completo do socio",
+            "example": "MARIA DA SILVA"
+          },
+          "documento": {
+            "type": "string",
+            "description": "CPF ou CNPJ formatado do socio",
+            "example": "123.456.789-10"
+          },
+          "tipo": {
+            "type": "string",
+            "description": "Pessoa Fisica ou Pessoa Juridica",
+            "example": "Pessoa Fisica"
+          },
+          "qualificacao": {
+            "type": "string",
+            "description": "Qualificacao do socio (ex: Socio-Administrador, Socio, etc.)",
+            "example": "Socio-Administrador"
+          },
+          "data_entrada": {
+            "type": "string",
+            "description": "Data de entrada na sociedade",
+            "example": "15/01/2019"
+          },
+          "data_nascimento": {
+            "type": "string",
+            "nullable": true,
+            "description": "Somente para Pessoa Fisica"
+          },
+          "sexo": {
+            "type": "string",
+            "nullable": true,
+            "description": "Somente para Pessoa Fisica"
+          },
+          "idade": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Somente para Pessoa Fisica"
+          },
+          "faixa_etaria": {
+            "type": "string",
+            "nullable": true
+          },
+          "representante": {
+            "type": "object",
+            "nullable": true,
+            "description": "Somente para Pessoa Juridica",
+            "properties": {
+              "nome": {
+                "type": "string"
+              },
+              "documento": {
+                "type": "string"
+              },
+              "qualificacao": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Funcionario": {
+        "type": "object",
+        "description": "Funcionario da empresa",
+        "properties": {
+          "cpf": {
+            "type": "string",
+            "description": "CPF formatado do funcionario",
+            "example": "123.456.789-10"
+          },
+          "nome": {
+            "type": "string",
+            "description": "Nome completo do funcionario",
+            "example": "Maria Oliveira"
+          },
+          "data_nascimento": {
+            "type": "string",
+            "nullable": true
+          },
+          "sexo": {
+            "type": "string",
+            "nullable": true,
+            "description": "Masculino ou Feminino"
+          },
+          "cargo": {
+            "type": "string",
+            "description": "Cargo ou funcao exercida",
+            "example": "Gerente Comercial"
+          },
+          "status": {
+            "type": "string",
+            "description": "ativo ou inativo"
+          },
+          "data_admissao": {
+            "type": "string",
+            "nullable": true
+          },
+          "data_desligamento": {
+            "type": "string",
+            "nullable": true
+          },
+          "remuneracao": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "valor": {
+                "type": "number",
+                "nullable": true
+              },
+              "estimativa_minima": {
+                "type": "number",
+                "nullable": true
+              },
+              "estimativa_maxima": {
+                "type": "number",
+                "nullable": true
+              },
+              "faixa": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          },
+          "vinculo": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "nivel": {
+                "type": "string",
+                "nullable": true
+              },
+              "setor": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "tipo": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "codigo": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "descricao": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          },
+          "contatos": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "telefone": {
+                "$ref": "#/components/schemas/Telefone"
+              },
+              "email": {
+                "$ref": "#/components/schemas/Email"
+              }
+            }
+          }
+        }
+      },
+      "Veiculo": {
+        "type": "object",
+        "description": "Veiculo registrado em nome da pessoa ou empresa",
+        "properties": {
+          "placa": {
+            "type": "string",
+            "description": "Placa atual do veiculo",
+            "example": "ABC1D23"
+          },
+          "placa_antiga": {
+            "type": "string",
+            "description": "Placa formato antigo (ABC-1234)",
+            "example": "ABC1234"
+          },
+          "chassi": {
+            "type": "string",
+            "description": "Numero do chassi",
+            "example": "9BWAG45N1YT123456"
+          },
+          "renavam": {
+            "type": "string",
+            "description": "Codigo RENAVAM",
+            "example": "12345678901"
+          },
+          "marca": {
+            "type": "string",
+            "description": "Marca do fabricante",
+            "example": "FIAT"
+          },
+          "modelo": {
+            "type": "string",
+            "description": "Modelo do veiculo",
+            "example": "FIAT/STRADA TREK CE"
+          },
+          "ano_fabricacao": {
+            "type": "integer",
+            "description": "Ano de fabricacao",
+            "example": 2021
+          },
+          "ano_modelo": {
+            "type": "integer",
+            "description": "Ano do modelo",
+            "example": 2022
+          },
+          "cor": {
+            "type": "string",
+            "description": "Cor predominante do veiculo",
+            "example": "Prata"
+          },
+          "combustivel": {
+            "type": "string",
+            "description": "Tipo de combustivel",
+            "example": "Flex"
+          },
+          "municipio": {
+            "type": "string",
+            "description": "Municipio de registro do veiculo",
+            "example": "Sao Paulo"
+          },
+          "uf": {
+            "type": "string",
+            "description": "UF de registro do veiculo",
+            "example": "SP"
+          },
+          "tipo_veiculo": {
+            "type": "string",
+            "description": "Tipo do veiculo (Automovel, Motocicleta, Caminhao, etc.)",
+            "example": "Automovel"
+          },
+          "especie_veiculo": {
+            "type": "string",
+            "description": "Especie do veiculo (Passageiro, Carga, Misto, etc.)",
+            "example": "Passageiro"
+          },
+          "situacao_veiculo": {
+            "type": "string",
+            "description": "Situacao atual do veiculo (Circulacao, Baixado, Roubado, etc.)",
+            "example": "Circulacao"
+          },
+          "potencia": {
+            "type": "string",
+            "description": "Potencia do motor",
+            "example": "130"
+          },
+          "cilindradas": {
+            "type": "string",
+            "description": "Cilindradas do motor",
+            "example": "1300"
+          },
+          "restricoes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Lista de restricoes do veiculo (ex: Alienacao Fiduciaria)"
+          }
+        }
+      },
+      "LocalizacaoImovel": {
+        "type": "object",
+        "description": "Localizacao do imovel",
+        "properties": {
+          "logradouro": {
+            "type": "string",
+            "description": "Nome da rua, avenida ou logradouro",
+            "example": "R EXEMPLO"
+          },
+          "numero": {
+            "type": "string",
+            "description": "Numero do imovel",
+            "example": "100"
+          },
+          "complemento": {
+            "type": "string",
+            "description": "Complemento do endereco",
+            "example": ""
+          },
+          "bairro": {
+            "type": "string",
+            "description": "Nome do bairro",
+            "example": "CENTRO"
+          },
+          "cidade": {
+            "type": "string",
+            "description": "Nome da cidade",
+            "example": "BELO HORIZONTE"
+          },
+          "uf": {
+            "type": "string",
+            "description": "Sigla da unidade federativa",
+            "example": "MG"
+          },
+          "cep": {
+            "type": "string",
+            "description": "CEP no formato 00000-000",
+            "example": "30130-000"
+          }
+        }
+      },
+      "Imovel": {
+        "type": "object",
+        "description": "Imovel registrado em nome da pessoa ou empresa",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identificador unico interno do imovel",
+            "example": "a1b2c3"
+          },
+          "fonte": {
+            "type": "string",
+            "description": "Fonte dos dados do imovel (codigo da cidade)",
+            "example": "bh"
+          },
+          "sql_iptu": {
+            "type": "string",
+            "description": "Numero da inscricao imobiliaria (SQL/IPTU)",
+            "example": "0123456789"
+          },
+          "localizacao": {
+            "$ref": "#/components/schemas/LocalizacaoImovel"
+          },
+          "area_terreno": {
+            "type": "number",
+            "description": "Area do terreno em metros quadrados",
+            "example": 360.0
+          },
+          "area_construida": {
+            "type": "number",
+            "description": "Area construida em metros quadrados",
+            "example": 180.0
+          },
+          "ano_construcao": {
+            "type": "integer",
+            "description": "Ano de construcao do imovel",
+            "example": 1995
+          },
+          "tipo_uso": {
+            "type": "string",
+            "description": "Tipo de uso do imovel (RESIDENCIAL, COMERCIAL, INDUSTRIAL, etc.)",
+            "example": "RESIDENCIAL"
+          },
+          "valor_venal": {
+            "type": "number",
+            "description": "Valor venal do imovel em reais",
+            "example": 450000.0
+          },
+          "valor_iptu": {
+            "type": "number",
+            "description": "Valor anual do IPTU em reais",
+            "example": 2400.0
+          }
+        }
+      },
+      "Aeronaves": {
+        "type": "object",
+        "description": "Aeronaves registradas (avioes e drones/RPAS)",
+        "properties": {
+          "avioes": {
+            "type": "array",
+            "description": "Lista de avioes registrados",
+            "items": {
+              "type": "object"
+            }
+          },
+          "drones": {
+            "type": "array",
+            "description": "Lista de drones/RPAS registrados",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "Patente": {
+        "type": "object",
+        "description": "Patente ou registro de propriedade intelectual no INPI",
+        "properties": {
+          "numero_inpi": {
+            "type": "string",
+            "description": "Numero do registro no INPI",
+            "example": "BR102020012345"
+          },
+          "titulo": {
+            "type": "string",
+            "description": "Titulo da patente ou invencao",
+            "example": "DISPOSITIVO PARA FILTRAGEM"
+          },
+          "natureza": {
+            "type": "string",
+            "description": "Natureza da patente (PATENTE DE INVENCAO, MODELO DE UTILIDADE, etc.)",
+            "example": "PATENTE DE INVENCAO"
+          },
+          "data_deposito": {
+            "type": "string",
+            "description": "Data de deposito no formato YYYY-MM-DD",
+            "example": "2020-06-15"
+          },
+          "data_publicacao": {
+            "type": "string",
+            "description": "Data de publicacao no formato YYYY-MM-DD",
+            "example": "2021-12-21"
+          }
+        }
+      },
+      "Parte": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "example": "MARIA DA SILVA"
+          },
+          "documento": {
+            "type": "string",
+            "description": "CPF ou CNPJ da parte",
+            "example": "12345678901"
+          },
+          "polo": {
+            "type": "string",
+            "description": "Autor, Reu, Terceiro, etc",
+            "example": "Autor"
+          },
+          "tipo": {
+            "type": "string",
+            "description": "Fisica ou Juridica",
+            "example": "Fisica"
+          }
+        }
+      },
+      "Advogado": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "example": "Dr. Jose Advogado"
+          },
+          "oab": {
+            "type": "string",
+            "description": "Numero OAB (ex: SP123456)",
+            "example": "SP123456"
+          }
+        }
+      },
+      "Processo": {
+        "type": "object",
+        "description": "Processo judicial",
+        "properties": {
+          "numero_processo": {
+            "type": "string",
+            "description": "Numero unico do processo (CNJ)",
+            "example": "0000001-23.2020.8.26.0100"
+          },
+          "tribunal": {
+            "type": "string",
+            "description": "Sigla do tribunal (TJSP, TRF3, TST, etc.)",
+            "example": "TJ-SP"
+          },
+          "classe_codigo": {
+            "type": "integer",
+            "description": "Codigo da classe processual conforme tabelas unificadas do CNJ",
+            "example": 1234
+          },
+          "classe_nome": {
+            "type": "string",
+            "description": "Nome da classe processual",
+            "example": "Procedimento Comum Civel"
+          },
+          "grau": {
+            "type": "string",
+            "description": "Grau do processo (G1, G2, etc.)",
+            "example": "G1"
+          },
+          "data_ajuizamento": {
+            "type": "string",
+            "description": "Data de ajuizamento",
+            "example": "2020-01-15"
+          },
+          "orgao_julgador": {
+            "type": "string",
+            "example": "1a Vara Civel"
+          },
+          "assuntos": {
+            "type": "string",
+            "example": "Indenizacao por Dano Moral"
+          },
+          "partes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Parte"
+            }
+          },
+          "advogados": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Advogado"
+            }
+          }
+        }
+      },
+      "Trabalhista": {
+        "type": "object",
+        "description": "Informacoes trabalhistas da empresa em listas de transparencia",
+        "properties": {
+          "beneficiarias": {
+            "type": "array",
+            "description": "Empresas beneficiarias de trabalho em condicoes analogas a escravidao",
+            "items": {
+              "type": "object"
+            }
+          },
+          "facilitadoras": {
+            "type": "array",
+            "description": "Empresas facilitadoras de trabalho em condicoes analogas a escravidao",
+            "items": {
+              "type": "object"
+            }
+          },
+          "fornecedoras": {
+            "type": "array",
+            "description": "Empresas fornecedoras envolvidas em irregularidades trabalhistas",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "Compliance": {
+        "type": "object",
+        "description": "Dados de compliance e listas restritivas",
+        "properties": {
+          "trabalho_escravo": {
+            "type": "array",
+            "description": "Cadastro de empregadores que tenham submetido trabalhadores a condicoes analogas a escravidao",
+            "items": {
+              "type": "object"
+            }
+          },
+          "ibama_embargos": {
+            "type": "array",
+            "description": "Areas embargadas pelo IBAMA por infrações ambientais",
+            "items": {
+              "type": "object"
+            }
+          },
+          "ceis": {
+            "type": "array",
+            "description": "Cadastro Nacional de Empresas Inidôneas e Suspensas",
+            "items": {
+              "type": "object"
+            }
+          },
+          "cnep": {
+            "type": "array",
+            "description": "Cadastro Nacional de Empresas Punidas",
+            "items": {
+              "type": "object"
+            }
+          },
+          "ceaf": {
+            "type": "array",
+            "description": "Cadastro de Expulsões da Administração Federal",
+            "items": {
+              "type": "object"
+            }
+          },
+          "pep": {
+            "type": "array",
+            "description": "Pessoas Expostas Politicamente",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "BeneficiosCpf": {
+        "type": "object",
+        "description": "Beneficios sociais recebidos pela pessoa fisica",
+        "properties": {
+          "auxilio_brasil": {
+            "type": "array",
+            "description": "Pagamentos do programa Auxilio Brasil",
+            "items": {
+              "type": "object"
+            }
+          },
+          "bolsa_familia": {
+            "type": "array",
+            "description": "Pagamentos do programa Bolsa Familia",
+            "items": {
+              "type": "object"
+            }
+          },
+          "auxilio_emergencial": {
+            "type": "array",
+            "description": "Pagamentos do Auxilio Emergencial",
+            "items": {
+              "type": "object"
+            }
+          },
+          "bpc": {
+            "type": "array",
+            "description": "Pagamentos do Beneficio de Prestacao Continuada (BPC/LOAS)",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "RenunciaFiscal": {
+        "type": "object",
+        "description": "Renuncia fiscal concedida a empresa",
+        "properties": {
+          "cnpj": {
+            "type": "string",
+            "description": "CNPJ da empresa beneficiaria (somente digitos)",
+            "example": "12345678000195"
+          },
+          "razao_social": {
+            "type": "string",
+            "description": "Razao social da empresa beneficiaria",
+            "example": "EMPRESA LTDA"
+          },
+          "tipo_renuncia": {
+            "type": "string",
+            "description": "Tipo da renuncia fiscal (ISENCAO, IMUNIDADE, REDUCAO, etc.)",
+            "example": "ISENCAO"
+          },
+          "tributo": {
+            "type": "string",
+            "description": "Tributo objeto da renuncia (IRPJ, CSLL, PIS, COFINS, etc.)",
+            "example": "IRPJ"
+          },
+          "valor_renuncia": {
+            "type": "number",
+            "description": "Valor da renuncia fiscal em reais",
+            "example": 50000.0
+          },
+          "ano_calendario": {
+            "type": "string",
+            "description": "Ano-calendario da renuncia",
+            "example": "2023"
+          }
+        }
+      },
+      "BeneficiosCnpj": {
+        "type": "object",
+        "description": "Beneficios e renuncias fiscais da empresa",
+        "properties": {
+          "renuncias_fiscais": {
+            "type": "array",
+            "description": "Renuncias fiscais concedidas a empresa",
+            "items": {
+              "$ref": "#/components/schemas/RenunciaFiscal"
+            }
+          }
+        }
+      },
+      "PerfilCadastralCpfResponse": {
+        "type": "object",
+        "description": "Perfil cadastral completo de uma pessoa fisica",
+        "properties": {
+          "cpf": {
+            "type": "string",
+            "description": "CPF da pessoa (somente digitos, 11 caracteres)",
+            "example": "12345678901"
+          },
+          "nome_completo": {
+            "type": "string",
+            "description": "Nome completo da pessoa",
+            "example": "MARIA SILVA SANTOS"
+          },
+          "genero": {
+            "type": "string",
+            "description": "Genero da pessoa (Masculino, Feminino)",
+            "example": "Feminino"
+          },
+          "data_nascimento": {
+            "type": "string",
+            "description": "Data de nascimento no formato DD/MM/YYYY",
+            "example": "02/01/1996"
+          },
+          "enderecos": {
+            "type": "array",
+            "description": "Lista de enderecos associados a pessoa",
+            "items": {
+              "$ref": "#/components/schemas/Endereco"
+            }
+          },
+          "telefones": {
+            "type": "array",
+            "description": "Lista de telefones associados a pessoa",
+            "items": {
+              "$ref": "#/components/schemas/Telefone"
+            }
+          },
+          "emails": {
+            "type": "array",
+            "description": "Lista de emails associados a pessoa",
+            "items": {
+              "$ref": "#/components/schemas/Email"
+            }
+          },
+          "parentes": {
+            "type": "array",
+            "description": "Lista de parentes identificados",
+            "items": {
+              "$ref": "#/components/schemas/Parente"
+            }
+          },
+          "empresas": {
+            "type": "array",
+            "description": "Empresas em que a pessoa e socia ou responsavel",
+            "items": {
+              "$ref": "#/components/schemas/EmpresaVinculada"
+            }
+          },
+          "empregos": {
+            "type": "array",
+            "description": "Vinculos empregaticos da pessoa",
+            "items": {
+              "$ref": "#/components/schemas/Emprego"
+            }
+          }
+        }
+      },
+      "PerfilCadastralCnpjResponse": {
+        "type": "object",
+        "description": "Perfil cadastral completo de uma empresa",
+        "properties": {
+          "cnpj": {
+            "type": "string",
+            "description": "CNPJ da empresa (somente digitos, 14 caracteres)",
+            "example": "12345678000195"
+          },
+          "razao_social": {
+            "type": "string",
+            "description": "Razao social da empresa",
+            "example": "TECHNOVACAO DIGITAL LTDA"
+          },
+          "nome_fantasia": {
+            "type": "string",
+            "description": "Nome fantasia da empresa",
+            "example": "TECHNOVACAO"
+          },
+          "cnaes": {
+            "type": "array",
+            "description": "Lista de CNAEs (atividades economicas) da empresa",
+            "items": {
+              "$ref": "#/components/schemas/Cnae"
+            }
+          },
+          "situacao": {
+            "type": "string",
+            "description": "Situacao cadastral da empresa (ATIVA, BAIXADA, INAPTA, SUSPENSA, NULA)",
+            "example": "ATIVA"
+          },
+          "data_abertura": {
+            "type": "string",
+            "description": "Data de abertura da empresa no formato YYYY-MM-DD",
+            "example": "2016-01-20"
+          },
+          "capital_social": {
+            "type": "number",
+            "description": "Capital social da empresa em reais",
+            "example": 50000.0
+          },
+          "natureza_juridica": {
+            "type": "string",
+            "description": "Natureza juridica da empresa",
+            "example": "Sociedade Limitada"
+          },
+          "endereco": {
+            "$ref": "#/components/schemas/Endereco"
+          },
+          "telefones": {
+            "type": "array",
+            "description": "Lista de telefones da empresa",
+            "items": {
+              "$ref": "#/components/schemas/Telefone"
+            }
+          },
+          "emails": {
+            "type": "array",
+            "description": "Lista de emails da empresa",
+            "items": {
+              "$ref": "#/components/schemas/Email"
+            }
+          },
+          "socios": {
+            "type": "array",
+            "description": "Quadro societario da empresa",
+            "items": {
+              "$ref": "#/components/schemas/Socio"
+            }
+          },
+          "funcionarios": {
+            "type": "array",
+            "description": "Funcionarios da empresa",
+            "items": {
+              "$ref": "#/components/schemas/Funcionario"
+            }
+          }
+        }
+      },
+      "PerfilPatrimonialResponse": {
+        "type": "object",
+        "description": "Perfil patrimonial completo com todos os bens identificados",
+        "properties": {
+          "veiculos": {
+            "type": "array",
+            "description": "Lista de veiculos registrados",
+            "items": {
+              "$ref": "#/components/schemas/Veiculo"
+            }
+          },
+          "imoveis": {
+            "type": "array",
+            "description": "Lista de imoveis identificados via IPTU",
+            "items": {
+              "$ref": "#/components/schemas/Imovel"
+            }
+          },
+          "aeronaves": {
+            "$ref": "#/components/schemas/Aeronaves"
+          },
+          "patentes": {
+            "type": "array",
+            "description": "Lista de patentes e registros de propriedade intelectual",
+            "items": {
+              "$ref": "#/components/schemas/Patente"
+            }
+          },
+          "rural": {
+            "type": "object",
+            "nullable": true,
+            "description": "Dados de propriedades rurais (null se nenhuma encontrada)"
+          }
+        }
+      },
+      "PerfilJuridicoCpfResponse": {
+        "type": "object",
+        "description": "Perfil juridico de uma pessoa fisica",
+        "properties": {
+          "processos": {
+            "type": "array",
+            "description": "Lista de processos judiciais em que a pessoa e parte",
+            "items": {
+              "$ref": "#/components/schemas/Processo"
+            }
+          }
+        }
+      },
+      "PerfilJuridicoCnpjResponse": {
+        "type": "object",
+        "description": "Perfil juridico de uma empresa, incluindo processos, trabalhista e compliance",
+        "properties": {
+          "processos": {
+            "type": "array",
+            "description": "Lista de processos judiciais em que a empresa e parte",
+            "items": {
+              "$ref": "#/components/schemas/Processo"
+            }
+          },
+          "trabalhista": {
+            "$ref": "#/components/schemas/Trabalhista"
+          },
+          "compliance": {
+            "$ref": "#/components/schemas/Compliance"
+          }
+        }
+      },
+      "PerfilFinanceiroCpfResponse": {
+        "type": "object",
+        "description": "Perfil financeiro de uma pessoa fisica",
+        "properties": {
+          "dividas": {
+            "$ref": "#/components/schemas/DividasResponse"
+          },
+          "beneficios": {
+            "$ref": "#/components/schemas/BeneficiosCpf"
+          }
+        }
+      },
+      "PerfilFinanceiroCnpjResponse": {
+        "type": "object",
+        "description": "Perfil financeiro de uma empresa",
+        "properties": {
+          "dividas": {
+            "$ref": "#/components/schemas/DividasResponse"
+          },
+          "beneficios": {
+            "$ref": "#/components/schemas/BeneficiosCnpj"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      },
+      "HistoricoItem": {
+        "type": "object",
+        "properties": {
+          "situacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "valor": {
+            "type": "number",
+            "nullable": true
+          },
+          "data_inscricao": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "Divida": {
+        "type": "object",
+        "description": "Inscricao de divida federal agrupada por numero de inscricao",
+        "properties": {
+          "numero_inscricao": {
+            "type": "string",
+            "description": "Numero da inscricao na divida ativa"
+          },
+          "fonte": {
+            "type": "string",
+            "enum": [
+              "ativa_uniao",
+              "fgts",
+              "previdenciaria"
+            ],
+            "description": "Origem da divida"
+          },
+          "receita": {
+            "type": "string",
+            "nullable": true,
+            "description": "Tipo de tributo (IRPF, CSLL, FGTS, etc.)"
+          },
+          "ajuizado": {
+            "type": "boolean",
+            "description": "Se foi ajuizado judicialmente"
+          },
+          "data_inscricao": {
+            "type": "string",
+            "nullable": true,
+            "description": "Data da inscricao mais recente"
+          },
+          "valor_atual": {
+            "type": "number",
+            "nullable": true,
+            "description": "Valor consolidado mais recente em R$"
+          },
+          "uf": {
+            "type": "string",
+            "nullable": true,
+            "description": "UF do devedor"
+          },
+          "unidade_responsavel": {
+            "type": "string",
+            "nullable": true
+          },
+          "entidade_responsavel": {
+            "type": "string",
+            "nullable": true,
+            "description": "Somente FGTS"
+          },
+          "historico": {
+            "type": "array",
+            "description": "Historico de situacoes para o mesmo numero de inscricao",
+            "items": {
+              "type": "object",
+              "properties": {
+                "situacao": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "valor": {
+                  "type": "number",
+                  "nullable": true
+                },
+                "data_inscricao": {
+                  "type": "string",
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "DividasResponse": {
+        "type": "object",
+        "description": "Dividas federais agrupadas por numero de inscricao",
+        "properties": {
+          "documento": {
+            "type": "string",
+            "description": "CPF ou CNPJ consultado"
+          },
+          "nome": {
+            "type": "string",
+            "nullable": true,
+            "description": "Nome ou razao social do devedor"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total de inscricoes encontradas"
+          },
+          "valor_total": {
+            "type": "number",
+            "description": "Soma dos valores atuais em R$"
+          },
+          "ajuizado": {
+            "type": "boolean",
+            "description": "True se ao menos uma divida foi ajuizada"
+          },
+          "dividas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Divida"
+            }
+          }
+        }
+      }
+    }
+  }
+}

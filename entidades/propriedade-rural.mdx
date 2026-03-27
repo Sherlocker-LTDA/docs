@@ -1,0 +1,76 @@
+---
+title: "Propriedade Rural"
+description: "Propriedade rural com dados fundiarios, fiscais e ambientais"
+icon: "tractor"
+---
+
+Uma **Propriedade Rural** representa uma propriedade rural registrada nos cadastros federais. Os dados sao agregados de multiplas fontes (INCRA, Receita Federal, IBAMA) em uma unica entidade.
+
+## Tipagem
+
+```json
+{
+  "codigo_imovel": "9301234",
+  "nome_imovel": "FAZENDA SAO JOSE",
+  "municipio": "UBERABA",
+  "uf": "MG",
+  "area_total": 150.5,
+  "modulos_fiscais": 4.2,
+  "nome_detentor": "JOAO DA SILVA",
+  "cpf_cnpj": "12345678901",
+  "fracao": 100.0,
+  "condicao_detentor": "PROPRIETARIO",
+  "nirf": "1234567",
+  "situacao_fiscal": "ATIVO"
+}
+```
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| `codigo_imovel` | string | Codigo no SNCR (INCRA) |
+| `nome_imovel` | string | Nome da propriedade |
+| `municipio` / `uf` | string | Localizacao |
+| `area_total` | number | Area em hectares |
+| `modulos_fiscais` | number | Tamanho em modulos fiscais do municipio |
+| `nome_detentor` | string | Nome do proprietario/detentor |
+| `cpf_cnpj` | string | Documento do detentor |
+| `fracao` | number | Percentual de participacao (%) |
+| `condicao_detentor` | string | `PROPRIETARIO`, `ARRENDATARIO`, `POSSEIRO`, etc. |
+| `nirf` | string | Numero na Receita Federal (CAFIR) |
+| `situacao_fiscal` | string | Status fiscal (`ATIVO`, `CANCELADO`) |
+
+## Dados ambientais vinculados
+
+Imoveis rurais podem ter vinculados:
+
+- **Infracoes ambientais** — multas, embargos e apreensoes do IBAMA
+- **Autorizacoes florestais** — licencas de exploracao (AUTEX)
+- **Transportes florestais** — guias de transporte de madeira/carvao (DOF)
+
+## Conexoes
+
+```mermaid
+graph LR
+  IR[Imovel Rural] --> P[Pessoa<br/>detentor]
+  IR --> E[Empresa<br/>detentor]
+  IR --> F[Infracao<br/>IBAMA]
+  IR --> T[Transporte<br/>DOF]
+  P --> IR
+```
+
+- **Pessoa** — como detentor (CPF)
+- **Empresa** — como detentor (CNPJ)
+- **Infracoes** — multas e embargos ambientais vinculados ao imovel ou detentor
+- **Transportes** — operacoes de transporte florestal vinculadas ao detentor
+
+## Endpoints
+
+| Rota | Descricao |
+|------|-----------|
+| `GET /rural/cpf/{cpf}` | Perfil rural completo (todos os imoveis + infracoes + transportes) |
+| `GET /rural/cnpj/{cnpj}` | Perfil rural da empresa |
+| `GET /rural/imovel/{codigo}` | Imovel por codigo SNCR |
+| `GET /rural/municipio/{codIbge}` | Imoveis de um municipio |
+| `GET /rural/cafir/{nirf}` | Imovel por NIRF |
+| `GET /rural/fiscalizacao/{cpf}` | Infracoes ambientais |
+| `GET /rural/transportes/{cpf}` | Transportes florestais |

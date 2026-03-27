@@ -1,0 +1,38 @@
+---
+title: "Email"
+description: "Registro de email vinculado a um CPF"
+icon: "envelope"
+---
+
+Um **Email** representa um endereco de email associado a uma pessoa fisica, com classificacao automatica entre pessoal e corporativo.
+
+## Tipagem
+
+```json
+{
+  "email": "maria.santos@gmail.com",
+  "dominio": "gmail.com",
+  "corporativo": false
+}
+```
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| `email` | string | Endereco de email completo |
+| `dominio` | string | Dominio extraido do email |
+| `corporativo` | boolean | `false` para provedores gratuitos (Gmail, Hotmail, Yahoo, etc.), `true` para dominios proprios |
+
+## Conexoes
+
+- **Pessoa** — todo email pertence a um CPF
+- **Empresa** — empresas tem email comercial (`correio_eletronico`)
+- **Perfis digitais** — emails podem ser usados para buscar perfis em plataformas (GitHub, LinkedIn, etc.)
+- **Dominios** — emails corporativos se conectam a dominios registrados
+
+## Endpoints
+
+| Rota | Descricao |
+|------|-----------|
+| `GET /emails/cpf/{cpf}` | Emails de uma pessoa |
+| `GET /emails/email/{email}` | Busca reversa: CPFs por email |
+| `GET /perfis/email/{email}` | Perfis digitais vinculados ao email |

@@ -1,0 +1,326 @@
+---
+title: "SDK TypeScript"
+description: "Como instalar e usar o @sherlocker/sdk para integrar com a API"
+icon: "code"
+---
+
+# Sherlocker SDK
+
+O `@sherlocker/sdk` e o client oficial em TypeScript/JavaScript para a API do Sherlocker. Oferece tipagem completa, polling automatico para modulos async e uma API fluente orientada a entidades.
+
+## Instalacao
+
+<CodeGroup>
+
+```bash npm
+npm install @sherlocker/sdk
+```
+
+```bash yarn
+yarn add @sherlocker/sdk
+```
+
+```bash pnpm
+pnpm add @sherlocker/sdk
+```
+
+</CodeGroup>
+
+<Info>
+  Requer Node.js 18+ (usa `fetch` nativo).
+</Info>
+
+## Configuracao
+
+```typescript
+import Sherlocker from '@sherlocker/sdk';
+
+const sherlocker = new Sherlocker({
+  api_token: 'SEU_TOKEN',
+});
+```
+
+| Parametro   | Tipo       | Padrao                              | Descricao                      |
+|-------------|------------|-------------------------------------|--------------------------------|
+| `api_token` | `string`   | —                                   | Token de acesso (obrigatorio)  |
+| `base_url`  | `string`   | `https://221b-api.sherlocker.com.br/api/v1`    | URL base da API                |
+| `timeout`   | `number`   | `30000`                             | Timeout em ms                  |
+
+<Warning>
+  Nunca exponha seu token em codigo client-side ou repositorios publicos. Use variaveis de ambiente.
+</Warning>
+
+```typescript
+const sherlocker = new Sherlocker({
+  api_token: process.env.SHERLOCKER_TOKEN!,
+});
+```
+
+## Formas de uso
+
+O SDK oferece tres formas de acessar os modulos, do mais recomendado ao mais flexivel:
+
+### 1. Entity-first (recomendado)
+
+Crie uma entity a partir de um identificador (CPF, CNPJ ou Placa) e chame metodos tipados:
+
+```typescript
+// Pessoa (CPF)
+const pessoa = sherlocker.pessoa({ cpf: '12345678900' });
+const telefones = await pessoa.buscarTelefones();     // PhoneResult[]
+const emails = await pessoa.buscarEmails();            // EmailResult[]
+const enderecos = await pessoa.buscarEnderecos();      // AddressResult[]
+const empresas = await pessoa.buscarEmpresasSocio();   // InvestigationResult[]
+const processos = await pessoa.buscarProcessos();      // ProcessResult[]
+
+// Empresa (CNPJ)
+const empresa = sherlocker.empresa({ cnpj: '12345678000100' });
+const info = await empresa.buscarInfo();               // CompanyResult[]
+const socios = await empresa.buscarSocios();           // InvestigationResult[]
+
+// Veiculo (Placa)
+const veiculo = sherlocker.veiculo({ placa: 'ABC1D23' });
+const dados = await veiculo.buscarDados();             // VehicleDataResult[]
+```
+
+Cada entity tambem tem metodos `status*()` para verificar disponibilidade e custo antes de executar:
+
+```typescript
+const status = await pessoa.statusTelefones();
+// { enabled: true, need_payment: false, price: 1, has_cached_results: false }
+```
+
+### 2. Acesso direto via modulos
+
+Acesse modulos como funcoes chamando diretamente em `sherlocker.modulos`:
+
+```typescript
+const telefones = await sherlocker.modulos.pessoa.telefones({ cpf: '12345678900' });
+const socios = await sherlocker.modulos.empresa.socios({ cnpj: '12345678000100' });
+const dados = await sherlocker.modulos.veiculo.dados({ placa: 'ABC1D23' });
+
+// Status do modulo
+const status = await sherlocker.modulos.pessoa.telefones.status({ cpf: '12345678900' });
+```
+
+### 3. Generico (dinamico)
+
+Para quando o tipo do modulo e determinado em runtime:
+
+```typescript
+const resultado = await sherlocker.executeModule('phones', '12345678900');
+const check = await sherlocker.checkModule('phones', '12345678900');
+```
+
+## Modulos disponiveis
+
+### Pessoa (CPF)
+
+| Metodo | Descricao | Tokens |
+|--------|-----------|--------|
+| `buscarInfo()` | Perfil completo (nome, RG, nascimento) | 0 |
+| `buscarTelefones()` | Telefones vinculados | 1 |
+| `buscarEmails()` | Emails vinculados | 1 |
+| `buscarEnderecos()` | Enderecos historicos | 1 |
+| `buscarBancos()` | Contas bancarias | 1 |
+| `buscarDocumentos()` | Documentos publicos | 1 |
+| `buscarIrregularidades()` | Sancoes e restricoes | 1 |
+| `buscarPessoasRelacionadas()` | Parentes e vinculos | 2 |
+| `buscarRelacionamentos()` | Rede de relacionamentos | 0 |
+| `buscarEmpresasSocio()` | Empresas onde e socio | 0 |
+| `buscarEmpresasRelacionadas()` | Empresas relacionadas | 2 |
+| `buscarHistoricoEmpregos()` | Historico profissional | 0 |
+| `buscarVeiculos()` | Veiculos registrados | 0 |
+| `buscarAeronaves()` | Aeronaves e drones | 0 |
+| `buscarDominios()` | Dominios registrados | 2 |
+| `buscarRedesSociais()` | Perfis em redes sociais | 5 |
+| `buscarVazamentos()` | Dados vazados | 5 |
+| `buscarProcessos()` | Processos judiciais | 17 |
+| `buscarDividas()` | Divida ativa | 5 |
+| `buscarProtestos()` | Protestos (Cenprot) | 5 |
+| `buscarLicitacoes()` | Licitacoes | 3 |
+| `buscarBeneficiosGoverno()` | Beneficios sociais | 3 |
+| `buscarPropriedadesRurais()` | Imoveis rurais | 10 |
+| `buscarRegistroEstabelecimentos()` | Comportamento de consumo | 5 |
+
+### Empresa (CNPJ)
+
+| Metodo | Descricao | Tokens |
+|--------|-----------|--------|
+| `buscarInfo()` | Dados cadastrais RF | 0 |
+| `buscarSocios()` | Quadro societario | 0 |
+| `buscarFuncionariosPat()` | Funcionarios (PAT) | 3 |
+| `buscarRendaImpostos()` | Renda e impostos | 3 |
+| `buscarHistoricoEmpresa()` | Historico de alteracoes | 2 |
+| `buscarTelefones()` | Telefones | 1 |
+| `buscarEmails()` | Emails | 1 |
+| `buscarEnderecos()` | Enderecos | 1 |
+| `buscarDominios()` | Dominios | 2 |
+| `buscarProcessos()` | Processos judiciais | 17 |
+| `buscarDividas()` | Divida ativa | 5 |
+| `buscarProtestos()` | Protestos | 5 |
+| `buscarLicitacoes()` | Licitacoes | 3 |
+| `buscarIrregularidades()` | Sancoes e restricoes | 1 |
+| `buscarDocumentos()` | Documentos publicos | 1 |
+| `buscarBancos()` | Contas bancarias | 1 |
+| `buscarRedesSociais()` | Redes sociais | 5 |
+| `buscarVazamentos()` | Dados vazados | 5 |
+
+### Veiculo (Placa)
+
+| Metodo | Descricao | Tokens |
+|--------|-----------|--------|
+| `buscarDados()` | Dados do veiculo | 0 |
+| `buscarProprietarios()` | Proprietarios | 0 |
+
+## Opcoes de execucao
+
+Todos os metodos `buscar*()` aceitam um objeto de opcoes:
+
+```typescript
+const telefones = await pessoa.buscarTelefones({
+  poll: false,        // Nao aguardar modulos async (default: true)
+  user_id: 'usr_123', // ID do usuario para rastreamento
+  page: 1,            // Paginacao
+  page_size: 25,      // Itens por pagina
+});
+```
+
+<Tip>
+  Modulos como `processos`, `redesSociais` e `protestos` sao async — por padrao o SDK faz polling automatico ate obter o resultado. Use `poll: false` se quiser gerenciar o polling manualmente.
+</Tip>
+
+## Tratamento de erros
+
+O SDK lanca erros tipados que voce pode capturar especificamente:
+
+```typescript
+import Sherlocker, {
+  SherlockerAuthError,
+  SherlockerInsufficientTokensError,
+  SherlockerTimeoutError,
+  SherlockerModuleError,
+} from '@sherlocker/sdk';
+
+try {
+  const pessoa = sherlocker.pessoa({ cpf: '12345678900' });
+  const processos = await pessoa.buscarProcessos();
+} catch (error) {
+  if (error instanceof SherlockerAuthError) {
+    // Token invalido ou expirado (401)
+    console.error('Verifique seu token');
+  } else if (error instanceof SherlockerInsufficientTokensError) {
+    // Saldo insuficiente (402)
+    console.error(`Necessario: ${error.required_tokens}, Saldo: ${error.balance}`);
+  } else if (error instanceof SherlockerTimeoutError) {
+    // Timeout na requisicao (408)
+    console.error('Requisicao demorou demais');
+  } else if (error instanceof SherlockerModuleError) {
+    // Erro no modulo (500)
+    console.error(`Erro no modulo ${error.module_type}: ${error.message}`);
+  }
+}
+```
+
+## Exemplos completos
+
+### Background check
+
+```typescript
+import Sherlocker from '@sherlocker/sdk';
+
+const sherlocker = new Sherlocker({
+  api_token: process.env.SHERLOCKER_TOKEN!,
+});
+
+async function backgroundCheck(cpf: string) {
+  const pessoa = sherlocker.pessoa({ cpf });
+
+  // Executa consultas em paralelo
+  const [info, empresas, processos, dividas, irregularidades] = await Promise.all([
+    pessoa.buscarInfo(),
+    pessoa.buscarEmpresasSocio(),
+    pessoa.buscarProcessos(),
+    pessoa.buscarDividas(),
+    pessoa.buscarIrregularidades(),
+  ]);
+
+  return { info, empresas, processos, dividas, irregularidades };
+}
+```
+
+### Enriquecimento de lead
+
+```typescript
+async function enriquecerLead(cpf: string) {
+  const pessoa = sherlocker.pessoa({ cpf });
+
+  const [info, telefones, emails, empresas] = await Promise.all([
+    pessoa.buscarInfo(),
+    pessoa.buscarTelefones(),
+    pessoa.buscarEmails(),
+    pessoa.buscarEmpresasSocio(),
+  ]);
+
+  return {
+    nome: info[0]?.name,
+    telefones: telefones.map(t => t.phone_number),
+    emails: emails.map(e => e.email),
+    empresas: empresas.map(e => ({
+      cnpj: e.cnpj,
+      razao_social: e.company_name,
+    })),
+  };
+}
+```
+
+### Due diligence empresarial
+
+```typescript
+async function dueDiligence(cnpj: string) {
+  const empresa = sherlocker.empresa({ cnpj });
+
+  const [info, socios, processos, dividas, irregularidades, licitacoes] =
+    await Promise.all([
+      empresa.buscarInfo(),
+      empresa.buscarSocios(),
+      empresa.buscarProcessos(),
+      empresa.buscarDividas(),
+      empresa.buscarIrregularidades(),
+      empresa.buscarLicitacoes(),
+    ]);
+
+  return { info, socios, processos, dividas, irregularidades, licitacoes };
+}
+```
+
+## CLI
+
+O SDK inclui um CLI para testes rapidos no terminal:
+
+```bash
+# Configurar token
+npx sherlocker auth --token SEU_TOKEN
+
+# Listar modulos disponiveis
+npx sherlocker modules
+
+# Executar modulo
+npx sherlocker execute telefones 12345678900
+
+# Verificar disponibilidade
+npx sherlocker check telefones 12345678900 --json
+
+# Executar todos os modulos de uma entidade
+npx sherlocker execute-all pessoa 12345678900
+```
+
+## MCP Server
+
+O SDK tambem funciona como servidor [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) para integrar o Sherlocker com LLMs como Claude:
+
+```bash
+npx sherlocker mcp stdio
+```
+
+Isso expoe os modulos como tools MCP (`investigar_telefones`, `investigar_processos`, etc.) que agentes de IA podem chamar automaticamente.

@@ -1,0 +1,42 @@
+---
+title: "Telefone"
+description: "Registro de telefone vinculado a um CPF"
+icon: "phone"
+---
+
+Um **Telefone** representa um numero telefonico associado a uma pessoa fisica. Pode ser fixo ou movel, com identificacao de operadora e estado.
+
+## Tipagem
+
+```json
+{
+  "ddi": "55",
+  "ddd": "31",
+  "numero": "987654321",
+  "numero_completo": "5531987654321",
+  "estado": "MG",
+  "operadora": "Vivo"
+}
+```
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| `ddi` | string | Codigo do pais (sempre `55` para Brasil) |
+| `ddd` | string | Codigo de area (2 digitos) |
+| `numero` | string | Numero sem DDD |
+| `numero_completo` | string | DDI + DDD + numero (formato E.164 sem +) |
+| `estado` | string | UF derivada do DDD (ex: `SP`, `MG`, `RJ`) |
+| `operadora` | string | Operadora detectada: `Vivo`, `Claro`, `Tim`, `Oi`, `Fixo` |
+
+## Conexoes
+
+- **Pessoa** — todo telefone pertence a um CPF
+- **Empresa** — empresas tem telefones comerciais (ddd1/telefone1, ddd2/telefone2)
+- **Banco** — bancos podem retornar telefones vinculados a contas
+
+## Endpoints
+
+| Rota | Descricao |
+|------|-----------|
+| `GET /telefones/cpf/{cpf}` | Telefones de uma pessoa |
+| `GET /pessoas/telefone/{telefone}` | Busca reversa: CPFs por telefone |

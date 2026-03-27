@@ -1,0 +1,39 @@
+---
+title: "Engine de Credito"
+description: "Motor de regras para analise de credito"
+icon: "gears"
+---
+
+Um **Engine** e um motor de regras configuravel que define quais validacoes sao aplicadas durante a analise de credito.
+
+## Campos principais
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| `id` | UUID | Identificador unico |
+| `name` | string | Nome do engine (max 100 caracteres) |
+| `description` | string | Descricao (max 500 caracteres) |
+| `isTemplate` | boolean | Se e um engine template (nao pode ser deletado) |
+| `ruleCount` | number | Quantidade de regras configuradas |
+
+## Regras
+
+Cada engine possui um conjunto de regras. Cada regra tem:
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| `id` | string | Identificador da regra |
+| `name` | string | Nome descritivo |
+| `severity` | enum | `blocking` (impede aprovacao) ou `alert` (apenas alerta) |
+| `enabled` | boolean | Se a regra esta ativa |
+
+## Criacao
+
+Voce pode criar um engine de duas formas:
+
+1. **Com regras customizadas** — Defina o objeto `rules` com suas configuracoes
+2. **Clonando um existente** — Use `cloneFrom` com o UUID de um engine existente
+
+<Warning>
+  Engines template e engines referenciados por operacoes nao podem ser deletados.
+</Warning>

@@ -1,0 +1,646 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Processos API",
+    "description": "Inteligencia processual em multiplos tribunais (SEAM, ESAJ, Escavador, TRF2). Retorna processos com classe, assunto, partes, movimentacoes e documentos, por CPF ou CNPJ.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "Parte": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "documento": {
+            "type": "string",
+            "description": "CPF ou CNPJ da parte"
+          },
+          "polo": {
+            "type": "string",
+            "description": "Autor, Reu, Terceiro, etc"
+          },
+          "tipo": {
+            "type": "string",
+            "description": "Fisica ou Juridica"
+          }
+        }
+      },
+      "Advogado": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "description": "Nome completo do advogado"
+          },
+          "documento": {
+            "type": "string",
+            "nullable": true,
+            "description": "CPF do advogado"
+          },
+          "oab": {
+            "type": "string",
+            "description": "Numero OAB (ex: SP123456)"
+          }
+        }
+      },
+      "Movimentacao": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "complemento": {
+            "type": "string"
+          }
+        }
+      },
+      "ProcessoDetalhado": {
+        "type": "object",
+        "properties": {
+          "processo": {
+            "type": "object",
+            "properties": {
+              "numero": {
+                "type": "string",
+                "description": "Numero unificado (ex: 0001234-56.2023.8.26.0100)"
+              },
+              "data_distribuicao": {
+                "type": "string"
+              },
+              "classe_judicial": {
+                "type": "string",
+                "description": "Ex: Procedimento Comum Civel"
+              },
+              "assunto": {
+                "type": "string",
+                "description": "Ex: Indenizacao por Dano Moral"
+              },
+              "jurisdicao": {
+                "type": "string",
+                "description": "Tribunal (TJSP, TRF2, etc)"
+              },
+              "orgao_julgador": {
+                "type": "string"
+              }
+            }
+          },
+          "partes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Parte"
+            }
+          },
+          "advogados": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Advogado"
+            }
+          },
+          "movimentacoes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Movimentacao"
+            }
+          },
+          "total_movimentacoes": {
+            "type": "integer"
+          },
+          "documentos": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer"
+              },
+              "itens": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "titulo": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "TribunalStatus": {
+        "type": "object",
+        "properties": {
+          "fonte": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "error",
+              "timeout"
+            ]
+          },
+          "erro": {
+            "type": "string"
+          }
+        }
+      },
+      "ProcessosResponse": {
+        "type": "object",
+        "properties": {
+          "processos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProcessoDetalhado"
+            }
+          },
+          "status": {
+            "type": "object",
+            "description": "Status de cada tribunal consultado",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TribunalStatus"
+            }
+          },
+          "paginacao": {
+            "type": "object",
+            "properties": {
+              "pagina_atual": {
+                "type": "integer"
+              },
+              "processos_por_pagina": {
+                "type": "integer"
+              },
+              "total_paginas": {
+                "type": "integer"
+              },
+              "total_processos": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "AsyncJobCreated": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string"
+          },
+          "statusUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/processos/cpf/{cpf}": {
+      "get": {
+        "operationId": "getProcessosByCpf",
+        "summary": "Processos judiciais de uma pessoa",
+        "description": "Consulta multiplos tribunais simultaneamente e retorna processos com classe, assunto, partes, movimentacoes e documentos. Suporta paginacao.",
+        "tags": [
+          "Processos"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "description": "Numero da pagina (default: 1)",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "por_pagina",
+            "in": "query",
+            "required": false,
+            "description": "Processos por pagina (default: 25)",
+            "schema": {
+              "type": "integer",
+              "default": 25
+            }
+          },
+          {
+            "name": "categorias",
+            "in": "query",
+            "required": false,
+            "description": "Filtrar por categorias (comma-separated). Ex: falencia,recuperacao-judicial",
+            "schema": {
+              "type": "string",
+              "example": "falencia,recuperacao-judicial"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Processos encontrados com paginacao",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessosResponse"
+                },
+                "example": {
+                  "processos": [
+                    {
+                      "numero_processo": "00012345620208260100",
+                      "numero_formatado": "0001234-56.2020.8.26.0100",
+                      "tribunal": "TJ-SP",
+                      "classe_codigo": 7,
+                      "classe_nome": "Procedimento Comum Cível",
+                      "grau": "G1",
+                      "data_ajuizamento": "2020-03-15",
+                      "orgao_julgador": "2ª Vara Cível do Foro Central",
+                      "assuntos": "Indenização por Dano Moral",
+                      "partes": [
+                        { "nome": "João Silva de Oliveira", "documento": "12345678901", "polo": "Autor", "tipo": "Física" },
+                        { "nome": "Comércio Eletrônico ABC LTDA", "documento": "98765432000188", "polo": "Réu", "tipo": "Jurídica" }
+                      ],
+                      "advogados": [
+                        { "nome": "Dr. José Carlos Mendes", "documento": "11122233344", "oab": "SP123456" },
+                        { "nome": "Dra. Ana Paula Ferreira", "documento": "55566677788", "oab": "SP654321" }
+                      ],
+                      "movimentacoes": [
+                        { "data": "2020-06-10", "descricao": "Sentença procedente", "complemento": "Condenação em R$ 10.000,00" },
+                        { "data": "2020-04-20", "descricao": "Audiência de conciliação realizada", "complemento": "Sem acordo" },
+                        { "data": "2020-03-15", "descricao": "Distribuído por sorteio", "complemento": "" }
+                      ]
+                    },
+                    {
+                      "numero_processo": "10054321520198260002",
+                      "numero_formatado": "1005432-15.2019.8.26.0002",
+                      "tribunal": "TJ-SP",
+                      "classe_codigo": 12,
+                      "classe_nome": "Execução Fiscal",
+                      "grau": "G1",
+                      "data_ajuizamento": "2019-07-22",
+                      "orgao_julgador": "1ª Vara da Fazenda Pública",
+                      "assuntos": "IPTU / Imposto Predial e Territorial Urbano",
+                      "partes": [
+                        { "nome": "Município de São Paulo", "documento": "46395000000139", "polo": "Exequente", "tipo": "Jurídica" },
+                        { "nome": "João Silva de Oliveira", "documento": "12345678901", "polo": "Executado", "tipo": "Física" }
+                      ],
+                      "advogados": [],
+                      "movimentacoes": [
+                        { "data": "2019-07-22", "descricao": "Distribuído", "complemento": "" }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/processos/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getProcessosByCnpj",
+        "summary": "Processos judiciais de uma empresa",
+        "description": "Consulta multiplos tribunais simultaneamente e retorna processos da empresa com classe, assunto, partes, movimentacoes e documentos.",
+        "tags": [
+          "Processos"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "por_pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 25
+            }
+          },
+          {
+            "name": "categorias",
+            "in": "query",
+            "required": false,
+            "description": "Filtrar por categorias (comma-separated). Ex: falencia,recuperacao-judicial",
+            "schema": {
+              "type": "string",
+              "example": "falencia,recuperacao-judicial"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Processos encontrados com paginacao",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProcessosResponse"
+                },
+                "example": {
+                  "processos": [
+                    {
+                      "numero_processo": "00054321020218260100",
+                      "numero_formatado": "0005432-10.2021.8.26.0100",
+                      "tribunal": "TJ-SP",
+                      "classe_codigo": 12,
+                      "classe_nome": "Execução Fiscal",
+                      "grau": "G1",
+                      "data_ajuizamento": "2021-05-20",
+                      "orgao_julgador": "2ª Vara de Execuções Fiscais",
+                      "assuntos": "Dívida Ativa - ICMS",
+                      "partes": [
+                        { "nome": "Fazenda Pública do Estado de São Paulo", "documento": "46395000000139", "polo": "Exequente", "tipo": "Jurídica" },
+                        { "nome": "Silva Comércio LTDA", "documento": "12345678000199", "polo": "Executado", "tipo": "Jurídica" }
+                      ],
+                      "advogados": [
+                        { "nome": "Dr. Paulo Roberto Procurador", "documento": "33344455566", "oab": "SP987654" }
+                      ],
+                      "movimentacoes": [
+                        { "data": "2021-08-10", "descricao": "Penhora online realizada", "complemento": "Valor bloqueado: R$ 25.000,00" },
+                        { "data": "2021-06-15", "descricao": "Citação por edital", "complemento": "" },
+                        { "data": "2021-05-20", "descricao": "Distribuído", "complemento": "" }
+                      ]
+                    },
+                    {
+                      "numero_processo": "10087654320208020001",
+                      "numero_formatado": "1008765-43.2020.8.02.0001",
+                      "tribunal": "TRT-2",
+                      "classe_codigo": 985,
+                      "classe_nome": "Reclamação Trabalhista",
+                      "grau": "G1",
+                      "data_ajuizamento": "2020-11-10",
+                      "orgao_julgador": "15ª Vara do Trabalho de São Paulo",
+                      "assuntos": "Rescisão Indireta",
+                      "partes": [
+                        { "nome": "Maria Fernanda Santos", "documento": "99988877766", "polo": "Reclamante", "tipo": "Física" },
+                        { "nome": "Silva Comércio LTDA", "documento": "12345678000199", "polo": "Reclamado", "tipo": "Jurídica" }
+                      ],
+                      "advogados": [
+                        { "nome": "Dra. Carla Trabalhista", "documento": "77788899900", "oab": "SP111222" }
+                      ],
+                      "movimentacoes": [
+                        { "data": "2021-02-15", "descricao": "Acordo homologado", "complemento": "Valor: R$ 45.000,00" }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/processos/numero/{numero}": {
+      "get": {
+        "operationId": "getProcessoByNumero",
+        "summary": "Busca processo por numero",
+        "description": "Retorna detalhes completos de um processo judicial pelo numero (com ou sem formatacao).",
+        "tags": ["Processos"],
+        "parameters": [
+          {
+            "name": "numero",
+            "in": "path",
+            "required": true,
+            "description": "Numero do processo (com ou sem formatacao)",
+            "schema": { "type": "string", "example": "0000001-23.2020.8.26.0100" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalhes do processo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "numero_processo": { "type": "string" },
+                    "numero_formatado": { "type": "string" },
+                    "tribunal": { "type": "string" },
+                    "classe_codigo": { "type": "integer" },
+                    "classe_nome": { "type": "string" },
+                    "grau": { "type": "string" },
+                    "data_ajuizamento": { "type": "string" },
+                    "orgao_julgador": { "type": "string" },
+                    "assuntos": { "type": "string" },
+                    "partes": { "type": "array", "items": { "$ref": "#/components/schemas/Parte" } },
+                    "advogados": { "type": "array", "items": { "$ref": "#/components/schemas/Advogado" } }
+                  }
+                },
+                "example": {
+                  "numero_processo": "00000012320208260100",
+                  "numero_formatado": "0000001-23.2020.8.26.0100",
+                  "tribunal": "TJ-SP",
+                  "classe_codigo": 1234,
+                  "classe_nome": "Procedimento Comum Cível",
+                  "grau": "G1",
+                  "data_ajuizamento": "2020-01-15",
+                  "orgao_julgador": "1ª Vara Cível",
+                  "assuntos": "Indenização por Dano Moral",
+                  "partes": [
+                    { "nome": "João Silva", "documento": "12345678901", "polo": "Autor", "tipo": "Física" },
+                    { "nome": "Empresa X LTDA", "documento": "12345678000199", "polo": "Réu", "tipo": "Jurídica" }
+                  ],
+                  "advogados": [
+                    { "nome": "Dr. José Advogado", "documento": "98765432100", "oab": "SP123456" }
+                  ]
+                }
+              }
+            }
+          },
+          "400": { "description": "Parametro invalido", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "401": { "description": "Token ausente ou invalido", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/processos/jobs/{jobId}": {
+      "get": {
+        "operationId": "getProcessosJobStatus",
+        "summary": "Status do job de processos",
+        "tags": [
+          "Jobs"
+        ],
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status do job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "ID do job"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Status atual do job",
+                      "enum": ["pending", "processing", "completed", "failed"]
+                    },
+                    "progress": {
+                      "type": "integer",
+                      "description": "Progresso de 0 a 100"
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Resultado do job quando completo"
+                    }
+                  },
+                  "example": {
+                    "id": "abc123",
+                    "status": "completed",
+                    "progress": 100,
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

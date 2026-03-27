@@ -1,0 +1,153 @@
+---
+title: "Testes"
+description: "Como importar a collection e testar a API no Postman"
+icon: "flask-vial"
+---
+
+# Testando com Postman
+
+O Postman e uma das formas mais rapidas de explorar a API do Sherlocker sem escrever codigo. Disponibilizamos uma collection pronta com **todos os endpoints**, variaveis pre-configuradas e exemplos de body para requests POST.
+
+## Importando a collection
+
+<Steps>
+  <Step title="Baixar a collection">
+    Faca download do arquivo [sherlocker-postman-collection.json](/download/postman).
+  </Step>
+  <Step title="Abrir o Postman">
+    Abra o [Postman](https://www.postman.com/downloads/) (desktop ou web).
+  </Step>
+  <Step title="Importar">
+    Clique em **Import** (canto superior esquerdo) e arraste o arquivo JSON ou clique em **Upload Files** para seleciona-lo.
+
+    Voce vera a collection **Sherlocker API** com todas as pastas de endpoints.
+  </Step>
+  <Step title="Configurar o token">
+    1. Clique na collection **Sherlocker API** na barra lateral
+    2. Va na aba **Authorization**
+    3. Selecione o tipo **Bearer Token**
+    4. No campo **Token**, insira `{{token}}`
+    5. Va na aba **Variables** e preencha o campo `token` com seu token de acesso
+    6. Clique em **Save** (Ctrl+S)
+  </Step>
+</Steps>
+
+<Warning>
+  Nunca compartilhe sua collection com o token preenchido. Use a coluna **Current value** (que nao e exportada) em vez de **Initial value**.
+</Warning>
+
+## Variaveis da collection
+
+A collection usa variaveis para facilitar os testes. Edite na aba **Variables** da collection:
+
+| Variavel | Descricao | Exemplo |
+|----------|-----------|---------|
+| `base_url` | URL base da API (ja preenchida) | `https://221b-api.sherlocker.com.br/api/v1` |
+| `token` | Seu token de acesso | `sk_live_...` |
+| `cpf` | CPF para testes | `12345678901` |
+| `cnpj` | CNPJ para testes | `12345678000199` |
+| `telefone` | Telefone com DDD | `11987654321` |
+| `email` | Email para buscas reversas | `teste@empresa.com` |
+| `placa` | Placa do veiculo | `ABC1D23` |
+| `uf` | Sigla do estado | `SP` |
+| `jobId` | ID do job async (preenchido automaticamente) | — |
+| `termo` | Termo de busca para documentos | `Joao Silva` |
+
+<Tip>
+  Preencha `cpf`, `cnpj` e `token` uma vez e todas as requests da collection usarao esses valores automaticamente.
+</Tip>
+
+## Estrutura da collection
+
+A collection esta organizada nas mesmas categorias da API:
+
+| Pasta | Endpoints | Descricao |
+|-------|-----------|-----------|
+| **Pessoas** | 7 | Perfil, contatos, parentes, busca reversa por telefone |
+| **Perfis Digitais** | 3 | Perfis em plataformas a partir de email |
+| **Empresas** | 7 | Dados cadastrais, socios, funcionarios, empregos |
+| **Trabalhista** | 1 | Dados trabalhistas por CNPJ |
+| **Imoveis** | 6 | Imoveis urbanos por CPF/CNPJ, com filtro por UF e modo async |
+| **Rural** | 8 | Imoveis rurais, CAFIR, fiscalizacao, transportes |
+| **Veiculos** | 3 | Veiculos por CPF, CNPJ ou placa |
+| **Aeronaves** | 2 | Aeronaves por CPF ou CNPJ |
+| **Patentes** | 2 | Propriedade intelectual por CPF ou CNPJ |
+| **Processos** | 5 | Processos judiciais com modo async |
+| **Dividas** | 2 | Divida ativa por CPF ou CNPJ |
+| **Regularidade** | 2 | Sancoes e restricoes por CPF ou CNPJ |
+| **Beneficios** | 2 | Beneficios sociais e renuncias fiscais |
+| **Bancos** | 3 | Contas bancarias com modo async |
+| **Cadastros** | 3 | Cadastros em estabelecimentos com modo async |
+| **Documentos** | 1 | Busca em diarios oficiais |
+| **Encomendas** | 1 | Encomendas por CPF |
+| **NF-e** | 2 | Notas fiscais por chave ou em lote |
+
+## Testando sua primeira request
+
+<Steps>
+  <Step title="Abrir uma request">
+    Expanda a pasta **Pessoas** e clique em **Perfil completo por CPF**.
+  </Step>
+  <Step title="Verificar variaveis">
+    Na URL voce vera `{{base_url}}/pessoas/cpf/{{cpf}}`. O token e enviado automaticamente via Bearer no header `Authorization`.
+  </Step>
+  <Step title="Enviar">
+    Clique em **Send**. Voce recebera o perfil completo com nome, enderecos, telefones, emails e parentes.
+  </Step>
+  <Step title="Analisar resposta">
+    A resposta vem em JSON. Use a aba **Pretty** para visualizar formatado ou **Raw** para ver o JSON bruto.
+  </Step>
+</Steps>
+
+## Testando endpoints async
+
+Alguns modulos (processos, perfis, bancos, cadastros, imoveis) possuem modo async para consultas demoradas:
+
+<Steps>
+  <Step title="Iniciar o job">
+    Abra a request **Processos por CPF (async)** na pasta **Processos** e clique **Send**.
+
+    A resposta contera um `jobId`:
+    ```json
+    {
+      "job_id": "abc123-def456",
+      "status": "processing"
+    }
+    ```
+  </Step>
+  <Step title="Copiar o jobId">
+    Copie o valor de `job_id` da resposta.
+  </Step>
+  <Step title="Atualizar variavel">
+    Va na aba **Variables** da collection e cole o valor no campo `jobId`. Salve.
+  </Step>
+  <Step title="Consultar status">
+    Abra **Status do job de processos** e clique **Send**. Repita ate o `status` ser `completed`.
+  </Step>
+</Steps>
+
+<Tip>
+  Para automatizar o polling, use o **Collection Runner** do Postman com um teste que verifica se `status === "completed"` e faz retry.
+</Tip>
+
+## Testando endpoints POST
+
+Os endpoints de **NF-e** requerem body JSON. A collection ja vem com exemplos pre-preenchidos.
+
+### NF-e em lote
+
+```json
+{
+  "chaves": [
+    "12345678901234567890123456789012345678901234"
+  ]
+}
+```
+
+## Dicas
+
+- **Erros 401**: verifique se o `token` esta preenchido corretamente nas variaveis e se a aba **Authorization** da collection esta configurada como **Bearer Token** com valor `{{token}}`
+- **Erros 402**: saldo de tokens insuficiente para o modulo consultado
+- **Erros 404**: o CPF/CNPJ nao foi encontrado ou o endpoint esta incorreto
+- **Timeout**: para modulos demorados, use o modo async (POST) em vez do sincrono (GET)
+- **Console**: use o **Postman Console** (View → Show Postman Console) para debugar headers e payloads enviados

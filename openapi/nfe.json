@@ -1,0 +1,415 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker NF-e API",
+    "description": "Consulta de notas fiscais eletronicas por chave de acesso (44 digitos), individual ou em lote.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "NfeEmitente": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "nome_fantasia": {
+            "type": "string"
+          },
+          "cnpj": {
+            "type": "string"
+          },
+          "cpf": {
+            "type": "string"
+          },
+          "ie": {
+            "type": "string",
+            "description": "Inscricao estadual"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "municipio": {
+            "type": "string"
+          }
+        }
+      },
+      "NfeDestinatario": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "cnpj": {
+            "type": "string"
+          },
+          "cpf": {
+            "type": "string"
+          },
+          "ie": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "municipio": {
+            "type": "string"
+          },
+          "pais": {
+            "type": "string"
+          }
+        }
+      },
+      "NfeProduto": {
+        "type": "object",
+        "properties": {
+          "num": {
+            "type": "integer",
+            "description": "Numero sequencial do item"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "quantidade": {
+            "type": "string"
+          },
+          "unidade_comercial": {
+            "type": "string"
+          },
+          "valor_unidade": {
+            "type": "string"
+          },
+          "valor_produto": {
+            "type": "string"
+          }
+        }
+      },
+      "NfeEvento": {
+        "type": "object",
+        "properties": {
+          "evento": {
+            "type": "string",
+            "description": "Tipo do evento (cancelamento, carta de correcao, etc)"
+          },
+          "protocolo": {
+            "type": "string"
+          },
+          "data_autorizacao": {
+            "type": "string"
+          },
+          "data_inclusao": {
+            "type": "string"
+          }
+        }
+      },
+      "NfeData": {
+        "type": "object",
+        "properties": {
+          "chave_acesso": {
+            "type": "string"
+          },
+          "numero": {
+            "type": "string"
+          },
+          "emitente": {
+            "$ref": "#/components/schemas/NfeEmitente"
+          },
+          "destinatario": {
+            "$ref": "#/components/schemas/NfeDestinatario"
+          },
+          "produtos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NfeProduto"
+            }
+          },
+          "valor_total": {
+            "type": "string"
+          },
+          "nfe": {
+            "type": "object",
+            "properties": {
+              "modelo": {
+                "type": "string"
+              },
+              "serie": {
+                "type": "string"
+              },
+              "data_emissao": {
+                "type": "string"
+              },
+              "situacao": {
+                "type": "string"
+              },
+              "eventos": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/NfeEvento"
+                }
+              }
+            }
+          },
+          "protocolo": {
+            "type": "object",
+            "properties": {
+              "numero": {
+                "type": "string"
+              },
+              "data_autorizacao": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "motivo": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "NfeResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer"
+          },
+          "code_message": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "header": {
+            "type": "object",
+            "properties": {
+              "service": {
+                "type": "string"
+              },
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "nfe": {
+                    "type": "string"
+                  }
+                }
+              },
+              "requested_at": {
+                "type": "string"
+              },
+              "elapsed_time_in_milliseconds": {
+                "type": "number"
+              }
+            }
+          },
+          "data_count": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NfeData"
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "erro": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
+                "example": "VALIDATION_ERROR"
+              },
+              "mensagem": {
+                "type": "string",
+                "description": "Mensagem descritiva do erro",
+                "example": "CPF invalido"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/nfe/chave/{chave}": {
+      "get": {
+        "operationId": "getNfeByChave",
+        "summary": "Nota fiscal por chave de acesso",
+        "description": "Retorna dados completos da nota fiscal eletronica: emitente, destinatario, produtos, valores e eventos.",
+        "tags": [
+          "NF-e"
+        ],
+        "parameters": [
+          {
+            "name": "chave",
+            "in": "path",
+            "required": true,
+            "description": "Chave de acesso da NF-e (44 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "35210612345678000195550010000000011000000019"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados da NF-e",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NfeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Chave de acesso invalida (deve ter 44 digitos)"
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/nfe/lote": {
+      "post": {
+        "operationId": "getNfeLote",
+        "summary": "Notas fiscais em lote",
+        "description": "Consulta ate 10.000 chaves de acesso em uma unica requisicao.",
+        "tags": [
+          "NF-e"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "chaves"
+                ],
+                "properties": {
+                  "chaves": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Array de chaves de acesso (max 10.000)",
+                    "maxItems": 10000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resultado do lote",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "success": {
+                      "type": "integer"
+                    },
+                    "errors": {
+                      "type": "integer"
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "chave": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "ok",
+                              "not_found",
+                              "error"
+                            ]
+                          },
+                          "data": {
+                            "$ref": "#/components/schemas/NfeData"
+                          },
+                          "error": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
