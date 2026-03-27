@@ -3127,10 +3127,10 @@
     "/empresas/codigos": {
       "get": {
         "operationId": "getCodigos",
-        "summary": "Tabelas de códigos (naturezas jurídicas, CNAEs, etc.)",
+        "summary": "Tabela de códigos",
         "description": "Retorna tabelas de tradução de códigos usados nos dados de empresas. Use o parâmetro tipo para filtrar uma tabela específica.",
         "tags": [
-          "Códigos"
+          "Empresas"
         ],
         "parameters": [
           {
@@ -3150,7 +3150,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "tipo": {
+                      "type": "string",
+                      "description": "Tipo da tabela filtrada"
+                    },
+                    "total": {
+                      "type": "integer",
+                      "description": "Total de registros"
+                    },
+                    "dados": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "codigo": {
+                            "type": "string",
+                            "description": "Código identificador"
+                          },
+                          "descricao": {
+                            "type": "string",
+                            "description": "Descrição do código"
+                          }
+                        }
+                      }
+                    }
+                  }
                 },
                 "example": {
                   "tipo": "naturezas",
