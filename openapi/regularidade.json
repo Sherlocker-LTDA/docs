@@ -32,13 +32,17 @@
             "description": "Se foram encontrados registros"
           },
           "data": {
-            "description": "Dados especificos do modulo (varia por tipo)"
+            "type": "array",
+            "description": "Dados do módulo (presente apenas quando found=true)"
           },
           "error": {
             "type": "string",
-            "description": "Mensagem de erro se a consulta falhou"
+            "description": "Mensagem de erro (presente apenas quando a consulta falhou)"
           }
-        }
+        },
+        "required": [
+          "found"
+        ]
       },
       "RegularidadeResponse": {
         "type": "object",
@@ -140,37 +144,47 @@
                     "found": true,
                     "data": [
                       {
+                        "seq_tad": "12345",
                         "nome_embargado": "João Silva",
-                        "cpf_cnpj": "12345678901",
                         "uf": "SP",
+                        "municipio": "Ribeirão Preto",
                         "data_embargo": "2020-01-15",
                         "area_embargada": 50.0,
-                        "bioma": "Cerrado"
+                        "bioma": "Cerrado",
+                        "auto_infracao": "9876543",
+                        "descricao": "Desmatamento ilegal em área de preservação permanente"
                       }
-                    ],
-                    "error": null
+                    ]
                   },
                   "sancao-nacional": {
-                    "found": false,
-                    "data": null,
-                    "error": null
+                    "found": true,
+                    "data": [
+                      {
+                        "nome": "João Silva",
+                        "cnpj_cpf": "123.456.789-01",
+                        "orgao_sancionador": "CGU",
+                        "tipo_sancao": "Impedimento",
+                        "data_inicio_sancao": "2021-03-10",
+                        "data_fim_sancao": "2026-03-10"
+                      }
+                    ]
                   },
                   "banco-central": {
                     "found": true,
                     "data": [
                       {
+                        "pas": "RJ2020/0001",
                         "nome": "João Silva",
+                        "cpf_masked": "***456789**",
                         "penalidade": "Inabilitação",
                         "prazo_anos": 5,
-                        "inicio_cumprimento": "2020-01-15"
+                        "inicio_cumprimento": "2020-06-01",
+                        "prazo_final": "2025-06-01"
                       }
-                    ],
-                    "error": null
+                    ]
                   },
                   "sancao-internacional": {
-                    "found": false,
-                    "data": null,
-                    "error": null
+                    "found": false
                   },
                   "trabalho-escravo": {
                     "found": false
@@ -241,32 +255,51 @@
                 },
                 "example": {
                   "ibama": {
-                    "found": false,
-                    "data": null,
-                    "error": null
+                    "found": true,
+                    "data": [
+                      {
+                        "seq_tad": "67890",
+                        "nome_embargado": "Madeireira Norte Ltda",
+                        "uf": "PA",
+                        "municipio": "Altamira",
+                        "data_embargo": "2022-08-20",
+                        "area_embargada": 150.0,
+                        "bioma": "Amazônia",
+                        "auto_infracao": "1234567",
+                        "descricao": "Exploração ilegal de madeira"
+                      }
+                    ]
                   },
                   "sancao-nacional": {
                     "found": true,
                     "data": [
                       {
-                        "nome": "Silva Comércio LTDA",
-                        "cnpj_cpf": "12345678000199",
+                        "nome": "Construtora ABC Ltda",
+                        "cnpj_cpf": "12.345.678/0001-99",
                         "orgao_sancionador": "CGU",
-                        "data_inicio_sancao": "2020-01-15",
-                        "data_fim_sancao": "2025-01-15"
+                        "tipo_sancao": "Inidoneidade",
+                        "data_inicio_sancao": "2023-01-15",
+                        "data_fim_sancao": "2028-01-15"
                       }
-                    ],
-                    "error": null
+                    ]
                   },
                   "sancao-internacional": {
-                    "found": false,
-                    "data": null,
-                    "error": null
+                    "found": true,
+                    "data": [
+                      {
+                        "source": "OFAC",
+                        "name": "Construtora ABC Ltda",
+                        "type": "Entity",
+                        "programs": "SDNTK",
+                        "remarks": "Listed for sanctions evasion"
+                      }
+                    ]
                   },
                   "trabalho-escravo": {
                     "found": true,
                     "data": [
                       {
+                        "id": 2,
                         "ano_acao_fiscal": "2024",
                         "uf": "MT",
                         "empregador_documento": "48.937.720/0001-04",
