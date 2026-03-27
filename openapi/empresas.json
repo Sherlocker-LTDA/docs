@@ -681,6 +681,221 @@
             }
           }
         }
+      },
+      "EmpresaResponse": {
+        "type": "object",
+        "properties": {
+          "documento": {
+            "type": "string",
+            "description": "CNPJ formatado"
+          },
+          "tipo_documento": {
+            "type": "string",
+            "enum": [
+              "CNPJ"
+            ]
+          },
+          "cnpj_basico": {
+            "type": "string",
+            "description": "CNPJ raiz (8 dígitos)"
+          },
+          "razao_social": {
+            "type": "string"
+          },
+          "nome_fantasia": {
+            "type": "string",
+            "nullable": true
+          },
+          "situacao": {
+            "type": "string",
+            "description": "Ativa, Baixada, Inapta, Suspensa, Nula"
+          },
+          "data_situacao": {
+            "type": "string",
+            "description": "Data ISO da situação cadastral"
+          },
+          "motivo_situacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "data_abertura": {
+            "type": "string",
+            "description": "Data ISO de início das atividades"
+          },
+          "capital_social": {
+            "type": "number"
+          },
+          "porte": {
+            "type": "string",
+            "nullable": true,
+            "description": "Micro empresa, Empresa de pequeno porte, Médio ou Grande porte"
+          },
+          "matriz_filial": {
+            "type": "string",
+            "nullable": true,
+            "description": "Matriz ou Filial"
+          },
+          "natureza_juridica": {
+            "type": "object",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Código numérico da natureza jurídica"
+              },
+              "descricao": {
+                "type": "string"
+              }
+            }
+          },
+          "atividade_principal": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "description": "Código CNAE"
+              },
+              "descricao": {
+                "type": "string"
+              }
+            }
+          },
+          "atividades_secundarias": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "codigo": {
+                  "type": "string"
+                },
+                "descricao": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "endereco": {
+            "type": "object",
+            "properties": {
+              "logradouro": {
+                "type": "string"
+              },
+              "numero": {
+                "type": "string"
+              },
+              "complemento": {
+                "type": "string",
+                "nullable": true
+              },
+              "bairro": {
+                "type": "string"
+              },
+              "cidade": {
+                "type": "string"
+              },
+              "uf": {
+                "type": "string"
+              },
+              "cep": {
+                "type": "string"
+              }
+            }
+          },
+          "telefones": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "ddi": {
+                  "type": "string"
+                },
+                "ddd": {
+                  "type": "string"
+                },
+                "numero": {
+                  "type": "string"
+                },
+                "numero_completo": {
+                  "type": "string"
+                },
+                "estado": {
+                  "type": "string"
+                },
+                "operadora": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "dominio": {
+                  "type": "string"
+                },
+                "corporativo": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "socios": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "nome": {
+                  "type": "string"
+                },
+                "documento": {
+                  "type": "string"
+                },
+                "tipo_documento": {
+                  "type": "string"
+                },
+                "tipo": {
+                  "type": "string",
+                  "description": "Pessoa Física ou Pessoa Jurídica"
+                },
+                "qualificacao": {
+                  "type": "string"
+                },
+                "data_entrada": {
+                  "type": "string"
+                },
+                "data_nascimento": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "sexo": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "idade": {
+                  "type": "integer",
+                  "nullable": true
+                },
+                "faixa_etaria": {
+                  "type": "string",
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "situacao_especial": {
+            "type": "string",
+            "nullable": true
+          },
+          "data_situacao_especial": {
+            "type": "string",
+            "nullable": true
+          }
+        }
       }
     }
   },
@@ -711,378 +926,81 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EmpresaCompletaResponse"
+                  "$ref": "#/components/schemas/EmpresaResponse"
                 },
                 "example": {
-                  "estabelecimento": {
-                    "cnpj": "12345678000199",
-                    "razao_social": "Silva Comércio LTDA",
-                    "nome_fantasia": "Silva Store",
-                    "natureza_juridica_descricao": "Sociedade Limitada",
-                    "capital_social": 100000,
-                    "porte_empresa": "ME",
-                    "matriz_filial": "1",
-                    "situacao_cadastral": "02",
-                    "data_situacao_cadastral": "2019-01-15",
-                    "data_inicio_atividades": "2019-01-15",
-                    "cnae_fiscal": "4729199",
-                    "cnae_fiscal_descricao": "Comércio varejista de outros produtos",
-                    "cnae_fiscal_secundaria": "4723700",
-                    "logradouro": "Rua Exemplo",
-                    "numero": "123",
-                    "complemento": "Sala 10",
-                    "bairro": "Centro",
-                    "cep": "01310100",
-                    "uf": "SP",
-                    "municipio_nome": "São Paulo",
-                    "ddd1": "11",
-                    "telefone1": "33334444",
-                    "correio_eletronico": "contato@silva.com.br"
+                  "documento": "33.000.167/0001-01",
+                  "tipo_documento": "CNPJ",
+                  "cnpj_basico": "33000167",
+                  "razao_social": "Petroleo Brasileiro S A Petrobras",
+                  "nome_fantasia": "Petrobras - Edise",
+                  "situacao": "Ativa",
+                  "data_situacao": "2005-11-03",
+                  "motivo_situacao": "SEM MOTIVO",
+                  "data_abertura": "1966-09-28",
+                  "capital_social": 205431960490.52,
+                  "porte": "Médio ou Grande porte",
+                  "matriz_filial": "Matriz",
+                  "natureza_juridica": {
+                    "codigo": "2038",
+                    "descricao": "Sociedade de Economia Mista"
                   },
-                  "socios": [
+                  "atividade_principal": {
+                    "codigo": "0600001",
+                    "descricao": "Extração de petróleo e gás natural"
+                  },
+                  "atividades_secundarias": [
                     {
-                      "nome": "João Silva",
-                      "documento": "123.456.789-10",
-                      "tipo": "Pessoa Física",
-                      "qualificacao": "Sócio-Administrador",
-                      "data_entrada": "15/01/2019",
-                      "data_nascimento": "15/01/1990",
-                      "sexo": "Masculino",
-                      "idade": 34,
-                      "faixa_etaria": "30 a 40 anos",
-                      "representante": null
+                      "codigo": "1921700",
+                      "descricao": "Fabricação de produtos do refino de petróleo"
                     },
                     {
-                      "nome": "Empresa Parceira LTDA",
-                      "documento": "98.765.432/0001-10",
-                      "tipo": "Pessoa Jurídica",
-                      "qualificacao": "Sócio",
-                      "data_entrada": "15/01/2019",
-                      "data_nascimento": null,
-                      "sexo": null,
-                      "idade": null,
-                      "faixa_etaria": null,
-                      "representante": {
-                        "nome": "Carlos Representante",
-                        "documento": "111.222.333-44",
-                        "qualificacao": "Administrador"
-                      }
+                      "codigo": "3520401",
+                      "descricao": "Produção de gás; processamento de gás natural"
                     }
                   ],
-                  "funcionarios": [
-                    {
-                      "cpf": "123.456.789-10",
-                      "nome": "Maria Oliveira",
-                      "data_nascimento": "1992-03-20",
-                      "sexo": "Feminino",
-                      "cargo": "Gerente Comercial",
-                      "status": "ativo",
-                      "data_admissao": "2019-01-15",
-                      "data_desligamento": null,
-                      "remuneracao": {
-                        "valor": 5000.0,
-                        "estimativa_minima": 6072.0,
-                        "estimativa_maxima": 15180.0,
-                        "faixa": "4 a 10 SM"
-                      },
-                      "vinculo": {
-                        "nivel": "Gerente",
-                        "setor": {
-                          "tipo": "Privado",
-                          "codigo": "4729199",
-                          "descricao": "Comércio varejista de outros produtos"
-                        }
-                      },
-                      "contatos": {
-                        "telefone": {
-                          "ddi": "55",
-                          "ddd": "11",
-                          "numero": "999998888",
-                          "numero_completo": "5511999998888",
-                          "estado": "São Paulo",
-                          "operadora": "Vivo"
-                        },
-                        "email": {
-                          "email": "maria@silva.com.br",
-                          "dominio": "silva.com.br",
-                          "corporativo": true
-                        }
-                      }
-                    }
-                  ],
-                  "dividas": {
-                    "documento": "12345678000199",
-                    "nome": "EMPRESA EXEMPLO LTDA",
-                    "total": 2,
-                    "valor_total": 24150.5,
-                    "ajuizado": true,
-                    "dividas": [
-                      {
-                        "numero_inscricao": "80000000000001",
-                        "fonte": "ativa_uniao",
-                        "receita": "IRPF",
-                        "ajuizado": true,
-                        "data_inscricao": "2020-03-15",
-                        "valor_atual": 15420.5,
-                        "uf": "SP",
-                        "unidade_responsavel": "DRF CAMPINAS",
-                        "historico": [
-                          {
-                            "situacao": "Ativa Ajuizada",
-                            "valor": 15420.5,
-                            "data_inscricao": "2020-03-15"
-                          }
-                        ]
-                      },
-                      {
-                        "numero_inscricao": "80000000000002",
-                        "fonte": "fgts",
-                        "receita": "FGTS",
-                        "ajuizado": false,
-                        "data_inscricao": "2021-07-01",
-                        "valor_atual": 8730.0,
-                        "uf": "SP",
-                        "unidade_responsavel": "SRTE/SP",
-                        "entidade_responsavel": "CEF",
-                        "historico": [
-                          {
-                            "situacao": "Ativa",
-                            "valor": 8730.0,
-                            "data_inscricao": "2021-07-01"
-                          }
-                        ]
-                      }
-                    ]
+                  "endereco": {
+                    "logradouro": "Avenida Republica do Chile",
+                    "numero": "65",
+                    "complemento": null,
+                    "bairro": "Centro",
+                    "cidade": "Rio de Janeiro",
+                    "uf": "RJ",
+                    "cep": "20031170"
                   },
-                  "veiculos": [
+                  "telefones": [
                     {
-                      "placa": "ABC1D23",
-                      "placa_antiga": "ABC1234",
-                      "chassi": "9BWAG45N1YT123456",
-                      "renavam": "12345678901",
-                      "modelo": "FIAT/STRADA TREK CE",
-                      "marca": "FIAT",
-                      "ano_fabricacao": 2021,
-                      "ano_modelo": 2022,
-                      "cor": "Prata",
-                      "combustivel": "Flex",
-                      "municipio": "São Paulo",
-                      "uf": "SP",
-                      "tipo_veiculo": "Automóvel",
-                      "especie_veiculo": "Passageiro",
-                      "situacao_veiculo": "Circulação",
-                      "potencia": "130",
-                      "cilindradas": "1300",
-                      "restricoes": [
-                        "Alienação Fiduciária"
-                      ]
+                      "ddi": "55",
+                      "ddd": "21",
+                      "numero": "21660000",
+                      "numero_completo": "552121660000",
+                      "estado": "RJ",
+                      "operadora": "Fixo"
                     }
                   ],
-                  "imoveis": [
+                  "emails": [
                     {
-                      "inscricao": "031.044.0094-1",
-                      "fonte": "prefeitura_sp",
-                      "localizacao": {
-                        "logradouro": "Rua Propriedade",
-                        "numero": "456",
-                        "complemento": "",
-                        "bairro": "Vila Mariana",
-                        "cidade": "São Paulo",
-                        "uf": "SP",
-                        "cep": "04101000"
-                      },
-                      "terreno": {
-                        "area": 250.0
-                      },
-                      "propriedade": {
-                        "areaConstruida": 150.0,
-                        "anoConstrucao": 2005,
-                        "tipoImovel": "Residencial"
-                      },
-                      "proprietario": {
-                        "nome": "João Silva",
-                        "documento": "12345678901"
-                      },
-                      "valoracao": {
-                        "valorVenalIptu": 500000.0,
-                        "valorIptu": 2500.0
-                      },
-                      "fontes": [
-                        "IPTU São Paulo"
-                      ],
-                      "images": {
-                        "fachada": null,
-                        "satelite": null
-                      }
+                      "email": "cc-rfisc@petrobras.com.br",
+                      "dominio": "petrobras.com.br",
+                      "corporativo": true
                     }
                   ],
-                  "processos": [
+                  "socios": [
                     {
-                      "numero_processo": "0000001-23.2020.8.26.0100",
-                      "tribunal": "TJ-SP",
-                      "classe_codigo": 1234,
-                      "classe_nome": "Procedimento Comum Cível",
-                      "grau": "G1",
-                      "data_ajuizamento": "2020-01-15",
-                      "orgao_julgador": "1ª Vara Cível",
-                      "assuntos": "Indenização por Dano Moral",
-                      "partes": [
-                        {
-                          "nome": "João Silva de Oliveira",
-                          "documento": "12345678901",
-                          "polo": "Autor",
-                          "tipo": "Física"
-                        },
-                        {
-                          "nome": "Empresa X LTDA",
-                          "documento": "12345678000199",
-                          "polo": "Réu",
-                          "tipo": "Jurídica"
-                        }
-                      ],
-                      "advogados": [
-                        {
-                          "nome": "Dr. José Advogado",
-                          "oab": "SP123456"
-                        }
-                      ]
+                      "nome": "Claudio Romeo Schlosser",
+                      "documento": "406.077.120-15",
+                      "tipo_documento": "CPF",
+                      "tipo": "Pessoa Física",
+                      "qualificacao": "Diretor",
+                      "data_entrada": "2023-04-17",
+                      "data_nascimento": "1964-04-15",
+                      "sexo": "Masculino",
+                      "idade": 61,
+                      "faixa_etaria": "Mais de 60 anos"
                     }
                   ],
-                  "aeronaves": {
-                    "avioes": [
-                      {
-                        "marca": "PT-ABC",
-                        "modelo": "EMB-110",
-                        "fabricante": "Embraer",
-                        "tipo": "Avião",
-                        "categoria": "TPP",
-                        "proprietario": "João Silva",
-                        "uf": "SP",
-                        "ano_fabricacao": "2010",
-                        "certificado_matricula": "12345",
-                        "numero_serie": "110-001",
-                        "classe": "CLT",
-                        "pmd": "5700",
-                        "tripulacao_minima": "2",
-                        "passageiros_maximo": "19",
-                        "tipo_motor": "Turboélice",
-                        "quantidade_motores": "2"
-                      }
-                    ],
-                    "drones": [
-                      {
-                        "codigo_aeronave": "PR-DRONE123",
-                        "modelo": "DJI Phantom 4 Pro",
-                        "fabricante": "DJI",
-                        "tipo_uso": "Recreação",
-                        "operador": "João Silva",
-                        "cpf_cnpj": "12345678901",
-                        "data_validade": "2025-12-31",
-                        "numero_serie": "ABC123456",
-                        "peso_maximo": "1.388 kg",
-                        "ramo_atividade": "Fotografia"
-                      }
-                    ]
-                  },
-                  "patentes": [
-                    {
-                      "numero_inpi": "BR1020200001234",
-                      "titulo": "Sistema de automação para irrigação agrícola",
-                      "natureza": "Patente de Invenção",
-                      "data_deposito": "2020-01-15",
-                      "data_publicacao": "2021-07-20"
-                    }
-                  ],
-                  "trabalhista": {
-                    "beneficiarias": [
-                      {
-                        "programa": "PAT",
-                        "cnpj": "12345678000199",
-                        "razao_social": "Silva LTDA",
-                        "data_inclusao": "2020-01-15"
-                      }
-                    ],
-                    "facilitadoras": [],
-                    "fornecedoras": []
-                  },
-                  "rural": {
-                    "sncr": [
-                      {
-                        "codigo_imovel": "9200123456",
-                        "nome_imovel": "Fazenda Boa Vista",
-                        "municipio": "Ribeirão Preto",
-                        "uf": "SP",
-                        "area_total": 500.5,
-                        "modulos_fiscais": 25.0,
-                        "cod_ibge": "3543402",
-                        "nome_detentor": "João Silva",
-                        "cpf_cnpj": "12345678901",
-                        "tipo_detentor": "Proprietário",
-                        "fracao": 100.0,
-                        "condicao_detentor": "Proprietário"
-                      }
-                    ],
-                    "cafir": [
-                      {
-                        "nirf": "1234567890",
-                        "area_total": 500.5,
-                        "codigo_incra": "9200123456",
-                        "nome_imovel": "Fazenda Boa Vista",
-                        "situacao": "Ativo",
-                        "logradouro": "Estrada Rural km 5",
-                        "distrito": "Distrito Rural",
-                        "uf": "SP",
-                        "municipio": "Ribeirão Preto",
-                        "cep": "14000000",
-                        "data_atualizacao": "2023-01-15",
-                        "imune_isento": "Não",
-                        "codigo_sncr": "9200123456"
-                      }
-                    ]
-                  },
-                  "beneficios": {
-                    "renuncias_fiscais": [
-                      {
-                        "cnpj": "12345678000199",
-                        "razao_social": "Silva Comércio LTDA",
-                        "nome_fantasia": "Silva Store",
-                        "cnae": "4729199",
-                        "municipio": "São Paulo",
-                        "uf": "SP",
-                        "ano_calendario": "2023",
-                        "tipo_renuncia": "Habilitação",
-                        "beneficio_fiscal": "Simples Nacional",
-                        "tributo": "IRPJ",
-                        "valor_renuncia": 12000.0
-                      }
-                    ]
-                  },
-                  "compliance": {
-                    "trabalho_escravo": [
-                      {
-                        "empregador": "Empresa X",
-                        "cnpj_cpf": "12345678000199",
-                        "uf": "SP",
-                        "trabalhadores_envolvidos": 10,
-                        "ano_acao_fiscal": "2020"
-                      }
-                    ],
-                    "ibama_embargos": [],
-                    "bcb_penalizados": [],
-                    "sancoes_internacionais": [],
-                    "ceis": [
-                      {
-                        "nome": "Empresa X",
-                        "cnpj_cpf": "12345678000199",
-                        "orgao_sancionador": "CGU",
-                        "data_inicio_sancao": "2020-01-15",
-                        "data_fim_sancao": "2025-01-15"
-                      }
-                    ],
-                    "cnep": [],
-                    "ceaf": [],
-                    "pep": []
-                  }
+                  "situacao_especial": null,
+                  "data_situacao_especial": null
                 }
               }
             }
@@ -1151,21 +1069,23 @@
                     {
                       "nome": "João Silva",
                       "documento": "123.456.789-10",
+                      "tipo_documento": "CPF",
                       "tipo": "Pessoa Física",
                       "qualificacao": "Sócio-Administrador",
-                      "data_entrada": "15/01/2019",
-                      "data_nascimento": "15/01/1990",
+                      "data_entrada": "2019-01-15",
+                      "data_nascimento": "1990-01-15",
                       "sexo": "Masculino",
                       "idade": 34,
                       "faixa_etaria": "30 a 40 anos",
                       "representante": null
                     },
                     {
-                      "nome": "Empresa Parceira LTDA",
+                      "nome": "Empresa Parceira Ltda",
                       "documento": "98.765.432/0001-10",
+                      "tipo_documento": "CNPJ",
                       "tipo": "Pessoa Jurídica",
                       "qualificacao": "Sócio",
-                      "data_entrada": "15/01/2019",
+                      "data_entrada": "2019-01-15",
                       "data_nascimento": null,
                       "sexo": null,
                       "idade": null,
@@ -1173,6 +1093,7 @@
                       "representante": {
                         "nome": "Carlos Representante",
                         "documento": "111.222.333-44",
+                        "tipo_documento": "CPF",
                         "qualificacao": "Administrador"
                       }
                     }
@@ -1243,7 +1164,8 @@
                 "example": {
                   "funcionarios": [
                     {
-                      "cpf": "123.456.789-10",
+                      "documento": "123.456.789-10",
+                      "tipo_documento": "CPF",
                       "nome": "Maria Oliveira",
                       "data_nascimento": "1992-03-20",
                       "sexo": "Feminino",
@@ -1338,8 +1260,9 @@
                   "$ref": "#/components/schemas/DividasResponse"
                 },
                 "example": {
-                  "documento": "12345678000199",
-                  "nome": "EMPRESA EXEMPLO LTDA",
+                  "documento": "12.345.678/0001-99",
+                  "tipo_documento": "CNPJ",
+                  "nome": "Empresa Exemplo Ltda",
                   "total": 2,
                   "valor_total": 24150.5,
                   "ajuizado": true,
@@ -1555,7 +1478,8 @@
                       },
                       "proprietario": {
                         "nome": "João Silva",
-                        "documento": "12345678901"
+                        "documento": "123.456.789-01",
+                        "tipo_documento": "CPF"
                       },
                       "valoracao": {
                         "valorVenalIptu": 500000.0,
@@ -1647,13 +1571,15 @@
                       "partes": [
                         {
                           "nome": "João Silva de Oliveira",
-                          "documento": "12345678901",
+                          "documento": "123.456.789-01",
+                          "tipo_documento": "CPF",
                           "polo": "Autor",
                           "tipo": "Física"
                         },
                         {
-                          "nome": "Empresa X LTDA",
-                          "documento": "12345678000199",
+                          "nome": "Empresa X Ltda",
+                          "documento": "12.345.678/0001-99",
+                          "tipo_documento": "CNPJ",
                           "polo": "Réu",
                           "tipo": "Jurídica"
                         }
@@ -1749,7 +1675,8 @@
                       "fabricante": "DJI",
                       "tipo_uso": "Recreação",
                       "operador": "João Silva",
-                      "cpf_cnpj": "12345678901",
+                      "documento": "123.456.789-01",
+                      "tipo_documento": "CPF",
                       "data_validade": "2025-12-31",
                       "numero_serie": "ABC123456",
                       "peso_maximo": "1.388 kg",
@@ -1888,8 +1815,9 @@
                   "beneficiarias": [
                     {
                       "programa": "PAT",
-                      "cnpj": "12345678000199",
-                      "razao_social": "Silva LTDA",
+                      "documento": "12.345.678/0001-99",
+                      "tipo_documento": "CNPJ",
+                      "razao_social": "Silva Ltda",
                       "data_inclusao": "2020-01-15"
                     }
                   ],
@@ -1961,7 +1889,8 @@
                       "modulos_fiscais": 25.0,
                       "cod_ibge": "3543402",
                       "nome_detentor": "João Silva",
-                      "cpf_cnpj": "12345678901",
+                      "documento": "123.456.789-01",
+                      "tipo_documento": "CPF",
                       "tipo_detentor": "Proprietário",
                       "fracao": 100.0,
                       "condicao_detentor": "Proprietário"
@@ -2042,8 +1971,9 @@
                 "example": {
                   "renuncias_fiscais": [
                     {
-                      "cnpj": "12345678000199",
-                      "razao_social": "Silva Comércio LTDA",
+                      "documento": "12.345.678/0001-99",
+                      "tipo_documento": "CNPJ",
+                      "razao_social": "Silva Comércio Ltda",
                       "nome_fantasia": "Silva Store",
                       "cnae": "4729199",
                       "municipio": "São Paulo",
@@ -2135,10 +2065,11 @@
                     {
                       "nome": "João Silva",
                       "documento": "123.456.789-10",
+                      "tipo_documento": "CPF",
                       "tipo": "Pessoa Física",
                       "qualificacao": "Sócio-Administrador",
-                      "data_entrada": "15/01/2019",
-                      "data_nascimento": "15/01/1990",
+                      "data_entrada": "2019-01-15",
+                      "data_nascimento": "1990-01-15",
                       "sexo": "Masculino",
                       "idade": 34,
                       "faixa_etaria": "30 a 40 anos",
@@ -2222,7 +2153,8 @@
                 "example": {
                   "empresas": [
                     {
-                      "cnpj": "12345678000199",
+                      "documento": "12.345.678/0001-99",
+                      "tipo_documento": "CNPJ",
                       "ddd": "11",
                       "telefone": "33334444"
                     }
@@ -2304,7 +2236,8 @@
                 "example": {
                   "empresas": [
                     {
-                      "cnpj": "12345678000199",
+                      "documento": "12.345.678/0001-99",
+                      "tipo_documento": "CNPJ",
                       "ddd": "11",
                       "telefone": "33334444"
                     }
@@ -2375,7 +2308,8 @@
                 "example": {
                   "empregos": [
                     {
-                      "cpf": "123.456.789-10",
+                      "documento": "123.456.789-10",
+                      "tipo_documento": "CPF",
                       "nome": "Maria Oliveira",
                       "data_nascimento": "1992-03-20",
                       "sexo": "Feminino",
@@ -2483,13 +2417,15 @@
                       "partes": [
                         {
                           "nome": "João Silva de Oliveira",
-                          "documento": "12345678901",
+                          "documento": "123.456.789-01",
+                          "tipo_documento": "CPF",
                           "polo": "Autor",
                           "tipo": "Física"
                         },
                         {
-                          "nome": "Empresa X LTDA",
-                          "documento": "12345678000199",
+                          "nome": "Empresa X Ltda",
+                          "documento": "12.345.678/0001-99",
+                          "tipo_documento": "CNPJ",
                           "polo": "Réu",
                           "tipo": "Jurídica"
                         }
@@ -2561,8 +2497,9 @@
                   "beneficiarias": [
                     {
                       "programa": "PAT",
-                      "cnpj": "12345678000199",
-                      "razao_social": "Silva LTDA",
+                      "documento": "12.345.678/0001-99",
+                      "tipo_documento": "CNPJ",
+                      "razao_social": "Silva Ltda",
                       "data_inclusao": "2020-01-15"
                     }
                   ],
@@ -2624,8 +2561,9 @@
                   "type": "object"
                 },
                 "example": {
-                  "documento": "12345678000199",
-                  "nome": "EMPRESA EXEMPLO LTDA",
+                  "documento": "12.345.678/0001-99",
+                  "tipo_documento": "CNPJ",
+                  "nome": "Empresa Exemplo Ltda",
                   "total": 2,
                   "valor_total": 24150.5,
                   "ajuizado": true,
@@ -2724,8 +2662,9 @@
                 "example": {
                   "renuncias_fiscais": [
                     {
-                      "cnpj": "12345678000199",
-                      "razao_social": "Silva Comércio LTDA",
+                      "documento": "12.345.678/0001-99",
+                      "tipo_documento": "CNPJ",
+                      "razao_social": "Silva Comércio Ltda",
                       "nome_fantasia": "Silva Store",
                       "cnae": "4729199",
                       "municipio": "São Paulo",
@@ -2896,7 +2835,8 @@
                       },
                       "proprietario": {
                         "nome": "João Silva",
-                        "documento": "12345678901"
+                        "documento": "123.456.789-01",
+                        "tipo_documento": "CPF"
                       },
                       "valoracao": {
                         "valorVenalIptu": 500000.0,
@@ -2994,7 +2934,8 @@
                       "fabricante": "DJI",
                       "tipo_uso": "Recreação",
                       "operador": "João Silva",
-                      "cpf_cnpj": "12345678901",
+                      "documento": "123.456.789-01",
+                      "tipo_documento": "CPF",
                       "data_validade": "2025-12-31",
                       "numero_serie": "ABC123456",
                       "peso_maximo": "1.388 kg",
@@ -3132,7 +3073,8 @@
                       "modulos_fiscais": 25.0,
                       "cod_ibge": "3543402",
                       "nome_detentor": "João Silva",
-                      "cpf_cnpj": "12345678901",
+                      "documento": "123.456.789-01",
+                      "tipo_documento": "CPF",
                       "tipo_detentor": "Proprietário",
                       "fracao": 100.0,
                       "condicao_detentor": "Proprietário"

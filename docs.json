@@ -86,7 +86,7 @@
               "entidades/endereco",
               "entidades/divida",
               "entidades/beneficio",
-              "entidades/nfe"
+              "entidades/licitacao"
             ]
           },
           {
@@ -144,17 +144,19 @@
             "pages": ["GET /beneficios/cpf/{cpf}", "GET /beneficios/cnpj/{cnpj}"]
           },
           {
-            "group": "Notas Fiscais",
-            "openapi": "/openapi/nfe.json",
-            "pages": ["GET /nfe/chave/{chave}"]
-          },
-          {
             "group": "Licitações",
             "openapi": "/openapi/licitacoes.json",
             "pages": [
-              "entidades/licitacao",
               "GET /licitacoes/cpf/{cpf}",
               "GET /licitacoes/cnpj/{cnpj}"
+            ]
+          },
+          {
+            "group": "Regularidade",
+            "openapi": "/openapi/regularidade.json",
+            "pages": [
+              "GET /regularidade/cpf/{cpf}",
+              "GET /regularidade/cnpj/{cnpj}"
             ]
           }
         ]

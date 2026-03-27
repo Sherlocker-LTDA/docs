@@ -56,7 +56,7 @@
           "sancao-internacional": {
             "$ref": "#/components/schemas/CheckerResult"
           },
-          "protestos": {
+          "trabalho-escravo": {
             "$ref": "#/components/schemas/CheckerResult"
           }
         }
@@ -111,7 +111,7 @@
             "name": "modulos",
             "in": "query",
             "required": false,
-            "description": "Modulos a consultar separados por virgula. Opcoes: ibama, sancao-nacional, banco-central, sancao-internacional, protestos. Se omitido, consulta todos.",
+            "description": "Módulos a consultar separados por vírgula. Opções: ibama, sancao-nacional, banco-central, sancao-internacional, trabalho-escravo. Se omitido, consulta todos.",
             "schema": {
               "type": "string",
               "example": "ibama,protestos"
@@ -172,10 +172,8 @@
                     "data": null,
                     "error": null
                   },
-                  "protestos": {
-                    "found": false,
-                    "data": null,
-                    "error": null
+                  "trabalho-escravo": {
+                    "found": false
                   }
                 }
               }
@@ -227,7 +225,7 @@
             "name": "modulos",
             "in": "query",
             "required": false,
-            "description": "Modulos a consultar separados por virgula. Opcoes: ibama, sancao-nacional, sancao-internacional, protestos",
+            "description": "Módulos a consultar separados por vírgula. Opções: ibama, sancao-nacional, sancao-internacional, trabalho-escravo",
             "schema": {
               "type": "string"
             }
@@ -265,17 +263,21 @@
                     "data": null,
                     "error": null
                   },
-                  "protestos": {
+                  "trabalho-escravo": {
                     "found": true,
                     "data": [
                       {
-                        "valor": 15000.00,
-                        "data_protesto": "2023-03-10",
-                        "cartorio": "1º Tabelião de Protestos de São Paulo",
-                        "uf": "SP"
+                        "ano_acao_fiscal": "2024",
+                        "uf": "MT",
+                        "empregador_documento": "48.937.720/0001-04",
+                        "empregador_nome": "ROBERTO DOS SANTOS",
+                        "estabelecimento": "MT 235, ZONA RURAL, COMODORO/MT",
+                        "trabalhadores_envolvidos": 2,
+                        "cnae": "2391-5/03",
+                        "decisao_administrativa": "2024-10-08",
+                        "inclusao_cadastro": "2025-04-09"
                       }
-                    ],
-                    "error": null
+                    ]
                   }
                 }
               }
