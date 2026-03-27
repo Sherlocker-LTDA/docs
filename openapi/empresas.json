@@ -3123,6 +3123,70 @@
           }
         }
       }
+    },
+    "/empresas/codigos": {
+      "get": {
+        "operationId": "getCodigos",
+        "summary": "Tabelas de códigos (naturezas jurídicas, CNAEs, etc.)",
+        "description": "Retorna tabelas de tradução de códigos usados nos dados de empresas. Use o parâmetro tipo para filtrar uma tabela específica.",
+        "tags": [
+          "Códigos"
+        ],
+        "parameters": [
+          {
+            "name": "tipo",
+            "in": "query",
+            "required": false,
+            "description": "Filtrar por tipo: naturezas, cnaes, qualificacoes, motivos, paises. Se omitido, retorna todas.",
+            "schema": {
+              "type": "string",
+              "example": "naturezas"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tabelas de códigos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "tipo": "naturezas",
+                  "total": 90,
+                  "dados": [
+                    {
+                      "codigo": "2011",
+                      "descricao": "Empresa Pública"
+                    },
+                    {
+                      "codigo": "2038",
+                      "descricao": "Sociedade de Economia Mista"
+                    },
+                    {
+                      "codigo": "2046",
+                      "descricao": "Sociedade Anônima Aberta"
+                    },
+                    {
+                      "codigo": "2054",
+                      "descricao": "Sociedade Anônima Fechada"
+                    },
+                    {
+                      "codigo": "2062",
+                      "descricao": "Sociedade Empresária Limitada"
+                    },
+                    {
+                      "codigo": "2135",
+                      "descricao": "Empresário (Individual)"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
