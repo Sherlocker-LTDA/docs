@@ -4,32 +4,33 @@ description: "Parte envolvida em um processo judicial"
 icon: "user-tie"
 ---
 
-Uma **Parte** representa uma pessoa fisica ou juridica envolvida em um processo judicial, com seu respectivo polo (autor, reu, terceiro).
+Uma **Parte** representa uma pessoa física ou jurídica envolvida em um processo judicial.
 
 ## Campos
 
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `nome` | string | Nome da parte |
-| `documento` | string \| null | CPF ou CNPJ da parte |
-| `polo` | string | Posição no processo (Autor, Réu, Terceiro) |
-| `tipo` | string | Tipo de pessoa (Física ou Jurídica) |
+| `nome` | string | Nome da parte (Title Case) |
+| `documento` | string | CPF ou CNPJ formatado (pode ser vazio) |
+| `polo` | string | `ativo`, `passivo`, `terceiro`, `interessado` |
+| `tipo` | string | Tipo de pessoa (ex: `Física`, `Jurídica`) |
 
 ## Exemplo
 
 ```json
 {
   "nome": "João Silva de Oliveira",
-  "documento": "12345678901",
-  "polo": "Autor",
+  "documento": "123.456.789-01",
+  "polo": "ativo",
   "tipo": "Física"
 }
 ```
 
-## Polos comuns
+## Polos
 
 | Polo | Descrição |
 |------|-----------|
-| Autor | Quem inicia a ação |
-| Réu | Contra quem a ação é movida |
-| Terceiro | Parte interessada que ingressa no processo |
+| `ativo` | Quem inicia a ação (autor, exequente, reclamante) |
+| `passivo` | Contra quem a ação é movida (réu, executado, reclamado) |
+| `terceiro` | Parte interessada que ingressa no processo |
+| `interessado` | Interessado no processo |

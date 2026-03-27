@@ -10,16 +10,18 @@ Um **Advogado** representa um profissional do direito que atua como representant
 
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `nome` | string | Nome completo do advogado |
-| `documento` | string \| null | CPF do advogado |
-| `oab` | string | Número da OAB (ex: SP123456) |
+| `nome` | string | Nome completo do advogado (Title Case) |
+| `oab` | string | Número da OAB com UF (ex: `SP123456`, `RJ084902`) |
+| `polo` | string | Polo que representa (`ativo`, `passivo`, etc.) |
+| `documento` | string | CPF do advogado (pode ser vazio se não resolvido) |
 
 ## Exemplo
 
 ```json
 {
-  "nome": "Dr. José Carlos Advogado",
-  "documento": "98765432100",
-  "oab": "SP123456"
+  "nome": "José Carlos Mendes",
+  "oab": "SP123456",
+  "polo": "ativo",
+  "documento": "987.654.321-00"
 }
 ```
