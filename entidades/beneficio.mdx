@@ -1,95 +1,158 @@
 ---
 title: "Benefício Social"
-description: "Beneficio social ou renuncia fiscal do governo federal"
+description: "Benefício social do governo federal ou renúncia fiscal"
 icon: "hand-holding-dollar"
 ---
 
-Um **Beneficio Social** representa um pagamento de programa social do governo federal vinculado a um CPF, ou uma renuncia fiscal vinculada a um CNPJ.
-
-## Tipagem — Pessoa Fisica
-
-```json
-{
-  "auxilio_brasil": [
-    {
-      "nome_favorecido": "MARIA DA SILVA",
-      "mes_competencia": "202301",
-      "valor_parcela": 600.00,
-      "uf": "MG",
-      "nome_municipio": "BELO HORIZONTE"
-    }
-  ],
-  "bolsa_familia": [],
-  "auxilio_emergencial": [],
-  "bpc": []
-}
-```
+Um **Benefício Social** representa um pagamento de programa social do governo federal vinculado a um CPF, ou uma renúncia fiscal vinculada a um CNPJ.
 
 ## Programas disponíveis
 
-| Programa | Descricao |
+| Programa | Descrição |
 |----------|-----------|
-| **Auxilio Brasil** | Programa de transferencia de renda (substituto do Bolsa Familia) |
-| **Bolsa Familia** | Programa historico de transferencia de renda |
-| **Auxilio Emergencial** | Pagamentos durante a pandemia (2020-2021) |
-| **BPC** | Beneficio de Prestacao Continuada (idosos e deficientes) |
+| **Auxílio Brasil** | Programa de transferência de renda (substituto do Bolsa Família) |
+| **Bolsa Família** | Programa histórico de transferência de renda |
+| **Auxílio Emergencial** | Pagamentos durante a pandemia (2020-2021) |
+| **BPC** | Benefício de Prestação Continuada (idosos e deficientes) |
 
-## Tipagem — Pessoa Juridica (Renuncias Fiscais)
+## Resposta
 
 ```json
 {
-  "renuncias_fiscais": [
-    {
-      "ano_calendario": "2023",
-      "cnpj": "12345678000199",
-      "razao_social": "EMPRESA LTDA",
-      "nome_fantasia": "EMPRESA",
-      "codigo_cnae": "64221",
-      "cnae": "Bancos multiplos, com carteira comercial",
-      "municipio": "SAO PAULO",
-      "uf": "SP",
-      "tipo_renuncia": "Declarado pelo Contribuinte para Apuracao do IRPJ e da CSLL",
-      "beneficio_fiscal": "Empresa Cidada",
-      "fundamento_legal": "Lei 11.770/2008",
-      "descricao": "Salario-maternidade/paternidade estendido",
-      "tributo": "IRPJ",
-      "forma_tributacao": "Lucro Real",
-      "valor_renuncia_fiscal": "50000.00",
-      "created_at": "2024-01-15 00:00:00"
-    }
-  ]
+  "documento": "918.050.406-00",
+  "tipo_documento": "CPF",
+  "beneficios": {
+    "auxilio_brasil": [],
+    "bolsa_familia": [],
+    "auxilio_emergencial": [
+      {
+        "mes": "2020-04",
+        "parcela": 1,
+        "uf": "MG",
+        "municipio": "Belo Horizonte",
+        "enquadramento": "EXTRACAD",
+        "observacao": null,
+        "valor": 1200.00
+      }
+    ],
+    "bpc": []
+  }
 }
 ```
 
-### Campos
+## Auxílio Brasil / Bolsa Família
 
-| Campo | Tipo | Descricao |
+Ambos compartilham o mesmo formato.
+
+```json
+{
+  "nome_favorecido": "Maria da Silva",
+  "mes_competencia": "2023-01",
+  "mes_referencia": "2023-01",
+  "uf": "MG",
+  "municipio": "Belo Horizonte",
+  "valor_parcela": 600.00
+}
+```
+
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `ano_calendario` | `string` | Ano-base da renuncia |
-| `cnpj` | `string` | CNPJ da empresa beneficiaria |
-| `razao_social` | `string` | Razao social |
-| `nome_fantasia` | `string` | Nome fantasia |
-| `codigo_cnae` | `string \| null` | Codigo CNAE da atividade economica |
-| `cnae` | `string \| null` | Descricao da atividade economica |
-| `municipio` | `string` | Municipio da empresa |
-| `uf` | `string \| null` | Unidade federativa |
-| `tipo_renuncia` | `string` | Tipo/categoria da renuncia (ex: isencao, deducao) |
-| `beneficio_fiscal` | `string` | Nome do beneficio fiscal (ex: Empresa Cidada, Simples Nacional) |
-| `fundamento_legal` | `string` | Base legal que ampara o beneficio |
-| `descricao` | `string` | Descricao detalhada do beneficio |
-| `tributo` | `string` | Tributo afetado (ex: IRPJ, CSLL, PIS, COFINS) |
-| `forma_tributacao` | `string \| null` | Regime de tributacao (ex: Lucro Real, Simples) |
-| `valor_renuncia_fiscal` | `string` | Valor monetario da renuncia em BRL |
-| `created_at` | `string` | Data de carga do registro |
+| `nome_favorecido` | string | Nome do beneficiário (Title Case) |
+| `mes_competencia` | string | Mês de competência (YYYY-MM) |
+| `mes_referencia` | string | Mês de referência (YYYY-MM) |
+| `uf` | string | UF |
+| `municipio` | string | Nome do município (Title Case) |
+| `valor_parcela` | number | Valor da parcela em R$ |
 
-## Conexoes
+## Auxílio Emergencial
 
-- **Pessoa** — como beneficiario (CPF)
-- **Empresa** — como beneficiaria de renuncia fiscal (CNPJ)
+```json
+{
+  "mes": "2020-04",
+  "parcela": 1,
+  "uf": "MG",
+  "municipio": "Belo Horizonte",
+  "enquadramento": "EXTRACAD",
+  "observacao": null,
+  "valor": 1200.00
+}
+```
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `mes` | string | Mês de disponibilização (YYYY-MM) |
+| `parcela` | number \| null | Número da parcela (1, 2, 3...) |
+| `uf` | string | UF |
+| `municipio` | string | Nome do município (Title Case) |
+| `enquadramento` | string | Enquadramento (`EXTRACAD`, `CADÚNICO`) |
+| `observacao` | string \| null | Observações (null quando não há) |
+| `valor` | number | Valor do benefício em R$ |
+
+## BPC (Benefício de Prestação Continuada)
+
+```json
+{
+  "mes_competencia": "2023-01",
+  "uf": "MG",
+  "municipio": "Belo Horizonte",
+  "numero_beneficio": "1234567890",
+  "judicial": false,
+  "valor_parcela": 1320.00
+}
+```
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `mes_competencia` | string | Mês de competência (YYYY-MM) |
+| `uf` | string | UF |
+| `municipio` | string | Nome do município (Title Case) |
+| `numero_beneficio` | string \| null | Número do benefício |
+| `judicial` | boolean | Se foi concedido judicialmente |
+| `valor_parcela` | number | Valor da parcela em R$ |
+
+## Renúncias Fiscais (Pessoa Jurídica)
+
+```json
+{
+  "ano_calendario": "2023",
+  "cnpj": "12345678000199",
+  "razao_social": "Empresa Ltda",
+  "nome_fantasia": "Empresa",
+  "codigo_cnae": "64221",
+  "cnae": "Bancos múltiplos, com carteira comercial",
+  "municipio": "São Paulo",
+  "uf": "SP",
+  "tipo_renuncia": "Declarado pelo Contribuinte para Apuração do IRPJ e da CSLL",
+  "beneficio_fiscal": "Empresa Cidadã",
+  "fundamento_legal": "Lei 11.770/2008",
+  "descricao": "Salário-maternidade/paternidade estendido",
+  "tributo": "IRPJ",
+  "forma_tributacao": "Lucro Real",
+  "valor_renuncia_fiscal": "50000.00"
+}
+```
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `ano_calendario` | string | Ano-base da renúncia |
+| `cnpj` | string | CNPJ da empresa beneficiária |
+| `razao_social` | string | Razão social |
+| `nome_fantasia` | string | Nome fantasia |
+| `codigo_cnae` | string \| null | Código CNAE |
+| `cnae` | string \| null | Descrição CNAE |
+| `municipio` | string | Município |
+| `uf` | string \| null | UF |
+| `tipo_renuncia` | string | Tipo da renúncia |
+| `beneficio_fiscal` | string | Nome do benefício fiscal |
+| `fundamento_legal` | string | Base legal |
+| `descricao` | string | Descrição detalhada |
+| `tributo` | string | Tributo afetado (IRPJ, CSLL, PIS, COFINS) |
+| `forma_tributacao` | string \| null | Regime de tributação |
+| `valor_renuncia_fiscal` | string | Valor em R$ |
 
 ## Endpoints
 
-| Rota | Descricao |
+| Rota | Descrição |
 |------|-----------|
-| `GET /beneficios/cpf/{cpf}` | Beneficios sociais por CPF |
-| `GET /beneficios/cnpj/{cnpj}` | Renuncias fiscais por CNPJ |
+| `GET /beneficios/cpf/{cpf}` | Benefícios sociais por CPF |
+| `GET /beneficios/cnpj/{cnpj}` | Renúncias fiscais por CNPJ |
