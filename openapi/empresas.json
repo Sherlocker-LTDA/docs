@@ -903,7 +903,7 @@
     "/empresas/cnpj/{cnpj}": {
       "get": {
         "operationId": "getEmpresaByCnpj",
-        "summary": "Perfil completo",
+        "summary": "Informações básicas",
         "description": "Retorna o perfil completo da empresa: dados cadastrais, socios, funcionarios, dividas, veiculos, imoveis, processos, aeronaves, patentes, trabalhista, rural, beneficios fiscais e compliance. Ponto de entrada para due diligence empresarial.",
         "tags": [
           "Empresas"
