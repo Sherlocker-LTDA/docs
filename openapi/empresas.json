@@ -904,7 +904,7 @@
       "get": {
         "operationId": "getEmpresaByCnpj",
         "summary": "Informações básicas",
-        "description": "Retorna o perfil completo da empresa: dados cadastrais, socios, funcionarios, dividas, veiculos, imoveis, processos, aeronaves, patentes, trabalhista, rural, beneficios fiscais e compliance. Ponto de entrada para due diligence empresarial.",
+        "description": "Retorna informações básicas da empresa: dados cadastrais, situação na Receita Federal, natureza jurídica, atividades (CNAEs), endereço, telefones, emails e quadro societário.",
         "tags": [
           "Empresas"
         ],
