@@ -4,24 +4,24 @@ description: "Processo judicial em tribunais brasileiros"
 icon: "gavel"
 ---
 
-Um **Processo** representa um processo judicial coletado de multiplos tribunais brasileiros. Cada processo contem suas partes (autor, reu), advogados e movimentacoes.
+Um **Processo** representa um processo judicial coletado de múltiplos tribunais brasileiros. Cada processo contém suas partes (autor, réu), advogados e movimentações.
 
 ## Campos
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `numero_processo` | string | Numero unificado CNJ (20 digitos) |
-| `numero_formatado` | string | Numero formatado (ex: 0001234-56.2020.8.26.0100) |
-| `tribunal` | string | Sigla do tribunal (TJ-SP, TRF-2, TRT-2, etc.) |
-| `classe_codigo` | number | Codigo da classe processual |
-| `classe_nome` | string | Nome da classe (Procedimento Comum Civel, Execucao Fiscal, etc.) |
-| `grau` | string | Grau de jurisdicao (G1, G2, REsp, etc.) |
-| `data_ajuizamento` | string | Data de ajuizamento |
-| `orgao_julgador` | string | Vara ou turma responsavel |
+| `numero_processo` | string | Número unificado CNJ (20 dígitos) |
+| `numero_formatado` | string | Número formatado (ex: `0001234-56.2020.8.26.0100`) |
+| `tribunal` | string | Sigla do tribunal em minúsculas (`tjsp`, `tjrj`, `trt2`, etc.) |
+| `classe_codigo` | number | Código da classe processual |
+| `classe_nome` | string | Nome da classe (Title Case) |
+| `grau` | string | Grau de jurisdição (`G1`, `G2`, etc.) |
+| `data_ajuizamento` | string | Data ISO (YYYY-MM-DD) |
+| `orgao_julgador` | string | Vara ou turma responsável (Title Case) |
 | `assuntos` | string | Assuntos do processo |
 | `partes` | Parte[] | Lista de partes envolvidas |
 | `advogados` | Advogado[] | Lista de advogados atuantes |
-| `movimentacoes` | object[] | Ultimas movimentacoes do processo |
+| `movimentacoes` | object[] | Últimas movimentações do processo |
 
 ## Exemplo
 
@@ -29,41 +29,71 @@ Um **Processo** representa um processo judicial coletado de multiplos tribunais 
 {
   "numero_processo": "00012345620208260100",
   "numero_formatado": "0001234-56.2020.8.26.0100",
-  "tribunal": "TJ-SP",
+  "tribunal": "tjsp",
   "classe_codigo": 7,
-  "classe_nome": "Procedimento Comum Civel",
+  "classe_nome": "Procedimento Comum Cível",
   "grau": "G1",
   "data_ajuizamento": "2020-03-15",
-  "orgao_julgador": "2a Vara Civel do Foro Central",
-  "assuntos": "Indenizacao por Dano Moral",
+  "orgao_julgador": "2ª Vara Cível do Foro Central",
+  "assuntos": "Indenização por Dano Moral",
   "partes": [
-    { "nome": "Joao Silva de Oliveira", "documento": "12345678901", "polo": "Autor", "tipo": "Fisica" },
-    { "nome": "Comercio Eletronico ABC LTDA", "documento": "98765432000188", "polo": "Reu", "tipo": "Juridica" }
+    { "nome": "João Silva de Oliveira", "documento": "123.456.789-01", "polo": "ativo", "tipo": "Física" },
+    { "nome": "Comércio Eletrônico Abc Ltda", "documento": "98.765.432/0001-88", "polo": "passivo", "tipo": "Jurídica" }
   ],
   "advogados": [
-    { "nome": "Dr. Jose Carlos Mendes", "documento": "11122233344", "oab": "SP123456" }
+    { "nome": "Dr. José Carlos Mendes", "oab": "SP123456", "polo": "ativo", "documento": "111.222.333-44" }
   ],
   "movimentacoes": [
-    { "data": "2020-06-10", "descricao": "Sentenca procedente", "complemento": "Condenacao em R$ 10.000,00" },
-    { "data": "2020-03-15", "descricao": "Distribuido por sorteio", "complemento": "" }
+    { "data": "2020-06-10", "descricao": "Sentença procedente", "complemento": "Condenação em R$ 10.000,00" },
+    { "data": "2020-03-15", "descricao": "Distribuído por sorteio", "complemento": "" }
   ]
 }
 ```
 
-## Segmentacao por classe
+## Parte
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `nome` | string | Nome da parte (Title Case) |
+| `documento` | string | CPF ou CNPJ formatado (pode ser vazio) |
+| `polo` | string | `ativo`, `passivo`, `terceiro`, `interessado` |
+| `tipo` | string | Tipo da parte (ex: `Física`, `Jurídica`) |
+
+## Advogado
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `nome` | string | Nome do advogado (Title Case) |
+| `oab` | string | Número OAB com UF (ex: `SP123456`) |
+| `polo` | string | Polo que representa |
+| `documento` | string | CPF do advogado (pode ser vazio) |
+
+## Movimentação
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `data` | string | Data ISO (YYYY-MM-DD) |
+| `descricao` | string | Descrição da movimentação |
+| `complemento` | string | Complemento (pode ser vazio) |
+
+## Filtro por categoria
+
+Use `?categorias=` nos endpoints de CPF/CNPJ para filtrar por tipo:
 
 | Categoria | Exemplos | Indica |
 |-----------|----------|--------|
-| Falencia | Recuperacao Judicial, Falencia | Empresa insolvente |
-| Execucao | Execucao Fiscal, Titulo Extrajudicial | Cobranca de divida |
-| Trabalhista | Reclamacao Trabalhista | Acao de funcionario |
-| Criminal | Acao Penal, Execucao Penal | Processo criminal |
-| Civel | Procedimento Comum, Indenizacao | Acao generica |
+| `recuperacao-judicial` | Recuperação Judicial | Empresa insolvente |
+| `falencia` | Falência, Insolvência | Empresa falida |
+| `execucao-fiscal` | Execução Fiscal | Dívida tributária |
+| `execucao-civel` | Execução de Título Extrajudicial | Cobrança de dívida |
+| `trabalhista` | Reclamação Trabalhista | Ação de funcionário |
+| `criminal` | Ação Penal | Processo criminal |
+| `familia-sucessoes` | Inventário, Divórcio | Família e sucessões |
 
 ## Endpoints
 
-| Rota | Descricao |
+| Rota | Descrição |
 |------|-----------|
 | `GET /processos/cpf/{cpf}` | Processos de uma pessoa |
 | `GET /processos/cnpj/{cnpj}` | Processos de uma empresa |
-| `GET /processos/numero/{numero}` | Busca por numero do processo |
+| `GET /processos/numero/{numero}` | Busca por número do processo |

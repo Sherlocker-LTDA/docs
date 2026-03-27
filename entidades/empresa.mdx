@@ -1,163 +1,141 @@
 ---
 title: "Empresa"
-description: "Entidade de pessoa juridica com relacoes societarias e trabalhistas"
+description: "Entidade de pessoa jurídica com dados cadastrais, sócios e contatos"
 icon: "building"
 ---
 
-Uma **Empresa** e identificada pelo CNPJ e representa uma pessoa juridica registrada na Receita Federal. Alem dos dados cadastrais proprios, a empresa se conecta a **Pessoas** por meio de relacoes:
-
-- **Socio** — relacao societaria (CPF ↔ CNPJ)
-- **Funcionario** — relacao trabalhista (CPF ↔ CNPJ)
+Uma **Empresa** é identificada pelo CNPJ e representa uma pessoa jurídica registrada na Receita Federal.
 
 ## Tipagem
 
 ```json
 {
-  "cnpj": "12345678000195",
-  "razao_social": "TECHNOVACAO DIGITAL LTDA",
-  "nome_fantasia": "TECHNOVACAO",
-  "cnaes": [
-    { "codigo": "6209100", "descricao": "Suporte tecnico em TI" }
-  ],
-  "situacao": "ATIVA",
-  "data_abertura": "2016-01-20",
-  "capital_social": 50000.00,
-  "natureza_juridica": "Sociedade Limitada",
-  "endereco": {
-    "logradouro": "AVENIDA PAULISTA",
-    "numero": "1000",
-    "complemento": "SALA 1201",
-    "bairro": "BELA VISTA",
-    "cidade": "SAO PAULO",
-    "uf": "SP",
-    "cep": "01310-100"
+  "documento": "33.000.167/0001-01",
+  "tipo_documento": "CNPJ",
+  "cnpj_basico": "33000167",
+  "razao_social": "Petroleo Brasileiro S A Petrobras",
+  "nome_fantasia": "Petrobras - Edise",
+  "situacao": "Ativa",
+  "data_situacao": "2005-11-03",
+  "motivo_situacao": "Sem Motivo",
+  "data_abertura": "1966-09-28",
+  "capital_social": 205431960490.52,
+  "porte": "Médio ou Grande porte",
+  "matriz_filial": "Matriz",
+  "natureza_juridica": {
+    "codigo": "2038",
+    "descricao": "Sociedade de Economia Mista"
   },
-  "telefones": [...],
-  "emails": [...],
-  "socios": [...],
-  "funcionarios": [...]
+  "atividade_principal": {
+    "codigo": "0600001",
+    "descricao": "Extração de petróleo e gás natural"
+  },
+  "atividades_secundarias": [
+    { "codigo": "1921700", "descricao": "Fabricação de produtos do refino de petróleo" }
+  ],
+  "endereco": {
+    "logradouro": "Avenida Republica do Chile",
+    "numero": "65",
+    "complemento": null,
+    "bairro": "Centro",
+    "cidade": "Rio de Janeiro",
+    "uf": "RJ",
+    "cep": "20031170"
+  },
+  "telefones": [
+    {
+      "ddi": "55",
+      "ddd": "21",
+      "numero": "21660000",
+      "numero_completo": "552121660000",
+      "estado": "RJ",
+      "operadora": "Fixo"
+    }
+  ],
+  "emails": [
+    {
+      "email": "contato@petrobras.com.br",
+      "dominio": "petrobras.com.br",
+      "corporativo": true
+    }
+  ],
+  "socios": [
+    {
+      "nome": "Claudio Romeo Schlosser",
+      "documento": "406.077.120-15",
+      "tipo_documento": "CPF",
+      "tipo": "Pessoa Física",
+      "qualificacao": "Diretor",
+      "data_entrada": "2023-04-17",
+      "data_nascimento": "1964-04-15",
+      "sexo": "Masculino",
+      "idade": 61,
+      "faixa_etaria": "Mais de 60 anos"
+    }
+  ],
+  "situacao_especial": null,
+  "data_situacao_especial": null
 }
 ```
 
-| Campo | Tipo | Descricao |
+## Campos
+
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `cnpj` | string | CNPJ (14 digitos) |
-| `razao_social` | string | Razao social |
-| `nome_fantasia` | string | Nome fantasia |
-| `cnaes` | array | CNAEs (primario + secundarios) |
-| `situacao` | string | `ATIVA`, `BAIXADA`, `SUSPENSA`, `INAPTA` |
-| `data_abertura` | string | Data de inicio das atividades |
+| `documento` | string | CNPJ formatado (XX.XXX.XXX/XXXX-XX) |
+| `tipo_documento` | string | Sempre `"CNPJ"` |
+| `cnpj_basico` | string | CNPJ raiz (8 dígitos) |
+| `razao_social` | string | Razão social (Title Case) |
+| `nome_fantasia` | string \| null | Nome fantasia |
+| `situacao` | string | `Ativa`, `Baixada`, `Suspensa`, `Inapta`, `Nula` |
+| `data_situacao` | string | Data ISO da situação (YYYY-MM-DD) |
+| `motivo_situacao` | string \| null | Motivo da situação cadastral (Title Case) |
+| `data_abertura` | string | Data ISO de início das atividades |
 | `capital_social` | number | Capital social em R$ |
-| `natureza_juridica` | string | Tipo juridico (Ltda, S.A., MEI, etc.) |
-| `endereco` | object | Endereco cadastral |
+| `porte` | string \| null | `Microempresa`, `Empresa de Pequeno Porte`, `Médio ou Grande porte` |
+| `matriz_filial` | string \| null | `Matriz` ou `Filial` |
+| `natureza_juridica` | object | `{ codigo: string, descricao: string }` |
+| `atividade_principal` | object \| null | `{ codigo: string, descricao: string }` (CNAE) |
+| `atividades_secundarias` | array | CNAEs secundários `[{ codigo, descricao }]` |
+| `endereco` | object | Endereço completo |
+| `telefones` | array | Telefones com DDD, operadora e estado |
+| `emails` | array | Emails com domínio e flag corporativo |
+| `socios` | array | Quadro societário |
+| `situacao_especial` | string \| null | Situação especial (se houver) |
+| `data_situacao_especial` | string \| null | Data da situação especial |
 
-## Relacoes
+## Sócio
 
-Uma empresa nao existe isolada — ela se conecta a pessoas e a outras entidades por meio de relacoes:
-
-```mermaid
-graph TD
-  E[Empresa<br/>CNPJ]
-
-  P1[Pessoa A<br/>CPF] -- socio --> E
-  P2[Pessoa B<br/>CPF] -- funcionario --> E
-  P3[Pessoa C<br/>CPF] -- socio --> E
-
-  E --> IU[Imovel Urbano]
-  E --> V[Veiculo]
-  E --> PR[Processo]
-  E --> D[Divida]
-
-  P1 -- socio --> E2[Outra Empresa<br/>CNPJ]
-```
-
-### Relacao: Socio
-
-Um **socio** e a relacao entre uma Pessoa (CPF) e uma Empresa (CNPJ). Representa vinculo societario ou administrativo.
-
-```json
-{
-  "cpf": "12345678901",
-  "nome": "MARIA DA SILVA",
-  "qualificacao": "Socio-Administrador",
-  "data_entrada": "2016-01-20"
-}
-```
-
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `cpf` | string | CPF do socio |
-| `nome` | string | Nome do socio |
-| `qualificacao` | string | Tipo de participacao (Socio, Administrador, Diretor) |
-| `data_entrada` | string | Data de entrada na sociedade |
-
-A partir do CPF de um socio, voce pode expandir a investigacao para a entidade **Pessoa** (`GET /pessoas/cpf/{cpf}`) e descobrir outros vinculos, patrimonio, processos, etc.
-
-### Relacao: Funcionario
-
-Um **funcionario** e a relacao trabalhista entre uma Pessoa (CPF) e uma Empresa (CNPJ). Os dados vem de RAIS, CAGED e portais de transparencia.
-
-```json
-{
-  "cpf": "98765432100",
-  "nome_funcionario": "JOAO PEREIRA",
-  "cargo": "ANALISTA DE SISTEMAS",
-  "data_admissao": "2020-03-15",
-  "data_desligamento": ""
-}
-```
-
-| Campo | Tipo | Descricao |
-|-------|------|-----------|
-| `cpf` | string | CPF do funcionario — identificador que conecta a entidade Pessoa |
-| `nome_funcionario` | string | Nome |
-| `cargo` | string | Cargo ou funcao |
-| `data_admissao` | string | Data de admissao |
-| `data_desligamento` | string | Data de desligamento (vazio se ativo) |
-
-Cada funcionario tem um `cpf` que e o identificador da entidade **Pessoa**. Use `GET /pessoas/cpf/{cpf}` para expandir os dados de qualquer funcionario.
+| `nome` | string | Nome do sócio (Title Case) |
+| `documento` | string | CPF ou CNPJ formatado |
+| `tipo_documento` | string | `"CPF"` ou `"CNPJ"` |
+| `tipo` | string | `"Pessoa Física"` ou `"Pessoa Jurídica"` |
+| `qualificacao` | string | Qualificação (Sócio-Administrador, Diretor, etc.) |
+| `data_entrada` | string | Data ISO de entrada na sociedade |
+| `data_nascimento` | string \| null | Data ISO de nascimento (só PF) |
+| `sexo` | string \| null | `"Masculino"` ou `"Feminino"` (só PF) |
+| `idade` | number \| null | Idade calculada (só PF) |
+| `faixa_etaria` | string \| null | Faixa etária (só PF) |
 
 ## Pontos de entrada
 
-| Dado disponivel | Endpoint | Resultado |
+| Dado disponível | Endpoint | Resultado |
 |----------------|----------|-----------|
-| CNPJ | `GET /empresas/cnpj/{cnpj}` | Perfil completo (cadastro + socios + funcionarios + patrimonio + juridico) |
-| CPF do socio | `GET /empresas/cpf/{cpf}` | Empresas onde a pessoa e socia |
+| CNPJ | `GET /empresas/cnpj/{cnpj}` | Informações básicas + sócios |
+| CPF do sócio | `GET /empresas/cpf/{cpf}` | Empresas onde a pessoa é sócia |
 | Email | `GET /empresas/email/{email}` | Empresas com esse email |
 | Telefone | `GET /empresas/telefone/{telefone}` | Empresas com esse telefone |
 
-## Dados agregados
+## Consulte os códigos
 
-O perfil completo (`GET /empresas/cnpj/{cnpj}`) agrega tudo em uma chamada:
+Use `GET /empresas/codigos` para listar todos os valores possíveis de naturezas jurídicas, CNAEs, qualificações de sócios, situações e portes.
 
-| Categoria | Campos | Entidades relacionadas |
-|-----------|--------|----------------------|
-| Cadastral | razao_social, cnae, situacao, endereco | — |
-| Relacoes | socios[], funcionarios[] | Pessoa (CPF) |
-| Patrimonio | imoveis[], veiculos[], aeronaves, patentes[], rural | Imovel, Veiculo, Aeronave, Patente |
-| Juridico | processos[], dividas, compliance, trabalhista | Processo, Divida |
-| Financeiro | beneficios_fiscais | Beneficio |
+```bash
+# Todas as naturezas jurídicas
+curl "https://221b-api.sherlocker.com.br/api/v1/empresas/codigos?tipo=naturezas&token=SEU_TOKEN"
 
-## Fluxo investigativo
-
-<Steps>
-  <Step title="Cadastro">
-    `GET /empresas/cnpj/{cnpj}` — dados cadastrais, socios e funcionarios
-  </Step>
-  <Step title="Expandir socios">
-    Para cada socio, consultar `GET /pessoas/cpf/{cpf}` e investigar patrimonio pessoal
-  </Step>
-  <Step title="Cruzar empresas">
-    Verificar se socios participam de outras empresas (`GET /empresas/cpf/{cpf}`)
-  </Step>
-  <Step title="Patrimonio da empresa">
-    Imoveis, veiculos, aeronaves, patentes em nome do CNPJ
-  </Step>
-  <Step title="Juridico">
-    Processos, dividas, compliance trabalhista
-  </Step>
-</Steps>
-
-<Tip>
-  O campo `cpf` em cada socio e funcionario e o **identificador** que conecta a entidade Pessoa. Use ele para navegar entre entidades.
-</Tip>
+# Todas as situações
+curl "https://221b-api.sherlocker.com.br/api/v1/empresas/codigos?tipo=situacoes&token=SEU_TOKEN"
+```
