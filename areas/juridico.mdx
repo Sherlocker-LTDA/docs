@@ -1,29 +1,25 @@
 ---
 title: "Perfil Jurídico"
-description: "Processos judiciais, trabalhista, regularidade e documentos publicos"
+description: "Processos judiciais em todos os tribunais do Brasil"
 icon: "scale-balanced"
 ---
 
-O **Perfil Juridico** reune processos judiciais, compliance trabalhista, certidoes de regularidade e busca em documentos publicos.
+O **Perfil Juridico** permite consultar processos judiciais de pessoas fisicas e juridicas em todos os tribunais do Brasil.
 
 ## Entidades
 
 <CardGroup cols={2}>
   <Card title="Processo" icon="gavel" href="/entidades/processo">
-    Processos em multiplos tribunais — classe, partes, polo
-  </Card>
-  <Card title="Documento Publico" icon="file-lines" href="/entidades/documento">
-    Diario Oficial, DJSP e outras fontes
+    Processos em multiplos tribunais — classe, partes, advogados, movimentacoes
   </Card>
 </CardGroup>
 
 ## O que voce consegue fazer
 
-- **Verificar processos** de uma pessoa ou empresa em todos os tribunais
-- **Segmentar por tipo** — civel, criminal, trabalhista, execucao, falencia
-- **Consultar compliance trabalhista** — PAT, lista de trabalho escravo
-- **Emitir certidoes** — regularidade fiscal, IBAMA, sancoes, Banco Central
-- **Buscar em documentos publicos** — Diario Oficial, publicacoes judiciais
+- **Verificar processos** de uma pessoa ou empresa por CPF ou CNPJ
+- **Segmentar por categoria** — civel, criminal, trabalhista, execucao, falencia, recuperacao judicial
+- **Consultar detalhes** — partes envolvidas, advogados, movimentacoes, orgao julgador
+- **Buscar por numero** — consulta direta de um processo especifico
 
 ## Indicadores de risco
 
@@ -31,10 +27,38 @@ O **Perfil Juridico** reune processos judiciais, compliance trabalhista, certido
 |-------|--------|
 | Muitos processos como reu | Risco juridico elevado |
 | Execucoes fiscais | Inadimplencia tributaria |
-| Falencia / Recuperacao | Risco de credito severo |
+| Falencia / Recuperacao judicial | Risco de credito severo |
 | Reclamacoes trabalhistas | Problemas de gestao |
-| Lista de trabalho escravo | Irregularidade grave |
+
+## Filtrar por categoria
+
+Adicione `?categorias=` aos endpoints de CPF/CNPJ para filtrar por tipo de processo:
+
+```bash
+curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/{cnpj}?categorias=recuperacao-judicial,falencia&token=SEU_TOKEN"
+```
+
+<CardGroup cols={3}>
+  <Card title="Recuperacao Judicial" icon="building-circle-exclamation" href="/categorias/recuperacao-judicial">
+    Empresas em recuperacao
+  </Card>
+  <Card title="Falencia" icon="building-circle-xmark" href="/categorias/falencia">
+    Falencias e insolvencia
+  </Card>
+  <Card title="Execucao Fiscal" icon="landmark" href="/categorias/execucao-fiscal">
+    Dividas tributarias
+  </Card>
+  <Card title="Trabalhista" icon="briefcase" href="/categorias/trabalhista">
+    Reclamacoes trabalhistas
+  </Card>
+  <Card title="Criminal" icon="handcuffs" href="/categorias/criminal">
+    Acoes penais
+  </Card>
+  <Card title="Familia" icon="people-roof" href="/categorias/familia-sucessoes">
+    Divorcios, inventarios
+  </Card>
+</CardGroup>
 
 <Tip>
-  Acesse a tab **Juridico** para ver todos os endpoints disponiveis.
+  Acesse a tab **Juridico** para ver todos os endpoints e categorias disponiveis.
 </Tip>

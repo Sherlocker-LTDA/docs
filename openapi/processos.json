@@ -314,12 +314,12 @@
                       "orgao_julgador": "2ª Vara Cível do Foro Central",
                       "assuntos": "Indenização por Dano Moral",
                       "partes": [
-                        { "nome": "João Silva de Oliveira", "documento": "12345678901", "polo": "Autor", "tipo": "Física" },
-                        { "nome": "Comércio Eletrônico ABC LTDA", "documento": "98765432000188", "polo": "Réu", "tipo": "Jurídica" }
+                        { "nome": "João Silva de Oliveira", "documento": "123.456.789-01", "tipo_documento": "CPF", "polo": "Autor", "tipo": "Física" },
+                        { "nome": "Comércio Eletrônico Abc Ltda", "documento": "98.765.432/0001-88", "tipo_documento": "CNPJ", "polo": "Réu", "tipo": "Jurídica" }
                       ],
                       "advogados": [
-                        { "nome": "Dr. José Carlos Mendes", "documento": "11122233344", "oab": "SP123456" },
-                        { "nome": "Dra. Ana Paula Ferreira", "documento": "55566677788", "oab": "SP654321" }
+                        { "nome": "Dr. José Carlos Mendes", "documento": "111.222.333-44", "tipo_documento": "CPF", "oab": "SP123456" },
+                        { "nome": "Dra. Ana Paula Ferreira", "documento": "555.666.777-88", "tipo_documento": "CPF", "oab": "SP654321" }
                       ],
                       "movimentacoes": [
                         { "data": "2020-06-10", "descricao": "Sentença procedente", "complemento": "Condenação em R$ 10.000,00" },
@@ -338,8 +338,8 @@
                       "orgao_julgador": "1ª Vara da Fazenda Pública",
                       "assuntos": "IPTU / Imposto Predial e Territorial Urbano",
                       "partes": [
-                        { "nome": "Município de São Paulo", "documento": "46395000000139", "polo": "Exequente", "tipo": "Jurídica" },
-                        { "nome": "João Silva de Oliveira", "documento": "12345678901", "polo": "Executado", "tipo": "Física" }
+                        { "nome": "Município de São Paulo", "documento": "46.395.000/0001-39", "tipo_documento": "CNPJ", "polo": "Exequente", "tipo": "Jurídica" },
+                        { "nome": "João Silva de Oliveira", "documento": "123.456.789-01", "tipo_documento": "CPF", "polo": "Executado", "tipo": "Física" }
                       ],
                       "advogados": [],
                       "movimentacoes": [
@@ -443,11 +443,11 @@
                       "orgao_julgador": "2ª Vara de Execuções Fiscais",
                       "assuntos": "Dívida Ativa - ICMS",
                       "partes": [
-                        { "nome": "Fazenda Pública do Estado de São Paulo", "documento": "46395000000139", "polo": "Exequente", "tipo": "Jurídica" },
-                        { "nome": "Silva Comércio LTDA", "documento": "12345678000199", "polo": "Executado", "tipo": "Jurídica" }
+                        { "nome": "Fazenda Pública do Estado de São Paulo", "documento": "46.395.000/0001-39", "tipo_documento": "CNPJ", "polo": "Exequente", "tipo": "Jurídica" },
+                        { "nome": "Silva Comércio Ltda", "documento": "12.345.678/0001-99", "tipo_documento": "CNPJ", "polo": "Executado", "tipo": "Jurídica" }
                       ],
                       "advogados": [
-                        { "nome": "Dr. Paulo Roberto Procurador", "documento": "33344455566", "oab": "SP987654" }
+                        { "nome": "Dr. Paulo Roberto Procurador", "documento": "333.444.555-66", "tipo_documento": "CPF", "oab": "SP987654" }
                       ],
                       "movimentacoes": [
                         { "data": "2021-08-10", "descricao": "Penhora online realizada", "complemento": "Valor bloqueado: R$ 25.000,00" },
@@ -466,11 +466,11 @@
                       "orgao_julgador": "15ª Vara do Trabalho de São Paulo",
                       "assuntos": "Rescisão Indireta",
                       "partes": [
-                        { "nome": "Maria Fernanda Santos", "documento": "99988877766", "polo": "Reclamante", "tipo": "Física" },
-                        { "nome": "Silva Comércio LTDA", "documento": "12345678000199", "polo": "Reclamado", "tipo": "Jurídica" }
+                        { "nome": "Maria Fernanda Santos", "documento": "999.888.777-66", "tipo_documento": "CPF", "polo": "Reclamante", "tipo": "Física" },
+                        { "nome": "Silva Comércio Ltda", "documento": "12.345.678/0001-99", "tipo_documento": "CNPJ", "polo": "Reclamado", "tipo": "Jurídica" }
                       ],
                       "advogados": [
-                        { "nome": "Dra. Carla Trabalhista", "documento": "77788899900", "oab": "SP111222" }
+                        { "nome": "Dra. Carla Trabalhista", "documento": "777.888.999-00", "tipo_documento": "CPF", "oab": "SP111222" }
                       ],
                       "movimentacoes": [
                         { "data": "2021-02-15", "descricao": "Acordo homologado", "complemento": "Valor: R$ 45.000,00" }
@@ -551,11 +551,11 @@
                   "orgao_julgador": "1ª Vara Cível",
                   "assuntos": "Indenização por Dano Moral",
                   "partes": [
-                    { "nome": "João Silva", "documento": "12345678901", "polo": "Autor", "tipo": "Física" },
-                    { "nome": "Empresa X LTDA", "documento": "12345678000199", "polo": "Réu", "tipo": "Jurídica" }
+                    { "nome": "João Silva", "documento": "123.456.789-01", "tipo_documento": "CPF", "polo": "Autor", "tipo": "Física" },
+                    { "nome": "Empresa X Ltda", "documento": "12.345.678/0001-99", "tipo_documento": "CNPJ", "polo": "Réu", "tipo": "Jurídica" }
                   ],
                   "advogados": [
-                    { "nome": "Dr. José Advogado", "documento": "98765432100", "oab": "SP123456" }
+                    { "nome": "Dr. José Advogado", "documento": "987.654.321-00", "tipo_documento": "CPF", "oab": "SP123456" }
                   ]
                 }
               }
@@ -563,6 +563,38 @@
           },
           "400": { "description": "Parametro invalido", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
           "401": { "description": "Token ausente ou invalido", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/processos/categorias": {
+      "get": {
+        "operationId": "listCategorias",
+        "summary": "Lista categorias de processos",
+        "description": "Retorna todas as categorias disponiveis com totais de classes e processos. Use os slugs como valor do parametro `categorias` nos endpoints de CPF e CNPJ.",
+        "tags": ["Categorias"],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Lista de categorias",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" },
+                "example": {
+                  "categorias": [
+                    { "slug": "recuperacao-judicial", "label": "Recuperacao Judicial", "total_classes": 3, "total_processos": 125000 },
+                    { "slug": "falencia", "label": "Falencia / Insolvencia", "total_classes": 5, "total_processos": 450000 },
+                    { "slug": "execucao-fiscal", "label": "Execucao Fiscal", "total_classes": 8, "total_processos": 5600000 },
+                    { "slug": "execucao-civel", "label": "Execucao Civel", "total_classes": 6, "total_processos": 3200000 },
+                    { "slug": "trabalhista", "label": "Trabalhista", "total_classes": 15, "total_processos": 8100000 },
+                    { "slug": "criminal", "label": "Criminal", "total_classes": 30, "total_processos": 3200000 },
+                    { "slug": "familia-sucessoes", "label": "Familia e Sucessoes", "total_classes": 12, "total_processos": 4500000 },
+                    { "slug": "procedimento-comum", "label": "Procedimento Comum", "total_classes": 45, "total_processos": 12500000 },
+                    { "slug": "juizado-especial", "label": "Juizado Especial", "total_classes": 8, "total_processos": 9800000 }
+                  ]
+                }
+              }
+            }
+          }
         }
       }
     },

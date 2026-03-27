@@ -1,0 +1,140 @@
+---
+title: "Recuperacoes Judiciais e Falencias"
+description: "Como identificar empresas em recuperacao judicial ou falencia usando a API de processos"
+icon: "building-circle-exclamation"
+---
+
+O Sherlocker permite identificar se uma empresa esta em **recuperacao judicial** ou **falencia** usando o parametro `categorias` nos endpoints de processos por CPF ou CNPJ.
+
+## Por que monitorar?
+
+- **Analise de credito** — empresas em recuperacao judicial tem risco elevado de inadimplencia
+- **Due diligence** — antes de fechar contratos, verificar se a contraparte esta em processo de falencia
+- **Monitoramento de carteira** — acompanhar clientes ou fornecedores que entraram em recuperacao
+
+## Como filtrar
+
+Adicione o parametro `categorias` ao endpoint de processos por CNPJ ou CPF:
+
+### Verificar uma empresa (CNPJ)
+
+```bash
+# Somente recuperacoes judiciais
+curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/12345678000199?categorias=recuperacao-judicial&token=SEU_TOKEN"
+
+# Somente falencias
+curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/12345678000199?categorias=falencia&token=SEU_TOKEN"
+
+# Ambas
+curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/12345678000199?categorias=recuperacao-judicial,falencia&token=SEU_TOKEN"
+```
+
+### Verificar uma pessoa (CPF)
+
+```bash
+curl "https://221b-api.sherlocker.com.br/api/v1/processos/cpf/12345678901?categorias=recuperacao-judicial,falencia&token=SEU_TOKEN"
+```
+
+### Resposta
+
+Se a empresa tiver processos nessas categorias, a resposta tera `total > 0`:
+
+```json
+{
+  "documento": "12.345.678/0001-99",
+  "tipo_documento": "CNPJ",
+  "categorias": [
+    { "slug": "recuperacao-judicial", "label": "Recuperacao Judicial" },
+    { "slug": "falencia", "label": "Falencia" }
+  ],
+  "total": 1,
+  "processos": [
+    {
+      "numero_processo": "00145992120168190052",
+      "numero_formatado": "0014599-21.2016.8.19.0052",
+      "tribunal": "tjrj",
+      "classe_nome": "Recuperacao Judicial",
+      "data_ajuizamento": "2016-12-07",
+      "orgao_julgador": "2a Vara Civel de Araruama",
+      "partes": [
+        { "nome": "Empresa Xyz Comercio Ltda", "documento": "12.345.678/0001-99", "polo": "ativo" }
+      ],
+      "advogados": [
+        { "nome": "Dr. Jose Carlos Mendes", "oab": "RJ084902" }
+      ],
+      "movimentacoes": [
+        { "data": "2016-12-07", "descricao": "Distribuido por sorteio" }
+      ]
+    }
+  ]
+}
+```
+
+## Categorias disponiveis
+
+| Categoria | Descricao |
+|-----------|-----------|
+| `recuperacao-judicial` | Recuperacoes judiciais |
+| `falencia` | Falencias |
+| `execucao-fiscal` | Execucoes fiscais |
+| `execucao` | Execucoes civeis |
+| `criminal` | Processos criminais |
+| `trabalhista` | Reclamacoes trabalhistas |
+| `civel` | Acoes civeis em geral |
+
+## Exemplo pratico: monitoramento de carteira
+
+```python
+import requests
+
+TOKEN = "SEU_TOKEN"
+BASE = "https://221b-api.sherlocker.com.br/api/v1"
+
+def verificar_carteira(cnpjs: list[str]):
+    """Verifica quais empresas da carteira estao em recuperacao ou falencia."""
+    alertas = []
+
+    for cnpj in cnpjs:
+        resp = requests.get(
+            f"{BASE}/processos/cnpj/{cnpj}",
+            params={
+                "categorias": "recuperacao-judicial,falencia",
+                "token": TOKEN,
+            },
+        )
+        data = resp.json()
+
+        if data.get("total", 0) > 0:
+            alertas.append({
+                "cnpj": cnpj,
+                "processos": data["total"],
+                "detalhes": [
+                    {
+                        "numero": p["numero_formatado"],
+                        "classe": p["classe_nome"],
+                        "tribunal": p["tribunal"],
+                    }
+                    for p in data["processos"]
+                ],
+            })
+
+    return alertas
+
+# Exemplo de uso
+carteira = ["12345678000199", "98765432000188", "11222333000144"]
+alertas = verificar_carteira(carteira)
+
+for alerta in alertas:
+    print(f"ALERTA: {alerta['cnpj']} — {alerta['processos']} processo(s)")
+    for d in alerta["detalhes"]:
+        print(f"  {d['numero']} ({d['classe']} - {d['tribunal']})")
+```
+
+<CardGroup cols={2}>
+  <Card title="Processos por CNPJ" icon="building" href="/api-reference/processos/processos-judiciais-de-uma-empresa">
+    Busca processos de uma empresa com filtro de categorias
+  </Card>
+  <Card title="Processos por CPF" icon="user" href="/api-reference/processos/processos-judiciais-de-uma-pessoa">
+    Busca processos de uma pessoa com filtro de categorias
+  </Card>
+</CardGroup>

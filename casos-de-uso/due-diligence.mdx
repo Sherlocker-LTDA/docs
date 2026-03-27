@@ -4,32 +4,29 @@ description: "Investigação completa de empresa antes de fechar negócio, fusã
 icon: "building-magnifying-glass"
 ---
 
-Antes de fechar um contrato, investir em uma empresa ou formar uma parceria, é essencial verificar a saúde jurídica, financeira e reputacional da empresa e seus sócios. O Sherlocker cruza **cadastro, compliance, processos, dívidas, trabalhista e patrimônio** em um único fluxo.
+Antes de fechar um contrato, investir em uma empresa ou formar uma parceria, é essencial verificar a saude juridica e financeira da empresa e seus socios. O Sherlocker cruza **cadastro, processos, dividas e recuperacoes judiciais** em um unico fluxo.
 
 ## O problema
 
-Uma empresa pode ter CNPJ ativo e site bonito, mas estar com dívidas bilionárias, sócios na lista de trabalho escravo, ou dezenas de execuções fiscais. Sem due diligence, você descobre tarde demais.
+Uma empresa pode ter CNPJ ativo e site bonito, mas estar em recuperacao judicial, com dividas bilionarias ou dezenas de execucoes fiscais. Sem due diligence, voce descobre tarde demais.
 
-## Dimensões verificadas
+## Dimensoes verificadas
 
 <Steps>
   <Step title="Dados cadastrais">
-    Situação na RF, capital social, porte, CNAE, sócios e quadro societário
+    Situacao na RF, capital social, porte, CNAE, socios e quadro societario
   </Step>
-  <Step title="Compliance e listas restritivas">
-    CEIS, CNEP, CEPIM, trabalho escravo, IBAMA, sanções internacionais, PEP
-  </Step>
-  <Step title="Situação financeira">
-    Dívida ativa da União, FGTS, previdenciária
+  <Step title="Recuperacao judicial e falencia">
+    Verifica se a empresa possui processos de recuperacao judicial ou falencia em andamento
   </Step>
   <Step title="Processos judiciais">
-    Ações como réu — especialmente execuções, falências e trabalhistas
+    Acoes como reu — execucoes fiscais, civeis e trabalhistas
   </Step>
-  <Step title="Trabalhista">
-    Lista de trabalho escravo, PAT (Programa de Alimentação do Trabalhador)
+  <Step title="Situacao financeira">
+    Divida ativa da Uniao, FGTS, previdenciaria
   </Step>
-  <Step title="Sócios — check individual">
-    Para cada sócio: regularidade pessoal, processos, patrimônio
+  <Step title="Socios — check individual">
+    Para cada socio: processos, dividas, patrimonio
   </Step>
 </Steps>
 
@@ -59,35 +56,33 @@ print(f"Capital: R$ {empresa.get('capital_social', 0):,.0f}")
 print(f"Socios: {len(socios)}")
 ```
 
-### Passo 2 — Compliance e financeiro
+### Passo 2 — Recuperacao judicial e falencia
 
 ```python
-with ThreadPoolExecutor(max_workers=4) as pool:
-    fut_reg = pool.submit(get, f"/regularidade/cnpj/{cnpj}")
-    fut_div = pool.submit(get, f"/dividas/cnpj/{cnpj}")
-    fut_trab = pool.submit(get, f"/trabalhista/cnpj/{cnpj}")
-    fut_proc = pool.submit(get, f"/processos/cnpj/{cnpj}")
+# Verifica se a empresa esta em recuperacao judicial ou falencia
+rj_falencia = get(
+    f"/processos/cnpj/{cnpj}",
+    categorias="recuperacao-judicial,falencia",
+)
 
-regularidade = fut_reg.result()
-dividas = fut_div.result()
-trabalhista = fut_trab.result()
-processos = fut_proc.result()
-
-# Red flags criticos
 red_flags = []
 
-if trabalhista.get("trabalho_escravo", {}).get("found"):
-    red_flags.append("TRABALHO ESCRAVO")
+if rj_falencia.get("total", 0) > 0:
+    for p in rj_falencia["processos"]:
+        classe = p.get("classe_nome", "")
+        numero = p.get("numero_formatado", "")
+        red_flags.append(f"{classe}: {numero}")
+```
 
-if regularidade.get("sancao-nacional", {}).get("found"):
-    red_flags.append("SANCAO NACIONAL (CEIS/CNEP/CEPIM)")
+### Passo 3 — Processos e dividas
 
-if regularidade.get("ibama", {}).get("found"):
-    red_flags.append("IBAMA: embargo ou infracao ambiental")
+```python
+with ThreadPoolExecutor(max_workers=3) as pool:
+    fut_proc = pool.submit(get, f"/processos/cnpj/{cnpj}")
+    fut_div = pool.submit(get, f"/dividas/cnpj/{cnpj}")
 
-total_dividas = dividas.get("valor_total", 0)
-if total_dividas > 0:
-    red_flags.append(f"Dividas: R$ {total_dividas:,.0f}")
+processos = fut_proc.result()
+dividas = fut_div.result()
 
 # Processos como reu
 processos_reu = [p for p in processos.get("processos", [])
@@ -96,28 +91,35 @@ processos_reu = [p for p in processos.get("processos", [])
 
 if len(processos_reu) > 10:
     red_flags.append(f"{len(processos_reu)} processos como reu")
+
+# Dividas
+for tipo in ["ativa_uniao", "fgts", "previdenciaria"]:
+    items = dividas.get("dividas", {}).get(tipo, [])
+    if items:
+        red_flags.append(f"{len(items)} divida(s) {tipo.replace('_', ' ')}")
 ```
 
-### Passo 3 — Check dos sócios
+### Passo 4 — Check dos socios
 
 ```python
-# Extrair CPFs dos socios (documento vem formatado, ex: "123.456.789-10")
+# Extrair CPFs dos socios
 cpfs_socios = [
     s["documento"].replace(".", "").replace("-", "").replace("/", "")
     for s in socios
     if len(s.get("documento", "").replace(".", "").replace("-", "").replace("/", "")) == 11
 ]
 
-# Check de regularidade de cada socio
+# Verificar se algum socio tem recuperacao judicial ou falencia pessoal
 for cpf in cpfs_socios:
-    reg_socio = get(f"/regularidade/cpf/{cpf}")
-    if reg_socio.get("sancao-nacional", {}).get("found"):
-        red_flags.append(f"Socio {cpf[:3]}*** em lista de sancoes nacionais (CEIS/PEP/etc)")
-    if reg_socio.get("sancao-internacional", {}).get("found"):
-        red_flags.append(f"Socio {cpf[:3]}*** em lista de sancoes internacionais")
+    proc_socio = get(
+        f"/processos/cpf/{cpf}",
+        categorias="recuperacao-judicial,falencia",
+    )
+    if proc_socio.get("total", 0) > 0:
+        red_flags.append(f"Socio {cpf[:3]}*** com processo de recuperacao/falencia")
 ```
 
-### Passo 4 — Relatório final
+### Passo 5 — Relatorio final
 
 ```python
 relatorio = {
@@ -130,13 +132,13 @@ relatorio = {
     "red_flags": red_flags,
     "risco": "ALTO" if red_flags else "BAIXO",
     "socios": len(socios),
+    "recuperacao_falencia": rj_falencia.get("total", 0),
     "processos_total": len(processos.get("processos", [])),
     "processos_como_reu": len(processos_reu),
-    "dividas_total": total_dividas,
 }
 
 if red_flags:
-    print("⚠ RED FLAGS ENCONTRADOS:")
+    print("RED FLAGS ENCONTRADOS:")
     for flag in red_flags:
         print(f"  - {flag}")
 ```
@@ -145,18 +147,15 @@ if red_flags:
 
 <CardGroup cols={3}>
   <Card title="Empresas" icon="building" href="/api-reference/empresas/perfil-completo-de-uma-empresa">
-    Cadastro, sócios, capital social
-  </Card>
-  <Card title="Regularidade" icon="shield-check" href="/api-reference/regularidade/restricoes-e-sancoes-de-uma-empresa">
-    CEIS, CNEP, IBAMA, sanções, PEP
-  </Card>
-  <Card title="Dívidas" icon="file-invoice-dollar" href="/api-reference/dividas/dividas-federais-de-uma-empresa">
-    Dívida ativa, FGTS, previdenciária
+    Cadastro, socios, capital social
   </Card>
   <Card title="Processos" icon="scale-balanced" href="/api-reference/processos/processos-judiciais-de-uma-empresa">
-    Ações judiciais da empresa
+    Acoes judiciais da empresa
   </Card>
-  <Card title="Trabalhista" icon="briefcase" href="/api-reference/trabalhista/irregularidades-trabalhistas-de-uma-empresa">
-    Trabalho escravo, PAT
+  <Card title="Recuperacoes e Falencias" icon="building-circle-exclamation" href="/guias/recuperacoes-falencias">
+    Filtro por recuperacao judicial e falencia
+  </Card>
+  <Card title="Dividas" icon="file-invoice-dollar" href="/api-reference/dividas/dividas-federais-de-uma-empresa">
+    Divida ativa, FGTS, previdenciaria
   </Card>
 </CardGroup>

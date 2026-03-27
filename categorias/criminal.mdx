@@ -1,0 +1,39 @@
+---
+title: "Criminal"
+description: "Processos criminais e acoes penais"
+icon: "handcuffs"
+---
+
+Identifique **processos criminais** de pessoas ou empresas.
+
+```bash
+curl "https://221b-api.sherlocker.com.br/api/v1/processos/cpf/{cpf}?categorias=criminal&token=SEU_TOKEN"
+```
+
+## Quando usar
+
+- **Background check** — verificar antecedentes criminais de candidatos ou socios
+- **Compliance** — identificar envolvimento em acoes penais
+- **Analise de risco** — processos criminais como reu indicam risco reputacional
+
+## Exemplo de resposta
+
+```json
+{
+  "total": 1,
+  "processos": [
+    {
+      "numero_formatado": "0001234-56.2022.8.26.0050",
+      "tribunal": "tjsp",
+      "classe_nome": "Acao Penal - Procedimento Ordinario",
+      "data_ajuizamento": "2022-03-15",
+      "orgao_julgador": "1a Vara Criminal",
+      "assuntos": "Estelionato",
+      "partes": [
+        { "nome": "Ministerio Publico do Estado de Sao Paulo", "polo": "ativo" },
+        { "nome": "Joao Silva", "polo": "passivo" }
+      ]
+    }
+  ]
+}
+```

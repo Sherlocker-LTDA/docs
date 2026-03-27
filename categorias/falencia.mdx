@@ -1,0 +1,37 @@
+---
+title: "Falencia e Insolvencia"
+description: "Processos de falencia e insolvencia"
+icon: "building-circle-xmark"
+---
+
+Identifique empresas em **falencia** ou **insolvencia** filtrando por categoria nos endpoints de processos.
+
+```bash
+curl "https://221b-api.sherlocker.com.br/api/v1/processos/cnpj/{cnpj}?categorias=falencia&token=SEU_TOKEN"
+```
+
+## Quando usar
+
+- **Risco de credito** — falencia indica risco severo de nao recebimento
+- **Cadeia de fornecedores** — verificar se algum fornecedor critico faliu
+- **Mercado imobiliario** — identificar imoveis de empresas falidas em leilao
+
+## Exemplo de resposta
+
+```json
+{
+  "total": 1,
+  "processos": [
+    {
+      "numero_formatado": "1005432-15.2021.8.26.0100",
+      "tribunal": "tjsp",
+      "classe_nome": "Falencia",
+      "data_ajuizamento": "2021-05-20",
+      "orgao_julgador": "1a Vara de Falencias e Recuperacoes Judiciais",
+      "partes": [
+        { "nome": "Distribuidora Abc Ltda", "polo": "passivo" }
+      ]
+    }
+  ]
+}
+```

@@ -225,6 +225,20 @@
             "pages": ["GET /processos/cpf/{cpf}", "GET /processos/cnpj/{cnpj}", "GET /processos/numero/{numero}"]
           },
           {
+            "group": "Categorias",
+            "openapi": "/openapi/processos.json",
+            "pages": [
+              "categorias/recuperacao-judicial",
+              "categorias/falencia",
+              "categorias/execucao-fiscal",
+              "categorias/execucao-civel",
+              "categorias/trabalhista",
+              "categorias/criminal",
+              "categorias/familia-sucessoes",
+              "GET /processos/categorias"
+            ]
+          },
+          {
             "group": "Documentos Públicos",
             "openapi": "/openapi/documentos.json",
             "pages": ["GET /documentos/busca"]

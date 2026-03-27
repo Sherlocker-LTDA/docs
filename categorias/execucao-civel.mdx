@@ -1,0 +1,39 @@
+---
+title: "Execucao Civel"
+description: "Processos de execucao civel (cobracas judiciais)"
+icon: "file-invoice-dollar"
+---
+
+Identifique **execucoes civeis** — cobracas judiciais de dividas entre particulares.
+
+```bash
+curl "https://221b-api.sherlocker.com.br/api/v1/processos/cpf/{cpf}?categorias=execucao-civel&token=SEU_TOKEN"
+```
+
+## Quando usar
+
+- **Analise de credito** — execucoes civeis indicam dividas nao pagas
+- **Cobranca** — verificar se o devedor ja tem outras execucoes em andamento
+- **Locacao** — verificar historico de execucoes antes de alugar imovel
+
+## Exemplo de resposta
+
+```json
+{
+  "total": 1,
+  "processos": [
+    {
+      "numero_formatado": "0007654-32.2022.8.19.0001",
+      "tribunal": "tjrj",
+      "classe_nome": "Execucao de Titulo Extrajudicial",
+      "data_ajuizamento": "2022-06-10",
+      "orgao_julgador": "5a Vara Civel",
+      "assuntos": "Cheque",
+      "partes": [
+        { "nome": "Banco Xyz S.A.", "polo": "ativo" },
+        { "nome": "Carlos Pereira", "polo": "passivo" }
+      ]
+    }
+  ]
+}
+```

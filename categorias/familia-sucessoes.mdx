@@ -1,0 +1,38 @@
+---
+title: "Familia e Sucessoes"
+description: "Processos de familia, divorcio, inventario e sucessoes"
+icon: "people-roof"
+---
+
+Identifique processos de **familia e sucessoes** — divorcios, inventarios, guardas e pensoes.
+
+```bash
+curl "https://221b-api.sherlocker.com.br/api/v1/processos/cpf/{cpf}?categorias=familia-sucessoes&token=SEU_TOKEN"
+```
+
+## Quando usar
+
+- **Levantamento patrimonial** — inventarios indicam patrimonio herdado
+- **Analise de vinculos** — divorcios e guardas revelam estrutura familiar
+- **Localizacao de partes** — processos de familia ajudam a mapear vinculos
+
+## Exemplo de resposta
+
+```json
+{
+  "total": 1,
+  "processos": [
+    {
+      "numero_formatado": "0009876-54.2023.8.26.0100",
+      "tribunal": "tjsp",
+      "classe_nome": "Inventario",
+      "data_ajuizamento": "2023-01-20",
+      "orgao_julgador": "3a Vara de Familia e Sucessoes",
+      "assuntos": "Inventario e Partilha",
+      "partes": [
+        { "nome": "Ana Maria Silva", "polo": "ativo" }
+      ]
+    }
+  ]
+}
+```
