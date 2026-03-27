@@ -1,10 +1,10 @@
 ---
-title: "Testes"
+title: "Testes com Postman"
 description: "Como importar a collection e testar a API no Postman"
 icon: "flask-vial"
 ---
 
-# Testando com Postman
+# Testando a API
 
 O Postman e uma das formas mais rapidas de explorar a API do Sherlocker sem escrever codigo. Disponibilizamos uma collection pronta com **todos os endpoints**, variaveis pre-configuradas e exemplos de body para requests POST.
 
@@ -12,7 +12,7 @@ O Postman e uma das formas mais rapidas de explorar a API do Sherlocker sem escr
 
 <Steps>
   <Step title="Baixar a collection">
-    Faca download do arquivo [sherlocker-postman-collection.json](/download/postman).
+    Faca download do arquivo [sherlocker-postman-collection.json](https://raw.githubusercontent.com/Sherlocker-LTDA/docs/refs/heads/main/sherlocker-postman-collection.json).
   </Step>
   <Step title="Abrir o Postman">
     Abra o [Postman](https://www.postman.com/downloads/) (desktop ou web).
@@ -28,7 +28,7 @@ O Postman e uma das formas mais rapidas de explorar a API do Sherlocker sem escr
     3. Selecione o tipo **Bearer Token**
     4. No campo **Token**, insira `{{token}}`
     5. Va na aba **Variables** e preencha o campo `token` com seu token de acesso
-    6. Clique em **Save** (Ctrl+S)
+    6. Clique em **Save** (Ctrl\+S)
   </Step>
 </Steps>
 
@@ -41,7 +41,7 @@ O Postman e uma das formas mais rapidas de explorar a API do Sherlocker sem escr
 A collection usa variaveis para facilitar os testes. Edite na aba **Variables** da collection:
 
 | Variavel | Descricao | Exemplo |
-|----------|-----------|---------|
+| --- | --- | --- |
 | `base_url` | URL base da API (ja preenchida) | `https://221b-api.sherlocker.com.br/api/v1` |
 | `token` | Seu token de acesso | `sk_live_...` |
 | `cpf` | CPF para testes | `12345678901` |
@@ -50,37 +50,11 @@ A collection usa variaveis para facilitar os testes. Edite na aba **Variables** 
 | `email` | Email para buscas reversas | `teste@empresa.com` |
 | `placa` | Placa do veiculo | `ABC1D23` |
 | `uf` | Sigla do estado | `SP` |
-| `jobId` | ID do job async (preenchido automaticamente) | — |
 | `termo` | Termo de busca para documentos | `Joao Silva` |
 
 <Tip>
   Preencha `cpf`, `cnpj` e `token` uma vez e todas as requests da collection usarao esses valores automaticamente.
 </Tip>
-
-## Estrutura da collection
-
-A collection esta organizada nas mesmas categorias da API:
-
-| Pasta | Endpoints | Descricao |
-|-------|-----------|-----------|
-| **Pessoas** | 7 | Perfil, contatos, parentes, busca reversa por telefone |
-| **Perfis Digitais** | 3 | Perfis em plataformas a partir de email |
-| **Empresas** | 7 | Dados cadastrais, socios, funcionarios, empregos |
-| **Trabalhista** | 1 | Dados trabalhistas por CNPJ |
-| **Imoveis** | 6 | Imoveis urbanos por CPF/CNPJ, com filtro por UF e modo async |
-| **Rural** | 8 | Imoveis rurais, CAFIR, fiscalizacao, transportes |
-| **Veiculos** | 3 | Veiculos por CPF, CNPJ ou placa |
-| **Aeronaves** | 2 | Aeronaves por CPF ou CNPJ |
-| **Patentes** | 2 | Propriedade intelectual por CPF ou CNPJ |
-| **Processos** | 5 | Processos judiciais com modo async |
-| **Dividas** | 2 | Divida ativa por CPF ou CNPJ |
-| **Regularidade** | 2 | Sancoes e restricoes por CPF ou CNPJ |
-| **Beneficios** | 2 | Beneficios sociais e renuncias fiscais |
-| **Bancos** | 3 | Contas bancarias com modo async |
-| **Cadastros** | 3 | Cadastros em estabelecimentos com modo async |
-| **Documentos** | 1 | Busca em diarios oficiais |
-| **Encomendas** | 1 | Encomendas por CPF |
-| **NF-e** | 2 | Notas fiscais por chave ou em lote |
 
 ## Testando sua primeira request
 
@@ -108,6 +82,7 @@ Alguns modulos (processos, perfis, bancos, cadastros, imoveis) possuem modo asyn
     Abra a request **Processos por CPF (async)** na pasta **Processos** e clique **Send**.
 
     A resposta contera um `jobId`:
+
     ```json
     {
       "job_id": "abc123-def456",
