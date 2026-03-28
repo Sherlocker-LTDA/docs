@@ -63,10 +63,11 @@
                   "$ref": "#/components/schemas/PerfilCadastralCpfResponse"
                 },
                 "example": {
-                  "cpf": "12345678901",
-                  "nome_completo": "MARIA SILVA SANTOS",
+                  "documento": "123.456.789-01",
+                  "tipo_documento": "CPF",
+                  "nome_completo": "Maria Silva Santos",
                   "genero": "Feminino",
-                  "data_nascimento": "02/01/1996",
+                  "data_nascimento": "1996-01-02",
                   "enderecos": [
                     {
                       "logradouro": "R HENRIQUE PASSINI",
@@ -98,23 +99,26 @@
                   ],
                   "parentes": [
                     {
-                      "nome": "JOAO DA SILVA",
-                      "cpf": "98765432100",
+                      "nome": "João da Silva",
+                      "documento": "987.654.321-00",
+                      "tipo_documento": "CPF",
                       "vinculo_codigo": "03",
                       "vinculo_nome": "Pai"
                     }
                   ],
                   "empresas": [
                     {
-                      "cnpj": "12345678000195",
-                      "razao_social": "EMPRESA LTDA",
-                      "nome_fantasia": "EMPRESA"
+                      "documento": "12.345.678/0001-95",
+                      "tipo_documento": "CNPJ",
+                      "razao_social": "Empresa Ltda",
+                      "nome_fantasia": "Empresa"
                     }
                   ],
                   "empregos": [
                     {
-                      "cnpj_empregador": "12.345.678/0001-95",
-                      "nome_empregador": "EMPRESA LTDA",
+                      "documento_empregador": "12.345.678/0001-95",
+                      "tipo_documento_empregador": "CNPJ",
+                      "nome_empregador": "Empresa Ltda",
                       "cargo": "ANALISTA",
                       "status": "ativo",
                       "data_admissao": "2020-03-15",
@@ -206,9 +210,10 @@
                   "$ref": "#/components/schemas/PerfilCadastralCnpjResponse"
                 },
                 "example": {
-                  "cnpj": "12345678000195",
-                  "razao_social": "TECHNOVACAO DIGITAL LTDA",
-                  "nome_fantasia": "TECHNOVACAO",
+                  "documento": "12.345.678/0001-95",
+                  "tipo_documento": "CNPJ",
+                  "razao_social": "Technovação Digital Ltda",
+                  "nome_fantasia": "Technovação",
                   "cnaes": [
                     {
                       "codigo": "6209100",
@@ -248,8 +253,9 @@
                   ],
                   "socios": [
                     {
-                      "nome": "MARIA DA SILVA",
+                      "nome": "Maria da Silva",
                       "documento": "123.456.789-01",
+                      "tipo_documento": "CPF",
                       "tipo": "Pessoa Fisica",
                       "qualificacao": "Socio-Administrador",
                       "data_entrada": "2016-01-20"
@@ -257,8 +263,9 @@
                   ],
                   "funcionarios": [
                     {
-                      "cpf": "987.654.321-00",
-                      "nome": "JOAO PEREIRA",
+                      "documento": "987.654.321-00",
+                      "tipo_documento": "CPF",
+                      "nome": "João Pereira",
                       "data_nascimento": "1995-08-10",
                       "sexo": "Masculino",
                       "cargo": "ANALISTA",
@@ -591,15 +598,16 @@
                       "data_ajuizamento": "2023-05-15",
                       "partes": [
                         {
-                          "nome": "MARIA DA SILVA",
-                          "documento": "12345678901",
+                          "nome": "Maria da Silva",
+                          "documento": "123.456.789-01",
+                          "tipo_documento": "CPF",
                           "polo": "Autor",
                           "tipo": "Fisica"
                         }
                       ],
                       "advogados": [
                         {
-                          "nome": "Dr. Jose Advogado",
+                          "nome": "Dr. José Advogado",
                           "oab": "SP123456"
                         }
                       ]
@@ -670,15 +678,16 @@
                       "data_ajuizamento": "2023-05-15",
                       "partes": [
                         {
-                          "nome": "TECHNOVACAO DIGITAL LTDA",
-                          "documento": "12345678000195",
+                          "nome": "Technovação Digital Ltda",
+                          "documento": "12.345.678/0001-95",
+                          "tipo_documento": "CNPJ",
                           "polo": "Reu",
                           "tipo": "Juridica"
                         }
                       ],
                       "advogados": [
                         {
-                          "nome": "Dr. Jose Advogado",
+                          "nome": "Dr. José Advogado",
                           "oab": "SP123456"
                         }
                       ]
@@ -754,8 +763,9 @@
                 },
                 "example": {
                   "dividas": {
-                    "documento": "12345678901",
-                    "nome": "MARIA DA SILVA",
+                    "documento": "123.456.789-01",
+                    "tipo_documento": "CPF",
+                    "nome": "Maria da Silva",
                     "total": 2,
                     "valor_total": 24150.5,
                     "ajuizado": true,
@@ -860,8 +870,9 @@
                 },
                 "example": {
                   "dividas": {
-                    "documento": "12345678901",
-                    "nome": "MARIA DA SILVA",
+                    "documento": "12.345.678/0001-95",
+                    "tipo_documento": "CNPJ",
+                    "nome": "Technovação Digital Ltda",
                     "total": 2,
                     "valor_total": 24150.5,
                     "ajuizado": true,
@@ -906,8 +917,9 @@
                   "beneficios": {
                     "renuncias_fiscais": [
                       {
-                        "cnpj": "12345678000195",
-                        "razao_social": "EMPRESA LTDA",
+                        "documento": "12.345.678/0001-95",
+                        "tipo_documento": "CNPJ",
+                        "razao_social": "Empresa Ltda",
                         "tipo_renuncia": "ISENCAO",
                         "tributo": "IRPJ",
                         "valor_renuncia": 50000.0,

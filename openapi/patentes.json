@@ -53,8 +53,14 @@
           },
           "inventores": {
             "type": "array",
-            "items": { "type": "string" },
-            "description": "Nomes dos inventores"
+            "items": {
+              "type": "object",
+              "properties": {
+                "nome": { "type": "string", "description": "Nome do inventor" },
+                "documento": { "type": "string", "nullable": true, "description": "CPF do inventor (quando encontrado)" }
+              }
+            },
+            "description": "Inventores da patente"
           },
           "procuradores": {
             "type": "array",
@@ -132,7 +138,7 @@
                         "data": "2025-12-23",
                         "complemento": null
                       },
-                      "inventores": ["GIOVANI BENEDETTI PENHA", "VITOR CAZZANTI TAMAROZI"],
+                      "inventores": [{"nome": "Giovani Benedetti Penha", "documento": null}, {"nome": "Vitor Cazzanti Tamarozi", "documento": null}],
                       "procuradores": ["P. A. PRODUTORES ASSOCIADOS MARCAS E PATENTES LTDA."]
                     }
                   ]
@@ -205,7 +211,7 @@
                         "data": "2026-02-03",
                         "complemento": null
                       },
-                      "inventores": ["GIOVANI BENEDETTI PENHA", "VITOR CAZZANTI TAMAROZI"],
+                      "inventores": [{"nome": "Giovani Benedetti Penha", "documento": null}, {"nome": "Vitor Cazzanti Tamarozi", "documento": null}],
                       "procuradores": ["P A PRODUTORES ASSOCIADOS MARCAS E PATENTES LTDA"]
                     }
                   ]

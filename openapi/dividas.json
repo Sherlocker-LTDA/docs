@@ -157,8 +157,9 @@
                   "$ref": "#/components/schemas/DividasResponse"
                 },
                 "example": {
-                  "documento": "12345678901",
-                  "nome": "FULANO DE TAL",
+                  "documento": "123.456.789-01",
+                  "tipo_documento": "CPF",
+                  "nome": "Fulano de Tal",
                   "total": 2,
                   "valor_total": 21230.5,
                   "ajuizado": true,

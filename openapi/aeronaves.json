@@ -217,7 +217,8 @@
                 "example": {
                   "avioes": [
                     {
-                      "cpf_cnpj": "12345678901",
+                      "documento": "123.456.789-01",
+                      "tipo_documento": "CPF",
                       "marca": "PT-ABC",
                       "proprietario": "João Silva",
                       "uf": "SP",
@@ -240,7 +241,8 @@
                   ],
                   "drones": [
                     {
-                      "cpf_cnpj": "12345678901",
+                      "documento": "123.456.789-01",
+                      "tipo_documento": "CPF",
                       "codigo_aeronave": "PR-DRONE123",
                       "data_validade": "2025-12-31",
                       "operador": "João Silva",
@@ -320,11 +322,12 @@
                 "example": {
                   "avioes": [
                     {
-                      "cpf_cnpj": "12345678000199",
+                      "documento": "12.345.678/0001-99",
+                      "tipo_documento": "CNPJ",
                       "marca": "PR-XYZ",
-                      "proprietario": "Silva Comércio LTDA",
+                      "proprietario": "Silva Comércio Ltda",
                       "uf": "SP",
-                      "operador": "Silva Comércio LTDA",
+                      "operador": "Silva Comércio Ltda",
                       "certificado_matricula": "67890",
                       "numero_serie": "525B-0001",
                       "categoria": "TPP",

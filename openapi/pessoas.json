@@ -441,6 +441,22 @@
           }
         }
       },
+      "Obito": {
+        "type": "object",
+        "description": "Dados do registro de obito. Presente apenas quando falecido=true.",
+        "properties": {
+          "data_obito": {
+            "type": "string",
+            "description": "Data do obito (YYYY-MM-DD)",
+            "example": "2017-07-15"
+          },
+          "cartorio": {
+            "type": "string",
+            "description": "Nome do cartorio onde o obito foi registrado",
+            "example": "Oficial do Rcpn 42 Subdistrito Jabaquara"
+          }
+        }
+      },
       "NomeResponse": {
         "type": "object",
         "properties": {
@@ -472,6 +488,15 @@
           },
           "data_nascimento": {
             "type": "string"
+          },
+          "falecido": {
+            "type": "boolean",
+            "description": "Indica se a pessoa consta como falecida na base de obitos"
+          },
+          "obito": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/Obito" }],
+            "description": "Dados do obito. null se a pessoa nao consta como falecida."
           },
           "enderecos": {
             "type": "array",
@@ -745,7 +770,17 @@
                     },
                     "data_nascimento": {
                       "type": "string",
-                      "example": "15/01/1990"
+                      "example": "1990-01-15"
+                    },
+                    "falecido": {
+                      "type": "boolean",
+                      "description": "Indica se a pessoa consta como falecida na base de obitos",
+                      "example": false
+                    },
+                    "obito": {
+                      "nullable": true,
+                      "allOf": [{ "$ref": "#/components/schemas/Obito" }],
+                      "description": "Dados do obito. null se a pessoa nao consta como falecida."
                     },
                     "parentes": {
                       "type": "array",
@@ -774,16 +809,20 @@
                   }
                 },
                 "example": {
-                  "cpf": "12345678901",
+                  "documento": "123.456.789-01",
+                  "tipo_documento": "CPF",
                   "nome_completo": "João Silva de Oliveira",
                   "genero": "Masculino",
-                  "data_nascimento": "15/01/1990",
+                  "data_nascimento": "1990-01-15",
+                  "falecido": false,
+                  "obito": null,
                   "parentes": [
                     {
                       "nome": "Maria Silva",
-                      "cpf": "98765432100",
                       "vinculo_codigo": "01",
-                      "vinculo_nome": "Cônjuge"
+                      "vinculo_nome": "Cônjuge",
+                      "documento": "987.654.321-00",
+                      "tipo_documento": "CPF"
                     }
                   ]
                 }
@@ -842,10 +881,11 @@
                   "$ref": "#/components/schemas/NomeResponse"
                 },
                 "example": {
-                  "cpf": "12345678901",
                   "nome_completo": "João Silva de Oliveira",
-                  "data_nascimento": "15/01/1990",
-                  "genero": "Masculino"
+                  "data_nascimento": "1990-01-15",
+                  "genero": "Masculino",
+                  "documento": "123.456.789-01",
+                  "tipo_documento": "CPF"
                 }
               }
             }
@@ -1134,9 +1174,10 @@
                   "parentes": [
                     {
                       "nome": "Maria Silva de Oliveira",
-                      "cpf": "98765432100",
                       "vinculo_codigo": "01",
-                      "vinculo_nome": "Cônjuge"
+                      "vinculo_nome": "Cônjuge",
+                      "documento": "987.654.321-00",
+                      "tipo_documento": "CPF"
                     }
                   ]
                 }
@@ -1279,8 +1320,8 @@
                   "$ref": "#/components/schemas/DividasResponse"
                 },
                 "example": {
-                  "documento": "12345678901",
-                  "nome": "MARIA DA SILVA",
+                  "documento": "123.456.789-01",
+                  "nome": "Maria da Silva",
                   "total": 2,
                   "valor_total": 24150.5,
                   "ajuizado": true,
@@ -1496,7 +1537,7 @@
                       },
                       "proprietario": {
                         "nome": "João Silva",
-                        "documento": "12345678901"
+                        "documento": "123.456.789-01"
                       },
                       "valoracao": {
                         "valorVenalIptu": 500000.0,
@@ -1588,13 +1629,13 @@
                       "partes": [
                         {
                           "nome": "João Silva de Oliveira",
-                          "documento": "12345678901",
+                          "documento": "123.456.789-01",
                           "polo": "Autor",
                           "tipo": "Física"
                         },
                         {
                           "nome": "Empresa X LTDA",
-                          "documento": "12345678000199",
+                          "documento": "12.345.678/0001-99",
                           "polo": "Réu",
                           "tipo": "Jurídica"
                         }
@@ -1690,7 +1731,7 @@
                       "fabricante": "DJI",
                       "tipo_uso": "Recreação",
                       "operador": "João Silva",
-                      "cpf_cnpj": "12345678901",
+                      "cpf_cnpj": "123.456.789-01",
                       "data_validade": "2025-12-31",
                       "numero_serie": "ABC123456",
                       "peso_maximo": "1.388 kg",
@@ -1836,7 +1877,7 @@
                       "modulos_fiscais": 25.0,
                       "cod_ibge": "3543402",
                       "nome_detentor": "João Silva",
-                      "cpf_cnpj": "12345678901",
+                      "cpf_cnpj": "123.456.789-01",
                       "tipo_detentor": "Proprietário",
                       "fracao": 100.0,
                       "condicao_detentor": "Proprietário"
@@ -1925,7 +1966,6 @@
                 "example": {
                   "empregos": [
                     {
-                      "cnpj_empregador": "12.345.678/0001-99",
                       "nome_empregador": "Silva Comércio LTDA",
                       "cargo": "Gerente Comercial",
                       "status": "ativo",
@@ -1959,7 +1999,9 @@
                           "dominio": "silva.com.br",
                           "corporativo": true
                         }
-                      }
+                      },
+                      "documento_empregador": "12.345.678/0001-99",
+                      "tipo_documento_empregador": "CNPJ"
                     }
                   ]
                 }
@@ -2020,7 +2062,6 @@
                 "example": {
                   "resultados": [
                     {
-                      "cpf": "12345678901",
                       "nome": "João Silva de Oliveira",
                       "telefone": {
                         "ddi": "55",
@@ -2030,7 +2071,11 @@
                         "estado": "São Paulo",
                         "operadora": "Vivo",
                         "tem_whatsapp": false
-                      }
+                      },
+                      "documento": "123.456.789-01",
+                      "tipo_documento": "CPF",
+                      "data_nascimento": "1990-01-15",
+                      "genero": "Masculino"
                     }
                   ]
                 }
@@ -2232,13 +2277,13 @@
                       "partes": [
                         {
                           "nome": "João Silva de Oliveira",
-                          "documento": "12345678901",
+                          "documento": "123.456.789-01",
                           "polo": "Autor",
                           "tipo": "Física"
                         },
                         {
                           "nome": "Empresa X LTDA",
-                          "documento": "12345678000199",
+                          "documento": "12.345.678/0001-99",
                           "polo": "Réu",
                           "tipo": "Jurídica"
                         }
@@ -2307,8 +2352,8 @@
                   "type": "object"
                 },
                 "example": {
-                  "documento": "12345678901",
-                  "nome": "MARIA DA SILVA",
+                  "documento": "123.456.789-01",
+                  "nome": "Maria da Silva",
                   "total": 2,
                   "valor_total": 24150.5,
                   "ajuizado": true,
@@ -2592,7 +2637,7 @@
                       },
                       "proprietario": {
                         "nome": "João Silva",
-                        "documento": "12345678901"
+                        "documento": "123.456.789-01"
                       },
                       "valoracao": {
                         "valorVenalIptu": 500000.0,
@@ -2690,7 +2735,7 @@
                       "fabricante": "DJI",
                       "tipo_uso": "Recreação",
                       "operador": "João Silva",
-                      "cpf_cnpj": "12345678901",
+                      "cpf_cnpj": "123.456.789-01",
                       "data_validade": "2025-12-31",
                       "numero_serie": "ABC123456",
                       "peso_maximo": "1.388 kg",
@@ -2828,7 +2873,7 @@
                       "modulos_fiscais": 25.0,
                       "cod_ibge": "3543402",
                       "nome_detentor": "João Silva",
-                      "cpf_cnpj": "12345678901",
+                      "cpf_cnpj": "123.456.789-01",
                       "tipo_detentor": "Proprietário",
                       "fracao": 100.0,
                       "condicao_detentor": "Proprietário"
@@ -2909,13 +2954,16 @@
                 "example": {
                   "resultados": [
                     {
-                      "cpf": "12345678901",
                       "nome": "João Silva de Oliveira",
                       "email": {
                         "email": "joao@gmail.com",
                         "dominio": "gmail.com",
                         "corporativo": false
-                      }
+                      },
+                      "documento": "123.456.789-01",
+                      "tipo_documento": "CPF",
+                      "data_nascimento": "1990-01-15",
+                      "genero": "Masculino"
                     }
                   ]
                 }

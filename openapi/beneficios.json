@@ -296,7 +296,8 @@
                   "total": 4,
                   "auxilio_brasil": [
                     {
-                      "cpf_favorecido": "12345678901",
+                      "documento_favorecido": "123.456.789-01",
+                      "tipo_documento_favorecido": "CPF",
                       "nis_favorecido": "12345678901",
                       "nome_favorecido": "João Silva de Oliveira",
                       "mes_competencia": "2023-01",
@@ -309,7 +310,8 @@
                   ],
                   "bolsa_familia": [
                     {
-                      "cpf_favorecido": "12345678901",
+                      "documento_favorecido": "123.456.789-01",
+                      "tipo_documento_favorecido": "CPF",
                       "nis_favorecido": "12345678901",
                       "nome_favorecido": "João Silva de Oliveira",
                       "mes_competencia": "2022-12",
@@ -322,10 +324,12 @@
                   ],
                   "auxilio_emergencial": [
                     {
-                      "cpf_beneficiario": "12345678901",
+                      "documento_beneficiario": "123.456.789-01",
+                      "tipo_documento_beneficiario": "CPF",
                       "nis_beneficiario": "12345678901",
                       "nome_beneficiario": "João Silva de Oliveira",
-                      "cpf_responsavel": "12345678901",
+                      "documento_responsavel": "123.456.789-01",
+                      "tipo_documento_responsavel": "CPF",
                       "nome_responsavel": "João Silva de Oliveira",
                       "mes_disponibilizacao": "2020-04",
                       "uf": "SP",
@@ -337,7 +341,8 @@
                   ],
                   "bpc": [
                     {
-                      "cpf_beneficiario": "12345678901",
+                      "documento_beneficiario": "123.456.789-01",
+                      "tipo_documento_beneficiario": "CPF",
                       "nis_beneficiario": "12345678901",
                       "nome_beneficiario": "João Silva de Oliveira",
                       "mes_competencia": "2023-01",
@@ -409,8 +414,9 @@
                   "empresas_imunes": [],
                   "renuncias_fiscais": [
                     {
-                      "cnpj": "12345678000199",
-                      "razao_social": "Silva Comércio LTDA",
+                      "documento": "12.345.678/0001-99",
+                      "tipo_documento": "CNPJ",
+                      "razao_social": "Silva Comércio Ltda",
                       "nome_fantasia": "Silva Store",
                       "cnae": "4729199",
                       "municipio": "São Paulo",

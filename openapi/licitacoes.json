@@ -124,7 +124,8 @@
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/LicitacoesResponse" },
                 "example": {
-                  "documento": "03916718630",
+                  "documento": "039.167.186-30",
+                  "tipo_documento": "CPF",
                   "total": 2,
                   "licitacoes": [
                     {
@@ -157,8 +158,8 @@
                       "participantes": [
                         {
                           "id": "22bda7e1-a742-4ea4-ae94-0ee84c61a166",
-                          "documento": "03916718630",
-                          "nome": "FERNANDO CAETANO MOREIRA FILHO",
+                          "documento": "039.167.186-30",
+                          "nome": "Fernando Caetano Moreira Filho",
                           "tipo": "PF",
                           "totalLicitacoes": 47
                         }

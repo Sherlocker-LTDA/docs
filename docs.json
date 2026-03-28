@@ -40,7 +40,8 @@
               "custos",
               "authentication",
               "guias/integracao-api",
-              "guias/postman"
+              "guias/postman",
+              "guias/mcp"
             ]
           },
           {

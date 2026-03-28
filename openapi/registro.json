@@ -308,7 +308,8 @@
                   "$ref": "#/components/schemas/RegistroPorCpfResponse"
                 },
                 "example": {
-                  "cpf": "12345678901",
+                  "documento": "123.456.789-01",
+                  "tipo_documento": "CPF",
                   "total": 5,
                   "registros": [
                     {

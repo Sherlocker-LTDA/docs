@@ -26,10 +26,11 @@ Uma **Pessoa** é a entidade central do Sherlocker. A partir de um CPF, você ac
 O endpoint principal `GET /pessoas/cpf/{cpf}` retorna em uma única chamada:
 
 - **Dados pessoais**: nome completo, RG, data de nascimento, sexo, CNS
+- **Óbito**: indica se a pessoa consta como falecida, com data e cartório
 - **Endereços**: histórico completo de endereços associados ao CPF
 - **Telefones**: fixos e móveis com DDD
 - **Emails**: com score de confiabilidade (0-100)
-- **Parentes**: pais, cônjuge, filhos e outros vínculos familiares
+- **Parentes**: pais, cônjuge, filhos e outros vínculos familiares (mãe extraída do registro de óbito quando ausente)
 - **IRPF**: histórico de declarações com rendimento total e imposto devido
 
 Também é possível consultar cada dimensão isoladamente para chamadas mais rápidas:
