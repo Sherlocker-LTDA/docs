@@ -10,33 +10,45 @@ Um **Veículo** representa um veículo automotor (carro, moto, caminhão, ônibu
 
 ```json
 {
-  "nome_proprietario": "Helenice Luzia Perez",
   "documento": "91805040600",
   "tipo": "PF",
+  "nome_proprietario": "HELENICE LUZIA PEREZ",
+  "ano_documento": 2025,
   "placa": "QPS0133",
   "placa_antiga": "QPS0133",
-  "placa_nova": "QPS0B33",
+  "placa_nova": "",
   "renavam": "1173451703",
   "chassi": "93YRBB005KJ664188",
   "ano_fabricacao": 2018,
   "ano_modelo": 2019,
-  "ano_documento": 2025,
-  "modelo": "RENAULT",
-  "marca": "RENAULT/KWID ZEN 10MT",
-  "combustivel": "Alcool / Gasolina",
+  "marca": "RENAULT",
+  "modelo": "KWID ZEN 10MT",
   "cor": "Branca",
-  "municipio": "Belo Horizonte",
-  "uf": "MG",
+  "combustivel": "Alcool / Gasolina",
   "tipo_veiculo": "Automovel",
-  "especie_veiculo": "Passageiro",
-  "situacao_veiculo": "S",
+  "especie_veiculo": "1",
   "potencia": "70",
   "cilindradas": "999",
   "quantidade_passageiro": "5",
+  "municipio": "Belo Horizonte",
+  "uf": "MG",
+  "situacao_veiculo": "S",
   "restricao_1": "SEM RESTRICAO",
   "restricao_2": "SEM RESTRICAO",
   "restricao_3": "SEM RESTRICAO",
-  "restricao_4": "SEM RESTRICAO"
+  "restricao_4": "SEM RESTRICAO",
+  "nacionalidade": "1",
+  "carroceria": "",
+  "tipo_montagem": "1",
+  "peso_bruto_total": "116",
+  "cap_maxima_tracao": "116",
+  "capacidade_carga": "0",
+  "motor": "B4DA402Q084089",
+  "caixa_cambio": "",
+  "situacao_chassi": "N",
+  "eixos": "2",
+  "media_preco": "",
+  "updated_at": 1774686661
 }
 ```
 
@@ -44,9 +56,10 @@ Um **Veículo** representa um veículo automotor (carro, moto, caminhão, ônibu
 
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `nome_proprietario` | string | Nome do proprietário |
 | `documento` | string | CPF ou CNPJ do proprietário |
 | `tipo` | string | `PF` ou `PJ` |
+| `nome_proprietario` | string | Nome do proprietário |
+| `ano_documento` | number | Ano do documento |
 | `placa` | string | Placa atual |
 | `placa_antiga` | string | Placa formato antigo |
 | `placa_nova` | string | Placa formato Mercosul |
@@ -54,20 +67,31 @@ Um **Veículo** representa um veículo automotor (carro, moto, caminhão, ônibu
 | `chassi` | string | Número do chassi |
 | `ano_fabricacao` | number | Ano de fabricação |
 | `ano_modelo` | number | Ano do modelo |
-| `ano_documento` | number | Ano do documento |
-| `modelo` | string | Fabricante |
-| `marca` | string | Marca e modelo completo |
-| `combustivel` | string | Tipo de combustível |
+| `marca` | string | Fabricante (ex: `RENAULT`, `FIAT`) |
+| `modelo` | string | Modelo do veículo (ex: `KWID ZEN 10MT`) |
 | `cor` | string | Cor predominante |
-| `municipio` | string | Município de registro |
-| `uf` | string | UF de registro |
+| `combustivel` | string | Tipo de combustível |
 | `tipo_veiculo` | string | `Automovel`, `Motocicleta`, `Caminhonete`, etc. |
-| `especie_veiculo` | string | `Passageiro`, `Carga`, `Misto`, etc. |
-| `situacao_veiculo` | string | Situação do veículo |
+| `especie_veiculo` | string | Espécie do veículo |
 | `potencia` | string | Potência em CV |
 | `cilindradas` | string | Cilindradas em CC |
 | `quantidade_passageiro` | string | Capacidade de passageiros |
+| `municipio` | string | Município de registro |
+| `uf` | string | UF de registro |
+| `situacao_veiculo` | string | Situação do veículo |
 | `restricao_1..4` | string | Restrições ativas ou `SEM RESTRICAO` |
+| `nacionalidade` | string | Código de nacionalidade |
+| `carroceria` | string | Tipo de carroceria |
+| `tipo_montagem` | string | Tipo de montagem |
+| `peso_bruto_total` | string | Peso bruto total (kg) |
+| `cap_maxima_tracao` | string | Capacidade máxima de tração (kg) |
+| `capacidade_carga` | string | Capacidade de carga (kg) |
+| `motor` | string | Número do motor |
+| `caixa_cambio` | string | Número da caixa de câmbio |
+| `situacao_chassi` | string | Situação do chassi (`N` = normal) |
+| `eixos` | string | Quantidade de eixos |
+| `media_preco` | string | Média de preço FIPE |
+| `updated_at` | number | Timestamp da última atualização |
 
 ## Endpoints
 
