@@ -1,0 +1,79 @@
+---
+title: "Dominio"
+description: "Dominio de internet registrado vinculado a um CPF ou CNPJ"
+icon: "globe"
+---
+
+Um **Dominio** representa um dominio de internet (website) encontrado via busca reversa WHOIS a partir dos emails associados a um CPF ou CNPJ.
+
+## Tipagem
+
+```json
+{
+  "documento": "12345678901",
+  "total": 2,
+  "dominios": [
+    {
+      "dominio": "exemplo.com.br",
+      "registrado": true,
+      "data_criacao": "2020-03-15",
+      "data_atualizacao": "2024-01-10",
+      "data_expiracao": "2025-03-15",
+      "registrador": {
+        "nome": "Registro.br",
+        "url": "https://registro.br"
+      },
+      "registrante": {
+        "nome": "Joao Silva",
+        "empresa": "Empresa Ltda",
+        "email": "joao@exemplo.com.br",
+        "telefone": "+55.1199999999",
+        "pais": "Brazil"
+      },
+      "email_origem": "joao@exemplo.com.br"
+    }
+  ]
+}
+```
+
+## Campos
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| `documento` | string | CPF ou CNPJ consultado |
+| `total` | number | Total de dominios encontrados |
+| `dominios` | array | Lista de dominios |
+
+### Dominio
+
+| Campo | Tipo | Descricao |
+|-------|------|-----------|
+| `dominio` | string | Nome do dominio (ex: `exemplo.com.br`) |
+| `registrado` | boolean | Se o dominio esta registrado atualmente |
+| `data_criacao` | string \| null | Data de criacao do registro (ISO 8601) |
+| `data_atualizacao` | string \| null | Data da ultima atualizacao do registro |
+| `data_expiracao` | string \| null | Data de expiracao do registro |
+| `registrador` | object \| null | Dados do registrador (empresa que registrou) |
+| `registrador.nome` | string \| null | Nome do registrador |
+| `registrador.url` | string \| null | URL do registrador |
+| `registrante` | object \| null | Dados do dono do dominio |
+| `registrante.nome` | string \| null | Nome do registrante |
+| `registrante.empresa` | string \| null | Empresa do registrante |
+| `registrante.email` | string \| null | Email do registrante |
+| `registrante.telefone` | string \| null | Telefone do registrante |
+| `registrante.pais` | string \| null | Pais do registrante |
+| `email_origem` | string | Email que originou a busca reversa |
+
+## Como funciona
+
+1. Busca todos os **emails** associados ao CPF/CNPJ no banco de dados
+2. Para cada email, faz uma busca reversa WHOIS via [Whoxy](https://www.whoxy.com/) para encontrar dominios registrados com aquele email
+3. Para cada dominio encontrado, busca os dados completos de WHOIS (registrador, registrante, datas)
+4. Deduplica dominios que aparecem em mais de um email
+
+## Endpoints
+
+| Rota | Descricao |
+|------|-----------|
+| `GET /dominios/cpf/{cpf}` | Dominios vinculados a emails de uma pessoa |
+| `GET /dominios/cnpj/{cnpj}` | Dominios vinculados a emails de uma empresa |
