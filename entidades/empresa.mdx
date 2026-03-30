@@ -128,6 +128,23 @@ Uma **Empresa** é identificada pelo CNPJ e representa uma pessoa jurídica regi
 | Email | `GET /empresas/email/{email}` | Empresas com esse email |
 | Telefone | `GET /empresas/telefone/{telefone}` | Empresas com esse telefone |
 
+### Paginação
+
+Os endpoints que retornam listas (`/cpf/{cpf}`, `/email/{email}`, `/telefone/{telefone}`, `/cnpj/{cnpj}/funcionarios`) suportam paginação via query params:
+
+| Parâmetro | Tipo | Padrão | Descrição |
+|-----------|------|--------|-----------|
+| `limit` | integer | 50 | Máximo de registros retornados (max 200) |
+| `offset` | integer | 0 | Número de registros a pular |
+
+```bash
+# Primeiros 10 funcionários
+curl "https://221b-api.sherlocker.com.br/api/v1/empresas/cnpj/12345678000199/funcionarios?limit=10&token=SEU_TOKEN"
+
+# Próximos 10
+curl "https://221b-api.sherlocker.com.br/api/v1/empresas/cnpj/12345678000199/funcionarios?limit=10&offset=10&token=SEU_TOKEN"
+```
+
 ## Consulte os códigos
 
 Use `GET /empresas/codigos` para listar todos os valores possíveis de naturezas jurídicas, CNAEs, qualificações de sócios, situações e portes.

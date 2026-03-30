@@ -1143,6 +1143,29 @@
               "type": "string",
               "example": "12345678000199"
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximo de registros retornados (max 200, padrao 50)",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 200,
+              "example": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Numero de registros a pular (padrao 0)",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "example": 0
+            }
           }
         ],
         "responses": {
@@ -2042,6 +2065,29 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximo de registros retornados (max 200, padrao 50)",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 200,
+              "example": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Numero de registros a pular (padrao 0)",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "example": 0
+            }
           }
         ],
         "responses": {
@@ -2120,6 +2166,29 @@
             "schema": {
               "type": "string",
               "example": "contato@empresa.com.br"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximo de registros retornados (max 200, padrao 50)",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 200,
+              "example": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Numero de registros a pular (padrao 0)",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "example": 0
             }
           }
         ],
@@ -2203,6 +2272,29 @@
             "schema": {
               "type": "string",
               "example": "11999998888"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximo de registros retornados (max 200, padrao 50)",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 200,
+              "example": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Numero de registros a pular (padrao 0)",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "example": 0
             }
           }
         ],

@@ -42,3 +42,5 @@ Um **Telefone** representa um numero telefonico associado a uma pessoa fisica. P
 |------|-----------|
 | `GET /telefones/cpf/{cpf}` | Telefones de uma pessoa |
 | `GET /pessoas/telefone/{telefone}` | Busca reversa: CPFs por telefone |
+
+A busca reversa suporta paginacao com `limit` (padrao 50, max 200) e `offset` (padrao 0) via query params.

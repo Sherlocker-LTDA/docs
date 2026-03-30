@@ -19,6 +19,15 @@ Uma **Pessoa** é a entidade central do Sherlocker. A partir de um CPF, você ac
   Se você tem apenas um telefone ou email, use a **busca reversa** para descobrir o CPF e então expandir a investigação.
 </Tip>
 
+### Paginação
+
+Os endpoints de busca reversa (`/pessoas/telefone/{telefone}`, `/pessoas/email/{email}`) suportam paginação:
+
+| Parâmetro | Tipo | Padrão | Descrição |
+|-----------|------|--------|-----------|
+| `limit` | integer | 50 | Máximo de registros retornados (max 200) |
+| `offset` | integer | 0 | Número de registros a pular |
+
 ## Dados disponíveis
 
 ### Identidade & Contatos

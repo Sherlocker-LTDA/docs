@@ -495,7 +495,11 @@
           },
           "obito": {
             "nullable": true,
-            "allOf": [{ "$ref": "#/components/schemas/Obito" }],
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Obito"
+              }
+            ],
             "description": "Dados do obito. null se a pessoa nao consta como falecida."
           },
           "enderecos": {
@@ -779,7 +783,11 @@
                     },
                     "obito": {
                       "nullable": true,
-                      "allOf": [{ "$ref": "#/components/schemas/Obito" }],
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Obito"
+                        }
+                      ],
                       "description": "Dados do obito. null se a pessoa nao consta como falecida."
                     },
                     "parentes": {
@@ -2049,6 +2057,29 @@
               "type": "string",
               "example": "11999998888"
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximo de registros retornados (max 200, padrao 50)",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 200,
+              "example": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Numero de registros a pular (padrao 0)",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "example": 0
+            }
           }
         ],
         "responses": {
@@ -2986,6 +3017,144 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enderecos/cpf/{cpf}": {
+      "get": {
+        "operationId": "getEnderecosByCpf",
+        "summary": "Enderecos por CPF",
+        "description": "Retorna todos os enderecos associados ao CPF.",
+        "tags": [
+          "Enderecos"
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF (11 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de enderecos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "documento": "123.456.789-01",
+                  "tipo_documento": "CPF",
+                  "enderecos": [
+                    {
+                      "logradouro": "Rua das Flores",
+                      "numero": "123",
+                      "complemento": "Apto 45",
+                      "bairro": "Centro",
+                      "cidade": "São Paulo",
+                      "uf": "SP",
+                      "cep": "01310-100"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enderecos/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getEnderecosByCnpj",
+        "summary": "Enderecos por CNPJ",
+        "description": "Retorna todos os enderecos dos estabelecimentos vinculados ao CNPJ.",
+        "tags": [
+          "Enderecos"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de enderecos dos estabelecimentos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "documento": "12.345.678/0001-99",
+                  "tipo_documento": "CNPJ",
+                  "enderecos": [
+                    {
+                      "logradouro": "Rua das Flores",
+                      "numero": "123",
+                      "complemento": "Apto 45",
+                      "bairro": "Centro",
+                      "cidade": "São Paulo",
+                      "uf": "SP",
+                      "cep": "01310-100"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
