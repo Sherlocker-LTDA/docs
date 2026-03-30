@@ -12,7 +12,7 @@ Uma **Licitacao** representa um processo de contratacao publica em que o CPF ou 
 {
   "id": "d6fcd05b-a94a-45ff-a1d2-91bde34ff84a",
   "id_licitacao": "0759868300017010000012026",
-  "id_pregao": "",
+  "id_pregao": null,
   "id_uasg": "2",
   "titulo": "Edital de Chamamento Publico no 2102.001-2025/2026",
   "descricao": "CREDENCIAMENTO DE LEILOEIROS OFICIAIS PARA A REALIZACAO DE LEILOES DESTINADOS A ALIENACAO DE BENS MOVEIS DA PREFEITURA MUNICIPAL DE MERUOCA/CE.",
@@ -54,7 +54,7 @@ Uma **Licitacao** representa um processo de contratacao publica em que o CPF ou 
 |-------|------|-----------|
 | `id` | string (uuid) | ID interno da licitacao |
 | `id_licitacao` | string | Numero da licitacao no sistema de origem |
-| `id_pregao` | string | Numero do pregao (se houver) |
+| `id_pregao` | string \| null | Numero do pregao (se houver) |
 | `id_uasg` | string | Codigo UASG do orgao contratante |
 | `titulo` | string | Titulo do edital |
 | `descricao` | string | Objeto da licitacao |

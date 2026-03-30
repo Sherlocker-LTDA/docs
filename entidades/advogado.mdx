@@ -13,7 +13,7 @@ Um **Advogado** representa um profissional do direito que atua como representant
 | `nome` | string | Nome completo do advogado (Title Case) |
 | `oab` | string | Número da OAB com UF (ex: `SP123456`, `RJ084902`) |
 | `polo` | string | Polo que representa (`ativo`, `passivo`, etc.) |
-| `documento` | string | CPF do advogado (pode ser vazio se não resolvido) |
+| `documento` | string \| null | CPF do advogado (pode não estar disponível) |
 
 ## Exemplo
 

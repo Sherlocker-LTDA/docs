@@ -1,0 +1,98 @@
+---
+title: "Padrão de Dados"
+description: "Convenções de formato aplicadas a todas as respostas da API"
+icon: "ruler-combined"
+---
+
+Convenções aplicadas a todas as respostas da API. Consulte a entidade específica para detalhes de cada campo.
+
+## Convenções gerais
+
+- Campos sem informação retornam `null` — a API nunca retorna string vazia `""`.
+- Booleanos são sempre `true` ou `false` (JSON padrão).
+- Códigos de estado (UF) são sempre **2 letras maiúsculas**: `SP`, `MG`, `RJ`, etc.
+
+## Datas
+
+Todas as datas são strings no formato **ISO 8601**.
+
+| Formato | Uso | Exemplo |
+|---------|-----|---------|
+| `YYYY-MM-DD` | Datas completas (nascimento, abertura, inscrição) | `"2020-03-15"` |
+| `YYYY-MM` | Mês de competência/referência (benefícios) | `"2023-01"` |
+
+## Documentos e identificadores
+
+CPF e CNPJ sempre retornam **formatados com máscara**.
+
+| Tipo | Formato | Dígitos | Exemplo |
+|------|---------|---------|---------|
+| **CPF** | `XXX.XXX.XXX-XX` | 11 | `"918.050.406-00"` |
+| **CNPJ** | `XX.XXX.XXX/XXXX-XX` | 14 | `"33.000.167/0001-01"` |
+| **CNPJ básico** | Raiz sem máscara | 8 | `"33000167"` |
+| **CEP** | `XXXXX-XXX` ou sem máscara | 8 | `"20031170"` |
+| **Número CNJ** | `NNNNNNN-DD.YYYY.J.TT.OOOO` | 20 | `"0001234-56.2020.8.26.0100"` |
+| **Chave NF-e** | String numérica | 44 | `"352103123456780001..."` |
+| **RENAVAM** | String numérica | 10+ | `"1173451703"` |
+| **Placa** | `ABC1234` (antiga) ou `ABC1D23` (Mercosul) | 7 | `"QPS0133"` |
+| **NIRF** | String numérica | variável | `"1234567"` |
+| **OAB** | UF + número | variável | `"SP123456"` |
+| **INPI** | `BR` + número | variável | `"BR102020012345"` |
+| **Chassi** | Alfanumérico | 17 | `"93YRBB005KJ664188"` |
+
+## Valores numéricos
+
+| Tipo | Formato | Exemplo |
+|------|---------|---------|
+| Monetário (R$) | `number`, 2 casas decimais, sem símbolo | `15420.50` |
+| Percentual | Decimal (0–100) | `4.2` |
+| Área (hectares/m²) | Decimal | `360.00` |
+| Score | Inteiro ou decimal (0–100) | `85` |
+
+## Telefones
+
+Formato E.164 sem `+`, decomposto em campos. Veja detalhes em [Telefone](/entidades/telefone).
+
+```json
+{
+  "ddi": "55",
+  "ddd": "31",
+  "numero": "987654321",
+  "numero_completo": "5531987654321",
+  "estado": "MG",
+  "operadora": "Vivo"
+}
+```
+
+Operadoras possíveis: `Vivo` · `Claro` · `Tim` · `Oi` · `Fixo`
+
+## Endereços
+
+Estrutura padrão reutilizada em Pessoa, Empresa e Propriedade. Veja detalhes em [Endereço](/entidades/endereco).
+
+```json
+{
+  "logradouro": "Avenida República do Chile",
+  "numero": "65",
+  "complemento": null,
+  "bairro": "Centro",
+  "cidade": "Rio de Janeiro",
+  "uf": "RJ",
+  "cep": "20031170"
+}
+```
+
+## Enumerações
+
+Valores padronizados reutilizados em múltiplas entidades.
+
+| Campo | Valores | Entidades |
+|-------|---------|-----------|
+| Tipo de documento | `CPF` · `CNPJ` · `PF` · `PJ` | Todas |
+| Sexo | `Masculino` · `Feminino` | Pessoa, Empresa (sócios) |
+| Faixa etária | `Menos de 18 anos` · `18 a 35 anos` · `35 a 60 anos` · `Mais de 60 anos` | Empresa (sócios) |
+| Situação empresa | `Ativa` · `Baixada` · `Suspensa` · `Inapta` · `Nula` | Empresa |
+| Porte empresa | `Microempresa` · `Empresa de Pequeno Porte` · `Médio ou Grande porte` | Empresa |
+| Tipo empresa | `Matriz` · `Filial` | Empresa |
+| Polo processual | `ativo` · `passivo` · `terceiro` · `interessado` | Processo |
+| Uso de propriedade | `RESIDENCIAL` · `COMERCIAL` · `INDUSTRIAL` · `TERRITORIAL` | Propriedade |

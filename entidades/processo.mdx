@@ -45,7 +45,7 @@ Um **Processo** representa um processo judicial coletado de múltiplos tribunais
   ],
   "movimentacoes": [
     { "data": "2020-06-10", "descricao": "Sentença procedente", "complemento": "Condenação em R$ 10.000,00" },
-    { "data": "2020-03-15", "descricao": "Distribuído por sorteio", "complemento": "" }
+    { "data": "2020-03-15", "descricao": "Distribuído por sorteio", "complemento": null }
   ]
 }
 ```
@@ -55,7 +55,7 @@ Um **Processo** representa um processo judicial coletado de múltiplos tribunais
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `nome` | string | Nome da parte (Title Case) |
-| `documento` | string | CPF ou CNPJ formatado (pode ser vazio) |
+| `documento` | string \| null | CPF ou CNPJ formatado |
 | `polo` | string | `ativo`, `passivo`, `terceiro`, `interessado` |
 | `tipo` | string | Tipo da parte (ex: `Física`, `Jurídica`) |
 
@@ -66,7 +66,7 @@ Um **Processo** representa um processo judicial coletado de múltiplos tribunais
 | `nome` | string | Nome do advogado (Title Case) |
 | `oab` | string | Número OAB com UF (ex: `SP123456`) |
 | `polo` | string | Polo que representa |
-| `documento` | string | CPF do advogado (pode ser vazio) |
+| `documento` | string \| null | CPF do advogado |
 
 ## Movimentação
 
@@ -74,7 +74,7 @@ Um **Processo** representa um processo judicial coletado de múltiplos tribunais
 |-------|------|-----------|
 | `data` | string | Data ISO (YYYY-MM-DD) |
 | `descricao` | string | Descrição da movimentação |
-| `complemento` | string | Complemento (pode ser vazio) |
+| `complemento` | string \| null | Complemento da movimentação |
 
 ## Filtro por categoria
 
