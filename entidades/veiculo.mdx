@@ -33,10 +33,7 @@ Um **Veículo** representa um veículo automotor (carro, moto, caminhão, ônibu
   "municipio": "Belo Horizonte",
   "uf": "MG",
   "situacao_veiculo": "S",
-  "restricao_1": "SEM RESTRICAO",
-  "restricao_2": "SEM RESTRICAO",
-  "restricao_3": "SEM RESTRICAO",
-  "restricao_4": "SEM RESTRICAO",
+  "restricoes": [],
   "nacionalidade": "1",
   "carroceria": null,
   "tipo_montagem": "1",
@@ -78,7 +75,7 @@ Um **Veículo** representa um veículo automotor (carro, moto, caminhão, ônibu
 | `municipio` | string | Município de registro |
 | `uf` | string | UF de registro |
 | `situacao_veiculo` | string | Situação do veículo |
-| `restricao_1..4` | string | Restrições ativas ou `SEM RESTRICAO` |
+| `restricoes` | string[] | Array de restrições ativas (vazio se nenhuma) |
 | `nacionalidade` | string | Código de nacionalidade |
 | `carroceria` | string \| null | Tipo de carroceria |
 | `tipo_montagem` | string | Tipo de montagem |
