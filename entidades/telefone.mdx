@@ -4,7 +4,7 @@ description: "Registro de telefone vinculado a um CPF"
 icon: "phone"
 ---
 
-Um **Telefone** representa um numero telefonico associado a uma pessoa fisica. Pode ser fixo ou movel, com identificacao de operadora e estado.
+Um **Telefone** representa um número telefônico associado a uma pessoa física. Pode ser fixo ou móvel, com identificação de operadora e estado.
 
 ## Tipagem
 
@@ -20,27 +20,27 @@ Um **Telefone** representa um numero telefonico associado a uma pessoa fisica. P
 }
 ```
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `ddi` | string | Codigo do pais (sempre `55` para Brasil) |
-| `ddd` | string | Codigo de area (2 digitos) |
-| `numero` | string | Numero sem DDD |
-| `numero_completo` | string | DDI + DDD + numero (formato E.164 sem +) |
+| `ddi` | string | Código do país (sempre `55` para Brasil) |
+| `ddd` | string | Código de área (2 dígitos) |
+| `numero` | string | Número sem DDD |
+| `numero_completo` | string | DDI + DDD + número (formato E.164 sem +) |
 | `estado` | string | UF derivada do DDD (ex: `SP`, `MG`, `RJ`) |
 | `operadora` | string | Operadora detectada: `Vivo`, `Claro`, `Tim`, `Oi`, `Fixo` |
-| `data` | string \| null | Ano de referencia do registro no formato `YYYY-01-01`, ou `null` se indisponivel |
+| `data` | string \| null | Ano de referência do registro no formato `YYYY-01-01`, ou `null` se indisponível |
 
-## Conexoes
+## Conexões
 
 - **Pessoa** — todo telefone pertence a um CPF
-- **Empresa** — empresas tem telefones comerciais (ddd1/telefone1, ddd2/telefone2)
+- **Empresa** — empresas têm telefones comerciais (ddd1/telefone1, ddd2/telefone2)
 - **Banco** — bancos podem retornar telefones vinculados a contas
 
 ## Endpoints
 
-| Rota | Descricao |
+| Rota | Descrição |
 |------|-----------|
 | `GET /telefones/cpf/{cpf}` | Telefones de uma pessoa |
 | `GET /pessoas/telefone/{telefone}` | Busca reversa: CPFs por telefone |
 
-A busca reversa suporta paginacao com `limit` (padrao 50, max 200) e `offset` (padrao 0) via query params.
+A busca reversa suporta paginação com `limit` (padrão 50, max 200) e `offset` (padrão 0) via query params.

@@ -1,39 +1,39 @@
 ---
-title: "Engine de Credito"
-description: "Motor de regras para analise de credito"
+title: "Engine de Crédito"
+description: "Motor de regras para análise de crédito"
 icon: "gears"
 ---
 
-Um **Engine** e um motor de regras configuravel que define quais validacoes sao aplicadas durante a analise de credito.
+Um **Engine** é um motor de regras configurável que define quais validações são aplicadas durante a análise de crédito.
 
 ## Campos principais
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `id` | UUID | Identificador unico |
+| `id` | UUID | Identificador único |
 | `name` | string | Nome do engine (max 100 caracteres) |
-| `description` | string | Descricao (max 500 caracteres) |
-| `isTemplate` | boolean | Se e um engine template (nao pode ser deletado) |
+| `description` | string | Descrição (max 500 caracteres) |
+| `isTemplate` | boolean | Se é um engine template (não pode ser deletado) |
 | `ruleCount` | number | Quantidade de regras configuradas |
 
 ## Regras
 
 Cada engine possui um conjunto de regras. Cada regra tem:
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `id` | string | Identificador da regra |
 | `name` | string | Nome descritivo |
-| `severity` | enum | `blocking` (impede aprovacao) ou `alert` (apenas alerta) |
-| `enabled` | boolean | Se a regra esta ativa |
+| `severity` | enum | `blocking` (impede aprovação) ou `alert` (apenas alerta) |
+| `enabled` | boolean | Se a regra está ativa |
 
-## Criacao
+## Criação
 
-Voce pode criar um engine de duas formas:
+Você pode criar um engine de duas formas:
 
-1. **Com regras customizadas** — Defina o objeto `rules` com suas configuracoes
-2. **Clonando um existente** — Use `cloneFrom` com o UUID de um engine existente
+1. **Com regras customizadas** — Defina o objeto `rules` com suas configurações.
+2. **Clonando um existente** — Use `cloneFrom` com o UUID de um engine existente.
 
 <Warning>
-  Engines template e engines referenciados por operacoes nao podem ser deletados.
+  Engines template e engines referenciados por operações não podem ser deletados.
 </Warning>

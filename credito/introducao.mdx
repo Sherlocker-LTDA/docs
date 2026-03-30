@@ -1,18 +1,18 @@
 ---
-title: "Sherlocker Credito"
-description: "Analise de credito transparente para FIDCs brasileiros"
+title: "Sherlocker Crédito"
+description: "Análise de crédito transparente para FIDCs brasileiros"
 icon: "credit-card"
 ---
 
-O **Sherlocker Credito** e o modulo de analise de credito da plataforma Sherlocker, construido sobre a API Mycroft. Ele permite que FIDCs (Fundos de Investimento em Direitos Creditorios) automatizem a analise de borderos CNAB 400 com total transparencia sobre cada regra aplicada.
+O **Sherlocker Crédito** é o módulo de análise de crédito da plataforma Sherlocker, construído sobre a API Mycroft. Ele permite que FIDCs (Fundos de Investimento em Direitos Creditórios) automatizem a análise de borderôs CNAB 400 com total transparência sobre cada regra aplicada.
 
 ## Como funciona
 
 ```mermaid
 graph LR
-    UP["📄 Upload CNAB 400"] --> OP["⚙️ Operacao"]
+    UP["📄 Upload CNAB 400"] --> OP["⚙️ Operação"]
     OP --> EN["🔧 Engine de Regras"]
-    EN --> AN["🔍 Analise"]
+    EN --> AN["🔍 Análise"]
     AN --> RE["📊 Resultado"]
 
     style UP fill:#E91E6333,stroke:#E91E63,color:#ccc
@@ -22,65 +22,65 @@ graph LR
     style RE fill:#00BCD433,stroke:#00BCD4,color:#ccc
 ```
 
-### Fluxo de analise
+### Fluxo de análise
 
 <Steps>
-  <Step title="Upload do bordero">
-    Envie o arquivo CNAB 400 remessa via `POST /credito/operacoes` com o CNPJ do cedente. Opcionalmente, inclua um ZIP com XMLs de NFe para validacao cruzada.
+  <Step title="Upload do borderô">
+    Envie o arquivo CNAB 400 remessa via `POST /credito/operacoes` com o CNPJ do cedente. Opcionalmente, inclua um ZIP com XMLs de NFe para validação cruzada.
   </Step>
   <Step title="Processamento">
-    A operacao entra em fila (`queued` → `processing`). Acompanhe o status em tempo real via `GET /credito/operacoes/{id}`.
+    A operação entra em fila (`queued` → `processing`). Acompanhe o status em tempo real via `GET /credito/operacoes/{id}`.
   </Step>
   <Step title="Resultado">
-    Quando `completed`, consulte `GET /credito/operacoes/{id}/result` para obter a arvore hierarquica completa: **Cedente → Sacados → Titulos**, cada um com suas issues detalhadas.
+    Quando `completed`, consulte `GET /credito/operacoes/{id}/result` para obter a árvore hierárquica completa: **Cedente → Sacados → Títulos**, cada um com suas issues detalhadas.
   </Step>
 </Steps>
 
 ## Conceitos principais
 
-### Operacao
+### Operação
 
-Uma operacao representa uma analise completa de um bordero. Cada operacao produz um resultado com:
+Uma operação representa uma análise completa de um borderô. Cada operação produz um resultado com:
 
-- **Cedente** — a empresa que cede os titulos
-- **Sacados** — os devedores de cada titulo
-- **Titulos** — as duplicatas/boletos individuais
-- **Issues** — violacoes de regras detectadas em cada nivel
+- **Cedente** — a empresa que cede os títulos
+- **Sacados** — os devedores de cada título
+- **Títulos** — as duplicatas/boletos individuais
+- **Issues** — violações de regras detectadas em cada nível
 
 ### Engine de Regras
 
-Um engine e um conjunto configuravel de regras que define o criterio de aprovacao. Cada regra pode ser:
+Um engine é um conjunto configurável de regras que define o critério de aprovação. Cada regra pode ser:
 
 | Severidade | Comportamento |
 |------------|---------------|
-| **blocking** | Bloqueia o titulo — impede a aprovacao |
-| **alert** | Gera alerta — nao impede a aprovacao |
+| **blocking** | Bloqueia o título — impede a aprovação |
+| **alert** | Gera alerta — não impede a aprovação |
 
-Voce pode criar engines personalizados, clonar engines existentes ou usar o template padrao.
+Você pode criar engines personalizados, clonar engines existentes ou usar o template padrão.
 
 ### Status das entidades
 
-Cada cedente, sacado e titulo recebe um status baseado nas regras aplicadas:
+Cada cedente, sacado e título recebe um status baseado nas regras aplicadas:
 
 | Status | Significado |
 |--------|-------------|
-| **approved** | Nenhuma violacao detectada |
+| **approved** | Nenhuma violação detectada |
 | **blocked** | Pelo menos uma regra bloqueante violada |
 | **alerted** | Apenas regras de alerta violadas |
 
-## Endpoints disponiveis
+## Endpoints disponíveis
 
-### Operacoes
+### Operações
 
-| Metodo | Rota | Descricao |
+| Método | Rota | Descrição |
 |--------|------|-----------|
-| `POST` | `/credito/operacoes` | Criar operacao (upload CNAB 400) |
+| `POST` | `/credito/operacoes` | Criar operação (upload CNAB 400) |
 | `GET` | `/credito/operacoes/{id}` | Consultar status |
-| `GET` | `/credito/operacoes/{id}/result` | Obter resultado da analise |
+| `GET` | `/credito/operacoes/{id}/result` | Obter resultado da análise |
 
 ### Engines
 
-| Metodo | Rota | Descricao |
+| Método | Rota | Descrição |
 |--------|------|-----------|
 | `GET` | `/credito/engines` | Listar engines |
 | `GET` | `/credito/engines/{id}` | Detalhe de um engine |
@@ -90,15 +90,15 @@ Cada cedente, sacado e titulo recebe um status baseado nas regras aplicadas:
 
 ### Perfil Agregado
 
-| Metodo | Rota | Descricao |
+| Método | Rota | Descrição |
 |--------|------|-----------|
-| `GET` | `/perfil/credito/cpf/{cpf}` | Perfil de credito por CPF |
-| `GET` | `/perfil/credito/cnpj/{cnpj}` | Perfil de credito por CNPJ |
+| `GET` | `/perfil/credito/cpf/{cpf}` | Perfil de crédito por CPF |
+| `GET` | `/perfil/credito/cnpj/{cnpj}` | Perfil de crédito por CNPJ |
 
-## Autenticacao
+## Autenticação
 
-Todos os endpoints de credito utilizam o mesmo token da API Sherlocker, passado via query parameter `token`.
+Todos os endpoints de crédito utilizam o mesmo token da API Sherlocker, passado via query parameter `token`.
 
 <Tip>
-  Para comecar, consulte `GET /credito/engines` para ver os engines disponiveis e depois crie sua primeira operacao com `POST /credito/operacoes`.
+  Para começar, consulte `GET /credito/engines` para ver os engines disponíveis e depois crie sua primeira operação com `POST /credito/operacoes`.
 </Tip>

@@ -4,7 +4,7 @@ description: "Registro de conta em plataforma digital ou rede social"
 icon: "globe"
 ---
 
-Um **Registro Digital** representa a existencia de uma conta vinculada a um email em plataformas online, redes sociais e servicos digitais.
+Um **Registro Digital** representa a existência de uma conta vinculada a um email em plataformas online, redes sociais e serviços digitais.
 
 ## Tipagem
 
@@ -24,16 +24,16 @@ Um **Registro Digital** representa a existencia de uma conta vinculada a um emai
 }
 ```
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `plataforma` | string | Nome da plataforma |
 | `existe` | boolean | Se a conta foi encontrada |
-| `username` | string | Nome de usuario |
-| `nome` | string | Nome de exibicao |
+| `username` | string | Nome de usuário |
+| `nome` | string | Nome de exibição |
 | `foto` | string | URL da foto de perfil |
 | `email_recuperacao` | string | Email vinculado (mascarado) |
 | `telefone` | string | Telefone vinculado (mascarado) |
-| `metadata` | object | Dados especificos da plataforma |
+| `metadata` | object | Dados específicos da plataforma |
 
 ## Plataformas verificadas
 
@@ -41,9 +41,9 @@ GitHub, Gravatar, Duolingo, Medium, Nike, Apple, Google, Pinterest, Vivino, Trel
 
 ## Identificador de busca
 
-O **email** e o identificador — a partir dele verificamos a existencia de conta em cada plataforma.
+O **email** é o identificador — a partir dele verificamos a existência de conta em cada plataforma.
 
-## Conexoes
+## Conexões
 
 ```mermaid
 graph LR
@@ -57,6 +57,6 @@ graph LR
 
 ## Endpoint
 
-| Rota | Descricao |
+| Rota | Descrição |
 |------|-----------|
 | `GET /perfis/email/{email}` | Registros digitais em 13 plataformas |

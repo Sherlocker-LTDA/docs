@@ -4,7 +4,7 @@ description: "Registro de email vinculado a um CPF"
 icon: "envelope"
 ---
 
-Um **Email** representa um endereco de email associado a uma pessoa fisica, com classificacao automatica entre pessoal e corporativo.
+Um **Email** representa um endereço de email associado a uma pessoa física, com classificação automática entre pessoal e corporativo.
 
 ## Tipagem
 
@@ -16,22 +16,22 @@ Um **Email** representa um endereco de email associado a uma pessoa fisica, com 
 }
 ```
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `email` | string | Endereco de email completo |
-| `dominio` | string | Dominio extraido do email |
-| `corporativo` | boolean | `false` para provedores gratuitos (Gmail, Hotmail, Yahoo, etc.), `true` para dominios proprios |
+| `email` | string | Endereço de email completo |
+| `dominio` | string | Domínio extraído do email |
+| `corporativo` | boolean | `false` para provedores gratuitos (Gmail, Hotmail, Yahoo, etc.), `true` para domínios próprios |
 
-## Conexoes
+## Conexões
 
 - **Pessoa** — todo email pertence a um CPF
-- **Empresa** — empresas tem email comercial (`correio_eletronico`)
+- **Empresa** — empresas têm email comercial (`correio_eletronico`)
 - **Perfis digitais** — emails podem ser usados para buscar perfis em plataformas (GitHub, LinkedIn, etc.)
-- **Dominios** — emails corporativos se conectam a dominios registrados
+- **Domínios** — emails corporativos se conectam a domínios registrados
 
 ## Endpoints
 
-| Rota | Descricao |
+| Rota | Descrição |
 |------|-----------|
 | `GET /emails/cpf/{cpf}` | Emails de uma pessoa |
 | `GET /emails/email/{email}` | Busca reversa: CPFs por email |

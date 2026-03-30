@@ -1,21 +1,21 @@
 ---
 title: "Quickstart"
-description: "Comece a analisar credito em 5 minutos"
+description: "Comece a analisar crédito em 5 minutos"
 icon: "rocket"
 ---
 
-# Quickstart — Sherlocker Credito
+# Quickstart — Sherlocker Crédito
 
-Siga este guia para criar sua primeira operacao de analise de credito.
+Siga este guia para criar sua primeira operação de análise de crédito.
 
-## Pre-requisitos
+## Pré-requisitos
 
 - Token da API Sherlocker (`SEU_TOKEN`)
 - Arquivo CNAB 400 remessa (`.rem` ou `.txt`)
 
-## 1. Listar engines disponiveis
+## 1. Listar engines disponíveis
 
-Primeiro, veja quais motores de regras estao disponiveis:
+Primeiro, veja quais motores de regras estão disponíveis:
 
 <CodeGroup>
 ```bash cURL
@@ -42,9 +42,9 @@ console.log(engines);
 ```
 </CodeGroup>
 
-O resultado mostra os engines com `id`, `name`, `ruleCount` e se e um `isTemplate`.
+O resultado mostra os engines com `id`, `name`, `ruleCount` e se é um `isTemplate`.
 
-## 2. Criar uma operacao
+## 2. Criar uma operação
 
 Envie o arquivo CNAB 400 com o CNPJ do cedente:
 
@@ -68,7 +68,7 @@ with open("bordero.rem", "rb") as f:
 
 result = resp.json()
 operation_id = result["operationId"]
-print(f"Operacao criada: {operation_id}")
+print(f"Operação criada: {operation_id}")
 ```
 
 ```javascript Node.js
@@ -81,12 +81,12 @@ const resp = await fetch(
   { method: "POST", body: form }
 );
 const { operationId } = await resp.json();
-console.log(`Operacao criada: ${operationId}`);
+console.log(`Operação criada: ${operationId}`);
 ```
 </CodeGroup>
 
 <Tip>
-  Opcionalmente, inclua um ZIP com XMLs de NFe no campo `xmls` para melhorar a precisao da analise.
+  Opcionalmente, inclua um ZIP com XMLs de NFe no campo `xmls` para melhorar a precisão da análise.
 </Tip>
 
 **Resposta (202):**
@@ -100,7 +100,7 @@ console.log(`Operacao criada: ${operationId}`);
 
 ## 3. Acompanhar o status
 
-Consulte o status ate que a operacao esteja `completed`:
+Consulte o status até que a operação esteja `completed`:
 
 <CodeGroup>
 ```bash cURL
@@ -124,7 +124,7 @@ while True:
 ```
 </CodeGroup>
 
-**Status possiveis:** `queued` → `processing` → `completed` / `failed`
+**Status possíveis:** `queued` → `processing` → `completed` / `failed`
 
 ## 4. Obter o resultado
 
@@ -132,10 +132,10 @@ Quando `completed`, consulte o resultado:
 
 <CodeGroup>
 ```bash cURL
-# Apenas issues (padrao)
+# Apenas issues (padrão)
 curl "https://221b-api.sherlocker.com.br/api/v1/credito/operacoes/OPERATION_ID/result?token=SEU_TOKEN"
 
-# Arvore completa
+# Árvore completa
 curl "https://221b-api.sherlocker.com.br/api/v1/credito/operacoes/OPERATION_ID/result?token=SEU_TOKEN&filter=all"
 ```
 
@@ -162,13 +162,13 @@ for issue in resultado["cedente"]["issues"]:
 **Estrutura do resultado:**
 
 ```
-Cedente (empresa que cede os titulos)
+Cedente (empresa que cede os títulos)
   ├── status: approved | blocked | alerted
   ├── issues: [ regras violadas ]
   └── Sacados (devedores)
        ├── status: approved | blocked | alerted
        ├── issues: [ regras violadas ]
-       └── Titulos (duplicatas)
+       └── Títulos (duplicatas)
             ├── status: approved | blocked | alerted
             ├── valor, dataVencimento, nfeChave
             └── issues: [ regras violadas ]
@@ -200,13 +200,13 @@ print(f"Engine criado: {engine['id']} com {engine['ruleCount']} regras")
 ```
 </CodeGroup>
 
-Depois, use o `engineId` ao criar novas operacoes para aplicar suas regras personalizadas.
+Depois, use o `engineId` ao criar novas operações para aplicar suas regras personalizadas.
 
-## Proximos passos
+## Próximos passos
 
 <CardGroup cols={2}>
-  <Card title="Operacoes" icon="file-circle-check" href="/entidades/operacao-credito">
-    Entenda a estrutura completa de uma operacao
+  <Card title="Operações" icon="file-circle-check" href="/entidades/operacao-credito">
+    Entenda a estrutura completa de uma operação
   </Card>
   <Card title="Engines" icon="gears" href="/entidades/engine-credito">
     Configure regras blocking e alert

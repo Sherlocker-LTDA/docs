@@ -1,10 +1,10 @@
 ---
-title: "Dominio"
-description: "Dominio de internet registrado vinculado a um CPF ou CNPJ"
+title: "Domínio"
+description: "Domínio de internet registrado vinculado a um CPF ou CNPJ"
 icon: "globe"
 ---
 
-Um **Dominio** representa um dominio de internet (website) encontrado via busca reversa WHOIS a partir dos emails associados a um CPF ou CNPJ.
+Um **Domínio** representa um domínio de internet (website) encontrado via busca reversa WHOIS a partir dos emails associados a um CPF ou CNPJ.
 
 ## Tipagem
 
@@ -38,30 +38,30 @@ Um **Dominio** representa um dominio de internet (website) encontrado via busca 
 
 ## Campos
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `documento` | string | CPF ou CNPJ consultado |
-| `total` | number | Total de dominios encontrados |
-| `dominios` | array | Lista de dominios |
+| `total` | number | Total de domínios encontrados |
+| `dominios` | array | Lista de domínios |
 
-### Dominio
+### Domínio
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `dominio` | string | Nome do dominio (ex: `exemplo.com.br`) |
-| `registrado` | boolean | Se o dominio esta registrado atualmente |
-| `data_criacao` | string \| null | Data de criacao do registro (ISO 8601) |
-| `data_atualizacao` | string \| null | Data da ultima atualizacao do registro |
-| `data_expiracao` | string \| null | Data de expiracao do registro |
+| `dominio` | string | Nome do domínio (ex: `exemplo.com.br`) |
+| `registrado` | boolean | Se o domínio está registrado atualmente |
+| `data_criacao` | string \| null | Data de criação do registro (ISO 8601) |
+| `data_atualizacao` | string \| null | Data da última atualização do registro |
+| `data_expiracao` | string \| null | Data de expiração do registro |
 | `registrador` | object \| null | Dados do registrador (empresa que registrou) |
 | `registrador.nome` | string \| null | Nome do registrador |
 | `registrador.url` | string \| null | URL do registrador |
-| `registrante` | object \| null | Dados do dono do dominio |
+| `registrante` | object \| null | Dados do dono do domínio |
 | `registrante.nome` | string \| null | Nome do registrante |
 | `registrante.empresa` | string \| null | Empresa do registrante |
 | `registrante.email` | string \| null | Email do registrante |
 | `registrante.telefone` | string \| null | Telefone do registrante |
-| `registrante.pais` | string \| null | Pais do registrante |
+| `registrante.pais` | string \| null | País do registrante |
 | `email_origem` | string | Email que originou a busca reversa |
 
 ## Como funciona
@@ -73,7 +73,7 @@ Um **Dominio** representa um dominio de internet (website) encontrado via busca 
 
 ## Endpoints
 
-| Rota | Descricao |
+| Rota | Descrição |
 |------|-----------|
-| `GET /dominios/cpf/{cpf}` | Dominios vinculados a emails de uma pessoa |
-| `GET /dominios/cnpj/{cnpj}` | Dominios vinculados a emails de uma empresa |
+| `GET /dominios/cpf/{cpf}` | Domínios vinculados a emails de uma pessoa |
+| `GET /dominios/cnpj/{cnpj}` | Domínios vinculados a emails de uma empresa |

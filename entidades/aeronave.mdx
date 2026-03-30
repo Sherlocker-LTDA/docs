@@ -4,7 +4,7 @@ description: "Aeronave ou drone registrado na ANAC"
 icon: "plane"
 ---
 
-Uma **Aeronave** representa uma aeronave (aviao, helicoptero) ou drone registrado na Agencia Nacional de Aviacao Civil. Sao dois subtipos com estruturas diferentes.
+Uma **Aeronave** representa uma aeronave (avião, helicóptero) ou drone registrado na Agência Nacional de Aviação Civil. São dois subtipos com estruturas diferentes.
 
 ## Tipagem — Aeronave
 
@@ -22,15 +22,15 @@ Uma **Aeronave** representa uma aeronave (aviao, helicoptero) ou drone registrad
 }
 ```
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `marca` | string | Matricula da aeronave (PT-XXX, PR-XXX, PP-XXX) |
+| `marca` | string | Matrícula da aeronave (PT-XXX, PR-XXX, PP-XXX) |
 | `fabricante` | string | Fabricante |
 | `modelo` | string | Modelo |
 | `ano_fabricacao` | string | Ano |
 | `categoria` | string | Categoria de registro |
 | `tipo` | string | `AVIAO`, `HELICOPTERO`, `PLANADOR`, etc. |
-| `proprietario` | string | Nome do proprietario |
+| `proprietario` | string | Nome do proprietário |
 | `operador` | string | Nome do operador |
 
 ## Tipagem — Drone
@@ -47,30 +47,30 @@ Uma **Aeronave** representa uma aeronave (aviao, helicoptero) ou drone registrad
 }
 ```
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `codigo_aeronave` | string | Codigo de registro |
+| `codigo_aeronave` | string | Código de registro |
 | `fabricante` | string | Fabricante |
 | `modelo` | string | Modelo |
 | `operador` | string | Operador registrado |
 | `tipo_uso` | string | `RECREATIVO`, `EXPERIMENTAL`, `COMERCIAL` |
-| `peso_maximo` | string | Peso maximo de decolagem (kg) |
+| `peso_maximo` | string | Peso máximo de decolagem (kg) |
 | `ramo_atividade` | string | Atividade declarada |
 
-## Conexoes
+## Conexões
 
 ```mermaid
 graph LR
-  A[Aeronave/Drone] --> P[Pessoa<br/>proprietario]
+  A[Aeronave/Drone] --> P[Pessoa<br/>proprietário]
   A --> E[Empresa<br/>operador]
 ```
 
-- **Pessoa** — como proprietario ou operador
+- **Pessoa** — como proprietário ou operador
 - **Empresa** — como operador comercial
 
 ## Endpoints
 
-| Rota | Descricao |
+| Rota | Descrição |
 |------|-----------|
 | `GET /aeronaves/cpf/{cpf}` | Aeronaves e drones por CPF |
 | `GET /aeronaves/cnpj/{cnpj}` | Aeronaves e drones por CNPJ |

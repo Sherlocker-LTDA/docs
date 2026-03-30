@@ -1,67 +1,67 @@
 ---
 title: "Imóvel"
-description: "Consulta de imoveis urbanos e rurais por CPF ou CNPJ"
+description: "Consulta de imóveis urbanos e rurais por CPF ou CNPJ"
 icon: "house"
 ---
 
-Um **Imovel** no Sherlocker representa um registro de propriedade, cobrindo tanto imoveis urbanos (via portais IPTU municipais) quanto rurais (SNCR, CAFIR, IBAMA).
+Um **Imóvel** no Sherlocker representa um registro de propriedade, cobrindo tanto imóveis urbanos (via portais IPTU municipais) quanto rurais (SNCR, CAFIR, IBAMA).
 
 ## Pontos de entrada
 
-| Dado disponivel | Endpoint | Resultado |
+| Dado disponível | Endpoint | Resultado |
 |----------------|----------|-----------|
-| CPF | `GET /pessoas/cpf/{cpf}/imoveis` | Imoveis urbanos da pessoa |
+| CPF | `GET /pessoas/cpf/{cpf}/imoveis` | Imóveis urbanos da pessoa |
 | CPF | `GET /pessoas/cpf/{cpf}/rural` | Perfil rural completo |
-| CNPJ | `GET /empresas/cnpj/{cnpj}/imoveis` | Imoveis da empresa |
+| CNPJ | `GET /empresas/cnpj/{cnpj}/imoveis` | Imóveis da empresa |
 | CNPJ | `GET /empresas/cnpj/{cnpj}/rural` | Rural da empresa |
 | CPF/UF | `GET /imoveis/cpf/{cpf}/{uf}` | Filtrado por estado |
 
 <Tip>
-  Na rota principal de pessoa (`GET /pessoas/cpf/{cpf}`), os imoveis ja vem incluidos nos campos `imoveis` (urbanos) e `rural`. Use as sub-rotas para consultas mais rapidas.
+  Na rota principal de pessoa (`GET /pessoas/cpf/{cpf}`), os imóveis já vêm incluídos nos campos `imoveis` (urbanos) e `rural`. Use as sub-rotas para consultas mais rápidas.
 </Tip>
 
-## Imoveis urbanos
+## Imóveis urbanos
 
-Cobertura de **1.400+ municipios** via integracao com portais IPTU.
+Cobertura de **1.400+ municípios** via integração com portais IPTU.
 
 ### Estrutura
 
-| Campo | Descricao | Exemplo |
+| Campo | Descrição | Exemplo |
 |-------|-----------|---------|
-| `id` | Identificador unico | `a1b2c3d4e5f6` |
+| `id` | Identificador único | `a1b2c3d4e5f6` |
 | `fonte` | Portal de origem | `bh`, `sp-iptu`, `poa` |
-| `sql_iptu` | Inscricao municipal | `0123456789` |
+| `sql_iptu` | Inscrição municipal | `0123456789` |
 | `localizacao.logradouro` | Rua/Avenida | `R HENRIQUE PASSINI` |
-| `localizacao.numero` | Numero | `748` |
+| `localizacao.numero` | Número | `748` |
 | `localizacao.bairro` | Bairro | `SERRA` |
 | `localizacao.cidade` | Cidade | `BELO HORIZONTE` |
 | `localizacao.uf` | Estado | `MG` |
 | `localizacao.cep` | CEP | `30220-380` |
-| `area_terreno` | Area do terreno (m2) | `360.00` |
-| `area_construida` | Area construida (m2) | `180.00` |
-| `ano_construcao` | Ano de construcao | `1995` |
-| `tipo_uso` | Uso do imovel | `RESIDENCIAL`, `COMERCIAL` |
+| `area_terreno` | Área do terreno (m2) | `360.00` |
+| `area_construida` | Área construída (m2) | `180.00` |
+| `ano_construcao` | Ano de construção | `1995` |
+| `tipo_uso` | Uso do imóvel | `RESIDENCIAL`, `COMERCIAL` |
 | `valor_venal` | Valor venal (R$) | `450000.00` |
 | `valor_iptu` | Valor do IPTU anual (R$) | `2400.00` |
 
-### Proprietario
+### Proprietário
 
-Cada imovel inclui dados do proprietario:
+Cada imóvel inclui dados do proprietário:
 - `nome` — nome conforme cadastro municipal
 - `documento` — CPF ou CNPJ
 - `tipoDocumento` — `CPF` ou `CNPJ`
 
-## Imoveis rurais
+## Imóveis rurais
 
-O perfil rural (`/cpf/{cpf}/rural`) agrega dados de multiplas fontes:
+O perfil rural (`/cpf/{cpf}/rural`) agrega dados de múltiplas fontes:
 
 | Fonte | Descricao |
 |-------|-----------|
-| **SNCR** | Sistema Nacional de Cadastro Rural (INCRA) — area, modulos fiscais, detentores |
-| **CAFIR** | Cadastro Fiscal de Imoveis Rurais (Receita Federal) — NIRF, situacao fiscal |
-| **IBAMA** | Fiscalizacao ambiental — multas, embargos, areas embargadas |
+| **SNCR** | Sistema Nacional de Cadastro Rural (INCRA) — área, módulos fiscais, detentores |
+| **CAFIR** | Cadastro Fiscal de Imóveis Rurais (Receita Federal) — NIRF, situação fiscal |
+| **IBAMA** | Fiscalização ambiental — multas, embargos, áreas embargadas |
 | **DOF** | Documento de Origem Florestal — transporte de produtos madeireiros |
-| **Produtores** | Cadastro de produtores organicos |
+| **Produtores** | Cadastro de produtores orgânicos |
 
 ## Exemplo de uso
 
@@ -85,23 +85,23 @@ for im in imoveis:
     print(f"  Area: {im.get('area_terreno', 0)} m2 terreno, {im.get('area_construida', 0)} m2 construido")
 ```
 
-## Estrategia de levantamento patrimonial
+## Estratégia de levantamento patrimonial
 
-1. **Pessoa alvo** — buscar imoveis urbanos + rurais por CPF
-2. **Parentes** — repetir para conjuge e filhos (imoveis podem estar em nome de familiares)
-3. **Empresas** — buscar imoveis dos CNPJs onde a pessoa e socia
-4. **Cruzamento** — comparar enderecos de moradia com enderecos de propriedade
+1. **Pessoa alvo** — buscar imóveis urbanos + rurais por CPF
+2. **Parentes** — repetir para cônjuge e filhos (imóveis podem estar em nome de familiares)
+3. **Empresas** — buscar imóveis dos CNPJs onde a pessoa é sócia
+4. **Cruzamento** — comparar endereços de moradia com endereços de propriedade
 
 <Info>
-  Consultas de imoveis podem levar alguns segundos por dependerem de portais municipais. Para consultas em lote, use `?enrich=true` para incluir dados de leilao e Caixa Economica.
+  Consultas de imóveis podem levar alguns segundos por dependerem de portais municipais. Para consultas em lote, use `?enrich=true` para incluir dados de leilão e Caixa Econômica.
 </Info>
 
 <CardGroup cols={2}>
   <Card title="Urbanos por CPF" icon="user" href="/api-reference/imoveis/imoveis-urbanos-de-uma-pessoa">
-    Imoveis urbanos de pessoa fisica
+    Imóveis urbanos de pessoa física
   </Card>
   <Card title="Urbanos por CNPJ" icon="building" href="/api-reference/imoveis/imoveis-urbanos-de-uma-empresa">
-    Imoveis urbanos de pessoa juridica
+    Imóveis urbanos de pessoa jurídica
   </Card>
   <Card title="Rural por CPF" icon="tractor" href="/api-reference/rural/perfil-rural-de-uma-pessoa">
     Perfil rural completo

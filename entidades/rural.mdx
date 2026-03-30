@@ -1,101 +1,101 @@
 ---
 title: "Rural"
-description: "Propriedades rurais, fiscalizacao ambiental e transporte florestal"
+description: "Propriedades rurais, fiscalização ambiental e transporte florestal"
 icon: "tractor"
 ---
 
-O modulo **Rural** do Sherlocker agrega dados de propriedades rurais, fiscalizacao ambiental e transporte de produtos florestais a partir de multiplas fontes federais.
+O módulo **Rural** do Sherlocker agrega dados de propriedades rurais, fiscalização ambiental e transporte de produtos florestais a partir de múltiplas fontes federais.
 
 ## Pontos de entrada
 
-| Dado disponivel | Endpoint | Resultado |
+| Dado disponível | Endpoint | Resultado |
 |----------------|----------|-----------|
 | CPF | `GET /rural/cpf/{cpf}` | Perfil rural completo |
 | CNPJ | `GET /rural/cnpj/{cnpj}` | Perfil rural da empresa |
-| Codigo SNCR | `GET /rural/imovel/{codigo}` | Imovel rural por codigo |
-| Codigo IBGE | `GET /rural/municipio/{codIbge}` | Imoveis por municipio |
-| NIRF | `GET /rural/cafir/{nirf}` | Imovel CAFIR por NIRF |
+| Código SNCR | `GET /rural/imovel/{codigo}` | Imóvel rural por código |
+| Código IBGE | `GET /rural/municipio/{codIbge}` | Imóveis por município |
+| NIRF | `GET /rural/cafir/{nirf}` | Imóvel CAFIR por NIRF |
 
 <Tip>
-  Na rota principal de pessoa (`GET /pessoas/cpf/{cpf}`), o campo `rural` ja vem incluido com o perfil completo. Use `/rural/cpf/{cpf}` quando precisar apenas dos dados rurais.
+  Na rota principal de pessoa (`GET /pessoas/cpf/{cpf}`), o campo `rural` já vem incluído com o perfil completo. Use `/rural/cpf/{cpf}` quando precisar apenas dos dados rurais.
 </Tip>
 
 ## Fontes de dados
 
 ### SNCR — Sistema Nacional de Cadastro Rural (INCRA)
 
-Cadastro oficial de imoveis rurais do Brasil.
+Cadastro oficial de imóveis rurais do Brasil.
 
-| Campo | Descricao |
+| Campo | Descrição |
 |-------|-----------|
-| `codigo_imovel` | Codigo unico do imovel no SNCR |
+| `codigo_imovel` | Código único do imóvel no SNCR |
 | `nome_imovel` | Nome da propriedade |
-| `municipio` / `uf` | Localizacao |
-| `area_total` | Area total em hectares |
-| `modulos_fiscais` | Quantidade de modulos fiscais |
-| `nome_detentor` | Nome do proprietario/detentor |
+| `municipio` / `uf` | Localização |
+| `area_total` | Área total em hectares |
+| `modulos_fiscais` | Quantidade de módulos fiscais |
+| `nome_detentor` | Nome do proprietário/detentor |
 | `cpf_cnpj` | Documento do detentor |
-| `fracao` | Percentual de participacao (%) |
-| `condicao_detentor` | Proprietario, arrendatario, etc. |
+| `fracao` | Percentual de participação (%) |
+| `condicao_detentor` | Proprietário, arrendatário, etc. |
 
-### CAFIR — Cadastro Fiscal de Imoveis Rurais (Receita Federal)
+### CAFIR — Cadastro Fiscal de Imóveis Rurais (Receita Federal)
 
-Cadastro tributario vinculado ao ITR (Imposto Territorial Rural).
+Cadastro tributário vinculado ao ITR (Imposto Territorial Rural).
 
-| Campo | Descricao |
+| Campo | Descrição |
 |-------|-----------|
-| `nirf` | Numero do Imovel na Receita Federal |
-| `area_total` | Area total em hectares |
+| `nirf` | Número do Imóvel na Receita Federal |
+| `area_total` | Área total em hectares |
 | `situacao` | Ativo, cancelado, etc. |
-| `imune_isento` | Se e imune ou isento de ITR |
-| `codigo_sncr` | Vinculo com o SNCR |
+| `imune_isento` | Se é imune ou isento de ITR |
+| `codigo_sncr` | Vínculo com o SNCR |
 
-### Fiscalizacao ambiental (IBAMA)
+### Fiscalização ambiental (IBAMA)
 
-Autos de infracao, multas e embargos ambientais.
+Autos de infração, multas e embargos ambientais.
 
-| Campo | Descricao |
+| Campo | Descrição |
 |-------|-----------|
-| `numero_auto` | Numero do auto de infracao |
-| `tipo_auto` | Tipo (embargo, multa, apreensao) |
-| `descricao_dano` | Descricao do dano ambiental |
-| `area_embargada` | Area embargada em hectares |
+| `numero_auto` | Número do auto de infração |
+| `tipo_auto` | Tipo (embargo, multa, apreensão) |
+| `descricao_dano` | Descrição do dano ambiental |
+| `area_embargada` | Área embargada em hectares |
 | `valor_multa` | Valor da multa (R$) |
-| `situacao_debito` | Pago, em cobranca, etc. |
+| `situacao_debito` | Pago, em cobrança, etc. |
 
 ### DOF — Transporte Florestal
 
-Guias de transporte de produtos florestais (madeira, carvao, etc.).
+Guias de transporte de produtos florestais (madeira, carvão, etc.).
 
-| Campo | Descricao |
+| Campo | Descrição |
 |-------|-----------|
 | `produto` | Tipo de produto florestal |
 | `volume` | Volume transportado |
-| `valor_total` | Valor total da operacao |
+| `valor_total` | Valor total da operação |
 | `remetente` / `destinatario` | Partes envolvidas |
 
-### Produtores organicos
+### Produtores orgânicos
 
-Cadastro nacional de produtores organicos.
+Cadastro nacional de produtores orgânicos.
 
-| Campo | Descricao |
+| Campo | Descrição |
 |-------|-----------|
 | `nome_produtor` | Nome do produtor |
-| `escopo` | Escopo da certificacao |
+| `escopo` | Escopo da certificação |
 | `atividade` | Tipo de atividade |
-| `situacao` | Status da certificacao |
+| `situacao` | Status da certificação |
 
 ## Perfil rural completo
 
 A rota `GET /rural/cpf/{cpf}` retorna um perfil agregado com:
 
-- **Propriedades SNCR** — todos os imoveis rurais vinculados
-- **Propriedades CAFIR** — cadastro fiscal vinculado aos codigos SNCR
-- **Transportes** — resumo de operacoes florestais com volume, valor e parceiros
-- **Autorizacoes** — autorizacoes de exploracao florestal (AUTEX)
-- **Infracoes** — autos de infracao do IBAMA
-- **Produtor organico** — certificacoes ativas
-- **Resumo** — area total, quantidade de imoveis, valor total de multas, estados
+- **Propriedades SNCR** — todos os imóveis rurais vinculados
+- **Propriedades CAFIR** — cadastro fiscal vinculado aos códigos SNCR
+- **Transportes** — resumo de operações florestais com volume, valor e parceiros
+- **Autorizações** — autorizações de exploração florestal (AUTEX)
+- **Infrações** — autos de infração do IBAMA
+- **Produtor orgânico** — certificações ativas
+- **Resumo** — área total, quantidade de imóveis, valor total de multas, estados
 
 ## Exemplo de uso
 
@@ -124,10 +124,10 @@ imoveis = requests.get(f"{BASE}/rural/municipio/3106200", params={"token": TOKEN
   <Card title="Por CNPJ" icon="building" href="/api-reference/rural/perfil-rural-por-cnpj">
     Perfil rural da empresa
   </Card>
-  <Card title="Por municipio" icon="map" href="/api-reference/rural/imoveis-por-municipio">
-    Imoveis rurais do municipio
+  <Card title="Por município" icon="map" href="/api-reference/rural/imoveis-por-municipio">
+    Imóveis rurais do município
   </Card>
-  <Card title="Fiscalizacao" icon="shield" href="/api-reference/rural/fiscalizacao-ambiental">
-    Infracoes IBAMA
+  <Card title="Fiscalização" icon="shield" href="/api-reference/rural/fiscalizacao-ambiental">
+    Infrações IBAMA
   </Card>
 </CardGroup>

@@ -6,9 +6,9 @@ icon: "code"
 
 # Sherlocker SDK
 
-O `@sherlocker/sdk` e o client oficial em TypeScript/JavaScript para a API do Sherlocker. Oferece tipagem completa, polling automatico para modulos async e uma API fluente orientada a entidades.
+O `@sherlocker/sdk` é o client oficial em TypeScript/JavaScript para a API do Sherlocker. Oferece tipagem completa, polling automático para módulos async e uma API fluente orientada a entidades.
 
-## Instalacao
+## Instalação
 
 <CodeGroup>
 
@@ -30,7 +30,7 @@ pnpm add @sherlocker/sdk
   Requer Node.js 18+ (usa `fetch` nativo).
 </Info>
 
-## Configuracao
+## Configuração
 
 ```typescript
 import Sherlocker from '@sherlocker/sdk';
@@ -40,14 +40,14 @@ const sherlocker = new Sherlocker({
 });
 ```
 
-| Parametro   | Tipo       | Padrao                              | Descricao                      |
+| Parâmetro   | Tipo       | Padrão                              | Descrição                      |
 |-------------|------------|-------------------------------------|--------------------------------|
-| `api_token` | `string`   | —                                   | Token de acesso (obrigatorio)  |
+| `api_token` | `string`   | —                                   | Token de acesso (obrigatório)  |
 | `base_url`  | `string`   | `https://221b-api.sherlocker.com.br/api/v1`    | URL base da API                |
 | `timeout`   | `number`   | `30000`                             | Timeout em ms                  |
 
 <Warning>
-  Nunca exponha seu token em codigo client-side ou repositorios publicos. Use variaveis de ambiente.
+  Nunca exponha seu token em código client-side ou repositórios públicos. Use variáveis de ambiente.
 </Warning>
 
 ```typescript
@@ -58,7 +58,7 @@ const sherlocker = new Sherlocker({
 
 ## Formas de uso
 
-O SDK oferece tres formas de acessar os modulos, do mais recomendado ao mais flexivel:
+O SDK oferece três formas de acessar os módulos, do mais recomendado ao mais flexível:
 
 ### 1. Entity-first (recomendado)
 
@@ -103,79 +103,79 @@ const dados = await sherlocker.modulos.veiculo.dados({ placa: 'ABC1D23' });
 const status = await sherlocker.modulos.pessoa.telefones.status({ cpf: '12345678900' });
 ```
 
-### 3. Generico (dinamico)
+### 3. Genérico (dinâmico)
 
-Para quando o tipo do modulo e determinado em runtime:
+Para quando o tipo do módulo é determinado em runtime:
 
 ```typescript
 const resultado = await sherlocker.executeModule('phones', '12345678900');
 const check = await sherlocker.checkModule('phones', '12345678900');
 ```
 
-## Modulos disponiveis
+## Módulos disponíveis
 
 ### Pessoa (CPF)
 
-| Metodo | Descricao | Tokens |
+| Método | Descrição | Tokens |
 |--------|-----------|--------|
 | `buscarInfo()` | Perfil completo (nome, RG, nascimento) | 0 |
 | `buscarTelefones()` | Telefones vinculados | 1 |
 | `buscarEmails()` | Emails vinculados | 1 |
-| `buscarEnderecos()` | Enderecos historicos | 1 |
-| `buscarBancos()` | Contas bancarias | 1 |
-| `buscarDocumentos()` | Documentos publicos | 1 |
-| `buscarIrregularidades()` | Sancoes e restricoes | 1 |
-| `buscarPessoasRelacionadas()` | Parentes e vinculos | 2 |
+| `buscarEnderecos()` | Endereços históricos | 1 |
+| `buscarBancos()` | Contas bancárias | 1 |
+| `buscarDocumentos()` | Documentos públicos | 1 |
+| `buscarIrregularidades()` | Sanções e restrições | 1 |
+| `buscarPessoasRelacionadas()` | Parentes e vínculos | 2 |
 | `buscarRelacionamentos()` | Rede de relacionamentos | 0 |
-| `buscarEmpresasSocio()` | Empresas onde e socio | 0 |
+| `buscarEmpresasSocio()` | Empresas onde é sócio | 0 |
 | `buscarEmpresasRelacionadas()` | Empresas relacionadas | 2 |
-| `buscarHistoricoEmpregos()` | Historico profissional | 0 |
-| `buscarVeiculos()` | Veiculos registrados | 0 |
+| `buscarHistoricoEmpregos()` | Histórico profissional | 0 |
+| `buscarVeiculos()` | Veículos registrados | 0 |
 | `buscarAeronaves()` | Aeronaves e drones | 0 |
-| `buscarDominios()` | Dominios registrados | 2 |
+| `buscarDominios()` | Domínios registrados | 2 |
 | `buscarRedesSociais()` | Perfis em redes sociais | 5 |
 | `buscarVazamentos()` | Dados vazados | 5 |
 | `buscarProcessos()` | Processos judiciais | 17 |
-| `buscarDividas()` | Divida ativa | 5 |
+| `buscarDividas()` | Dívida ativa | 5 |
 | `buscarProtestos()` | Protestos (Cenprot) | 5 |
-| `buscarLicitacoes()` | Licitacoes | 3 |
-| `buscarBeneficiosGoverno()` | Beneficios sociais | 3 |
-| `buscarPropriedadesRurais()` | Imoveis rurais | 10 |
+| `buscarLicitacoes()` | Licitações | 3 |
+| `buscarBeneficiosGoverno()` | Benefícios sociais | 3 |
+| `buscarPropriedadesRurais()` | Imóveis rurais | 10 |
 | `buscarRegistroEstabelecimentos()` | Comportamento de consumo | 5 |
 
 ### Empresa (CNPJ)
 
-| Metodo | Descricao | Tokens |
+| Método | Descrição | Tokens |
 |--------|-----------|--------|
 | `buscarInfo()` | Dados cadastrais RF | 0 |
-| `buscarSocios()` | Quadro societario | 0 |
-| `buscarFuncionariosPat()` | Funcionarios (PAT) | 3 |
+| `buscarSocios()` | Quadro societário | 0 |
+| `buscarFuncionariosPat()` | Funcionários (PAT) | 3 |
 | `buscarRendaImpostos()` | Renda e impostos | 3 |
-| `buscarHistoricoEmpresa()` | Historico de alteracoes | 2 |
+| `buscarHistoricoEmpresa()` | Histórico de alterações | 2 |
 | `buscarTelefones()` | Telefones | 1 |
 | `buscarEmails()` | Emails | 1 |
-| `buscarEnderecos()` | Enderecos | 1 |
-| `buscarDominios()` | Dominios | 2 |
+| `buscarEnderecos()` | Endereços | 1 |
+| `buscarDominios()` | Domínios | 2 |
 | `buscarProcessos()` | Processos judiciais | 17 |
-| `buscarDividas()` | Divida ativa | 5 |
+| `buscarDividas()` | Dívida ativa | 5 |
 | `buscarProtestos()` | Protestos | 5 |
-| `buscarLicitacoes()` | Licitacoes | 3 |
-| `buscarIrregularidades()` | Sancoes e restricoes | 1 |
-| `buscarDocumentos()` | Documentos publicos | 1 |
-| `buscarBancos()` | Contas bancarias | 1 |
+| `buscarLicitacoes()` | Licitações | 3 |
+| `buscarIrregularidades()` | Sanções e restrições | 1 |
+| `buscarDocumentos()` | Documentos públicos | 1 |
+| `buscarBancos()` | Contas bancárias | 1 |
 | `buscarRedesSociais()` | Redes sociais | 5 |
 | `buscarVazamentos()` | Dados vazados | 5 |
 
-### Veiculo (Placa)
+### Veículo (Placa)
 
-| Metodo | Descricao | Tokens |
+| Método | Descrição | Tokens |
 |--------|-----------|--------|
-| `buscarDados()` | Dados do veiculo | 0 |
-| `buscarProprietarios()` | Proprietarios | 0 |
+| `buscarDados()` | Dados do veículo | 0 |
+| `buscarProprietarios()` | Proprietários | 0 |
 
-## Opcoes de execucao
+## Opções de execução
 
-Todos os metodos `buscar*()` aceitam um objeto de opcoes:
+Todos os métodos `buscar*()` aceitam um objeto de opções:
 
 ```typescript
 const telefones = await pessoa.buscarTelefones({
@@ -187,12 +187,12 @@ const telefones = await pessoa.buscarTelefones({
 ```
 
 <Tip>
-  Modulos como `processos`, `redesSociais` e `protestos` sao async — por padrao o SDK faz polling automatico ate obter o resultado. Use `poll: false` se quiser gerenciar o polling manualmente.
+  Módulos como `processos`, `redesSociais` e `protestos` são async — por padrão o SDK faz polling automático até obter o resultado. Use `poll: false` se quiser gerenciar o polling manualmente.
 </Tip>
 
 ## Tratamento de erros
 
-O SDK lanca erros tipados que voce pode capturar especificamente:
+O SDK lança erros tipados que você pode capturar especificamente:
 
 ```typescript
 import Sherlocker, {
@@ -296,7 +296,7 @@ async function dueDiligence(cnpj: string) {
 
 ## CLI
 
-O SDK inclui um CLI para testes rapidos no terminal:
+O SDK inclui um CLI para testes rápidos no terminal:
 
 ```bash
 # Configurar token
@@ -317,10 +317,10 @@ npx sherlocker execute-all pessoa 12345678900
 
 ## MCP Server
 
-O SDK tambem funciona como servidor [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) para integrar o Sherlocker com LLMs como Claude:
+O SDK também funciona como servidor [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) para integrar o Sherlocker com LLMs como Claude:
 
 ```bash
 npx sherlocker mcp stdio
 ```
 
-Isso expoe os modulos como tools MCP (`investigar_telefones`, `investigar_processos`, etc.) que agentes de IA podem chamar automaticamente.
+Isso expõe os módulos como tools MCP (`investigar_telefones`, `investigar_processos`, etc.) que agentes de IA podem chamar automaticamente.

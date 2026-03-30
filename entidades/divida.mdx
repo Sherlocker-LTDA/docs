@@ -1,10 +1,10 @@
 ---
 title: "Dívida"
-description: "Divida inscrita na divida ativa federal"
+description: "Dívida inscrita na dívida ativa federal"
 icon: "file-invoice-dollar"
 ---
 
-Uma **Divida** representa uma inscricao na divida ativa federal. Existem tres tipos: Divida Ativa da Uniao, FGTS e Previdenciaria. Inscricoes com o mesmo `numero_inscricao` sao agrupadas como historico de uma unica divida.
+Uma **Dívida** representa uma inscrição na dívida ativa federal. Existem três tipos: Dívida Ativa da União, FGTS e Previdenciária. Inscrições com o mesmo `numero_inscricao` são agrupadas como histórico de uma única dívida.
 
 ## Tipagem
 
@@ -39,54 +39,54 @@ Uma **Divida** representa uma inscricao na divida ativa federal. Existem tres ti
 
 ### Campos da resposta
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `documento` | string | CPF ou CNPJ consultado |
-| `nome` | string\|null | Nome ou razao social do devedor |
-| `total` | integer | Total de inscricoes encontradas |
+| `nome` | string\|null | Nome ou razão social do devedor |
+| `total` | integer | Total de inscrições encontradas |
 | `valor_total` | number | Soma dos valores atuais em R$ |
-| `ajuizado` | boolean | True se ao menos uma divida foi ajuizada |
-| `dividas` | array | Lista de dividas (ver abaixo) |
+| `ajuizado` | boolean | True se ao menos uma dívida foi ajuizada |
+| `dividas` | array | Lista de dívidas (ver abaixo) |
 
-### Campos de cada divida
+### Campos de cada dívida
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `numero_inscricao` | string | Numero da inscricao na divida ativa |
+| `numero_inscricao` | string | Número da inscrição na dívida ativa |
 | `fonte` | string | `ativa_uniao`, `fgts` ou `previdenciaria` |
 | `receita` | string\|null | Tipo de tributo (IRPF, CSLL, FGTS, etc.) |
 | `ajuizado` | boolean | Se foi ajuizado judicialmente |
-| `data_inscricao` | string\|null | Data da inscricao mais recente |
+| `data_inscricao` | string\|null | Data da inscrição mais recente |
 | `valor_atual` | number\|null | Valor consolidado mais recente em R$ |
 | `uf` | string\|null | UF do devedor |
-| `unidade_responsavel` | string\|null | Unidade responsavel pela inscricao |
-| `entidade_responsavel` | string\|null | Entidade responsavel (somente FGTS) |
-| `historico` | array | Historico de situacoes para o mesmo numero de inscricao |
+| `unidade_responsavel` | string\|null | Unidade responsável pela inscrição |
+| `entidade_responsavel` | string\|null | Entidade responsável (somente FGTS) |
+| `historico` | array | Histórico de situações para o mesmo número de inscrição |
 
 ## Tipos
 
-| Tipo | Descricao |
+| Tipo | Descrição |
 |------|-----------|
-| **Ativa da Uniao** | Tributos federais (IR, CSLL, PIS, COFINS) |
-| **FGTS** | Dividas do Fundo de Garantia |
-| **Previdenciaria** | Contribuicoes previdenciarias (INSS) |
+| **Ativa da União** | Tributos federais (IR, CSLL, PIS, COFINS) |
+| **FGTS** | Dívidas do Fundo de Garantia |
+| **Previdenciária** | Contribuições previdenciárias (INSS) |
 
-## Conexoes
+## Conexões
 
 ```mermaid
 graph LR
-  D[Divida] --> P[Pessoa<br/>devedor]
+  D[Dívida] --> P[Pessoa<br/>devedor]
   D --> E[Empresa<br/>devedor]
-  D --> PR[Processo<br/>execucao fiscal]
+  D --> PR[Processo<br/>execução fiscal]
 ```
 
 - **Pessoa** — como devedor (CPF)
 - **Empresa** — como devedor (CNPJ)
-- **Processo** — dividas ajuizadas geram execucoes fiscais
+- **Processo** — dívidas ajuizadas geram execuções fiscais
 
 ## Endpoints
 
-| Rota | Descricao |
+| Rota | Descrição |
 |------|-----------|
-| `GET /dividas/cpf/{cpf}` | Dividas por CPF |
-| `GET /dividas/cnpj/{cnpj}` | Dividas por CNPJ |
+| `GET /dividas/cpf/{cpf}` | Dívidas por CPF |
+| `GET /dividas/cnpj/{cnpj}` | Dívidas por CNPJ |

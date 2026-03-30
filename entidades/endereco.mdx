@@ -1,10 +1,10 @@
 ---
 title: "Endereço"
-description: "Registro de endereco vinculado a um CPF"
+description: "Registro de endereço vinculado a um CPF ou CNPJ"
 icon: "location-dot"
 ---
 
-Um **Endereco** representa um local de residencia ou correspondencia associado a uma pessoa fisica. Enderecos quebrados (sem cidade, CEP zerado) sao filtrados automaticamente.
+Um **Endereço** representa um local de residência, correspondência ou estabelecimento comercial associado a um CPF ou CNPJ. Endereços quebrados (sem cidade, CEP zerado) são filtrados automaticamente.
 
 ## Tipagem
 
@@ -20,25 +20,32 @@ Um **Endereco** representa um local de residencia ou correspondencia associado a
 }
 ```
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `logradouro` | string | Rua, avenida, etc. |
-| `numero` | string | Numero do imovel |
+| `numero` | string | Número do imóvel |
 | `complemento` | string | Apartamento, bloco, sala |
 | `bairro` | string | Bairro |
 | `cidade` | string | Cidade |
 | `uf` | string | Estado (2 letras) |
 | `cep` | string | CEP formatado (XXXXX-XXX) |
 
-## Filtros automaticos
+## Filtros automáticos
 
 A API filtra automaticamente:
-- Enderecos com CEP `00000-000` e sem logradouro
-- Enderecos sem cidade ou UF
-- Duplicatas (mesmo CEP + logradouro + numero + bairro)
+- Endereços com CEP `00000-000` e sem logradouro
+- Endereços sem cidade ou UF
+- Duplicatas (mesmo CEP + logradouro + número + bairro)
 
-## Conexoes
+## Rotas
 
-- **Pessoa** — enderecos pertencem a um CPF
-- **Empresa** — empresas tem endereco cadastral
-- **Imovel** — enderecos podem ser cruzados com imoveis para confirmar propriedade
+| Rota | Descrição |
+|------|-----------|
+| `GET /enderecos/cpf/{cpf}` | Endereços de um CPF |
+| `GET /enderecos/cnpj/{cnpj}` | Endereços de todos os estabelecimentos de um CNPJ |
+
+## Conexões
+
+- **Pessoa** — endereços pertencem a um CPF
+- **Empresa** — todos os estabelecimentos do CNPJ (matriz + filiais)
+- **Imóvel** — endereços podem ser cruzados com imóveis para confirmar propriedade

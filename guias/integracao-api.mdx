@@ -4,9 +4,9 @@ description: "Como integrar diretamente com a API REST do Sherlocker"
 icon: "plug"
 ---
 
-# Integracao via API REST
+# Integração via API REST
 
-Integre diretamente com a API REST do Sherlocker usando qualquer linguagem ou ferramenta HTTP. Nenhuma biblioteca adicional e necessaria.
+Integre diretamente com a API REST do Sherlocker usando qualquer linguagem ou ferramenta HTTP. Nenhuma biblioteca adicional é necessária.
 
 ## Base URL
 
@@ -14,9 +14,9 @@ Integre diretamente com a API REST do Sherlocker usando qualquer linguagem ou fe
 https://221b-api.sherlocker.com.br/api/v1
 ```
 
-Autenticacao via Bearer token — veja [Autenticacao](/authentication) para detalhes.
+Autenticação via Bearer token — veja [Autenticação](/authentication) para detalhes.
 
-## Primeira requisicao
+## Primeira requisição
 
 ### cURL
 
@@ -73,9 +73,9 @@ $data = json_decode($response, true);
 echo $data['nome_completo'];
 ```
 
-## Padrao de resposta
+## Padrão de resposta
 
-As respostas sao objetos JSON diretos — sem wrapper `success`/`results`. Cada endpoint retorna os dados no formato do recurso consultado. Exemplo para `/pessoas/cpf/{cpf}`:
+As respostas são objetos JSON diretos — sem wrapper `success`/`results`. Cada endpoint retorna os dados no formato do recurso consultado. Exemplo para `/pessoas/cpf/{cpf}`:
 
 ```json
 {
@@ -104,11 +104,11 @@ Em caso de erro, a resposta segue o formato:
 
 ## Erros
 
-| Status HTTP | Descricao | Acao |
+| Status HTTP | Descrição | Ação |
 |-------------|-----------|------|
-| `401` | Token ausente ou invalido | Verifique seu token |
+| `401` | Token ausente ou inválido | Verifique seu token |
 | `402` | Tokens insuficientes | Recarregue seu saldo |
-| `404` | Recurso nao encontrado | Verifique CPF/CNPJ |
+| `404` | Recurso não encontrado | Verifique CPF/CNPJ |
 | `429` | Rate limit atingido | Aguarde e tente novamente |
 | `500` | Erro interno | Contate o suporte |
 
@@ -166,7 +166,7 @@ async function investigarPessoa(cpf, token) {
 
 ## Endpoints async
 
-Modulos demorados (processos, perfis, bancos, cadastros) oferecem modo async:
+Módulos demorados (processos, perfis, bancos, cadastros) oferecem modo async:
 
 ```bash
 # 1. Inicia o job
@@ -212,7 +212,7 @@ def executar_async(endpoint: str, cpf: str, token: str):
 
 | Plano | Limite |
 |-------|--------|
-| Padrao | 60 requests/minuto |
+| Padrão | 60 requests/minuto |
 
 Ao atingir o limite, a API retorna `429 Too Many Requests`. Implemente backoff exponencial:
 
@@ -231,6 +231,6 @@ def request_with_retry(url, headers, max_retries=3):
 
         return response.json()
 
-    raise Exception("Rate limit excedido apos retentativas")
+    raise Exception("Rate limit excedido após tentativas")
 ```
 

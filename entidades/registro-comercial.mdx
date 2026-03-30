@@ -1,10 +1,10 @@
 ---
 title: "Registro Comercial"
-description: "Cadastros em lojas, farmacias, fidelidade e historico de encomendas"
+description: "Cadastros em lojas, farmácias, fidelidade e histórico de encomendas"
 icon: "store"
 ---
 
-Um **Registro Comercial** representa a existencia de cadastro ou atividade de consumo vinculada a um CPF — inclui contas em lojas, farmacias, programas de fidelidade e historico de encomendas.
+Um **Registro Comercial** representa a existência de cadastro ou atividade de consumo vinculada a um CPF — inclui contas em lojas, farmácias, programas de fidelidade e histórico de encomendas.
 
 ## Tipagem — Cadastro
 
@@ -20,23 +20,23 @@ Um **Registro Comercial** representa a existencia de cadastro ou atividade de co
 }
 ```
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `plataforma` | string | Nome da loja ou servico |
+| `plataforma` | string | Nome da loja ou serviço |
 | `existe` | boolean | Se o cadastro foi encontrado |
 | `telefone` | string | Telefone vinculado (pode ser mascarado) |
 | `email` | string | Email vinculado (pode ser mascarado) |
-| `metadata` | object | Dados adicionais (fidelidade, preferencias, etc.) |
+| `metadata` | object | Dados adicionais (fidelidade, preferências, etc.) |
 
 ## Plataformas verificadas
 
-Drogasil, Drogaraia, Carrefour, Atacadao, Petz, Fastshop, Livelo.
+Drogasil, Drogaraia, Carrefour, Atacadão, Petz, Fastshop, Livelo.
 
 ## Identificador de busca
 
-O **CPF** e o identificador — verificamos cadastros e encomendas vinculadas ao documento.
+O **CPF** é o identificador — verificamos cadastros e encomendas vinculadas ao documento.
 
-## Conexoes
+## Conexões
 
 ```mermaid
 graph LR
@@ -47,17 +47,17 @@ graph LR
 ```
 
 - **Pessoa** — cadastros verificados por CPF
-- **Telefone / Email** — registros comerciais frequentemente revelam contatos nao encontrados em outras fontes
+- **Telefone / Email** — registros comerciais frequentemente revelam contatos não encontrados em outras fontes
 
 ## Valor investigativo
 
-- **Descobrir contatos ocultos** — farmacias e lojas guardam telefones e emails de cadastro
-- **Confirmar atividade** — encomendas recentes confirmam endereco e atividade da pessoa
-- **Mapear habitos** — tipo de loja indica perfil de consumo
+- **Descobrir contatos ocultos** — farmácias e lojas guardam telefones e emails de cadastro
+- **Confirmar atividade** — encomendas recentes confirmam endereço e atividade da pessoa
+- **Mapear hábitos** — tipo de loja indica perfil de consumo
 
 ## Endpoints
 
-| Rota | Descricao |
+| Rota | Descrição |
 |------|-----------|
-| `GET /cadastros/cpf/{cpf}` | Cadastros em 7 lojas e farmacias |
-| `GET /encomendas/cpf/{cpf}` | Historico de encomendas |
+| `GET /cadastros/cpf/{cpf}` | Cadastros em 7 lojas e farmácias |
+| `GET /encomendas/cpf/{cpf}` | Histórico de encomendas |

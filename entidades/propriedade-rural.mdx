@@ -1,10 +1,10 @@
 ---
 title: "Propriedade Rural"
-description: "Propriedade rural com dados fundiarios, fiscais e ambientais"
+description: "Propriedade rural com dados fundiários, fiscais e ambientais"
 icon: "tractor"
 ---
 
-Uma **Propriedade Rural** representa uma propriedade rural registrada nos cadastros federais. Os dados sao agregados de multiplas fontes (INCRA, Receita Federal, IBAMA) em uma unica entidade.
+Uma **Propriedade Rural** representa uma propriedade rural registrada nos cadastros federais. Os dados são agregados de múltiplas fontes (INCRA, Receita Federal, IBAMA) em uma única entidade.
 
 ## Tipagem
 
@@ -25,52 +25,52 @@ Uma **Propriedade Rural** representa uma propriedade rural registrada nos cadast
 }
 ```
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `codigo_imovel` | string | Codigo no SNCR (INCRA) |
+| `codigo_imovel` | string | Código no SNCR (INCRA) |
 | `nome_imovel` | string | Nome da propriedade |
-| `municipio` / `uf` | string | Localizacao |
-| `area_total` | number | Area em hectares |
-| `modulos_fiscais` | number | Tamanho em modulos fiscais do municipio |
-| `nome_detentor` | string | Nome do proprietario/detentor |
+| `municipio` / `uf` | string | Localização |
+| `area_total` | number | Área em hectares |
+| `modulos_fiscais` | number | Tamanho em módulos fiscais do município |
+| `nome_detentor` | string | Nome do proprietário/detentor |
 | `cpf_cnpj` | string | Documento do detentor |
-| `fracao` | number | Percentual de participacao (%) |
+| `fracao` | number | Percentual de participação (%) |
 | `condicao_detentor` | string | `PROPRIETARIO`, `ARRENDATARIO`, `POSSEIRO`, etc. |
-| `nirf` | string | Numero na Receita Federal (CAFIR) |
+| `nirf` | string | Número na Receita Federal (CAFIR) |
 | `situacao_fiscal` | string | Status fiscal (`ATIVO`, `CANCELADO`) |
 
 ## Dados ambientais vinculados
 
-Imoveis rurais podem ter vinculados:
+Imóveis rurais podem ter vinculados:
 
-- **Infracoes ambientais** — multas, embargos e apreensoes do IBAMA
-- **Autorizacoes florestais** — licencas de exploracao (AUTEX)
-- **Transportes florestais** — guias de transporte de madeira/carvao (DOF)
+- **Infrações ambientais** — multas, embargos e apreensões do IBAMA
+- **Autorizações florestais** — licenças de exploração (AUTEX)
+- **Transportes florestais** — guias de transporte de madeira/carvão (DOF)
 
-## Conexoes
+## Conexões
 
 ```mermaid
 graph LR
-  IR[Imovel Rural] --> P[Pessoa<br/>detentor]
+  IR[Imóvel Rural] --> P[Pessoa<br/>detentor]
   IR --> E[Empresa<br/>detentor]
-  IR --> F[Infracao<br/>IBAMA]
+  IR --> F[Infração<br/>IBAMA]
   IR --> T[Transporte<br/>DOF]
   P --> IR
 ```
 
 - **Pessoa** — como detentor (CPF)
 - **Empresa** — como detentor (CNPJ)
-- **Infracoes** — multas e embargos ambientais vinculados ao imovel ou detentor
-- **Transportes** — operacoes de transporte florestal vinculadas ao detentor
+- **Infrações** — multas e embargos ambientais vinculados ao imóvel ou detentor
+- **Transportes** — operações de transporte florestal vinculadas ao detentor
 
 ## Endpoints
 
-| Rota | Descricao |
+| Rota | Descrição |
 |------|-----------|
-| `GET /rural/cpf/{cpf}` | Perfil rural completo (todos os imoveis + infracoes + transportes) |
+| `GET /rural/cpf/{cpf}` | Perfil rural completo (todos os imóveis + infrações + transportes) |
 | `GET /rural/cnpj/{cnpj}` | Perfil rural da empresa |
-| `GET /rural/imovel/{codigo}` | Imovel por codigo SNCR |
-| `GET /rural/municipio/{codIbge}` | Imoveis de um municipio |
-| `GET /rural/cafir/{nirf}` | Imovel por NIRF |
-| `GET /rural/fiscalizacao/{cpf}` | Infracoes ambientais |
+| `GET /rural/imovel/{codigo}` | Imóvel por código SNCR |
+| `GET /rural/municipio/{codIbge}` | Imóveis de um município |
+| `GET /rural/cafir/{nirf}` | Imóvel por NIRF |
+| `GET /rural/fiscalizacao/{cpf}` | Infrações ambientais |
 | `GET /rural/transportes/{cpf}` | Transportes florestais |

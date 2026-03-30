@@ -1,20 +1,20 @@
 ---
 title: "Introdução"
-description: "Sherlocker: Plataforma de Inteligencia Investigativa"
+description: "Sherlocker: Plataforma de Inteligência Investigativa"
 icon: "house"
 ---
 
-Plataforma de inteligencia investigativa que conecta dados de pessoas, empresas, patrimonio, processos judiciais e dezenas de outras fontes em uma API unificada.
+Plataforma de inteligência investigativa que conecta dados de pessoas, empresas, patrimônio, processos judiciais e dezenas de outras fontes em uma API unificada.
 
 ## Tipos de entidade
 
-Os dados do Sherlocker sao organizados em **3 categorias**. Cada categoria agrupa entidades do mesmo dominio:
+Os dados do Sherlocker são organizados em **3 categorias**. Cada categoria agrupa entidades do mesmo domínio:
 
 ```mermaid
 graph LR
     CAD["👤 Cadastral"]
     PAT["🏠 Patrimonial"]
-    JUR["⚖️ Juridico"]
+    JUR["⚖️ Jurídico"]
 
     CAD --> PAT
     CAD --> JUR
@@ -26,13 +26,13 @@ graph LR
 
 | Categoria | Entidades | Identificadores |
 |-----------|-----------|----------------|
-| **Cadastral** | Pessoa, Empresa, Telefone, Email, Endereco, Divida, Beneficio Social, Nota Fiscal | CPF, CNPJ, Chave NF-e |
-| **Patrimonial** | Propriedade Urbana, Propriedade Rural, Veiculo, Aeronave, Patente | CPF, CNPJ, Placa, NIRF |
-| **Juridico** | Processo | CPF, CNPJ, Numero CNJ |
+| **Cadastral** | Pessoa, Empresa, Telefone, Email, Endereço, Dívida, Benefício Social, Nota Fiscal | CPF, CNPJ, Chave NF-e |
+| **Patrimonial** | Propriedade Urbana, Propriedade Rural, Veículo, Aeronave, Patente | CPF, CNPJ, Placa, NIRF |
+| **Jurídico** | Processo | CPF, CNPJ, Número CNJ |
 
 ## Entidades
 
-Cada entidade representa um tipo de registro com sua propria estrutura. Clique para ver a tipagem completa:
+Cada entidade representa um tipo de registro com sua própria estrutura. Clique para ver a tipagem completa:
 
 ### Cadastrais
 
@@ -47,16 +47,16 @@ Cada entidade representa um tipo de registro com sua propria estrutura. Clique p
     DDD, operadora, estado
   </Card>
   <Card title="Email" icon="envelope" href="/entidades/email">
-    Dominio, corporativo
+    Domínio, corporativo
   </Card>
-  <Card title="Endereco" icon="location-dot" href="/entidades/endereco">
+  <Card title="Endereço" icon="location-dot" href="/entidades/endereco">
     Logradouro, cidade, CEP
   </Card>
-  <Card title="Divida" icon="file-invoice-dollar" href="/entidades/divida">
-    Divida Ativa, FGTS
+  <Card title="Dívida" icon="file-invoice-dollar" href="/entidades/divida">
+    Dívida Ativa, FGTS
   </Card>
-  <Card title="Beneficio" icon="hand-holding-dollar" href="/entidades/beneficio">
-    Auxilio Brasil, BPC
+  <Card title="Benefício" icon="hand-holding-dollar" href="/entidades/beneficio">
+    Auxílio Brasil, BPC
   </Card>
   <Card title="Nota Fiscal" icon="file-invoice" href="/entidades/nfe">
     NF-e por chave de acesso
@@ -67,16 +67,16 @@ Cada entidade representa um tipo de registro com sua propria estrutura. Clique p
 
 <CardGroup cols={3}>
   <Card title="Propriedade Urbana" icon="house" href="/entidades/propriedade-urbana">
-    IPTU, area, valor venal
+    IPTU, área, valor venal
   </Card>
   <Card title="Propriedade Rural" icon="tractor" href="/entidades/propriedade-rural">
     SNCR, CAFIR, IBAMA
   </Card>
-  <Card title="Veiculo" icon="car" href="/entidades/veiculo">
+  <Card title="Veículo" icon="car" href="/entidades/veiculo">
     Placa, marca, modelo
   </Card>
   <Card title="Aeronave" icon="plane" href="/entidades/aeronave">
-    Avioes e drones
+    Aviões e drones
   </Card>
   <Card title="Propriedade Intelectual" icon="lightbulb" href="/entidades/patente">
     Propriedade intelectual
@@ -87,17 +87,17 @@ Cada entidade representa um tipo de registro com sua propria estrutura. Clique p
 
 <CardGroup cols={2}>
   <Card title="Processo" icon="gavel" href="/entidades/processo">
-    Numero CNJ, tribunal, partes
+    Número CNJ, tribunal, partes
   </Card>
-  <Card title="Documento Publico" icon="file-lines" href="/entidades/documento">
-    Diario Oficial, publicacoes
+  <Card title="Documento Público" icon="file-lines" href="/entidades/documento">
+    Diário Oficial, publicações
   </Card>
 </CardGroup>
 
 
 ## Perfis agregados
 
-Os **perfis** sao endpoints que combinam multiplas entidades de uma categoria em uma unica chamada. Em vez de consultar veiculos, imoveis e patentes separadamente, use o perfil patrimonial para obter tudo de uma vez:
+Os **perfis** são endpoints que combinam múltiplas entidades de uma categoria em uma única chamada. Em vez de consultar veículos, imóveis e patentes separadamente, use o perfil patrimonial para obter tudo de uma vez:
 
 <CardGroup cols={2}>
   <Card title="Perfil Cadastral" icon="users" href="/areas/contatos">
@@ -111,11 +111,11 @@ Os **perfis** sao endpoints que combinam multiplas entidades de uma categoria em
   </Card>
 </CardGroup>
 
-Todos os perfis tambem aceitam CNPJ para consultas de empresas.
+Todos os perfis também aceitam CNPJ para consultas de empresas.
 
 ## Como as entidades se conectam
 
-A **Pessoa** (CPF) e a **Empresa** (CNPJ) sao as entidades centrais — todas as outras se vinculam a elas:
+A **Pessoa** (CPF) e a **Empresa** (CNPJ) são as entidades centrais — todas as outras se vinculam a elas:
 
 ```mermaid
 graph LR
@@ -148,33 +148,33 @@ graph LR
 |---|---|---|
 | Telefone | CPFs associados | `GET /pessoas/telefone/{telefone}` |
 | Email | CPFs associados | `GET /emails/email/{email}` |
-| Placa | Proprietario | `GET /veiculos/placa/{placa}` |
+| Placa | Proprietário | `GET /veiculos/placa/{placa}` |
 | CPF do socio | Empresas | `GET /empresas/cpf/{cpf}` |
 
 ## Casos de uso
 
 <CardGroup cols={2}>
   <Card title="Background Check" icon="shield-check" href="/casos-de-uso/background-check">
-    Verificacao de antecedentes cruzando 7 dimensoes
+    Verificação de antecedentes cruzando 7 dimensões
   </Card>
   <Card title="Enriquecimento de Leads" icon="bullseye-arrow" href="/casos-de-uso/enriquecimento-leads">
     Telefone ou email para perfil completo
   </Card>
   <Card title="Due Diligence" icon="building-magnifying-glass" href="/casos-de-uso/due-diligence">
-    Investigacao completa antes de fechar negocio
+    Investigação completa antes de fechar negócio
   </Card>
   <Card title="Levantamento Patrimonial" icon="landmark" href="/casos-de-uso/levantamento-patrimonial">
-    Localizar bens para penhora e execucao judicial
+    Localizar bens para penhora e execução judicial
   </Card>
-  <Card title="Localizacao de Partes" icon="magnifying-glass-location" href="/casos-de-uso/localizacao-partes">
-    Encontrar endereco e telefone para citacao judicial
+  <Card title="Localização de Partes" icon="magnifying-glass-location" href="/casos-de-uso/localizacao-partes">
+    Encontrar endereço e telefone para citação judicial
   </Card>
   <Card title="Scoring de Renda" icon="chart-pyramid" href="/casos-de-uso/segmentacao-patrimonial">
     Classificar contatos por faixa de renda
   </Card>
 </CardGroup>
 
-## Comecando
+## Começando
 
 ### Base URL
 
@@ -182,7 +182,7 @@ graph LR
 https://221b-api.sherlocker.com.br/api/v1
 ```
 
-Consulte [Autenticacao](/authentication) para configurar seu token.
+Consulte [Autenticação](/authentication) para configurar seu token.
 
 ### Importar no Postman
 
@@ -195,8 +195,8 @@ Consulte [Autenticacao](/authentication) para configurar seu token.
     Ou veja o guia completo em [Testando com Postman](/guias/postman).
   </Step>
   <Step title="Configurar token">
-    Collection Sherlocker API, aba Variables, preencha `token`
+    Collection Sherlocker API, aba Variables, preencha `token`.
   </Step>
 </Steps>
 
-A collection esta organizada em 4 pastas: Perfis Agregados, Cadastro, Patrimonio e Juridico.
+A collection está organizada em 4 pastas: Perfis Agregados, Cadastro, Patrimônio e Jurídico.

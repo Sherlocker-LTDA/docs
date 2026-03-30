@@ -4,7 +4,7 @@ description: "NF-e consultada por chave de acesso"
 icon: "file-invoice"
 ---
 
-Uma **Nota Fiscal Eletronica (NF-e)** representa um documento fiscal emitido eletronicamente, consultado atraves da chave de acesso de 44 digitos junto a SEFAZ.
+Uma **Nota Fiscal Eletrônica (NF-e)** representa um documento fiscal emitido eletronicamente, consultado através da chave de acesso de 44 dígitos junto à SEFAZ.
 
 ## Tipagem
 
@@ -37,19 +37,19 @@ Uma **Nota Fiscal Eletronica (NF-e)** representa um documento fiscal emitido ele
 }
 ```
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `chave` | string | Chave de acesso (44 digitos) |
-| `numero` | string | Numero da NF-e |
-| `serie` | string | Serie |
-| `data_emissao` | string | Data de emissao |
+| `chave` | string | Chave de acesso (44 dígitos) |
+| `numero` | string | Número da NF-e |
+| `serie` | string | Série |
+| `data_emissao` | string | Data de emissão |
 | `valor_total` | number | Valor total em R$ |
-| `emitente` | object | CNPJ e razao social do emissor |
-| `destinatario` | object | CNPJ/CPF e nome do destinatario |
-| `itens` | array | Produtos/servicos da nota |
+| `emitente` | object | CNPJ e razão social do emissor |
+| `destinatario` | object | CNPJ/CPF e nome do destinatário |
+| `itens` | array | Produtos/serviços da nota |
 | `situacao` | string | `AUTORIZADA`, `CANCELADA`, `DENEGADA` |
 
-## Conexoes
+## Conexões
 
 ```mermaid
 graph LR
@@ -59,11 +59,11 @@ graph LR
 ```
 
 - **Empresa emitente** — quem emitiu a nota (CNPJ)
-- **Destinatario** — quem recebeu (CNPJ ou CPF)
+- **Destinatário** — quem recebeu (CNPJ ou CPF)
 
 ## Endpoints
 
-| Rota | Descricao |
+| Rota | Descrição |
 |------|-----------|
 | `GET /nfe/chave/{chave}` | Consultar NF-e por chave de acesso |
-| `POST /nfe/lote` | Consultar multiplas NF-e em lote |
+| `POST /nfe/lote` | Consultar múltiplas NF-e em lote |

@@ -1,10 +1,10 @@
 ---
-title: "Operacao de Credito"
-description: "Operacao de analise de credito via Mycroft API"
+title: "Operação de Crédito"
+description: "Operação de análise de crédito via Mycroft API"
 icon: "file-circle-check"
 ---
 
-Uma **Operacao** representa uma analise de credito de um bordero CNAB 400. Cada operacao passa por filas de processamento e produz um resultado hierarquico com regras aplicadas.
+Uma **Operação** representa uma análise de crédito de um borderô CNAB 400. Cada operação passa por filas de processamento e produz um resultado hierárquico com regras aplicadas.
 
 ## Ciclo de vida
 
@@ -14,37 +14,37 @@ criada → queued → processing → completed / failed
 
 ## Campos principais
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `operationId` | UUID | Identificador unico da operacao |
+| `operationId` | UUID | Identificador único da operação |
 | `status` | enum | `queued`, `processing`, `completed`, `failed` |
 | `engineId` | UUID | Motor de regras utilizado |
 | `fileName` | string | Nome do arquivo CNAB enviado |
-| `tituloCount` | number | Total de titulos processados |
-| `approvedCount` | number | Titulos aprovados |
-| `blockedCount` | number | Titulos bloqueados |
-| `alertCount` | number | Titulos com alerta |
+| `tituloCount` | number | Total de títulos processados |
+| `approvedCount` | number | Títulos aprovados |
+| `blockedCount` | number | Títulos bloqueados |
+| `alertCount` | number | Títulos com alerta |
 
-## Resultado da analise
+## Resultado da análise
 
-O resultado segue uma arvore hierarquica:
+O resultado segue uma árvore hierárquica:
 
 ```
-Cedente (empresa que cede os titulos)
+Cedente (empresa que cede os títulos)
   └── Sacados (devedores)
-       └── Titulos (duplicatas/boletos)
+       └── Títulos (duplicatas/boletos)
             └── Issues (regras violadas)
 ```
 
 ### Status de cada entidade
 
-- **approved** — Sem violacoes
+- **approved** — Sem violações
 - **blocked** — Regra bloqueante violada
 - **alerted** — Regra de alerta violada
 
-### Issues (violacoes)
+### Issues (violações)
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `ruleId` | string | ID da regra |
 | `ruleName` | string | Nome da regra |
@@ -57,9 +57,9 @@ Cedente (empresa que cede os titulos)
 
 ### Summary
 
-| Campo | Descricao |
+| Campo | Descrição |
 |-------|-----------|
-| `totalTitulos` | Total de titulos |
+| `totalTitulos` | Total de títulos |
 | `approved` / `blocked` / `alerted` | Contagem por status |
-| `totalValue` / `approvedValue` / `blockedValue` / `alertedValue` | Valores monetarios |
+| `totalValue` / `approvedValue` / `blockedValue` / `alertedValue` | Valores monetários |
 | `sacados.total` / `sacados.withIssues` | Contagem de sacados |

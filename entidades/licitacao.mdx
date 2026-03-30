@@ -1,10 +1,10 @@
 ---
 title: "Licitação"
-description: "Licitacao publica e participacao em processos de contratacao governamental"
+description: "Licitação pública e participação em processos de contratação governamental"
 icon: "gavel"
 ---
 
-Uma **Licitacao** representa um processo de contratacao publica em que o CPF ou CNPJ participou como fornecedor, conforme registrado no PNCP.
+Uma **Licitação** representa um processo de contratação pública em que o CPF ou CNPJ participou como fornecedor, conforme registrado no PNCP.
 
 ## Tipagem
 
@@ -50,44 +50,44 @@ Uma **Licitacao** representa um processo de contratacao publica em que o CPF ou 
 
 ## Campos
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `id` | string (uuid) | ID interno da licitacao |
-| `id_licitacao` | string | Numero da licitacao no sistema de origem |
-| `id_pregao` | string \| null | Numero do pregao (se houver) |
-| `id_uasg` | string | Codigo UASG do orgao contratante |
-| `titulo` | string | Titulo do edital |
-| `descricao` | string | Objeto da licitacao |
+| `id` | string (uuid) | ID interno da licitação |
+| `id_licitacao` | string | Número da licitação no sistema de origem |
+| `id_pregao` | string \| null | Número do pregão (se houver) |
+| `id_uasg` | string | Código UASG do órgão contratante |
+| `titulo` | string | Título do edital |
+| `descricao` | string | Objeto da licitação |
 | `fonte` | string | Fonte dos dados (`PNCP`) |
-| `modalidade` | string | Modalidade de contratacao (ex: `Pregao Eletronico`, `Credenciamento`) |
+| `modalidade` | string | Modalidade de contratação (ex: `Pregao Eletronico`, `Credenciamento`) |
 | `tipo_disputa` | string | Tipo de disputa (ex: `Aberto`, `Fechado`) |
-| `data_publicacao` | string (date) | Data de publicacao |
-| `data_inicio` | string (date) | Inicio da vigencia |
-| `data_fim` | string (date) | Fim da vigencia |
-| `uf` | string | UF do orgao contratante |
-| `local` | string | Municipio do orgao contratante |
+| `data_publicacao` | string (date) | Data de publicação |
+| `data_inicio` | string (date) | Início da vigência |
+| `data_fim` | string (date) | Fim da vigência |
+| `uf` | string | UF do órgão contratante |
+| `local` | string | Município do órgão contratante |
 | `exclusivoMEEPP` | boolean | Exclusivo para Microempresas e EPP |
 | `items` | array | Itens do edital |
-| `participantes` | array | Todos os participantes da licitacao |
+| `participantes` | array | Todos os participantes da licitação |
 
 ## Items
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `id` | string (uuid) | ID do item |
-| `codigo` | string | Codigo do item no edital |
-| `descricao` | string | Descricao do item |
+| `codigo` | string | Código do item no edital |
+| `descricao` | string | Descrição do item |
 | `quantidade` | number | Quantidade |
 | `valor_total` | number | Valor total estimado em reais |
-| `decreto7174` | boolean | Aplica preferencia Decreto 7174 |
+| `decreto7174` | boolean | Aplica preferência Decreto 7174 |
 | `exclusivoMEEPP` | boolean | Item exclusivo para ME/EPP |
 
 ## Participantes
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `id` | string (uuid) | ID do participante |
 | `documento` | string | CPF ou CNPJ |
-| `nome` | string | Nome ou razao social |
-| `tipo` | string | `PF` (pessoa fisica) ou `PJ` (pessoa juridica) |
-| `totalLicitacoes` | number | Total de licitacoes do participante |
+| `nome` | string | Nome ou razão social |
+| `tipo` | string | `PF` (pessoa física) ou `PJ` (pessoa jurídica) |
+| `totalLicitacoes` | number | Total de licitações do participante |

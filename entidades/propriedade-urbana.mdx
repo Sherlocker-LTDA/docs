@@ -1,10 +1,10 @@
 ---
 title: "Propriedade Urbana"
-description: "Propriedade urbana com dados de IPTU, ITBI e proprietario"
+description: "Propriedade urbana com dados de IPTU, ITBI e proprietário"
 icon: "house"
 ---
 
-Uma **Propriedade Urbana** representa uma propriedade registrada em cadastro municipal. Os dados podem vir de diferentes fontes tributarias — o campo `fonte` indica a origem e o campo `uf` o estado.
+Uma **Propriedade Urbana** representa uma propriedade registrada em cadastro municipal. Os dados podem vir de diferentes fontes tributárias — o campo `fonte` indica a origem e o campo `uf` o estado.
 
 ## Tipagem
 
@@ -37,49 +37,49 @@ Uma **Propriedade Urbana** representa uma propriedade registrada em cadastro mun
 }
 ```
 
-| Campo | Tipo | Descricao |
+| Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `id` | string | Identificador unico interno |
-| `fonte` | string | Tipo de fonte tributaria (ver tabela abaixo) |
-| `sql_iptu` | string | Inscricao municipal / SQL IPTU |
-| `localizacao` | object | Endereco completo do imovel |
-| `localizacao.uf` | string | Estado — combinar com `fonte` para saber a origem (ex: fonte `iptu` + uf `SP` = IPTU de Sao Paulo) |
-| `area_terreno` | number | Area do terreno em m² |
-| `area_construida` | number | Area construida em m² |
-| `ano_construcao` | number | Ano de construcao |
+| `id` | string | Identificador único interno |
+| `fonte` | string | Tipo de fonte tributária (ver tabela abaixo) |
+| `sql_iptu` | string | Inscrição municipal / SQL IPTU |
+| `localizacao` | object | Endereço completo do imóvel |
+| `localizacao.uf` | string | Estado — combinar com `fonte` para saber a origem (ex: fonte `iptu` + uf `SP` = IPTU de São Paulo) |
+| `area_terreno` | number | Área do terreno em m² |
+| `area_construida` | number | Área construída em m² |
+| `ano_construcao` | number | Ano de construção |
 | `tipo_uso` | string | `RESIDENCIAL`, `COMERCIAL`, `INDUSTRIAL`, `TERRITORIAL` |
-| `valor_venal` | number | Valor venal em R$ (base para calculo do IPTU) |
+| `valor_venal` | number | Valor venal em R$ (base para cálculo do IPTU) |
 | `valor_iptu` | number | Valor do IPTU anual em R$ |
-| `proprietario` | object | Nome, documento (CPF/CNPJ) do proprietario |
+| `proprietario` | object | Nome, documento (CPF/CNPJ) do proprietário |
 
 ## Fontes de dados
 
-O campo `fonte` indica de qual tributo/cadastro os dados foram extraidos:
+O campo `fonte` indica de qual tributo/cadastro os dados foram extraídos:
 
-| Fonte | Descricao | Dados tipicos |
+| Fonte | Descrição | Dados típicos |
 |-------|-----------|---------------|
-| `iptu` | Imposto Predial e Territorial Urbano | Area, valor venal, tipo de uso, proprietario |
-| `itbi` | Imposto de Transmissao de Bens Imoveis | Valor de transacao, comprador, vendedor |
+| `iptu` | Imposto Predial e Territorial Urbano | Área, valor venal, tipo de uso, proprietário |
+| `itbi` | Imposto de Transmissão de Bens Imóveis | Valor de transação, comprador, vendedor |
 
-Para saber a **origem especifica**, combine `fonte` + `localizacao.uf`:
+Para saber a **origem específica**, combine `fonte` + `localizacao.uf`:
 
 | Exemplo | Significa |
 |---------|-----------|
-| `fonte: "iptu"` + `uf: "SP"` | IPTU de Sao Paulo |
+| `fonte: "iptu"` + `uf: "SP"` | IPTU de São Paulo |
 | `fonte: "iptu"` + `uf: "MG"` | IPTU de Minas Gerais |
 | `fonte: "itbi"` + `uf: "RJ"` | ITBI do Rio de Janeiro |
 
 ## Cobertura
 
-Dados de **1.400+ municipios** brasileiros via integracao com portais municipais.
+Dados de **1.400+ municípios** brasileiros via integração com portais municipais.
 
-## Conexoes
+## Conexões
 
 ```mermaid
 graph LR
-  IU[Imovel Urbano] --> P[Pessoa<br/>proprietario]
-  IU --> E[Empresa<br/>proprietario]
-  IU --> EN[Endereco<br/>localizacao]
+  IU[Imóvel Urbano] --> P[Pessoa<br/>proprietário]
+  IU --> E[Empresa<br/>proprietário]
+  IU --> EN[Endereço<br/>localização]
   P --> IU
   E --> IU
 
@@ -89,14 +89,14 @@ graph LR
   style EN fill:#6C63FF33,stroke:#6C63FF,color:#ccc
 ```
 
-- **Pessoa** — como proprietario (CPF)
-- **Empresa** — como proprietario (CNPJ)
-- **Endereco** — localizacao do imovel pode ser cruzada com enderecos de moradia
+- **Pessoa** — como proprietário (CPF)
+- **Empresa** — como proprietário (CNPJ)
+- **Endereço** — localização do imóvel pode ser cruzada com endereços de moradia
 
 ## Endpoints
 
-| Rota | Descricao |
+| Rota | Descrição |
 |------|-----------|
-| `GET /imoveis/cpf/{cpf}` | Imoveis por proprietario (CPF) |
-| `GET /imoveis/cnpj/{cnpj}` | Imoveis por proprietario (CNPJ) |
+| `GET /imoveis/cpf/{cpf}` | Imóveis por proprietário (CPF) |
+| `GET /imoveis/cnpj/{cnpj}` | Imóveis por proprietário (CNPJ) |
 | `GET /imoveis/cpf/{cpf}?uf=SP` | Filtrado por estado |
