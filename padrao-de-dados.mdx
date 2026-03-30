@@ -6,20 +6,19 @@ icon: "ruler-combined"
 
 Convenções aplicadas a todas as respostas da API. Consulte a entidade específica para detalhes de cada campo.
 
-## Convenções gerais
+## Tipagens
 
-- Campos sem informação retornam `null` — a API nunca retorna string vazia `""`.
-- Booleanos são sempre `true` ou `false` (JSON padrão).
-- Códigos de estado (UF) são sempre **2 letras maiúsculas**: `SP`, `MG`, `RJ`, etc.
-
-## Datas
-
-Todas as datas são strings no formato **ISO 8601**.
-
-| Formato | Uso | Exemplo |
-|---------|-----|---------|
-| `YYYY-MM-DD` | Datas completas (nascimento, abertura, inscrição) | `"2020-03-15"` |
-| `YYYY-MM` | Mês de competência/referência (benefícios) | `"2023-01"` |
+| Tipo | Formato | Exemplo |
+|------|---------|---------|
+| **Data** | String ISO 8601 `YYYY-MM-DD` | `"2020-03-15"` |
+| **Mês/ano** | String `YYYY-MM` (competência de benefícios) | `"2023-01"` |
+| **Booleano** | `true` / `false` | `true` |
+| **Nulo** | `null` — a API nunca retorna `""` | `null` |
+| **UF** | 2 letras maiúsculas | `"SP"` |
+| **Monetário (R$)** | `number`, 2 casas decimais, sem símbolo | `15420.50` |
+| **Percentual** | Decimal (0–100) | `4.2` |
+| **Área** | Decimal (hectares ou m²) | `360.00` |
+| **Score** | Inteiro ou decimal (0–100) | `85` |
 
 ## Documentos e identificadores
 
@@ -39,15 +38,6 @@ CPF e CNPJ sempre retornam **formatados com máscara**.
 | **OAB** | UF + número | variável | `"SP123456"` |
 | **INPI** | `BR` + número | variável | `"BR102020012345"` |
 | **Chassi** | Alfanumérico | 17 | `"93YRBB005KJ664188"` |
-
-## Valores numéricos
-
-| Tipo | Formato | Exemplo |
-|------|---------|---------|
-| Monetário (R$) | `number`, 2 casas decimais, sem símbolo | `15420.50` |
-| Percentual | Decimal (0–100) | `4.2` |
-| Área (hectares/m²) | Decimal | `360.00` |
-| Score | Inteiro ou decimal (0–100) | `85` |
 
 ## Telefones
 
