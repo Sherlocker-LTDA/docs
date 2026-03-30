@@ -15,7 +15,8 @@ Um **Telefone** representa um numero telefonico associado a uma pessoa fisica. P
   "numero": "987654321",
   "numero_completo": "5531987654321",
   "estado": "MG",
-  "operadora": "Vivo"
+  "operadora": "Vivo",
+  "data": "2024-01-01"
 }
 ```
 
@@ -27,6 +28,7 @@ Um **Telefone** representa um numero telefonico associado a uma pessoa fisica. P
 | `numero_completo` | string | DDI + DDD + numero (formato E.164 sem +) |
 | `estado` | string | UF derivada do DDD (ex: `SP`, `MG`, `RJ`) |
 | `operadora` | string | Operadora detectada: `Vivo`, `Claro`, `Tim`, `Oi`, `Fixo` |
+| `data` | string \| null | Ano de referencia do registro no formato `YYYY-01-01`, ou `null` se indisponivel |
 
 ## Conexoes
 
