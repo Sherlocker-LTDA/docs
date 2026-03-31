@@ -226,11 +226,10 @@
           {
             "group": "Processos",
             "openapi": "/openapi/processos.json",
-            "pages": ["GET /processos/cpf/{cpf}", "GET /processos/cnpj/{cnpj}", "GET /processos/numero/{numero}"]
+            "pages": ["GET /processos/cpf/{cpf}", "GET /processos/cnpj/{cnpj}", "GET /processos/numero/{numero}", "GET /processos/categorias"]
           },
           {
             "group": "Categorias",
-            "openapi": "/openapi/processos.json",
             "pages": [
               "categorias/recuperacao-judicial",
               "categorias/falencia",
@@ -238,8 +237,7 @@
               "categorias/execucao-civel",
               "categorias/trabalhista",
               "categorias/criminal",
-              "categorias/familia-sucessoes",
-              "GET /processos/categorias"
+              "categorias/familia-sucessoes"
             ]
           },
           {
