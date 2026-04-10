@@ -37,19 +37,6 @@ mintlify dev
 
 Acesse em `http://localhost:3000`.
 
-## Deploy
-
-O deploy é feito automaticamente via Docker no Dokploy ao fazer push na branch `main`.
-
-```
-Dockerfile   — nginx proxy (:3200) → mintlify dev (:3201)
-nginx.conf   — reescreve X-Forwarded-Proto para evitar redirect loop com Cloudflare SSL Flexible
-```
-
 ## Postman
 
-A collection completa está em `sherlocker-postman-collection.json` e pode ser baixada em:
-
-```
-https://221b-api.sherlocker.com.br/download/postman
-```
+A collection completa está em `sherlocker-postman-collection.json`
