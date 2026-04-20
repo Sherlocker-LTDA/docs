@@ -138,12 +138,18 @@
           {
             "group": "Dívidas",
             "openapi": "/openapi/dividas.json",
-            "pages": ["GET /dividas/cpf/{cpf}", "GET /dividas/cnpj/{cnpj}"]
+            "pages": [
+              "GET /dividas/cpf/{cpf}",
+              "GET /dividas/cnpj/{cnpj}"
+            ]
           },
           {
             "group": "Benefícios Sociais",
             "openapi": "/openapi/beneficios.json",
-            "pages": ["GET /beneficios/cpf/{cpf}", "GET /beneficios/cnpj/{cnpj}"]
+            "pages": [
+              "GET /beneficios/cpf/{cpf}",
+              "GET /beneficios/cnpj/{cnpj}"
+            ]
           },
           {
             "group": "Licitações",
@@ -188,7 +194,10 @@
           {
             "group": "Propriedades Urbanas",
             "openapi": "/openapi/imoveis.json",
-            "pages": ["GET /imoveis/cpf/{cpf}", "GET /imoveis/cnpj/{cnpj}"]
+            "pages": [
+              "GET /imoveis/cpf/{cpf}",
+              "GET /imoveis/cnpj/{cnpj}"
+            ]
           },
           {
             "group": "Propriedades Rurais",
@@ -201,17 +210,27 @@
           {
             "group": "Veículos",
             "openapi": "/openapi/veiculos.json",
-            "pages": ["GET /veiculos/cpf/{cpf}", "GET /veiculos/cnpj/{cnpj}", "GET /veiculos/placa/{placa}"]
+            "pages": [
+              "GET /veiculos/cpf/{cpf}",
+              "GET /veiculos/cnpj/{cnpj}",
+              "GET /veiculos/placa/{placa}"
+            ]
           },
           {
             "group": "Aeronaves",
             "openapi": "/openapi/aeronaves.json",
-            "pages": ["GET /aeronaves/cpf/{cpf}", "GET /aeronaves/cnpj/{cnpj}"]
+            "pages": [
+              "GET /aeronaves/cpf/{cpf}",
+              "GET /aeronaves/cnpj/{cnpj}"
+            ]
           },
           {
             "group": "Patentes",
             "openapi": "/openapi/patentes.json",
-            "pages": ["GET /patentes/cpf/{cpf}", "GET /patentes/cnpj/{cnpj}"]
+            "pages": [
+              "GET /patentes/cpf/{cpf}",
+              "GET /patentes/cnpj/{cnpj}"
+            ]
           }
         ]
       },
@@ -221,12 +240,23 @@
         "groups": [
           {
             "group": "Entidades",
-            "pages": ["entidades/processo", "entidades/parte", "entidades/advogado", "entidades/documento"]
+            "pages": [
+              "entidades/processo",
+              "entidades/parte",
+              "entidades/advogado",
+              "entidades/documento"
+            ]
           },
           {
             "group": "Processos",
             "openapi": "/openapi/processos.json",
-            "pages": ["GET /processos/cpf/{cpf}", "GET /processos/cnpj/{cnpj}", "GET /processos/numero/{numero}", "GET /processos/categorias"]
+            "pages": [
+              "GET /processos/cpf/{cpf}",
+              "GET /processos/cnpj/{cnpj}",
+              "GET /processos/numero/{numero}",
+              "GET /processos/numero/{numero}/movimentacoes",
+              "GET /processos/categorias"
+            ]
           },
           {
             "group": "Categorias",
@@ -243,7 +273,9 @@
           {
             "group": "Documentos Públicos",
             "openapi": "/openapi/documentos.json",
-            "pages": ["GET /documentos/busca"]
+            "pages": [
+              "GET /documentos/busca"
+            ]
           }
         ]
       }

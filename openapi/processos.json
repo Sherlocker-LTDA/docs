@@ -566,6 +566,61 @@
         }
       }
     },
+    "/processos/numero/{numero}/movimentacoes": {
+      "get": {
+        "operationId": "getMovimentacoesByNumero",
+        "summary": "Lista movimentacoes de um processo",
+        "description": "Retorna as movimentacoes mais recentes de um processo judicial, ordenadas por data (mais recentes primeiro). Use este endpoint quando precisar do historico detalhado de um processo especifico — a listagem por CPF/CNPJ (`/processos/cpf/{cpf}` e `/processos/cnpj/{cnpj}`) nao inclui movimentacoes por razoes de performance.",
+        "tags": ["Processos"],
+        "parameters": [
+          {
+            "name": "numero",
+            "in": "path",
+            "required": true,
+            "description": "Numero do processo (com ou sem formatacao)",
+            "schema": { "type": "string", "example": "0000001-23.2020.8.26.0100" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximo de movimentacoes retornadas (default 20, maximo 100)",
+            "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Movimentacoes do processo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "numero_processo": { "type": "string", "description": "Numero do processo (digitos)" },
+                    "total": { "type": "integer", "description": "Total de movimentacoes retornadas (limitado pelo parametro `limit`)" },
+                    "movimentacoes": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Movimentacao" }
+                    }
+                  }
+                },
+                "example": {
+                  "numero_processo": "00000012320208260100",
+                  "total": 3,
+                  "movimentacoes": [
+                    { "data": "2024-03-12", "descricao": "Decisao interlocutoria", "complemento": "Deferido pedido de tutela" },
+                    { "data": "2024-02-28", "descricao": "Juntada de peticao", "complemento": "Manifestacao da parte autora" },
+                    { "data": "2024-01-15", "descricao": "Distribuido por sorteio", "complemento": "1a Vara Civel" }
+                  ]
+                }
+              }
+            }
+          },
+          "400": { "description": "Numero de processo invalido", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "401": { "description": "Token ausente ou invalido", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
     "/processos/categorias": {
       "get": {
         "operationId": "listCategorias",
