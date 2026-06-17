@@ -160,14 +160,6 @@
             ]
           },
           {
-            "group": "Regularidade",
-            "openapi": "/openapi/regularidade.json",
-            "pages": [
-              "GET /regularidade/cpf/{cpf}",
-              "GET /regularidade/cnpj/{cnpj}"
-            ]
-          },
-          {
             "group": "Listas Restritivas",
             "openapi": "/openapi/listas-restritivas.json",
             "pages": [

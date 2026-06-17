@@ -124,7 +124,7 @@ const check = await sherlocker.checkModule('phones', '12345678900');
 | `buscarEnderecos()` | Endereços históricos | 1 |
 | `buscarBancos()` | Contas bancárias | 1 |
 | `buscarDocumentos()` | Documentos públicos | 1 |
-| `buscarIrregularidades()` | Sanções e restrições | 1 |
+| `buscarListasRestritivas()` | Sanções, PEP e restrições (11 listas) | 3 |
 | `buscarPessoasRelacionadas()` | Parentes e vínculos | 2 |
 | `buscarRelacionamentos()` | Rede de relacionamentos | 0 |
 | `buscarEmpresasSocio()` | Empresas onde é sócio | 0 |
@@ -160,7 +160,7 @@ const check = await sherlocker.checkModule('phones', '12345678900');
 | `buscarDividas()` | Dívida ativa | 5 |
 | `buscarProtestos()` | Protestos | 5 |
 | `buscarLicitacoes()` | Licitações | 3 |
-| `buscarIrregularidades()` | Sanções e restrições | 1 |
+| `buscarListasRestritivas()` | Sanções, PEP e restrições (11 listas) | 3 |
 | `buscarDocumentos()` | Documentos públicos | 1 |
 | `buscarBancos()` | Contas bancárias | 1 |
 | `buscarRedesSociais()` | Redes sociais | 5 |
@@ -237,15 +237,15 @@ async function backgroundCheck(cpf: string) {
   const pessoa = sherlocker.pessoa({ cpf });
 
   // Executa consultas em paralelo
-  const [info, empresas, processos, dividas, irregularidades] = await Promise.all([
+  const [info, empresas, processos, dividas, listas] = await Promise.all([
     pessoa.buscarInfo(),
     pessoa.buscarEmpresasSocio(),
     pessoa.buscarProcessos(),
     pessoa.buscarDividas(),
-    pessoa.buscarIrregularidades(),
+    pessoa.buscarListasRestritivas(),
   ]);
 
-  return { info, empresas, processos, dividas, irregularidades };
+  return { info, empresas, processos, dividas, listas };
 }
 ```
 
@@ -280,17 +280,17 @@ async function enriquecerLead(cpf: string) {
 async function dueDiligence(cnpj: string) {
   const empresa = sherlocker.empresa({ cnpj });
 
-  const [info, socios, processos, dividas, irregularidades, licitacoes] =
+  const [info, socios, processos, dividas, listas, licitacoes] =
     await Promise.all([
       empresa.buscarInfo(),
       empresa.buscarSocios(),
       empresa.buscarProcessos(),
       empresa.buscarDividas(),
-      empresa.buscarIrregularidades(),
+      empresa.buscarListasRestritivas(),
       empresa.buscarLicitacoes(),
     ]);
 
-  return { info, socios, processos, dividas, irregularidades, licitacoes };
+  return { info, socios, processos, dividas, listas, licitacoes };
 }
 ```
 

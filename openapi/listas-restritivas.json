@@ -6,10 +6,14 @@
     "version": "1.0"
   },
   "servers": [
-    { "url": "https://221b-api.sherlocker.com.br/api/v1" }
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
   ],
   "security": [
-    { "tokenAuth": [] }
+    {
+      "tokenAuth": []
+    }
   ],
   "components": {
     "securitySchemes": {
@@ -24,57 +28,190 @@
         "type": "object",
         "description": "Um registro encontrado em uma lista.",
         "properties": {
-          "lista_id": { "type": "string", "description": "Identificador da lista (ceis, cnep, ceaf, tcu, bcb, sancoes, lista-suja, cepim, acordos-leniencia, ibama, pep)", "example": "cnep" },
-          "fonte": { "type": "string", "description": "Nome legivel da fonte do registro", "example": "CNEP" },
-          "grupo": { "type": "string", "enum": ["sancoes", "restritivas", "alertas"], "example": "sancoes" },
-          "nome_na_fonte": { "type": "string", "description": "Nome como consta na lista", "example": "ACME LTDA" },
-          "titulo": { "type": "string", "description": "Nome oficial da lista", "example": "CNEP — Empresas Punidas" },
-          "orgao": { "type": "string", "description": "Orgao sancionador, quando houver", "example": "Controladoria-Geral da Uniao" },
-          "data_inicio": { "type": "string", "description": "Data ISO (YYYY-MM-DD)", "example": "2024-01-01" },
-          "data_fim": { "type": "string", "description": "Data ISO (YYYY-MM-DD)", "example": "2027-01-01" },
-          "vigente": { "type": "boolean", "description": "data_fim >= hoje (true se nao ha data_fim)", "example": true },
-          "fonte_oficial": { "type": "string", "description": "URL oficial da lista", "example": "https://portaldatransparencia.gov.br" },
-          "ultima_atualizacao": { "type": "string", "nullable": true, "description": "YYYY-MM-DD HH:MM:SS", "example": "2026-06-15 13:00:00" },
-          "detalhes": { "type": "object", "description": "Payload bruto do registro (campos variam por lista)", "additionalProperties": true }
+          "lista_id": {
+            "type": "string",
+            "description": "Identificador da lista (ceis, cnep, ceaf, tcu, bcb, sancoes, lista-suja, cepim, acordos-leniencia, ibama, pep)",
+            "example": "cnep"
+          },
+          "fonte": {
+            "type": "string",
+            "description": "Nome legivel da fonte do registro",
+            "example": "CNEP"
+          },
+          "grupo": {
+            "type": "string",
+            "enum": [
+              "sancoes",
+              "restritivas",
+              "alertas"
+            ],
+            "example": "sancoes"
+          },
+          "nome_na_fonte": {
+            "type": "string",
+            "description": "Nome como consta na lista",
+            "example": "ACME LTDA"
+          },
+          "titulo": {
+            "type": "string",
+            "description": "Nome oficial da lista",
+            "example": "CNEP — Empresas Punidas"
+          },
+          "orgao": {
+            "type": "string",
+            "description": "Orgao sancionador, quando houver",
+            "example": "Controladoria-Geral da Uniao"
+          },
+          "data_inicio": {
+            "type": "string",
+            "description": "Data ISO (YYYY-MM-DD)",
+            "example": "2024-01-01"
+          },
+          "data_fim": {
+            "type": "string",
+            "description": "Data ISO (YYYY-MM-DD)",
+            "example": "2027-01-01"
+          },
+          "vigente": {
+            "type": "boolean",
+            "description": "data_fim >= hoje (true se nao ha data_fim)",
+            "example": true
+          },
+          "fonte_oficial": {
+            "type": "string",
+            "description": "URL oficial da lista",
+            "example": "https://portaldatransparencia.gov.br"
+          },
+          "ultima_atualizacao": {
+            "type": "string",
+            "nullable": true,
+            "description": "YYYY-MM-DD HH:MM:SS",
+            "example": "2026-06-15 13:00:00"
+          },
+          "detalhes": {
+            "type": "object",
+            "description": "Payload bruto do registro (campos variam por lista)",
+            "additionalProperties": true
+          }
         }
       },
       "CoberturaItem": {
         "type": "object",
         "description": "Status de uma das 11 listas. O array cobertura sempre traz as 11, mesmo sem registro, para auditoria do que foi (ou nao foi) verificado.",
         "properties": {
-          "lista_id": { "type": "string", "example": "ceis" },
-          "nome": { "type": "string", "example": "CEIS — Empresas Inidoneas e Suspensas" },
-          "grupo": { "type": "string", "enum": ["sancoes", "restritivas", "alertas"] },
-          "resultado": { "type": "string", "enum": ["encontrado", "nada_consta", "indisponivel", "nao_aplicavel", "requer_nome"], "description": "encontrado=ha registro; nada_consta=verificado sem registro; indisponivel=fonte degradada (STALE/FAILED); nao_aplicavel=lista nao cobre esse tipo de documento; requer_nome=lista exige nome e nenhum foi informado nem resolvido" },
-          "ocorrencias": { "type": "number", "example": 0 },
-          "saude": { "type": "string", "enum": ["OK", "STALE", "FAILED"], "nullable": true, "description": "Saude da fonte; null quando nao consultada" },
-          "ultima_atualizacao": { "type": "string", "nullable": true, "example": "2026-06-15 13:00:00" },
-          "motivo": { "type": "string", "description": "Razao quando resultado=indisponivel" },
-          "fonte_oficial": { "type": "string", "example": "https://portaldatransparencia.gov.br" }
+          "lista_id": {
+            "type": "string",
+            "example": "ceis"
+          },
+          "nome": {
+            "type": "string",
+            "example": "CEIS — Empresas Inidoneas e Suspensas"
+          },
+          "grupo": {
+            "type": "string",
+            "enum": [
+              "sancoes",
+              "restritivas",
+              "alertas"
+            ]
+          },
+          "resultado": {
+            "type": "string",
+            "enum": [
+              "encontrado",
+              "nada_consta",
+              "indisponivel",
+              "nao_aplicavel",
+              "requer_nome"
+            ],
+            "description": "encontrado=ha registro; nada_consta=verificado sem registro; indisponivel=fonte degradada (STALE/FAILED); nao_aplicavel=lista nao cobre esse tipo de documento; requer_nome=lista exige nome e nenhum foi informado nem resolvido"
+          },
+          "ocorrencias": {
+            "type": "number",
+            "example": 0
+          },
+          "saude": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "STALE",
+              "FAILED"
+            ],
+            "nullable": true,
+            "description": "Saude da fonte; null quando nao consultada"
+          },
+          "ultima_atualizacao": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-06-15 13:00:00"
+          },
+          "motivo": {
+            "type": "string",
+            "description": "Razao quando resultado=indisponivel"
+          },
+          "fonte_oficial": {
+            "type": "string",
+            "example": "https://portaldatransparencia.gov.br"
+          }
         }
       },
       "ResumoListasRestritivas": {
         "type": "object",
         "description": "Veredito de uma olhada.",
         "properties": {
-          "tem_ocorrencia": { "type": "boolean" },
-          "tem_sancao": { "type": "boolean", "description": "Grupo sancoes OU restritivas tem registro" },
-          "tem_alerta": { "type": "boolean", "description": "Grupo alertas tem registro (PEP). Um PEP sozinho nao marca tem_sancao." },
-          "total_ocorrencias": { "type": "number" },
+          "tem_ocorrencia": {
+            "type": "boolean"
+          },
+          "tem_sancao": {
+            "type": "boolean",
+            "description": "Grupo sancoes OU restritivas tem registro"
+          },
+          "tem_alerta": {
+            "type": "boolean",
+            "description": "Grupo alertas tem registro (PEP). Um PEP sozinho nao marca tem_sancao."
+          },
+          "total_ocorrencias": {
+            "type": "number"
+          },
           "por_grupo": {
             "type": "object",
             "properties": {
-              "sancoes": { "type": "number" },
-              "restritivas": { "type": "number" },
-              "alertas": { "type": "number" }
+              "sancoes": {
+                "type": "number"
+              },
+              "restritivas": {
+                "type": "number"
+              },
+              "alertas": {
+                "type": "number"
+              }
             }
           },
-          "fontes_aplicaveis": { "type": "number", "description": "Listas que se aplicam ao tipo do documento (8 para CPF, 8 para CNPJ)" },
-          "fontes_consultadas": { "type": "number" },
-          "com_ocorrencia": { "type": "number" },
-          "indisponiveis": { "type": "number" },
-          "nao_aplicaveis": { "type": "number" },
-          "confiabilidade": { "type": "string", "enum": ["completa", "parcial", "indisponivel"], "description": "completa=todas as listas aplicaveis responderam; parcial=algumas indisponiveis; indisponivel=todas as aplicaveis cairam. Trate negativo com cautela se != completa." }
+          "fontes_aplicaveis": {
+            "type": "number",
+            "description": "Listas que se aplicam ao tipo do documento (8 para CPF, 8 para CNPJ)"
+          },
+          "fontes_consultadas": {
+            "type": "number"
+          },
+          "com_ocorrencia": {
+            "type": "number"
+          },
+          "indisponiveis": {
+            "type": "number"
+          },
+          "nao_aplicaveis": {
+            "type": "number"
+          },
+          "confiabilidade": {
+            "type": "string",
+            "enum": [
+              "completa",
+              "parcial",
+              "indisponivel"
+            ],
+            "description": "completa=todas as listas aplicaveis responderam; parcial=algumas indisponiveis; indisponivel=todas as aplicaveis cairam. Trate negativo com cautela se != completa."
+          }
         }
       },
       "ListasRestritivasResponse": {
@@ -83,32 +220,89 @@
           "documento": {
             "type": "object",
             "properties": {
-              "tipo": { "type": "string", "enum": ["cpf", "cnpj"] },
-              "numero": { "type": "string", "description": "Apenas digitos" },
-              "nome": { "type": "string", "nullable": true },
-              "nome_origem": { "type": "string", "enum": ["informado", "resolvido", "nao_resolvido"], "description": "informado=veio na query; resolvido=resolvido da base interna; nao_resolvido=nao encontrado" }
+              "tipo": {
+                "type": "string",
+                "enum": [
+                  "cpf",
+                  "cnpj"
+                ]
+              },
+              "numero": {
+                "type": "string",
+                "description": "Apenas digitos"
+              },
+              "nome": {
+                "type": "string",
+                "nullable": true
+              },
+              "nome_origem": {
+                "type": "string",
+                "enum": [
+                  "informado",
+                  "resolvido",
+                  "nao_resolvido"
+                ],
+                "description": "informado=veio na query; resolvido=resolvido da base interna; nao_resolvido=nao encontrado"
+              }
             }
           },
-          "consultado_em": { "type": "string", "description": "ISO 8601" },
-          "resumo": { "$ref": "#/components/schemas/ResumoListasRestritivas" },
+          "consultado_em": {
+            "type": "string",
+            "description": "ISO 8601"
+          },
+          "resumo": {
+            "$ref": "#/components/schemas/ResumoListasRestritivas"
+          },
           "grupos": {
             "type": "object",
             "properties": {
-              "sancoes": { "type": "array", "items": { "$ref": "#/components/schemas/Ocorrencia" } },
-              "restritivas": { "type": "array", "items": { "$ref": "#/components/schemas/Ocorrencia" } },
-              "alertas": { "type": "array", "items": { "$ref": "#/components/schemas/Ocorrencia" } }
+              "sancoes": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Ocorrencia"
+                }
+              },
+              "restritivas": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Ocorrencia"
+                }
+              },
+              "alertas": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Ocorrencia"
+                }
+              }
             }
           },
-          "cobertura": { "type": "array", "items": { "$ref": "#/components/schemas/CoberturaItem" } }
+          "cobertura": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CoberturaItem"
+            }
+          }
         }
       },
       "ErrorResponse": {
         "type": "object",
         "properties": {
-          "statusCode": { "type": "number", "example": 400 },
-          "message": { "type": "string", "example": "CNPJ invalido" },
-          "path": { "type": "string", "example": "/api/v1/listas-restritivas/cnpj/11111111111111" },
-          "timestamp": { "type": "string", "example": "2026-06-17T10:45:18.042Z" }
+          "statusCode": {
+            "type": "number",
+            "example": 400
+          },
+          "message": {
+            "type": "string",
+            "example": "CNPJ invalido"
+          },
+          "path": {
+            "type": "string",
+            "example": "/api/v1/listas-restritivas/cnpj/11111111111111"
+          },
+          "timestamp": {
+            "type": "string",
+            "example": "2026-06-17T10:45:18.042Z"
+          }
         }
       }
     }
@@ -117,23 +311,30 @@
     "/listas-restritivas/cpf/{cpf}": {
       "get": {
         "operationId": "getListasRestritivasByCpf",
-        "summary": "Listas restritivas de uma pessoa (CPF)",
+        "summary": "Listas restritivas de uma pessoa",
         "description": "Consulta um CPF contra as 8 listas aplicaveis a pessoa fisica (CEIS, CNEP, CEAF, TCU, BACEN, sancoes internacionais, IBAMA, PEP). Valida o digito verificador do CPF.",
-        "tags": ["Listas Restritivas"],
+        "tags": [
+          "Listas Restritivas"
+        ],
         "parameters": [
           {
             "name": "cpf",
             "in": "path",
             "required": true,
             "description": "CPF do titular (com ou sem formatacao)",
-            "schema": { "type": "string", "example": "12345678901" }
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
           },
           {
             "name": "nome",
             "in": "query",
             "required": false,
             "description": "Nome da pessoa. Se omitido, e resolvido automaticamente da base. Melhora listas que casam por nome (BACEN, sancoes internacionais).",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -141,51 +342,125 @@
             "description": "Ocorrencias agrupadas + mapa de cobertura",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ListasRestritivasResponse" },
+                "schema": {
+                  "$ref": "#/components/schemas/ListasRestritivasResponse"
+                },
                 "example": {
-                  "documento": { "tipo": "cpf", "numero": "12345678901", "nome": "Joao da Silva", "nome_origem": "informado" },
+                  "documento": {
+                    "tipo": "cpf",
+                    "numero": "12345678901",
+                    "nome": "Joao da Silva",
+                    "nome_origem": "informado"
+                  },
                   "consultado_em": "2026-06-17T12:00:00.000Z",
                   "resumo": {
-                    "tem_ocorrencia": false, "tem_sancao": false, "tem_alerta": false, "total_ocorrencias": 0,
-                    "por_grupo": { "sancoes": 0, "restritivas": 0, "alertas": 0 },
-                    "fontes_aplicaveis": 8, "fontes_consultadas": 8, "com_ocorrencia": 0,
-                    "indisponiveis": 0, "nao_aplicaveis": 3, "confiabilidade": "completa"
+                    "tem_ocorrencia": false,
+                    "tem_sancao": false,
+                    "tem_alerta": false,
+                    "total_ocorrencias": 0,
+                    "por_grupo": {
+                      "sancoes": 0,
+                      "restritivas": 0,
+                      "alertas": 0
+                    },
+                    "fontes_aplicaveis": 8,
+                    "fontes_consultadas": 8,
+                    "com_ocorrencia": 0,
+                    "indisponiveis": 0,
+                    "nao_aplicaveis": 3,
+                    "confiabilidade": "completa"
                   },
-                  "grupos": { "sancoes": [], "restritivas": [], "alertas": [] },
+                  "grupos": {
+                    "sancoes": [],
+                    "restritivas": [],
+                    "alertas": []
+                  },
                   "cobertura": [
-                    { "lista_id": "ceis", "nome": "CEIS — Empresas Inidoneas e Suspensas", "grupo": "sancoes", "resultado": "nada_consta", "ocorrencias": 0, "saude": "OK", "ultima_atualizacao": "2026-06-15 13:00:00", "fonte_oficial": "https://portaldatransparencia.gov.br" },
-                    { "lista_id": "pep", "nome": "PEP — Pessoa Politicamente Exposta", "grupo": "alertas", "resultado": "nada_consta", "ocorrencias": 0, "saude": "OK", "ultima_atualizacao": "2026-06-15 13:00:00", "fonte_oficial": "https://portaldatransparencia.gov.br" },
-                    { "lista_id": "lista-suja", "nome": "Trabalho Escravo (Lista Suja)", "grupo": "sancoes", "resultado": "nao_aplicavel", "ocorrencias": 0, "saude": null, "ultima_atualizacao": null, "fonte_oficial": "https://www.gov.br/trabalho-e-emprego" }
+                    {
+                      "lista_id": "ceis",
+                      "nome": "CEIS — Empresas Inidoneas e Suspensas",
+                      "grupo": "sancoes",
+                      "resultado": "nada_consta",
+                      "ocorrencias": 0,
+                      "saude": "OK",
+                      "ultima_atualizacao": "2026-06-15 13:00:00",
+                      "fonte_oficial": "https://portaldatransparencia.gov.br"
+                    },
+                    {
+                      "lista_id": "pep",
+                      "nome": "PEP — Pessoa Politicamente Exposta",
+                      "grupo": "alertas",
+                      "resultado": "nada_consta",
+                      "ocorrencias": 0,
+                      "saude": "OK",
+                      "ultima_atualizacao": "2026-06-15 13:00:00",
+                      "fonte_oficial": "https://portaldatransparencia.gov.br"
+                    },
+                    {
+                      "lista_id": "lista-suja",
+                      "nome": "Trabalho Escravo (Lista Suja)",
+                      "grupo": "sancoes",
+                      "resultado": "nao_aplicavel",
+                      "ocorrencias": 0,
+                      "saude": null,
+                      "ultima_atualizacao": null,
+                      "fonte_oficial": "https://www.gov.br/trabalho-e-emprego"
+                    }
                   ]
                 }
               }
             }
           },
-          "400": { "description": "CPF invalido (formato ou digito verificador)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
-          "401": { "description": "Token ausente ou invalido", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+          "400": {
+            "description": "CPF invalido (formato ou digito verificador)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
         }
       }
     },
     "/listas-restritivas/cnpj/{cnpj}": {
       "get": {
         "operationId": "getListasRestritivasByCnpj",
-        "summary": "Listas restritivas de uma empresa (CNPJ)",
+        "summary": "Listas restritivas de uma empresa",
         "description": "Consulta um CNPJ contra as 8 listas aplicaveis a pessoa juridica (CEIS, CNEP, TCU, sancoes internacionais, Lista Suja, CEPIM, Acordos de Leniencia, IBAMA). Valida o digito verificador do CNPJ.",
-        "tags": ["Listas Restritivas"],
+        "tags": [
+          "Listas Restritivas"
+        ],
         "parameters": [
           {
             "name": "cnpj",
             "in": "path",
             "required": true,
             "description": "CNPJ da empresa (com ou sem formatacao)",
-            "schema": { "type": "string", "example": "12345678000199" }
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
           },
           {
             "name": "nome",
             "in": "query",
             "required": false,
             "description": "Razao social / nome. Se omitido, e resolvido automaticamente da base.",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -193,76 +468,195 @@
             "description": "Ocorrencias agrupadas + mapa de cobertura",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ListasRestritivasResponse" },
+                "schema": {
+                  "$ref": "#/components/schemas/ListasRestritivasResponse"
+                },
                 "example": {
-                  "documento": { "tipo": "cnpj", "numero": "12345678000199", "nome": "ACME LTDA", "nome_origem": "resolvido" },
+                  "documento": {
+                    "tipo": "cnpj",
+                    "numero": "12345678000199",
+                    "nome": "ACME LTDA",
+                    "nome_origem": "resolvido"
+                  },
                   "consultado_em": "2026-06-17T12:00:00.000Z",
                   "resumo": {
-                    "tem_ocorrencia": true, "tem_sancao": true, "tem_alerta": false, "total_ocorrencias": 1,
-                    "por_grupo": { "sancoes": 1, "restritivas": 0, "alertas": 0 },
-                    "fontes_aplicaveis": 8, "fontes_consultadas": 8, "com_ocorrencia": 1,
-                    "indisponiveis": 0, "nao_aplicaveis": 3, "confiabilidade": "completa"
+                    "tem_ocorrencia": true,
+                    "tem_sancao": true,
+                    "tem_alerta": false,
+                    "total_ocorrencias": 1,
+                    "por_grupo": {
+                      "sancoes": 1,
+                      "restritivas": 0,
+                      "alertas": 0
+                    },
+                    "fontes_aplicaveis": 8,
+                    "fontes_consultadas": 8,
+                    "com_ocorrencia": 1,
+                    "indisponiveis": 0,
+                    "nao_aplicaveis": 3,
+                    "confiabilidade": "completa"
                   },
                   "grupos": {
                     "sancoes": [
                       {
-                        "lista_id": "cnep", "fonte": "CNEP", "grupo": "sancoes", "nome_na_fonte": "ACME LTDA",
-                        "titulo": "CNEP — Empresas Punidas", "orgao": "Controladoria-Geral da Uniao",
-                        "data_inicio": "2024-01-01", "data_fim": "2027-01-01", "vigente": true,
-                        "fonte_oficial": "https://portaldatransparencia.gov.br", "ultima_atualizacao": "2026-06-15 13:00:00",
-                        "detalhes": { "fonte": "CNEP", "nome": "ACME LTDA", "orgao_sancionador": "Controladoria-Geral da Uniao", "data_inicio": "2024-01-01", "data_fim": "2027-01-01" }
+                        "lista_id": "cnep",
+                        "fonte": "CNEP",
+                        "grupo": "sancoes",
+                        "nome_na_fonte": "ACME LTDA",
+                        "titulo": "CNEP — Empresas Punidas",
+                        "orgao": "Controladoria-Geral da Uniao",
+                        "data_inicio": "2024-01-01",
+                        "data_fim": "2027-01-01",
+                        "vigente": true,
+                        "fonte_oficial": "https://portaldatransparencia.gov.br",
+                        "ultima_atualizacao": "2026-06-15 13:00:00",
+                        "detalhes": {
+                          "fonte": "CNEP",
+                          "nome": "ACME LTDA",
+                          "orgao_sancionador": "Controladoria-Geral da Uniao",
+                          "data_inicio": "2024-01-01",
+                          "data_fim": "2027-01-01"
+                        }
                       }
                     ],
                     "restritivas": [],
                     "alertas": []
                   },
                   "cobertura": [
-                    { "lista_id": "cnep", "nome": "CNEP — Empresas Punidas", "grupo": "sancoes", "resultado": "encontrado", "ocorrencias": 1, "saude": "OK", "ultima_atualizacao": "2026-06-15 13:00:00", "fonte_oficial": "https://portaldatransparencia.gov.br" },
-                    { "lista_id": "ceis", "nome": "CEIS — Empresas Inidoneas e Suspensas", "grupo": "sancoes", "resultado": "nada_consta", "ocorrencias": 0, "saude": "OK", "ultima_atualizacao": "2026-06-15 13:00:00", "fonte_oficial": "https://portaldatransparencia.gov.br" },
-                    { "lista_id": "ceaf", "nome": "CEAF — Expulsoes da Administracao Federal", "grupo": "sancoes", "resultado": "nao_aplicavel", "ocorrencias": 0, "saude": null, "ultima_atualizacao": null, "fonte_oficial": "https://portaldatransparencia.gov.br" },
-                    { "lista_id": "pep", "nome": "PEP — Pessoa Politicamente Exposta", "grupo": "alertas", "resultado": "nao_aplicavel", "ocorrencias": 0, "saude": null, "ultima_atualizacao": null, "fonte_oficial": "https://portaldatransparencia.gov.br" }
+                    {
+                      "lista_id": "cnep",
+                      "nome": "CNEP — Empresas Punidas",
+                      "grupo": "sancoes",
+                      "resultado": "encontrado",
+                      "ocorrencias": 1,
+                      "saude": "OK",
+                      "ultima_atualizacao": "2026-06-15 13:00:00",
+                      "fonte_oficial": "https://portaldatransparencia.gov.br"
+                    },
+                    {
+                      "lista_id": "ceis",
+                      "nome": "CEIS — Empresas Inidoneas e Suspensas",
+                      "grupo": "sancoes",
+                      "resultado": "nada_consta",
+                      "ocorrencias": 0,
+                      "saude": "OK",
+                      "ultima_atualizacao": "2026-06-15 13:00:00",
+                      "fonte_oficial": "https://portaldatransparencia.gov.br"
+                    },
+                    {
+                      "lista_id": "ceaf",
+                      "nome": "CEAF — Expulsoes da Administracao Federal",
+                      "grupo": "sancoes",
+                      "resultado": "nao_aplicavel",
+                      "ocorrencias": 0,
+                      "saude": null,
+                      "ultima_atualizacao": null,
+                      "fonte_oficial": "https://portaldatransparencia.gov.br"
+                    },
+                    {
+                      "lista_id": "pep",
+                      "nome": "PEP — Pessoa Politicamente Exposta",
+                      "grupo": "alertas",
+                      "resultado": "nao_aplicavel",
+                      "ocorrencias": 0,
+                      "saude": null,
+                      "ultima_atualizacao": null,
+                      "fonte_oficial": "https://portaldatransparencia.gov.br"
+                    }
                   ]
                 }
               }
             }
           },
-          "400": { "description": "CNPJ invalido (formato ou digito verificador)", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
-          "401": { "description": "Token ausente ou invalido", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+          "400": {
+            "description": "CNPJ invalido (formato ou digito verificador)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
         }
       }
     },
     "/listas-restritivas/{documento}": {
       "get": {
         "operationId": "getListasRestritivasByDocumento",
-        "summary": "Listas restritivas (auto-detecta CPF/CNPJ)",
+        "summary": "Listas restritivas por documento",
         "description": "Detecta o tipo pelo numero de digitos: 11 = CPF, 14 = CNPJ. Outro tamanho retorna 400. Aqui o documento e apenas limpo; o digito verificador NAO e validado, so o tamanho. Use /cpf ou /cnpj quando souber o tipo (eles validam o digito verificador).",
-        "tags": ["Listas Restritivas"],
+        "tags": [
+          "Listas Restritivas"
+        ],
         "parameters": [
           {
             "name": "documento",
             "in": "path",
             "required": true,
             "description": "CPF (11 digitos) ou CNPJ (14 digitos), com ou sem formatacao",
-            "schema": { "type": "string", "example": "12345678000199" }
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
           },
           {
             "name": "nome",
             "in": "query",
             "required": false,
             "description": "Nome / razao social. Se omitido, e resolvido automaticamente da base.",
-            "schema": { "type": "string" }
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Ocorrencias agrupadas + mapa de cobertura (ver exemplos em /cpf e /cnpj)",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ListasRestritivasResponse" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListasRestritivasResponse"
+                }
+              }
+            }
           },
           "400": {
             "description": "Documento deve ter 11 (CPF) ou 14 (CNPJ) digitos",
-            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" }, "example": { "statusCode": 400, "message": "Documento deve ter 11 (CPF) ou 14 (CNPJ) dígitos", "path": "/api/v1/listas-restritivas/123", "timestamp": "2026-06-17T10:45:17.676Z" } } }
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "statusCode": 400,
+                  "message": "Documento deve ter 11 (CPF) ou 14 (CNPJ) dígitos",
+                  "path": "/api/v1/listas-restritivas/123",
+                  "timestamp": "2026-06-17T10:45:17.676Z"
+                }
+              }
+            }
           },
-          "401": { "description": "Token ausente ou invalido", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
         }
       }
     }
