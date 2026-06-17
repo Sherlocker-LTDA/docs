@@ -166,6 +166,15 @@
               "GET /regularidade/cpf/{cpf}",
               "GET /regularidade/cnpj/{cnpj}"
             ]
+          },
+          {
+            "group": "Listas Restritivas",
+            "openapi": "/openapi/listas-restritivas.json",
+            "pages": [
+              "GET /listas-restritivas/cpf/{cpf}",
+              "GET /listas-restritivas/cnpj/{cnpj}",
+              "GET /listas-restritivas/{documento}"
+            ]
           }
         ]
       },
