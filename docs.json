@@ -115,7 +115,9 @@
             "openapi": "/openapi/pessoas.json",
             "pages": [
               "GET /telefones/cpf/{cpf}",
-              "GET /emails/cpf/{cpf}"
+              "GET /telefones/cnpj/{cnpj}",
+              "GET /emails/cpf/{cpf}",
+              "GET /emails/cnpj/{cnpj}"
             ]
           },
           {

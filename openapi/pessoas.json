@@ -2203,6 +2203,73 @@
         }
       }
     },
+    "/telefones/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getTelefonesByCnpj",
+        "summary": "Telefones por CNPJ",
+        "description": "Retorna todos os telefones associados ao CNPJ.",
+        "tags": [
+          "Telefones"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de telefones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "telefones": [
+                    {
+                      "ddi": "55",
+                      "ddd": "11",
+                      "numero": "999998888",
+                      "numero_completo": "5511999998888",
+                      "estado": "São Paulo",
+                      "operadora": "Vivo",
+                      "tem_whatsapp": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/emails/cpf/{cpf}": {
       "get": {
         "operationId": "getEmailsByCpf",
@@ -2237,6 +2304,69 @@
                       "email": "joao@gmail.com",
                       "dominio": "gmail.com",
                       "corporativo": false
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/emails/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getEmailsByCnpj",
+        "summary": "Emails por CNPJ",
+        "description": "Retorna todos os emails associados ao CNPJ.",
+        "tags": [
+          "Emails"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de emails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "emails": [
+                    {
+                      "email": "contato@empresa.com.br",
+                      "dominio": "empresa.com.br",
+                      "corporativo": true
                     }
                   ]
                 }
