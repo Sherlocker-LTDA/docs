@@ -2092,34 +2092,81 @@
         ],
         "responses": {
           "200": {
-            "description": "Lista de sociedades",
+            "description": "Lista de empresas onde a pessoa consta como socia ou administradora",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "socios": {
+                    "empresas": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/Socio"
+                        "$ref": "#/components/schemas/EmpresaResponse"
                       }
                     }
                   }
                 },
                 "example": {
-                  "socios": [
+                  "empresas": [
                     {
-                      "nome": "João Silva",
-                      "documento": "123.456.789-10",
-                      "tipo_documento": "CPF",
-                      "tipo": "Pessoa Física",
-                      "qualificacao": "Sócio-Administrador",
-                      "data_entrada": "2019-01-15",
-                      "data_nascimento": "1990-01-15",
-                      "sexo": "Masculino",
-                      "idade": 34,
-                      "faixa_etaria": "30 a 40 anos",
-                      "representante": null
+                      "documento": "33.000.167/0001-01",
+                      "tipo_documento": "CNPJ",
+                      "cnpj_basico": "33000167",
+                      "razao_social": "Petroleo Brasileiro S A Petrobras",
+                      "nome_fantasia": "Petrobras - Edise",
+                      "situacao": "Ativa",
+                      "data_situacao": "2005-11-03",
+                      "motivo_situacao": "Sem Motivo",
+                      "data_abertura": "1966-09-28",
+                      "capital_social": 205431960490.52,
+                      "porte": "Média ou Grande Porte",
+                      "matriz_filial": "Matriz",
+                      "natureza_juridica": {
+                        "codigo": "2038",
+                        "descricao": "Sociedade de Economia Mista"
+                      },
+                      "atividade_principal": {
+                        "codigo": "0600001",
+                        "descricao": "Extração de petróleo e gás natural"
+                      },
+                      "atividades_secundarias": [
+                        {
+                          "codigo": "1921700",
+                          "descricao": "Fabricação de produtos do refino de petróleo"
+                        },
+                        {
+                          "codigo": "3520401",
+                          "descricao": "Produção de gás; processamento de gás natural"
+                        }
+                      ],
+                      "endereco": {
+                        "logradouro": "Avenida Republica do Chile",
+                        "numero": "65",
+                        "complemento": null,
+                        "bairro": "Centro",
+                        "cidade": "Rio de Janeiro",
+                        "uf": "RJ",
+                        "cep": "20031170"
+                      },
+                      "telefones": [
+                        {
+                          "ddi": "55",
+                          "ddd": "21",
+                          "numero": "21660000",
+                          "numero_completo": "552121660000",
+                          "estado": "RJ",
+                          "operadora": "Fixo"
+                        }
+                      ],
+                      "emails": [
+                        {
+                          "email": "cc-rfisc@petrobras.com.br",
+                          "dominio": "petrobras.com.br",
+                          "corporativo": true
+                        }
+                      ],
+                      "situacao_especial": null,
+                      "data_situacao_especial": null
                     }
                   ]
                 }
