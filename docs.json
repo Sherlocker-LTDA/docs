@@ -125,16 +125,22 @@
             "openapi": "/openapi/pessoas.json",
             "pages": [
               "GET /pessoas/telefone/{telefone}",
-              "GET /pessoas/email/{email}"
+              "GET /pessoas/email/{email}",
+              {
+                "group": "Por Empresa",
+                "openapi": "/openapi/empresas.json",
+                "pages": [
+                  "GET /empresas/telefone/{telefone}",
+                  "GET /empresas/email/{email}"
+                ]
+              }
             ]
           },
           {
             "group": "Busca por Empresa",
             "openapi": "/openapi/empresas.json",
             "pages": [
-              "GET /empresas/cpf/{cpf}",
-              "GET /empresas/email/{email}",
-              "GET /empresas/telefone/{telefone}"
+              "GET /empresas/cpf/{cpf}"
             ]
           },
           {
