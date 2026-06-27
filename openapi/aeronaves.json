@@ -27,9 +27,14 @@
       "Aeronave": {
         "type": "object",
         "properties": {
-          "cpf_cnpj": {
+          "documento": {
             "type": "string",
-            "description": "CPF ou CNPJ do proprietario"
+            "description": "CPF (mascarado, ex: 123.XXX.XXX-01) ou CNPJ do proprietario"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": ["PF", "PJ"],
+            "description": "Tipo de pessoa do documento: PF (CPF) ou PJ (CNPJ)"
           },
           "marca": {
             "type": "string",
@@ -38,11 +43,24 @@
           "proprietario": {
             "type": "string"
           },
+          "outros_proprietarios": {
+            "type": "string"
+          },
           "uf": {
             "type": "string"
           },
           "operador": {
             "type": "string"
+          },
+          "outros_operadores": {
+            "type": "string"
+          },
+          "uf_operador": {
+            "type": "string"
+          },
+          "cpf_cgc": {
+            "type": "string",
+            "description": "CPF/CGC do operador (mascarado)"
           },
           "certificado_matricula": {
             "type": "string"
@@ -53,9 +71,9 @@
           "categoria": {
             "type": "string"
           },
-          "tipo": {
+          "tipo_aeronave": {
             "type": "string",
-            "description": "Aviao, helicoptero, etc"
+            "description": "Tipo da aeronave (ex: AVIAO, HELICOPTERO, PLANADOR)"
           },
           "modelo": {
             "type": "string"
@@ -70,10 +88,49 @@
             "type": "string",
             "description": "Peso maximo de decolagem (kg)"
           },
-          "ano_fabricacao": {
+          "tipo_icao": {
+            "type": "string",
+            "description": "Codigo ICAO do tipo de aeronave"
+          },
+          "tripulacao_minima": {
             "type": "string"
           },
           "passageiros_maximo": {
+            "type": "string"
+          },
+          "numero_assentos": {
+            "type": "string"
+          },
+          "ano_fabricacao": {
+            "type": "string"
+          },
+          "validade_cva": {
+            "type": "string",
+            "description": "Validade do Certificado de Verificacao de Aeronavegabilidade"
+          },
+          "validade_ca": {
+            "type": "string",
+            "description": "Validade do Certificado de Aeronavegabilidade"
+          },
+          "data_cancelamento": {
+            "type": "string"
+          },
+          "motivo_cancelamento": {
+            "type": "string"
+          },
+          "interdicao": {
+            "type": "string"
+          },
+          "marca_nacional_1": {
+            "type": "string"
+          },
+          "marca_nacional_2": {
+            "type": "string"
+          },
+          "marca_nacional_3": {
+            "type": "string"
+          },
+          "marca_estrangeira": {
             "type": "string"
           },
           "data_matricula": {
@@ -85,17 +142,26 @@
           "quantidade_motores": {
             "type": "string"
           },
+          "tipo_pouso": {
+            "type": "string"
+          },
           "preco_estimado": {
             "type": "number",
-            "description": "Preco estimado em USD"
+            "description": "Preco estimado em USD (presente apenas quando ha estimativa para o tipo de aeronave)"
           }
         }
       },
       "Drone": {
         "type": "object",
         "properties": {
-          "cpf_cnpj": {
-            "type": "string"
+          "documento": {
+            "type": "string",
+            "description": "CPF (mascarado, ex: ***.456.789-**) ou CNPJ do operador"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": ["PF", "PJ"],
+            "description": "Tipo de pessoa do documento: PF (CPF) ou PJ (CNPJ)"
           },
           "codigo_aeronave": {
             "type": "string",
@@ -128,7 +194,8 @@
             "type": "string"
           },
           "preco_estimado": {
-            "type": "number"
+            "type": "number",
+            "description": "Preco estimado em USD (presente apenas quando ha estimativa para o tipo de uso)"
           }
         }
       },
@@ -198,8 +265,8 @@
           {
             "name": "nome",
             "in": "query",
-            "required": false,
-            "description": "Nome do proprietario (necessario para match em algumas fontes)",
+            "required": true,
+            "description": "Nome do proprietario (obrigatorio para CPF: sem ele a consulta retorna vazio)",
             "schema": {
               "type": "string",
               "example": "JOAO SILVA"
@@ -217,32 +284,48 @@
                 "example": {
                   "avioes": [
                     {
-                      "documento": "123.456.789-01",
-                      "tipo_documento": "CPF",
+                      "documento": "123.XXX.XXX-01",
+                      "tipo": "PF",
                       "marca": "PT-ABC",
                       "proprietario": "João Silva",
+                      "outros_proprietarios": "",
                       "uf": "SP",
                       "operador": "João Silva",
+                      "outros_operadores": "",
+                      "uf_operador": "SP",
+                      "cpf_cgc": "123.XXX.XXX-01",
                       "certificado_matricula": "12345",
                       "numero_serie": "110-001",
                       "categoria": "TPP",
-                      "tipo": "Avião",
+                      "tipo_aeronave": "AVIAO",
                       "modelo": "EMB-110",
                       "fabricante": "Embraer",
                       "classe": "CLT",
                       "pmd": "5700",
-                      "ano_fabricacao": "2010",
+                      "tipo_icao": "E110",
+                      "tripulacao_minima": "2",
                       "passageiros_maximo": "19",
+                      "numero_assentos": "19",
+                      "ano_fabricacao": "2010",
+                      "validade_cva": "",
+                      "validade_ca": "2026-05-20",
+                      "data_cancelamento": "",
+                      "motivo_cancelamento": "",
+                      "interdicao": "",
+                      "marca_nacional_1": "",
+                      "marca_nacional_2": "",
+                      "marca_nacional_3": "",
+                      "marca_estrangeira": "",
                       "data_matricula": "2010-05-20",
                       "tipo_motor": "Turboélice",
                       "quantidade_motores": "2",
-                      "preco_estimado": 1200000
+                      "tipo_pouso": "TERRESTRE"
                     }
                   ],
                   "drones": [
                     {
-                      "documento": "123.456.789-01",
-                      "tipo_documento": "CPF",
+                      "documento": "***.456.789-**",
+                      "tipo": "PF",
                       "codigo_aeronave": "PR-DRONE123",
                       "data_validade": "2025-12-31",
                       "operador": "João Silva",
@@ -252,7 +335,7 @@
                       "numero_serie": "ABC123456",
                       "peso_maximo": "1.388 kg",
                       "ramo_atividade": "Fotografia",
-                      "preco_estimado": 8500
+                      "preco_estimado": 3000
                     }
                   ]
                 }
@@ -323,25 +406,41 @@
                   "avioes": [
                     {
                       "documento": "12.345.678/0001-99",
-                      "tipo_documento": "CNPJ",
+                      "tipo": "PJ",
                       "marca": "PR-XYZ",
                       "proprietario": "Silva Comércio Ltda",
+                      "outros_proprietarios": "",
                       "uf": "SP",
                       "operador": "Silva Comércio Ltda",
+                      "outros_operadores": "",
+                      "uf_operador": "SP",
+                      "cpf_cgc": "12.345.678/0001-99",
                       "certificado_matricula": "67890",
                       "numero_serie": "525B-0001",
                       "categoria": "TPP",
-                      "tipo": "Avião",
+                      "tipo_aeronave": "AVIAO",
                       "modelo": "C-525B",
                       "fabricante": "Cessna",
                       "classe": "CLT",
                       "pmd": "8210",
-                      "ano_fabricacao": "2015",
+                      "tipo_icao": "C525",
+                      "tripulacao_minima": "1",
                       "passageiros_maximo": "9",
+                      "numero_assentos": "9",
+                      "ano_fabricacao": "2015",
+                      "validade_cva": "",
+                      "validade_ca": "2026-08-10",
+                      "data_cancelamento": "",
+                      "motivo_cancelamento": "",
+                      "interdicao": "",
+                      "marca_nacional_1": "",
+                      "marca_nacional_2": "",
+                      "marca_nacional_3": "",
+                      "marca_estrangeira": "",
                       "data_matricula": "2015-08-10",
                       "tipo_motor": "Turbojato",
                       "quantidade_motores": "2",
-                      "preco_estimado": 5500000
+                      "tipo_pouso": "TERRESTRE"
                     }
                   ],
                   "drones": []

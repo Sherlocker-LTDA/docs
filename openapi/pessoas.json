@@ -595,13 +595,79 @@
           }
         }
       },
+      "PessoaReversa": {
+        "type": "object",
+        "description": "Referencia de pessoa fisica retornada em buscas reversas",
+        "properties": {
+          "documento": {
+            "type": "string",
+            "description": "CPF formatado"
+          },
+          "tipo_documento": {
+            "type": "string",
+            "enum": [
+              "CPF"
+            ]
+          },
+          "nome": {
+            "type": "string",
+            "nullable": true
+          },
+          "data_nascimento": {
+            "type": "string",
+            "nullable": true,
+            "description": "Data ISO (YYYY-MM-DD)"
+          },
+          "genero": {
+            "type": "string",
+            "nullable": true,
+            "description": "Masculino, Feminino ou Intersexo"
+          },
+          "falecido": {
+            "type": "boolean"
+          },
+          "obito": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "data_obito": {
+                "type": "string"
+              },
+              "cartorio": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "TelefoneReversoResponse": {
         "type": "object",
+        "description": "Pessoas associadas ao telefone consultado",
         "properties": {
-          "resultados": {
+          "telefone": {
+            "type": "string",
+            "description": "Telefone consultado (somente digitos)"
+          },
+          "pessoas": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Telefone"
+              "$ref": "#/components/schemas/PessoaReversa"
+            }
+          }
+        }
+      },
+      "EmailReversoResponse": {
+        "type": "object",
+        "description": "Pessoas associadas ao email consultado",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email consultado (normalizado)"
+          },
+          "pessoas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PessoaReversa"
             }
           }
         }
@@ -2091,22 +2157,16 @@
                   "$ref": "#/components/schemas/TelefoneReversoResponse"
                 },
                 "example": {
-                  "resultados": [
+                  "telefone": "11999998888",
+                  "pessoas": [
                     {
-                      "nome": "João Silva de Oliveira",
-                      "telefone": {
-                        "ddi": "55",
-                        "ddd": "11",
-                        "numero": "999998888",
-                        "numero_completo": "5511999998888",
-                        "estado": "São Paulo",
-                        "operadora": "Vivo",
-                        "tem_whatsapp": false
-                      },
                       "documento": "123.456.789-01",
                       "tipo_documento": "CPF",
+                      "nome": "João Silva de Oliveira",
                       "data_nascimento": "1990-01-15",
-                      "genero": "Masculino"
+                      "genero": "Masculino",
+                      "falecido": false,
+                      "obito": null
                     }
                   ]
                 }
@@ -2154,6 +2214,29 @@
               "type": "string",
               "example": "12345678901"
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximo de registros retornados (max 200, padrao 50)",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 200,
+              "example": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Numero de registros a pular (padrao 0)",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "example": 0
+            }
           }
         ],
         "responses": {
@@ -2162,9 +2245,63 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "documento": {
+                      "type": "string",
+                      "description": "CPF formatado",
+                      "example": "123.456.789-01"
+                    },
+                    "tipo_documento": {
+                      "type": "string",
+                      "enum": [
+                        "CPF"
+                      ],
+                      "example": "CPF"
+                    },
+                    "telefones": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "ddi": {
+                            "type": "string",
+                            "example": "55"
+                          },
+                          "ddd": {
+                            "type": "string",
+                            "example": "11"
+                          },
+                          "numero": {
+                            "type": "string",
+                            "example": "999998888"
+                          },
+                          "numero_completo": {
+                            "type": "string",
+                            "example": "5511999998888"
+                          },
+                          "estado": {
+                            "type": "string",
+                            "example": "São Paulo"
+                          },
+                          "operadora": {
+                            "type": "string",
+                            "example": "Vivo"
+                          },
+                          "data": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Data de referencia (YYYY-MM-DD) ou null",
+                            "example": null
+                          }
+                        }
+                      }
+                    }
+                  }
                 },
                 "example": {
+                  "documento": "123.456.789-01",
+                  "tipo_documento": "CPF",
                   "telefones": [
                     {
                       "ddi": "55",
@@ -2173,7 +2310,7 @@
                       "numero_completo": "5511999998888",
                       "estado": "São Paulo",
                       "operadora": "Vivo",
-                      "tem_whatsapp": false
+                      "data": null
                     }
                   ]
                 }
@@ -2221,6 +2358,29 @@
               "type": "string",
               "example": "12345678000199"
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximo de registros retornados (max 200, padrao 50)",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 200,
+              "example": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Numero de registros a pular (padrao 0)",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "example": 0
+            }
           }
         ],
         "responses": {
@@ -2229,9 +2389,57 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "documento": {
+                      "type": "string",
+                      "description": "CNPJ formatado",
+                      "example": "12.345.678/0001-99"
+                    },
+                    "tipo_documento": {
+                      "type": "string",
+                      "enum": [
+                        "CNPJ"
+                      ],
+                      "example": "CNPJ"
+                    },
+                    "telefones": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "ddi": {
+                            "type": "string",
+                            "example": "55"
+                          },
+                          "ddd": {
+                            "type": "string",
+                            "example": "11"
+                          },
+                          "numero": {
+                            "type": "string",
+                            "example": "999998888"
+                          },
+                          "numero_completo": {
+                            "type": "string",
+                            "example": "5511999998888"
+                          },
+                          "estado": {
+                            "type": "string",
+                            "example": "São Paulo"
+                          },
+                          "operadora": {
+                            "type": "string",
+                            "example": "Vivo"
+                          }
+                        }
+                      }
+                    }
+                  }
                 },
                 "example": {
+                  "documento": "12.345.678/0001-99",
+                  "tipo_documento": "CNPJ",
                   "telefones": [
                     {
                       "ddi": "55",
@@ -2239,8 +2447,7 @@
                       "numero": "999998888",
                       "numero_completo": "5511999998888",
                       "estado": "São Paulo",
-                      "operadora": "Vivo",
-                      "tem_whatsapp": false
+                      "operadora": "Vivo"
                     }
                   ]
                 }
@@ -2288,6 +2495,29 @@
               "type": "string",
               "example": "12345678901"
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximo de registros retornados (max 200, padrao 50)",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 200,
+              "example": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Numero de registros a pular (padrao 0)",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "example": 0
+            }
           }
         ],
         "responses": {
@@ -2296,9 +2526,31 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "documento": {
+                      "type": "string",
+                      "description": "CPF formatado",
+                      "example": "123.456.789-01"
+                    },
+                    "tipo_documento": {
+                      "type": "string",
+                      "enum": [
+                        "CPF"
+                      ],
+                      "example": "CPF"
+                    },
+                    "emails": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Email"
+                      }
+                    }
+                  }
                 },
                 "example": {
+                  "documento": "123.456.789-01",
+                  "tipo_documento": "CPF",
                   "emails": [
                     {
                       "email": "joao@gmail.com",
@@ -2351,6 +2603,29 @@
               "type": "string",
               "example": "12345678000199"
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximo de registros retornados (max 200, padrao 50)",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 200,
+              "example": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Numero de registros a pular (padrao 0)",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "example": 0
+            }
           }
         ],
         "responses": {
@@ -2359,9 +2634,31 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "documento": {
+                      "type": "string",
+                      "description": "CNPJ formatado",
+                      "example": "12.345.678/0001-99"
+                    },
+                    "tipo_documento": {
+                      "type": "string",
+                      "enum": [
+                        "CNPJ"
+                      ],
+                      "example": "CNPJ"
+                    },
+                    "emails": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Email"
+                      }
+                    }
+                  }
                 },
                 "example": {
+                  "documento": "12.345.678/0001-99",
+                  "tipo_documento": "CNPJ",
                   "emails": [
                     {
                       "email": "contato@empresa.com.br",
@@ -3110,21 +3407,19 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/EmailReversoResponse"
                 },
                 "example": {
-                  "resultados": [
+                  "email": "joao@gmail.com",
+                  "pessoas": [
                     {
-                      "nome": "João Silva de Oliveira",
-                      "email": {
-                        "email": "joao@gmail.com",
-                        "dominio": "gmail.com",
-                        "corporativo": false
-                      },
                       "documento": "123.456.789-01",
                       "tipo_documento": "CPF",
+                      "nome": "João Silva de Oliveira",
                       "data_nascimento": "1990-01-15",
-                      "genero": "Masculino"
+                      "genero": "Masculino",
+                      "falecido": false,
+                      "obito": null
                     }
                   ]
                 }

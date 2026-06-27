@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Sherlocker Imoveis API",
-    "description": "Levantamento de imoveis urbanos via base unificada e portais IPTU de 1.400+ municipios. Busca por CPF ou CNPJ do proprietario, com filtro opcional por estado.",
+    "description": "Levantamento de imoveis urbanos via base unificada de portais IPTU de 1.400+ municipios. Busca por CPF ou CNPJ do proprietario.",
     "version": "1.0"
   },
   "servers": [
@@ -26,6 +26,7 @@
     "schemas": {
       "Localizacao": {
         "type": "object",
+        "description": "Endereco completo do imovel (logradouro/bairro/cidade vem em Title Case).",
         "properties": {
           "logradouro": {
             "type": "string"
@@ -50,17 +51,66 @@
           }
         }
       },
+      "LocalizacaoEndereco": {
+        "type": "object",
+        "description": "Endereco usado em enderecos_resididos. NAO inclui campo complemento.",
+        "properties": {
+          "logradouro": {
+            "type": "string"
+          },
+          "numero": {
+            "type": "string"
+          },
+          "bairro": {
+            "type": "string"
+          },
+          "cidade": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "cep": {
+            "type": "string",
+            "description": "Formatado 00000-000"
+          }
+        }
+      },
       "Proprietario": {
         "type": "object",
+        "description": "Proprietario do imovel. documento vem formatado (CPF 000.000.000-00 / CNPJ 00.000.000/0000-00) ou null. ATENCAO: a chave do tipo e tipoDocumento (camelCase).",
         "properties": {
           "nome": {
             "type": "string"
           },
           "documento": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "description": "CPF/CNPJ formatado, ou null quando ausente"
           },
           "tipoDocumento": {
+            "type": "string",
+            "enum": [
+              "CPF",
+              "CNPJ"
+            ],
+            "description": "Pode estar ausente quando o documento nao tem 11/14 digitos"
+          }
+        }
+      },
+      "ProprietarioEndereco": {
+        "type": "object",
+        "description": "Proprietario listado em enderecos_resididos. ATENCAO: difere de Proprietario — documento vem em digitos crus (sem mascara) e a chave do tipo e tipo_documento (snake_case).",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "description": "Nome conforme cadastro municipal (cru, geralmente em CAIXA ALTA)"
+          },
+          "documento": {
+            "type": "string",
+            "description": "CPF/CNPJ apenas digitos (sem mascara)"
+          },
+          "tipo_documento": {
             "type": "string",
             "enum": [
               "CPF",
@@ -77,13 +127,14 @@
           },
           "fonte": {
             "type": "string",
-            "description": "Fonte dos dados (betha, sia, elotech, etc)"
+            "description": "Plataforma/origem do dado IPTU municipal (ex: betha, elotech, sia)"
           },
           "sql_iptu": {
             "type": "string"
           },
           "inscricao": {
-            "type": "string"
+            "type": "string",
+            "description": "Inscricao municipal"
           },
           "localizacao": {
             "$ref": "#/components/schemas/Localizacao"
@@ -116,75 +167,103 @@
           }
         }
       },
-      "EnderecoResidido": {
-        "type": "object",
-        "properties": {
-          "endereco": {
-            "$ref": "#/components/schemas/Localizacao"
-          },
-          "proprietarioReal": {
-            "$ref": "#/components/schemas/Proprietario"
-          },
-          "imovelRecord": {
+      "PropriedadeUrbana": {
+        "description": "Item de propriedades na resposta por CPF: ImovelRecord acrescido de tipo_propriedade e quantidade (imoveis identicos por endereco/area/uso sao agrupados).",
+        "allOf": [
+          {
             "$ref": "#/components/schemas/ImovelRecord"
           },
-          "vinculo": {
-            "type": "string",
-            "enum": [
-              "propriedade",
-              "aluguel",
-              "empresa_socia",
-              "indefinido"
-            ]
+          {
+            "type": "object",
+            "properties": {
+              "tipo_propriedade": {
+                "type": "string",
+                "enum": [
+                  "urbano"
+                ]
+              },
+              "quantidade": {
+                "type": "integer",
+                "description": "Quantidade de imoveis agrupados nesta entrada"
+              }
+            }
+          }
+        ]
+      },
+      "ImovelParente": {
+        "description": "Item de propriedades de um parente: ImovelRecord acrescido de tipo_propriedade. NAO inclui quantidade (nao passa pelo agrupamento).",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ImovelRecord"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "tipo_propriedade": {
+                "type": "string",
+                "enum": [
+                  "urbano"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "EnderecoResidido": {
+        "type": "object",
+        "description": "Endereco onde a pessoa mora/morou cruzado com imoveis cujo proprietario e outra pessoa.",
+        "properties": {
+          "endereco": {
+            "$ref": "#/components/schemas/LocalizacaoEndereco"
+          },
+          "proprietarios": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProprietarioEndereco"
+            }
           }
         }
       },
       "ParenteImoveis": {
         "type": "object",
         "properties": {
-          "cpf": {
-            "type": "string"
-          },
           "nome": {
             "type": "string"
           },
-          "vinculo": {
-            "type": "string"
+          "cpf": {
+            "type": "string",
+            "description": "CPF do parente apenas digitos (sem mascara)"
+          },
+          "parentesco": {
+            "type": "string",
+            "description": "Grau de parentesco (ex: Mae, Conjuge)"
           },
           "propriedades": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ImovelRecord"
+              "$ref": "#/components/schemas/ImovelParente"
             }
           }
         }
       },
-      "ConsultaDocumentoResponse": {
+      "ImoveisCpfResponse": {
         "type": "object",
+        "description": "Resposta de /imoveis/cpf/{cpf}.",
         "properties": {
           "documento": {
-            "type": "string"
+            "type": "string",
+            "description": "CPF formatado 000.000.000-00"
           },
-          "tipo": {
+          "tipo_documento": {
             "type": "string",
             "enum": [
-              "cpf",
-              "cnpj"
+              "CPF"
             ]
-          },
-          "nome": {
-            "type": "string"
           },
           "propriedades": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ImovelRecord"
-            }
-          },
-          "enderecosResididos": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EnderecoResidido"
+              "$ref": "#/components/schemas/PropriedadeUrbana"
             }
           },
           "parentes": {
@@ -192,27 +271,66 @@
             "items": {
               "$ref": "#/components/schemas/ParenteImoveis"
             }
+          },
+          "enderecos_resididos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnderecoResidido"
+            }
           }
         }
       },
-      "EnderecoResponse": {
+      "ImoveisCnpjResponse": {
         "type": "object",
+        "description": "Resposta de /imoveis/cnpj/{cnpj}. NAO inclui nome, parentes nem enderecos_resididos; itens de propriedades sao ImovelRecord puro (sem tipo_propriedade/quantidade).",
         "properties": {
-          "cep": {
-            "type": "string"
-          },
-          "numero": {
-            "type": "string"
-          },
-          "complemento": {
+          "documento": {
             "type": "string",
-            "nullable": true
+            "description": "CNPJ formatado 00.000.000/0000-00"
+          },
+          "tipo_documento": {
+            "type": "string",
+            "enum": [
+              "CNPJ"
+            ]
           },
           "propriedades": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ImovelRecord"
             }
+          }
+        }
+      },
+      "ErroValidacao": {
+        "type": "object",
+        "description": "Erro de validacao de documento. ATENCAO: retornado com HTTP 200 (nao 4xx). Corpo plano com unico campo erro.",
+        "properties": {
+          "erro": {
+            "type": "string",
+            "example": "CPF invalido"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "description": "Envelope de erro para excecoes lancadas (ex: 401/500).",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "example": 401
+          },
+          "message": {
+            "type": "string",
+            "example": "Unauthorized"
+          },
+          "path": {
+            "type": "string",
+            "example": "/api/v1/imoveis/cpf/12345678901"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -226,30 +344,6 @@
             "type": "string"
           }
         }
-      },
-      "ErrorResponse": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "example": false
-          },
-          "erro": {
-            "type": "object",
-            "properties": {
-              "codigo": {
-                "type": "string",
-                "description": "Codigo do erro (ex: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED)",
-                "example": "VALIDATION_ERROR"
-              },
-              "mensagem": {
-                "type": "string",
-                "description": "Mensagem descritiva do erro",
-                "example": "CPF invalido"
-              }
-            }
-          }
-        }
       }
     }
   },
@@ -258,7 +352,7 @@
       "get": {
         "operationId": "getImoveisByCpf",
         "summary": "Imoveis urbanos de uma pessoa",
-        "description": "Retorna imoveis, enderecos resididos e imoveis de parentes para um CPF em todos os estados.",
+        "description": "Retorna propriedades urbanas do CPF, imoveis de parentes e enderecos resididos (imoveis de terceiros nos enderecos onde a pessoa mora/morou). Documento invalido retorna HTTP 200 com corpo { \"erro\": \"CPF invalido\" }.",
         "tags": [
           "Imoveis"
         ],
@@ -267,39 +361,28 @@
             "name": "cpf",
             "in": "path",
             "required": true,
-            "description": "CPF (11 digitos)",
+            "description": "CPF (11 digitos, com ou sem mascara)",
             "schema": {
               "type": "string",
               "example": "12345678901"
-            }
-          },
-          {
-            "name": "parentes",
-            "in": "query",
-            "required": false,
-            "description": "Incluir imoveis de parentes (default: true)",
-            "schema": {
-              "type": "boolean",
-              "default": true
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Imoveis encontrados",
+            "description": "Imoveis encontrados (ou corpo { erro } quando o CPF e invalido)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConsultaDocumentoResponse"
+                  "$ref": "#/components/schemas/ImoveisCpfResponse"
                 },
                 "example": {
                   "documento": "123.456.789-01",
                   "tipo_documento": "CPF",
-                  "nome": "João Silva de Oliveira",
                   "propriedades": [
                     {
                       "id": "sp-vm-031044-00941",
-                      "fonte": "prefeitura_sp",
+                      "fonte": "betha",
                       "sql_iptu": "031.044.0094-1",
                       "inscricao": "031.044.0094-1",
                       "localizacao": {
@@ -315,54 +398,44 @@
                       "area_construida": 150.0,
                       "ano_construcao": 2005,
                       "tipo_uso": "Residencial",
-                      "valor_venal": 500000.00,
-                      "valor_iptu": 2500.00,
+                      "valor_venal": 500000.0,
+                      "valor_iptu": 2500.0,
                       "proprietario": {
                         "nome": "João Silva",
                         "documento": "123.456.789-01",
                         "tipoDocumento": "CPF"
-                      }
-                    }
-                  ],
-                  "enderecosResididos": [
-                    {
-                      "endereco": {
-                        "logradouro": "Rua das Flores",
-                        "numero": "123",
-                        "complemento": "Apto 10",
-                        "bairro": "Centro",
-                        "cidade": "São Paulo",
-                        "uf": "SP",
-                        "cep": "01310100"
                       },
-                      "proprietarioReal": {
-                        "nome": "Maria Silva",
-                        "documento": "987.654.321-00",
-                        "tipoDocumento": "CPF"
-                      },
-                      "imovelRecord": null,
-                      "vinculo": "aluguel"
+                      "tipo_propriedade": "urbano",
+                      "quantidade": 1
                     }
                   ],
                   "parentes": [
                     {
-                      "documento": "987.654.321-00",
-                      "tipo_documento": "CPF",
                       "nome": "Maria Silva de Oliveira",
-                      "vinculo": "Cônjuge",
+                      "cpf": "98765432100",
+                      "parentesco": "Mãe",
                       "propriedades": []
                     }
+                  ],
+                  "enderecos_resididos": [
+                    {
+                      "endereco": {
+                        "logradouro": "Rua das Flores",
+                        "numero": "123",
+                        "bairro": "Centro",
+                        "cidade": "São Paulo",
+                        "uf": "SP",
+                        "cep": "01310-100"
+                      },
+                      "proprietarios": [
+                        {
+                          "nome": "MARIA SILVA",
+                          "documento": "98765432100",
+                          "tipo_documento": "CPF"
+                        }
+                      ]
+                    }
                   ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Parametro invalido",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -384,6 +457,7 @@
       "get": {
         "operationId": "getImoveisByCnpj",
         "summary": "Imoveis urbanos de uma empresa",
+        "description": "Retorna as propriedades urbanas registradas em nome do CNPJ. Nao inclui parentes nem enderecos resididos. CNPJ invalido retorna HTTP 200 com corpo { \"erro\": \"CNPJ invalido\" }.",
         "tags": [
           "Imoveis"
         ],
@@ -392,38 +466,28 @@
             "name": "cnpj",
             "in": "path",
             "required": true,
-            "description": "CNPJ (14 digitos)",
+            "description": "CNPJ (14 digitos, com ou sem mascara)",
             "schema": {
               "type": "string",
               "example": "12345678000199"
-            }
-          },
-          {
-            "name": "parentes",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "default": true
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Imoveis encontrados",
+            "description": "Imoveis encontrados (ou corpo { erro } quando o CNPJ e invalido)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConsultaDocumentoResponse"
+                  "$ref": "#/components/schemas/ImoveisCnpjResponse"
                 },
                 "example": {
                   "documento": "12.345.678/0001-99",
                   "tipo_documento": "CNPJ",
-                  "nome": "Silva Comércio Ltda",
                   "propriedades": [
                     {
                       "id": "sp-cn-045012-00321",
-                      "fonte": "prefeitura_sp",
+                      "fonte": "elotech",
                       "sql_iptu": "045.012.0032-1",
                       "inscricao": "045.012.0032-1",
                       "localizacao": {
@@ -439,27 +503,15 @@
                       "area_construida": 280.0,
                       "ano_construcao": 2010,
                       "tipo_uso": "Comercial",
-                      "valor_venal": 1200000.00,
-                      "valor_iptu": 8500.00,
+                      "valor_venal": 1200000.0,
+                      "valor_iptu": 8500.0,
                       "proprietario": {
                         "nome": "Silva Comércio Ltda",
                         "documento": "12.345.678/0001-99",
                         "tipoDocumento": "CNPJ"
                       }
                     }
-                  ],
-                  "enderecosResididos": [],
-                  "parentes": []
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Parametro invalido",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  ]
                 }
               }
             }
@@ -525,16 +577,6 @@
               }
             }
           },
-          "400": {
-            "description": "Parametro invalido",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Token ausente ou invalido",
             "content": {
@@ -592,16 +634,6 @@
                 "example": {
                   "jobId": "def456",
                   "statusUrl": "/imoveis/jobs/def456"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Parametro invalido",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }

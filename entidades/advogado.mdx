@@ -12,8 +12,7 @@ Um **Advogado** representa um profissional do direito que atua como representant
 |-------|------|-----------|
 | `nome` | string | Nome completo do advogado (Title Case) |
 | `oab` | string | Número da OAB com UF (ex: `SP123456`, `RJ084902`) |
-| `polo` | string | Polo que representa (`ativo`, `passivo`, etc.) |
-| `documento` | string \| null | CPF do advogado (pode não estar disponível) |
+| `polo` | string | Polo que representa (capitalizado) |
 
 ## Exemplo
 
@@ -21,7 +20,6 @@ Um **Advogado** representa um profissional do direito que atua como representant
 {
   "nome": "José Carlos Mendes",
   "oab": "SP123456",
-  "polo": "ativo",
-  "documento": "987.654.321-00"
+  "polo": "Ativo"
 }
 ```

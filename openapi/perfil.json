@@ -56,7 +56,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Perfil cadastral completo da pessoa fisica",
+            "description": "Perfil cadastral completo da pessoa fisica. Observacao: para documento invalido ou nao encontrado a API responde 200 com o corpo { \"erro\": \"...\" } (ex.: CPF invalido, CPF nao encontrado, Servico indisponivel).",
             "content": {
               "application/json": {
                 "schema": {
@@ -68,6 +68,8 @@
                   "nome_completo": "Maria Silva Santos",
                   "genero": "Feminino",
                   "data_nascimento": "1996-01-02",
+                  "falecido": false,
+                  "obito": null,
                   "enderecos": [
                     {
                       "logradouro": "R HENRIQUE PASSINI",
@@ -87,7 +89,7 @@
                       "numero_completo": "5531987654321",
                       "estado": "MG",
                       "operadora": "Vivo",
-                      "tem_whatsapp": false
+                      "data": "2022-01-01"
                     }
                   ],
                   "emails": [
@@ -153,7 +155,16 @@
                         }
                       }
                     }
-                  ]
+                  ],
+                  "publicamente_exposta": false,
+                  "cargos_publicos": [],
+                  "beneficios": {
+                    "auxilio_brasil": [],
+                    "bolsa_familia": [],
+                    "auxilio_emergencial": [],
+                    "bpc": []
+                  },
+                  "dominios": []
                 }
               }
             }
@@ -185,7 +196,7 @@
       "get": {
         "operationId": "perfilCadastralCnpj",
         "summary": "Perfil Cadastral por CNPJ",
-        "description": "Agrega em uma chamada: dados cadastrais, socios e funcionarios.",
+        "description": "Agrega em uma chamada: dados cadastrais, atividades economicas e socios.",
         "tags": [
           "Perfil Cadastral"
         ],
@@ -203,7 +214,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Perfil cadastral completo da empresa",
+            "description": "Perfil cadastral completo da empresa. Observacao: para documento invalido ou nao encontrado a API responde 200 com o corpo { \"erro\": \"...\" } (ex.: CNPJ invalido, CNPJ nao encontrado, Servico indisponivel).",
             "content": {
               "application/json": {
                 "schema": {
@@ -212,24 +223,36 @@
                 "example": {
                   "documento": "12.345.678/0001-95",
                   "tipo_documento": "CNPJ",
-                  "razao_social": "Technovação Digital Ltda",
-                  "nome_fantasia": "Technovação",
-                  "cnaes": [
-                    {
-                      "codigo": "6209100",
-                      "descricao": "Suporte tecnico em TI"
-                    }
-                  ],
-                  "situacao": "ATIVA",
+                  "cnpj_basico": "12345678",
+                  "razao_social": "Technovacao Digital Ltda",
+                  "nome_fantasia": "Technovacao",
+                  "situacao": "Ativa",
+                  "data_situacao": "2016-01-20",
+                  "motivo_situacao": null,
                   "data_abertura": "2016-01-20",
                   "capital_social": 50000.0,
-                  "natureza_juridica": "Sociedade Limitada",
+                  "porte": "Empresa de Pequeno Porte",
+                  "matriz_filial": "Matriz",
+                  "natureza_juridica": {
+                    "codigo": "2062",
+                    "descricao": "Sociedade Empresária Limitada"
+                  },
+                  "atividade_principal": {
+                    "codigo": "6209100",
+                    "descricao": "Suporte tecnico em TI"
+                  },
+                  "atividades_secundarias": [
+                    {
+                      "codigo": "6201500",
+                      "descricao": "Desenvolvimento de programas de computador sob encomenda"
+                    }
+                  ],
                   "endereco": {
-                    "logradouro": "AVENIDA PAULISTA",
+                    "logradouro": "Avenida Paulista",
                     "numero": "1000",
-                    "complemento": "SALA 1201",
-                    "bairro": "BELA VISTA",
-                    "cidade": "SAO PAULO",
+                    "complemento": "Sala 1201",
+                    "bairro": "Bela Vista",
+                    "cidade": "Sao Paulo",
                     "uf": "SP",
                     "cep": "01310-100"
                   },
@@ -240,8 +263,7 @@
                       "numero": "34567890",
                       "numero_completo": "551134567890",
                       "estado": "SP",
-                      "operadora": "Fixo",
-                      "tem_whatsapp": false
+                      "operadora": "Fixo"
                     }
                   ],
                   "emails": [
@@ -253,56 +275,22 @@
                   ],
                   "socios": [
                     {
-                      "nome": "Maria da Silva",
+                      "nome": "Maria Da Silva",
                       "documento": "123.456.789-01",
                       "tipo_documento": "CPF",
-                      "tipo": "Pessoa Fisica",
+                      "tipo": "Pessoa Física",
                       "qualificacao": "Socio-Administrador",
-                      "data_entrada": "2016-01-20"
+                      "data_entrada": "2016-01-20",
+                      "pais": "Brasil",
+                      "origem": "qsa",
+                      "data_nascimento": "1985-03-12",
+                      "sexo": "Feminino",
+                      "idade": 41,
+                      "faixa_etaria": "31 a 40 anos"
                     }
                   ],
-                  "funcionarios": [
-                    {
-                      "documento": "987.654.321-00",
-                      "tipo_documento": "CPF",
-                      "nome": "João Pereira",
-                      "data_nascimento": "1995-08-10",
-                      "sexo": "Masculino",
-                      "cargo": "ANALISTA",
-                      "status": "ativo",
-                      "data_admissao": "2020-03-15",
-                      "data_desligamento": null,
-                      "remuneracao": {
-                        "valor": 4500.0,
-                        "estimativa_minima": 5060.0,
-                        "estimativa_maxima": 12650.0,
-                        "faixa": "4 a 10 SM"
-                      },
-                      "vinculo": {
-                        "nivel": "Funcionário",
-                        "setor": {
-                          "tipo": "Privado",
-                          "codigo": "6209100",
-                          "descricao": "Suporte tecnico em TI"
-                        }
-                      },
-                      "contatos": {
-                        "telefone": {
-                          "ddi": "55",
-                          "ddd": "11",
-                          "numero": "912345678",
-                          "numero_completo": "5511912345678",
-                          "estado": "SP",
-                          "operadora": "Claro"
-                        },
-                        "email": {
-                          "email": "joao.pereira@technovacao.com.br",
-                          "dominio": "technovacao.com.br",
-                          "corporativo": true
-                        }
-                      }
-                    }
-                  ]
+                  "situacao_especial": null,
+                  "data_situacao_especial": null
                 }
               }
             }
@@ -352,7 +340,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Perfil patrimonial completo da pessoa fisica",
+            "description": "Perfil patrimonial completo da pessoa fisica. Observacao: para CPF invalido a API responde 200 com o corpo { \"erro\": \"CPF invalido\" }.",
             "content": {
               "application/json": {
                 "schema": {
@@ -361,24 +349,45 @@
                 "example": {
                   "veiculos": [
                     {
+                      "documento": "12345678901",
+                      "tipo": "PF",
+                      "nome_proprietario": "MARIA DA SILVA",
+                      "ano_documento": 2022,
                       "placa": "ABC1D23",
                       "placa_antiga": "ABC1234",
-                      "chassi": "9BWAG45N1YT123456",
+                      "placa_nova": "ABC1D23",
                       "renavam": "12345678901",
-                      "modelo": "GOL 1.0",
-                      "marca": "VW/VOLKSWAGEN",
+                      "chassi": "9BWAG45N1YT123456",
                       "ano_fabricacao": 2019,
                       "ano_modelo": 2020,
+                      "marca": "VW",
+                      "modelo": "GOL 1.0",
                       "cor": "Prata",
                       "combustivel": "Flex",
-                      "municipio": "Sao Paulo",
-                      "uf": "SP",
                       "tipo_veiculo": "Automovel",
                       "especie_veiculo": "Passageiro",
-                      "situacao_veiculo": "Circulacao",
                       "potencia": "75",
                       "cilindradas": "999",
-                      "restricoes": []
+                      "quantidade_passageiro": "5",
+                      "municipio": "SAO PAULO",
+                      "uf": "SP",
+                      "situacao_veiculo": "Circulacao",
+                      "restricao_1": "",
+                      "restricao_2": "",
+                      "restricao_3": "",
+                      "restricao_4": "",
+                      "nacionalidade": "",
+                      "carroceria": "",
+                      "tipo_montagem": "",
+                      "peso_bruto_total": "",
+                      "cap_maxima_tracao": "",
+                      "capacidade_carga": "",
+                      "motor": "",
+                      "caixa_cambio": "",
+                      "situacao_chassi": "",
+                      "eixos": "",
+                      "media_preco": "",
+                      "updated_at": 0
                     }
                   ],
                   "imoveis": [
@@ -386,6 +395,7 @@
                       "id": "a1b2c3",
                       "fonte": "bh",
                       "sql_iptu": "0123456789",
+                      "inscricao": "0123456789",
                       "localizacao": {
                         "logradouro": "R EXEMPLO",
                         "numero": "100",
@@ -400,7 +410,12 @@
                       "ano_construcao": 1995,
                       "tipo_uso": "RESIDENCIAL",
                       "valor_venal": 450000.0,
-                      "valor_iptu": 2400.0
+                      "valor_iptu": 2400.0,
+                      "proprietario": {
+                        "nome": "MARIA DA SILVA",
+                        "documento": "12345678901",
+                        "tipoDocumento": "CPF"
+                      }
                     }
                   ],
                   "aeronaves": {
@@ -410,10 +425,26 @@
                   "patentes": [
                     {
                       "numero_inpi": "BR102020012345",
+                      "codigo_interno": "",
+                      "depositante": "MARIA DA SILVA",
+                      "cgccpfdepositante": "12345678901",
+                      "tipopessoadepositante": "Fisica",
+                      "pais": "BR",
+                      "estado": "SP",
+                      "data_inicio_depositante": "",
+                      "data_fim_depositante": "",
                       "titulo": "DISPOSITIVO PARA FILTRAGEM",
+                      "resumo": "",
                       "natureza": "PATENTE DE INVENCAO",
                       "data_deposito": "2020-06-15",
-                      "data_publicacao": "2021-12-21"
+                      "data_publicacao": "2021-12-21",
+                      "data_concessao": "",
+                      "classificacao_ipc": "",
+                      "despacho_codigo": "",
+                      "despacho_texto": "",
+                      "despacho_data_rpi": "",
+                      "inventores": "",
+                      "procuradores": ""
                     }
                   ],
                   "rural": null
@@ -466,7 +497,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Perfil patrimonial completo da empresa",
+            "description": "Perfil patrimonial completo da empresa. Observacao: para CNPJ invalido a API responde 200 com o corpo { \"erro\": \"CNPJ invalido\" }.",
             "content": {
               "application/json": {
                 "schema": {
@@ -475,26 +506,45 @@
                 "example": {
                   "veiculos": [
                     {
+                      "documento": "12345678000195",
+                      "tipo": "PJ",
+                      "nome_proprietario": "TECHNOVACAO DIGITAL LTDA",
+                      "ano_documento": 2022,
                       "placa": "DEF2G34",
                       "placa_antiga": "DEF2345",
-                      "chassi": "9BGRD08X04G123456",
+                      "placa_nova": "DEF2G34",
                       "renavam": "98765432101",
-                      "modelo": "FIAT/STRADA TREK CE",
-                      "marca": "FIAT",
+                      "chassi": "9BGRD08X04G123456",
                       "ano_fabricacao": 2021,
                       "ano_modelo": 2022,
+                      "marca": "FIAT",
+                      "modelo": "STRADA TREK CE",
                       "cor": "Branca",
                       "combustivel": "Flex",
-                      "municipio": "Sao Paulo",
-                      "uf": "SP",
                       "tipo_veiculo": "Automovel",
                       "especie_veiculo": "Carga",
-                      "situacao_veiculo": "Circulacao",
                       "potencia": "130",
                       "cilindradas": "1300",
-                      "restricoes": [
-                        "Alienacao Fiduciaria"
-                      ]
+                      "quantidade_passageiro": "2",
+                      "municipio": "SAO PAULO",
+                      "uf": "SP",
+                      "situacao_veiculo": "Circulacao",
+                      "restricao_1": "Alienacao Fiduciaria",
+                      "restricao_2": "",
+                      "restricao_3": "",
+                      "restricao_4": "",
+                      "nacionalidade": "",
+                      "carroceria": "",
+                      "tipo_montagem": "",
+                      "peso_bruto_total": "",
+                      "cap_maxima_tracao": "",
+                      "capacidade_carga": "",
+                      "motor": "",
+                      "caixa_cambio": "",
+                      "situacao_chassi": "",
+                      "eixos": "",
+                      "media_preco": "",
+                      "updated_at": 0
                     }
                   ],
                   "imoveis": [
@@ -502,6 +552,7 @@
                       "id": "a1b2c3",
                       "fonte": "bh",
                       "sql_iptu": "0123456789",
+                      "inscricao": "0123456789",
                       "localizacao": {
                         "logradouro": "R EXEMPLO",
                         "numero": "100",
@@ -514,9 +565,14 @@
                       "area_terreno": 360.0,
                       "area_construida": 180.0,
                       "ano_construcao": 1995,
-                      "tipo_uso": "RESIDENCIAL",
+                      "tipo_uso": "COMERCIAL",
                       "valor_venal": 450000.0,
-                      "valor_iptu": 2400.0
+                      "valor_iptu": 2400.0,
+                      "proprietario": {
+                        "nome": "TECHNOVACAO DIGITAL LTDA",
+                        "documento": "12345678000195",
+                        "tipoDocumento": "CNPJ"
+                      }
                     }
                   ],
                   "aeronaves": {
@@ -526,10 +582,26 @@
                   "patentes": [
                     {
                       "numero_inpi": "BR102020012345",
+                      "codigo_interno": "",
+                      "depositante": "TECHNOVACAO DIGITAL LTDA",
+                      "cgccpfdepositante": "12345678000195",
+                      "tipopessoadepositante": "Juridica",
+                      "pais": "BR",
+                      "estado": "SP",
+                      "data_inicio_depositante": "",
+                      "data_fim_depositante": "",
                       "titulo": "DISPOSITIVO PARA FILTRAGEM",
+                      "resumo": "",
                       "natureza": "PATENTE DE INVENCAO",
                       "data_deposito": "2020-06-15",
-                      "data_publicacao": "2021-12-21"
+                      "data_publicacao": "2021-12-21",
+                      "data_concessao": "",
+                      "classificacao_ipc": "",
+                      "despacho_codigo": "",
+                      "despacho_texto": "",
+                      "despacho_data_rpi": "",
+                      "inventores": "",
+                      "procuradores": ""
                     }
                   ],
                   "rural": null
@@ -1039,10 +1111,11 @@
             "description": "Nome da operadora de telefonia",
             "example": "Vivo"
           },
-          "tem_whatsapp": {
-            "type": "boolean",
-            "description": "Indica se o numero possui WhatsApp ativo",
-            "example": false
+          "data": {
+            "type": "string",
+            "nullable": true,
+            "description": "Ano de referencia do registro do telefone no formato YYYY-01-01 (sempre 1o de janeiro do ano derivado), ou null. Presente apenas nos telefones de pessoa fisica (telefones de empresa e de contatos de emprego nao incluem este campo).",
+            "example": "2022-01-01"
           }
         }
       },
@@ -1076,10 +1149,17 @@
             "description": "Nome completo do parente",
             "example": "JOAO DA SILVA"
           },
-          "cpf": {
+          "documento": {
             "type": "string",
-            "description": "CPF do parente (somente digitos)",
-            "example": "98765432100"
+            "description": "CPF formatado do parente (000.000.000-00), ou string vazia quando indisponivel",
+            "example": "987.654.321-00"
+          },
+          "tipo_documento": {
+            "type": "string",
+            "enum": [
+              "CPF"
+            ],
+            "example": "CPF"
           },
           "vinculo_codigo": {
             "type": "string",
@@ -1097,10 +1177,17 @@
         "type": "object",
         "description": "Empresa vinculada a pessoa fisica (como socio ou responsavel)",
         "properties": {
-          "cnpj": {
+          "documento": {
             "type": "string",
-            "description": "CNPJ da empresa (somente digitos)",
-            "example": "12345678000195"
+            "description": "CNPJ formatado da empresa (00.000.000/0000-00)",
+            "example": "12.345.678/0001-95"
+          },
+          "tipo_documento": {
+            "type": "string",
+            "enum": [
+              "CNPJ"
+            ],
+            "example": "CNPJ"
           },
           "razao_social": {
             "type": "string",
@@ -1118,10 +1205,17 @@
         "type": "object",
         "description": "Vinculo empregaticio da pessoa fisica",
         "properties": {
-          "cnpj_empregador": {
+          "documento_empregador": {
             "type": "string",
-            "description": "CNPJ do empregador",
-            "example": "12.345.678/0001-99"
+            "description": "CNPJ formatado do empregador (00.000.000/0000-00)",
+            "example": "12.345.678/0001-95"
+          },
+          "tipo_documento_empregador": {
+            "type": "string",
+            "enum": [
+              "CNPJ"
+            ],
+            "example": "CNPJ"
           },
           "nome_empregador": {
             "type": "string",
@@ -1130,7 +1224,8 @@
           },
           "cargo": {
             "type": "string",
-            "description": "Cargo ou funcao exercida",
+            "nullable": true,
+            "description": "Cargo ou funcao exercida (null se indisponivel)",
             "example": "Gerente Comercial"
           },
           "status": {
@@ -1139,7 +1234,8 @@
           },
           "data_admissao": {
             "type": "string",
-            "description": "Data de admissao",
+            "nullable": true,
+            "description": "Data de admissao no formato YYYY-MM-DD (null se indisponivel)",
             "example": "2019-01-15"
           },
           "data_desligamento": {
@@ -1238,13 +1334,23 @@
           },
           "documento": {
             "type": "string",
-            "description": "CPF ou CNPJ formatado do socio",
-            "example": "123.456.789-10"
+            "nullable": true,
+            "description": "CPF ou CNPJ formatado do socio. null para PF quando o CPF nao pode ser resolvido (mascarado)",
+            "example": "123.456.789-01"
+          },
+          "tipo_documento": {
+            "type": "string",
+            "enum": [
+              "CPF",
+              "CNPJ"
+            ],
+            "description": "CPF para Pessoa Fisica, CNPJ para Pessoa Juridica",
+            "example": "CPF"
           },
           "tipo": {
             "type": "string",
             "description": "Pessoa Fisica ou Pessoa Juridica",
-            "example": "Pessoa Fisica"
+            "example": "Pessoa Física"
           },
           "qualificacao": {
             "type": "string",
@@ -1253,8 +1359,18 @@
           },
           "data_entrada": {
             "type": "string",
-            "description": "Data de entrada na sociedade",
-            "example": "15/01/2019"
+            "description": "Data de entrada na sociedade no formato YYYY-MM-DD",
+            "example": "2016-01-20"
+          },
+          "pais": {
+            "type": "string",
+            "description": "Pais do socio (default Brasil)",
+            "example": "Brasil"
+          },
+          "origem": {
+            "type": "string",
+            "description": "Origem do registro do socio (ex: qsa)",
+            "example": "qsa"
           },
           "data_nascimento": {
             "type": "string",
@@ -1284,7 +1400,9 @@
                 "type": "string"
               },
               "documento": {
-                "type": "string"
+                "type": "string",
+                "nullable": true,
+                "description": "CPF formatado do representante, ou null quando mascarado/nao resolvido"
               },
               "qualificacao": {
                 "type": "string"
@@ -1399,8 +1517,32 @@
       },
       "Veiculo": {
         "type": "object",
-        "description": "Veiculo registrado em nome da pessoa ou empresa",
+        "description": "Veiculo registrado em nome da pessoa ou empresa (linha bruta da base, sem normalizacao de marca/modelo)",
         "properties": {
+          "documento": {
+            "type": "string",
+            "description": "CPF/CNPJ do proprietario (somente digitos)",
+            "example": "12345678901"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "PF",
+              "PJ"
+            ],
+            "description": "Tipo de pessoa do proprietario",
+            "example": "PF"
+          },
+          "nome_proprietario": {
+            "type": "string",
+            "description": "Nome do proprietario do veiculo",
+            "example": "MARIA DA SILVA"
+          },
+          "ano_documento": {
+            "type": "integer",
+            "description": "Ano de referencia do registro de propriedade",
+            "example": 2022
+          },
           "placa": {
             "type": "string",
             "description": "Placa atual do veiculo",
@@ -1411,25 +1553,20 @@
             "description": "Placa formato antigo (ABC-1234)",
             "example": "ABC1234"
           },
-          "chassi": {
+          "placa_nova": {
             "type": "string",
-            "description": "Numero do chassi",
-            "example": "9BWAG45N1YT123456"
+            "description": "Placa modelo Mercosul",
+            "example": "ABC1D23"
           },
           "renavam": {
             "type": "string",
             "description": "Codigo RENAVAM",
             "example": "12345678901"
           },
-          "marca": {
+          "chassi": {
             "type": "string",
-            "description": "Marca do fabricante",
-            "example": "FIAT"
-          },
-          "modelo": {
-            "type": "string",
-            "description": "Modelo do veiculo",
-            "example": "FIAT/STRADA TREK CE"
+            "description": "Numero do chassi",
+            "example": "9BWAG45N1YT123456"
           },
           "ano_fabricacao": {
             "type": "integer",
@@ -1441,6 +1578,16 @@
             "description": "Ano do modelo",
             "example": 2022
           },
+          "marca": {
+            "type": "string",
+            "description": "Marca do fabricante (extraida da parte antes da barra em modelo)",
+            "example": "FIAT"
+          },
+          "modelo": {
+            "type": "string",
+            "description": "Modelo do veiculo",
+            "example": "STRADA TREK CE"
+          },
           "cor": {
             "type": "string",
             "description": "Cor predominante do veiculo",
@@ -1451,16 +1598,6 @@
             "description": "Tipo de combustivel",
             "example": "Flex"
           },
-          "municipio": {
-            "type": "string",
-            "description": "Municipio de registro do veiculo",
-            "example": "Sao Paulo"
-          },
-          "uf": {
-            "type": "string",
-            "description": "UF de registro do veiculo",
-            "example": "SP"
-          },
           "tipo_veiculo": {
             "type": "string",
             "description": "Tipo do veiculo (Automovel, Motocicleta, Caminhao, etc.)",
@@ -1468,13 +1605,8 @@
           },
           "especie_veiculo": {
             "type": "string",
-            "description": "Especie do veiculo (Passageiro, Carga, Misto, etc.)",
+            "description": "Especie do veiculo (codigo ou descricao crua da base)",
             "example": "Passageiro"
-          },
-          "situacao_veiculo": {
-            "type": "string",
-            "description": "Situacao atual do veiculo (Circulacao, Baixado, Roubado, etc.)",
-            "example": "Circulacao"
           },
           "potencia": {
             "type": "string",
@@ -1486,12 +1618,105 @@
             "description": "Cilindradas do motor",
             "example": "1300"
           },
-          "restricoes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Lista de restricoes do veiculo (ex: Alienacao Fiduciaria)"
+          "quantidade_passageiro": {
+            "type": "string",
+            "description": "Quantidade de passageiros",
+            "example": "5"
+          },
+          "municipio": {
+            "type": "string",
+            "description": "Municipio de registro do veiculo",
+            "example": "SAO PAULO"
+          },
+          "uf": {
+            "type": "string",
+            "description": "UF de registro do veiculo",
+            "example": "SP"
+          },
+          "situacao_veiculo": {
+            "type": "string",
+            "description": "Situacao atual do veiculo (codigo ou descricao crua da base)",
+            "example": "Circulacao"
+          },
+          "restricao_1": {
+            "type": "string",
+            "description": "Restricao 1 do veiculo (string vazia se nenhuma)",
+            "example": "Alienacao Fiduciaria"
+          },
+          "restricao_2": {
+            "type": "string",
+            "description": "Restricao 2 do veiculo (string vazia se nenhuma)",
+            "example": ""
+          },
+          "restricao_3": {
+            "type": "string",
+            "description": "Restricao 3 do veiculo (string vazia se nenhuma)",
+            "example": ""
+          },
+          "restricao_4": {
+            "type": "string",
+            "description": "Restricao 4 do veiculo (string vazia se nenhuma)",
+            "example": ""
+          },
+          "nacionalidade": {
+            "type": "string",
+            "description": "Nacionalidade do veiculo",
+            "example": ""
+          },
+          "carroceria": {
+            "type": "string",
+            "description": "Tipo de carroceria",
+            "example": ""
+          },
+          "tipo_montagem": {
+            "type": "string",
+            "description": "Tipo de montagem",
+            "example": ""
+          },
+          "peso_bruto_total": {
+            "type": "string",
+            "description": "Peso bruto total",
+            "example": ""
+          },
+          "cap_maxima_tracao": {
+            "type": "string",
+            "description": "Capacidade maxima de tracao",
+            "example": ""
+          },
+          "capacidade_carga": {
+            "type": "string",
+            "description": "Capacidade de carga",
+            "example": ""
+          },
+          "motor": {
+            "type": "string",
+            "description": "Numero/identificacao do motor",
+            "example": ""
+          },
+          "caixa_cambio": {
+            "type": "string",
+            "description": "Identificacao da caixa de cambio",
+            "example": ""
+          },
+          "situacao_chassi": {
+            "type": "string",
+            "description": "Situacao do chassi",
+            "example": ""
+          },
+          "eixos": {
+            "type": "string",
+            "description": "Quantidade de eixos",
+            "example": ""
+          },
+          "media_preco": {
+            "type": "string",
+            "description": "Media de preco estimada (string)",
+            "example": ""
+          },
+          "updated_at": {
+            "type": "integer",
+            "description": "Timestamp interno de atualizacao (retorna 0 nesta consulta)",
+            "example": 0
           }
         }
       },
@@ -1552,7 +1777,12 @@
           },
           "sql_iptu": {
             "type": "string",
-            "description": "Numero da inscricao imobiliaria (SQL/IPTU)",
+            "description": "Numero SQL/IPTU do imovel",
+            "example": "0123456789"
+          },
+          "inscricao": {
+            "type": "string",
+            "description": "Numero da inscricao imobiliaria municipal",
             "example": "0123456789"
           },
           "localizacao": {
@@ -1587,6 +1817,32 @@
             "type": "number",
             "description": "Valor anual do IPTU em reais",
             "example": 2400.0
+          },
+          "proprietario": {
+            "type": "object",
+            "description": "Proprietario do imovel. ATENCAO: o campo do tipo de documento usa camelCase (tipoDocumento), diferente do padrao snake_case do restante da API.",
+            "properties": {
+              "nome": {
+                "type": "string",
+                "description": "Nome do proprietario (string vazia se indisponivel)",
+                "example": "MARIA DA SILVA"
+              },
+              "documento": {
+                "type": "string",
+                "nullable": true,
+                "description": "CPF/CNPJ do proprietario (somente digitos), ou null",
+                "example": "12345678901"
+              },
+              "tipoDocumento": {
+                "type": "string",
+                "enum": [
+                  "CPF",
+                  "CNPJ"
+                ],
+                "description": "Tipo do documento. Ausente quando o documento e vazio/invalido (campo opcional, camelCase).",
+                "example": "CPF"
+              }
+            }
           }
         }
       },
@@ -1598,31 +1854,133 @@
             "type": "array",
             "description": "Lista de avioes registrados",
             "items": {
-              "type": "object"
+              "$ref": "#/components/schemas/Aeronave"
             }
           },
           "drones": {
             "type": "array",
             "description": "Lista de drones/RPAS registrados",
             "items": {
-              "type": "object"
+              "$ref": "#/components/schemas/Drone"
             }
           }
         }
       },
+      "Aeronave": {
+        "type": "object",
+        "description": "Aviao/aeronave tripulada registrada no RAB (linha bruta da base; CPF aparece mascarado em cpf_cgc)",
+        "properties": {
+          "documento": { "type": "string", "description": "CPF/CNPJ do proprietario (somente digitos)", "example": "12345678901" },
+          "tipo": { "type": "string", "enum": ["PF", "PJ"], "example": "PF" },
+          "marca": { "type": "string", "description": "Marca de matricula da aeronave", "example": "PR-ABC" },
+          "proprietario": { "type": "string", "description": "Nome do proprietario", "example": "Maria Da Silva" },
+          "outros_proprietarios": { "type": "string", "example": "" },
+          "uf": { "type": "string", "example": "SP" },
+          "operador": { "type": "string", "example": "Maria Da Silva" },
+          "outros_operadores": { "type": "string", "example": "" },
+          "uf_operador": { "type": "string", "example": "SP" },
+          "cpf_cgc": { "type": "string", "description": "CPF/CNPJ mascarado conforme a base (ex: 123.XXX.XXX-01)", "example": "123.XXX.XXX-01" },
+          "certificado_matricula": { "type": "string", "example": "" },
+          "numero_serie": { "type": "string", "example": "" },
+          "categoria": { "type": "string", "example": "" },
+          "tipo_aeronave": { "type": "string", "description": "Tipo da aeronave (AVIAO, HELICOPTERO, etc.)", "example": "AVIAO" },
+          "modelo": { "type": "string", "example": "" },
+          "fabricante": { "type": "string", "example": "" },
+          "classe": { "type": "string", "example": "" },
+          "pmd": { "type": "string", "example": "" },
+          "tipo_icao": { "type": "string", "example": "" },
+          "tripulacao_minima": { "type": "string", "example": "" },
+          "passageiros_maximo": { "type": "string", "example": "" },
+          "numero_assentos": { "type": "string", "example": "" },
+          "ano_fabricacao": { "type": "string", "example": "" },
+          "validade_cva": { "type": "string", "example": "" },
+          "validade_ca": { "type": "string", "example": "" },
+          "data_cancelamento": { "type": "string", "description": "Data de cancelamento (normalizada para YYYY-MM-DD quando possivel)", "example": "" },
+          "motivo_cancelamento": { "type": "string", "example": "" },
+          "interdicao": { "type": "string", "example": "" },
+          "marca_nacional_1": { "type": "string", "example": "" },
+          "marca_nacional_2": { "type": "string", "example": "" },
+          "marca_nacional_3": { "type": "string", "example": "" },
+          "marca_estrangeira": { "type": "string", "example": "" },
+          "data_matricula": { "type": "string", "description": "Data de matricula (normalizada para YYYY-MM-DD quando possivel)", "example": "2019-05-10" },
+          "tipo_motor": { "type": "string", "example": "" },
+          "quantidade_motores": { "type": "string", "example": "" },
+          "tipo_pouso": { "type": "string", "example": "" },
+          "preco_estimado": { "type": "number", "description": "Estimativa de preco por categoria (presente apenas quando ha valor mapeado para o tipo_aeronave)", "example": 1500000 }
+        }
+      },
+      "Drone": {
+        "type": "object",
+        "description": "Drone/RPAS registrado (linha bruta da base; CPF mascarado em codigo/operador conforme fonte)",
+        "properties": {
+          "documento": { "type": "string", "description": "CPF/CNPJ do proprietario (somente digitos)", "example": "12345678901" },
+          "tipo": { "type": "string", "enum": ["PF", "PJ"], "example": "PF" },
+          "codigo_aeronave": { "type": "string", "example": "PR-XYZ123" },
+          "data_validade": { "type": "string", "description": "Data de validade (normalizada para YYYY-MM-DD quando possivel)", "example": "2025-12-31" },
+          "operador": { "type": "string", "example": "Maria Da Silva" },
+          "tipo_uso": { "type": "string", "description": "Tipo de uso (RECREACAO, BASICO, AVANCADO, EXPERIMENTAL, etc.)", "example": "RECREACAO" },
+          "fabricante": { "type": "string", "example": "DJI" },
+          "modelo": { "type": "string", "example": "Mavic" },
+          "numero_serie": { "type": "string", "example": "" },
+          "peso_maximo": { "type": "string", "example": "" },
+          "ramo_atividade": { "type": "string", "example": "" },
+          "preco_estimado": { "type": "number", "description": "Estimativa de preco por tipo de uso (presente apenas quando ha valor mapeado)", "example": 3000 }
+        }
+      },
       "Patente": {
         "type": "object",
-        "description": "Patente ou registro de propriedade intelectual no INPI",
+        "description": "Patente ou registro de propriedade intelectual no INPI (linha bruta da base; datas no formato armazenado, nao necessariamente ISO)",
         "properties": {
           "numero_inpi": {
             "type": "string",
             "description": "Numero do registro no INPI",
             "example": "BR102020012345"
           },
+          "codigo_interno": {
+            "type": "string",
+            "description": "Codigo interno do registro",
+            "example": ""
+          },
+          "depositante": {
+            "type": "string",
+            "description": "Nome do depositante",
+            "example": "MARIA DA SILVA"
+          },
+          "cgccpfdepositante": {
+            "type": "string",
+            "description": "CPF/CNPJ do depositante",
+            "example": "12345678901"
+          },
+          "tipopessoadepositante": {
+            "type": "string",
+            "description": "Tipo de pessoa do depositante",
+            "example": "Fisica"
+          },
+          "pais": {
+            "type": "string",
+            "example": "BR"
+          },
+          "estado": {
+            "type": "string",
+            "example": "SP"
+          },
+          "data_inicio_depositante": {
+            "type": "string",
+            "example": ""
+          },
+          "data_fim_depositante": {
+            "type": "string",
+            "example": ""
+          },
           "titulo": {
             "type": "string",
-            "description": "Titulo da patente ou invencao",
+            "description": "Titulo da patente ou invencao (texto bruto da base)",
             "example": "DISPOSITIVO PARA FILTRAGEM"
+          },
+          "resumo": {
+            "type": "string",
+            "description": "Resumo da patente",
+            "example": ""
           },
           "natureza": {
             "type": "string",
@@ -1631,13 +1989,46 @@
           },
           "data_deposito": {
             "type": "string",
-            "description": "Data de deposito no formato YYYY-MM-DD",
+            "description": "Data de deposito (formato armazenado na base)",
             "example": "2020-06-15"
           },
           "data_publicacao": {
             "type": "string",
-            "description": "Data de publicacao no formato YYYY-MM-DD",
+            "description": "Data de publicacao (formato armazenado na base)",
             "example": "2021-12-21"
+          },
+          "data_concessao": {
+            "type": "string",
+            "description": "Data de concessao (formato armazenado na base)",
+            "example": ""
+          },
+          "classificacao_ipc": {
+            "type": "string",
+            "description": "Classificacao Internacional de Patentes (IPC)",
+            "example": ""
+          },
+          "despacho_codigo": {
+            "type": "string",
+            "example": ""
+          },
+          "despacho_texto": {
+            "type": "string",
+            "example": ""
+          },
+          "despacho_data_rpi": {
+            "type": "string",
+            "description": "Data do despacho na RPI",
+            "example": ""
+          },
+          "inventores": {
+            "type": "string",
+            "description": "Lista de inventores (texto)",
+            "example": ""
+          },
+          "procuradores": {
+            "type": "string",
+            "description": "Lista de procuradores (texto)",
+            "example": ""
           }
         }
       },
@@ -1893,29 +2284,159 @@
           }
         }
       },
+      "CargoPublico": {
+        "type": "object",
+        "description": "Cargo publico/mandato consolidado de uma pessoa politicamente exposta",
+        "properties": {
+          "cargo": {
+            "type": "string",
+            "description": "Descricao do cargo/funcao",
+            "example": "Deputado Federal"
+          },
+          "nivel": {
+            "type": "string",
+            "nullable": true,
+            "description": "Nivel da funcao (null se indisponivel)",
+            "example": "Federal"
+          },
+          "orgao": {
+            "type": "string",
+            "description": "Orgao (sem o sufixo de UF)",
+            "example": "Camara Dos Deputados"
+          },
+          "uf": {
+            "type": "string",
+            "description": "UF extraida do nome do orgao (vazio se ausente)",
+            "example": "SP"
+          },
+          "mandatos": {
+            "type": "array",
+            "description": "Periodos de mandato consolidados para o mesmo cargo/orgao",
+            "items": {
+              "type": "object",
+              "properties": {
+                "inicio": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Data de inicio (ISO YYYY-MM-DD) ou null"
+                },
+                "fim": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Data de fim (ISO YYYY-MM-DD) ou null"
+                },
+                "carencia_ate": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Fim do periodo de carencia (ISO YYYY-MM-DD) ou null"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Dominio": {
+        "type": "object",
+        "description": "Dominio de internet associado a um email da pessoa",
+        "properties": {
+          "dominio": {
+            "type": "string",
+            "example": "exemplo.com.br"
+          },
+          "registrado": {
+            "type": "boolean",
+            "example": true
+          },
+          "data_criacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "data_atualizacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "data_expiracao": {
+            "type": "string",
+            "nullable": true
+          },
+          "registrador": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "nome": { "type": "string", "nullable": true },
+              "url": { "type": "string", "nullable": true }
+            }
+          },
+          "registrante": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "nome": { "type": "string", "nullable": true },
+              "empresa": { "type": "string", "nullable": true },
+              "email": { "type": "string", "nullable": true },
+              "telefone": { "type": "string", "nullable": true },
+              "pais": { "type": "string", "nullable": true }
+            }
+          },
+          "email_origem": {
+            "type": "string",
+            "description": "Email a partir do qual o dominio foi derivado",
+            "example": "maria@exemplo.com.br"
+          }
+        }
+      },
       "PerfilCadastralCpfResponse": {
         "type": "object",
         "description": "Perfil cadastral completo de uma pessoa fisica",
         "properties": {
-          "cpf": {
+          "documento": {
             "type": "string",
-            "description": "CPF da pessoa (somente digitos, 11 caracteres)",
-            "example": "12345678901"
+            "description": "CPF formatado (000.000.000-00)",
+            "example": "123.456.789-01"
+          },
+          "tipo_documento": {
+            "type": "string",
+            "enum": [
+              "CPF"
+            ],
+            "example": "CPF"
           },
           "nome_completo": {
             "type": "string",
             "description": "Nome completo da pessoa",
-            "example": "MARIA SILVA SANTOS"
+            "example": "Maria Silva Santos"
           },
           "genero": {
             "type": "string",
-            "description": "Genero da pessoa (Masculino, Feminino)",
+            "description": "Genero da pessoa (Masculino, Feminino, Intersexo ou string vazia)",
             "example": "Feminino"
           },
           "data_nascimento": {
             "type": "string",
-            "description": "Data de nascimento no formato DD/MM/YYYY",
-            "example": "02/01/1996"
+            "description": "Data de nascimento no formato YYYY-MM-DD",
+            "example": "1996-01-02"
+          },
+          "falecido": {
+            "type": "boolean",
+            "description": "Indica se ha registro de obito para a pessoa",
+            "example": false
+          },
+          "obito": {
+            "type": "object",
+            "nullable": true,
+            "description": "Dados do obito (null quando nao falecido)",
+            "properties": {
+              "data_obito": {
+                "type": "string",
+                "description": "Data do obito no formato YYYY-MM-DD",
+                "example": "2023-04-10"
+              },
+              "cartorio": {
+                "type": "string",
+                "description": "Nome do cartorio de registro",
+                "example": "Cartorio Central"
+              }
+            }
           },
           "enderecos": {
             "type": "array",
@@ -1945,6 +2466,18 @@
               "$ref": "#/components/schemas/Parente"
             }
           },
+          "publicamente_exposta": {
+            "type": "boolean",
+            "description": "Indica se a pessoa e politicamente exposta (PEP)",
+            "example": false
+          },
+          "cargos_publicos": {
+            "type": "array",
+            "description": "Cargos publicos/mandatos consolidados (vazio quando nao PEP)",
+            "items": {
+              "$ref": "#/components/schemas/CargoPublico"
+            }
+          },
           "empresas": {
             "type": "array",
             "description": "Empresas em que a pessoa e socia ou responsavel",
@@ -1958,6 +2491,16 @@
             "items": {
               "$ref": "#/components/schemas/Emprego"
             }
+          },
+          "beneficios": {
+            "$ref": "#/components/schemas/BeneficiosCpf"
+          },
+          "dominios": {
+            "type": "array",
+            "description": "Dominios de internet associados aos emails da pessoa",
+            "items": {
+              "$ref": "#/components/schemas/Dominio"
+            }
           }
         }
       },
@@ -1965,36 +2508,53 @@
         "type": "object",
         "description": "Perfil cadastral completo de uma empresa",
         "properties": {
-          "cnpj": {
+          "documento": {
             "type": "string",
-            "description": "CNPJ da empresa (somente digitos, 14 caracteres)",
-            "example": "12345678000195"
+            "description": "CNPJ formatado (00.000.000/0000-00)",
+            "example": "12.345.678/0001-95"
+          },
+          "tipo_documento": {
+            "type": "string",
+            "enum": [
+              "CNPJ"
+            ],
+            "example": "CNPJ"
+          },
+          "cnpj_basico": {
+            "type": "string",
+            "description": "Raiz do CNPJ (8 primeiros digitos)",
+            "example": "12345678"
           },
           "razao_social": {
             "type": "string",
             "description": "Razao social da empresa",
-            "example": "TECHNOVACAO DIGITAL LTDA"
+            "example": "Technovacao Digital Ltda"
           },
           "nome_fantasia": {
             "type": "string",
-            "description": "Nome fantasia da empresa",
-            "example": "TECHNOVACAO"
-          },
-          "cnaes": {
-            "type": "array",
-            "description": "Lista de CNAEs (atividades economicas) da empresa",
-            "items": {
-              "$ref": "#/components/schemas/Cnae"
-            }
+            "nullable": true,
+            "description": "Nome fantasia da empresa (null se ausente)",
+            "example": "Technovacao"
           },
           "situacao": {
             "type": "string",
-            "description": "Situacao cadastral da empresa (ATIVA, BAIXADA, INAPTA, SUSPENSA, NULA)",
-            "example": "ATIVA"
+            "description": "Situacao cadastral (Nula, Ativa, Suspensa, Inapta, Baixada) ou o codigo bruto quando nao mapeado",
+            "example": "Ativa"
+          },
+          "data_situacao": {
+            "type": "string",
+            "description": "Data da situacao cadastral no formato YYYY-MM-DD",
+            "example": "2016-01-20"
+          },
+          "motivo_situacao": {
+            "type": "string",
+            "nullable": true,
+            "description": "Motivo da situacao cadastral (null se ausente)",
+            "example": null
           },
           "data_abertura": {
             "type": "string",
-            "description": "Data de abertura da empresa no formato YYYY-MM-DD",
+            "description": "Data de inicio das atividades no formato YYYY-MM-DD",
             "example": "2016-01-20"
           },
           "capital_social": {
@@ -2002,10 +2562,53 @@
             "description": "Capital social da empresa em reais",
             "example": 50000.0
           },
-          "natureza_juridica": {
+          "porte": {
             "type": "string",
-            "description": "Natureza juridica da empresa",
-            "example": "Sociedade Limitada"
+            "nullable": true,
+            "description": "Porte da empresa (Microempresa, Empresa de Pequeno Porte, etc.) ou null",
+            "example": "Empresa de Pequeno Porte"
+          },
+          "matriz_filial": {
+            "type": "string",
+            "nullable": true,
+            "description": "Matriz ou Filial (null se indisponivel)",
+            "example": "Matriz"
+          },
+          "natureza_juridica": {
+            "type": "object",
+            "description": "Natureza juridica da empresa (objeto codigo/descricao)",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "example": "2062"
+              },
+              "descricao": {
+                "type": "string",
+                "example": "Sociedade Empresária Limitada"
+              }
+            }
+          },
+          "atividade_principal": {
+            "type": "object",
+            "nullable": true,
+            "description": "CNAE principal (fiscal) da empresa, ou null",
+            "properties": {
+              "codigo": {
+                "type": "string",
+                "example": "6209100"
+              },
+              "descricao": {
+                "type": "string",
+                "example": "Suporte tecnico em TI"
+              }
+            }
+          },
+          "atividades_secundarias": {
+            "type": "array",
+            "description": "CNAEs secundarios da empresa",
+            "items": {
+              "$ref": "#/components/schemas/Cnae"
+            }
           },
           "endereco": {
             "$ref": "#/components/schemas/Endereco"
@@ -2031,12 +2634,17 @@
               "$ref": "#/components/schemas/Socio"
             }
           },
-          "funcionarios": {
-            "type": "array",
-            "description": "Funcionarios da empresa",
-            "items": {
-              "$ref": "#/components/schemas/Funcionario"
-            }
+          "situacao_especial": {
+            "type": "string",
+            "nullable": true,
+            "description": "Situacao especial da empresa (null se ausente)",
+            "example": null
+          },
+          "data_situacao_especial": {
+            "type": "string",
+            "nullable": true,
+            "description": "Data da situacao especial no formato YYYY-MM-DD (null se ausente)",
+            "example": null
           }
         }
       },
@@ -2071,7 +2679,76 @@
           "rural": {
             "type": "object",
             "nullable": true,
-            "description": "Dados de propriedades rurais (null se nenhuma encontrada)"
+            "description": "Dados rurais. ATENCAO: o formato difere por tipo de documento. Para CPF (perfilCompleto): objeto rico { documento, tipo, propriedades_sncr[], propriedades_cafir[], transportes{ total, volume_total, valor_total, produtos[], por_produto[], por_ano[], parceiros[] }, autorizacoes[], infracoes[], produtor_organico[], resumo{ area_total_ha, qtd_imoveis_sncr, qtd_imoveis_cafir, qtd_infracoes, valor_total_multas, qtd_autorizacoes, qtd_transportes, estados[] } }. Para CNPJ (findByCpfCnpj): objeto { imoveisRurais: SncrRow[], perfil: objeto | null }. Em ambos os casos retorna null se a consulta exceder o timeout (5s) ou falhar.",
+            "properties": {
+              "documento": {
+                "type": "string",
+                "description": "[CPF] Documento consultado"
+              },
+              "tipo": {
+                "type": "string",
+                "enum": [
+                  "PF",
+                  "PJ"
+                ],
+                "description": "[CPF] Tipo de pessoa"
+              },
+              "propriedades_sncr": {
+                "type": "array",
+                "description": "[CPF] Imoveis no SNCR/INCRA",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "propriedades_cafir": {
+                "type": "array",
+                "description": "[CPF] Imoveis no CAFIR",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "transportes": {
+                "type": "object",
+                "description": "[CPF] Resumo de transportes de produtos rurais"
+              },
+              "autorizacoes": {
+                "type": "array",
+                "description": "[CPF] Autorizacoes (AUTEX) agrupadas",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "infracoes": {
+                "type": "array",
+                "description": "[CPF] Fiscalizacoes/infracoes ambientais",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "produtor_organico": {
+                "type": "array",
+                "description": "[CPF] Registros de produtor organico",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "resumo": {
+                "type": "object",
+                "description": "[CPF] Totalizadores rurais"
+              },
+              "imoveisRurais": {
+                "type": "array",
+                "description": "[CNPJ] Imoveis rurais (SncrRow). Observe o nome de campo em camelCase.",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "perfil": {
+                "type": "object",
+                "nullable": true,
+                "description": "[CNPJ] Perfil rural consolidado, ou null"
+              }
+            }
           }
         }
       },

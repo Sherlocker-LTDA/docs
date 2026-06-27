@@ -4,36 +4,51 @@ description: "Patentes, marcas, modelos de utilidade e desenhos industriais no I
 icon: "lightbulb"
 ---
 
-Uma **Propriedade Intelectual** representa um registro no INPI (Instituto Nacional da Propriedade Industrial). O campo `natureza` diferencia o tipo de registro.
+Uma **Patente** representa um registro de patente no INPI (Instituto Nacional da Propriedade Industrial) vinculado a um CPF ou CNPJ.
 
 ## Tipagem
 
 ```json
 {
-  "numero_inpi": "BR102020012345",
-  "titulo": "DISPOSITIVO PARA FILTRAGEM DE AGUA",
-  "natureza": "PATENTE DE INVENCAO",
-  "data_deposito": "2020-06-15",
-  "data_publicacao": "2021-12-21"
+  "numero_inpi": "102015028792",
+  "titulo": "EQUIPAMENTO VEICULAR COM INDICADORES DE INFORMACOES VISUAIS E SONORAS",
+  "resumo": "Equipamento eletronico para veiculos automotivos...",
+  "depositante": "FULANO DE TAL",
+  "documento": "12345678901",
+  "tipo_pessoa": "Pessoa Física",
+  "pais": "BR",
+  "estado": "PR",
+  "data_inicio": "2015-11-17",
+  "data_fim": null,
+  "data_deposito": "2015-11-17",
+  "data_publicacao": "2016-07-19",
+  "classificacao_ipc": "F16H 61/00",
+  "ultimo_despacho": { "codigo": "25.12", "data": "2025-12-23", "complemento": null },
+  "inventores": [{ "nome": "Giovani Benedetti Penha", "documento": null }],
+  "procuradores": ["P. A. PRODUTORES ASSOCIADOS MARCAS E PATENTES LTDA."]
 }
 ```
 
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `numero_inpi` | string | Número do pedido no INPI |
-| `titulo` | string | Título da invenção, marca ou desenho |
-| `natureza` | string | Tipo do registro (ver tabela abaixo) |
-| `data_deposito` | string | Data do depósito |
-| `data_publicacao` | string | Data da publicação |
+| `numero_inpi` | string | Número do processo no INPI |
+| `titulo` | string \| null | Título da patente |
+| `resumo` | string \| null | Resumo do conteúdo |
+| `depositante` | string | Nome do titular/depositante |
+| `documento` | string | CPF ou CNPJ do depositante |
+| `tipo_pessoa` | string | `Pessoa Física` ou `Pessoa Jurídica` |
+| `pais` | string | País do depositante (ex: `BR`) |
+| `estado` | string \| null | UF do depositante |
+| `data_inicio` | string \| null | Início da titularidade (YYYY-MM-DD) |
+| `data_fim` | string \| null | Fim da titularidade (null se vigente) |
+| `data_deposito` | string \| null | Data de depósito no INPI |
+| `data_publicacao` | string \| null | Data de publicação na RPI |
+| `classificacao_ipc` | string \| null | Classificação IPC (ex: `H04N 7/18`) |
+| `ultimo_despacho` | object \| null | Último despacho: `codigo`, `data`, `complemento` |
+| `inventores` | array | Inventores: `nome` e `documento` (CPF quando encontrado) |
+| `procuradores` | array | Nomes dos procuradores/escritórios |
 
-## Tipos de registro
-
-| Natureza | Descrição |
-|----------|-----------|
-| `PATENTE DE INVENCAO` | Invenção nova com aplicação industrial |
-| `MODELO DE UTILIDADE` | Melhoria funcional em objeto de uso prático |
-| `MARCA` | Sinal distintivo de produto ou serviço |
-| `DESENHO INDUSTRIAL` | Forma ornamental de um objeto |
+A resposta dos endpoints envolve a patente em um objeto `{ sucesso, documento, tipo, total, patentes }`. Em caso de erro o corpo é `{ sucesso: false, documento, tipo, total: 0, patentes: [], error }`.
 
 ## Conexões
 
@@ -54,5 +69,5 @@ graph LR
 
 | Rota | Descrição |
 |------|-----------|
-| `GET /patentes/cpf/{cpf}` | Propriedade intelectual por CPF |
-| `GET /patentes/cnpj/{cnpj}` | Propriedade intelectual por CNPJ |
+| `GET /patentes/cpf/{cpf}` | Patentes por CPF |
+| `GET /patentes/cnpj/{cnpj}` | Patentes por CNPJ |

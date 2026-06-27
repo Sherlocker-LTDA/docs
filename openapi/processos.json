@@ -26,39 +26,50 @@
     "schemas": {
       "Parte": {
         "type": "object",
+        "description": "Parte como retornada pela listagem por CPF/CNPJ. O endpoint GET /processos/numero/{numero} retorna as partes em formato distinto (ver aquele endpoint).",
         "properties": {
           "nome": {
-            "type": "string"
+            "type": "string",
+            "description": "Nome da parte (Title Case)"
           },
           "documento": {
             "type": "string",
-            "description": "CPF ou CNPJ da parte"
+            "description": "CPF ou CNPJ formatado. String vazia (\"\") quando ausente."
           },
           "polo": {
             "type": "string",
-            "description": "Autor, Reu, Terceiro, etc"
+            "description": "Polo capitalizado (ex: Ativo, Passivo, Terceiro, Outro)"
           },
           "tipo": {
             "type": "string",
-            "description": "Fisica ou Juridica"
+            "description": "Tipo da parte",
+            "enum": [
+              "Pessoa Física",
+              "Pessoa Jurídica",
+              "Autoridade"
+            ]
           }
         }
       },
       "Advogado": {
         "type": "object",
+        "description": "Advogado como retornado pela listagem por CPF/CNPJ.",
         "properties": {
           "nome": {
             "type": "string",
-            "description": "Nome completo do advogado"
-          },
-          "documento": {
-            "type": "string",
-            "nullable": true,
-            "description": "CPF do advogado"
+            "description": "Nome completo do advogado (Title Case)"
           },
           "oab": {
             "type": "string",
             "description": "Numero OAB (ex: SP123456)"
+          },
+          "polo": {
+            "type": "string",
+            "description": "Polo que representa (capitalizado)"
+          },
+          "documento": {
+            "type": "string",
+            "description": "CPF do advogado formatado. String vazia (\"\") quando ausente."
           }
         }
       },
@@ -66,7 +77,8 @@
         "type": "object",
         "properties": {
           "data": {
-            "type": "string"
+            "type": "string",
+            "description": "Data ISO (YYYY-MM-DD)"
           },
           "descricao": {
             "type": "string"
@@ -78,33 +90,48 @@
       },
       "ProcessoDetalhado": {
         "type": "object",
+        "description": "Processo retornado pela listagem por CPF/CNPJ. Todos os campos sao planos (nao ha objeto `processo` aninhado).",
         "properties": {
-          "processo": {
-            "type": "object",
-            "properties": {
-              "numero": {
-                "type": "string",
-                "description": "Numero unificado (ex: 0001234-56.2023.8.26.0100)"
-              },
-              "data_distribuicao": {
-                "type": "string"
-              },
-              "classe_judicial": {
-                "type": "string",
-                "description": "Ex: Procedimento Comum Civel"
-              },
-              "assunto": {
-                "type": "string",
-                "description": "Ex: Indenizacao por Dano Moral"
-              },
-              "jurisdicao": {
-                "type": "string",
-                "description": "Tribunal (TJSP, TRF2, etc)"
-              },
-              "orgao_julgador": {
-                "type": "string"
-              }
-            }
+          "numero_processo": {
+            "type": "string",
+            "description": "Numero unificado CNJ (digitos, sem mascara)"
+          },
+          "numero_formatado": {
+            "type": "string",
+            "description": "Numero formatado (ex: 0001234-56.2020.8.26.0100)"
+          },
+          "tribunal": {
+            "type": "string",
+            "description": "Sigla do tribunal"
+          },
+          "classe_codigo": {
+            "type": "integer",
+            "description": "Codigo CNJ da classe processual"
+          },
+          "classe_nome": {
+            "type": "string",
+            "description": "Nome da classe (Title Case)"
+          },
+          "grau": {
+            "type": "string",
+            "description": "Grau de jurisdicao (ex: G1, G2)"
+          },
+          "data_ajuizamento": {
+            "type": "string",
+            "description": "Data ISO (YYYY-MM-DD)"
+          },
+          "orgao_julgador": {
+            "type": "string",
+            "description": "Vara ou turma (Title Case)"
+          },
+          "assuntos": {
+            "type": "string",
+            "description": "Assuntos do processo"
+          },
+          "valor_acao": {
+            "type": "number",
+            "nullable": true,
+            "description": "Valor da acao em reais; null quando nao declarado"
           },
           "partes": {
             "type": "array",
@@ -120,87 +147,59 @@
           },
           "movimentacoes": {
             "type": "array",
+            "description": "Ate 10 movimentacoes mais recentes (ordenadas por data desc)",
             "items": {
               "$ref": "#/components/schemas/Movimentacao"
             }
-          },
-          "total_movimentacoes": {
-            "type": "integer"
-          },
-          "documentos": {
-            "type": "object",
-            "properties": {
-              "total": {
-                "type": "integer"
-              },
-              "itens": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "titulo": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "TribunalStatus": {
-        "type": "object",
-        "properties": {
-          "fonte": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ok",
-              "error",
-              "timeout"
-            ]
-          },
-          "erro": {
-            "type": "string"
           }
         }
       },
       "ProcessosResponse": {
         "type": "object",
         "properties": {
+          "documento": {
+            "type": "string",
+            "description": "Documento consultado, formatado (CPF/CNPJ)"
+          },
+          "tipo_documento": {
+            "type": "string",
+            "description": "Tipo do documento consultado",
+            "enum": [
+              "CPF",
+              "CNPJ"
+            ]
+          },
+          "categorias": {
+            "type": "array",
+            "description": "Presente apenas quando o filtro `categorias` e informado",
+            "items": {
+              "type": "object",
+              "properties": {
+                "slug": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total de processos encontrados para o documento"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Limite aplicado (max 200)"
+          },
+          "offset": {
+            "type": "integer",
+            "description": "Offset aplicado"
+          },
           "processos": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ProcessoDetalhado"
-            }
-          },
-          "status": {
-            "type": "object",
-            "description": "Status de cada tribunal consultado",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/TribunalStatus"
-            }
-          },
-          "paginacao": {
-            "type": "object",
-            "properties": {
-              "pagina_atual": {
-                "type": "integer"
-              },
-              "processos_por_pagina": {
-                "type": "integer"
-              },
-              "total_paginas": {
-                "type": "integer"
-              },
-              "total_processos": {
-                "type": "integer"
-              }
             }
           }
         }
@@ -247,7 +246,7 @@
       "get": {
         "operationId": "getProcessosByCpf",
         "summary": "Processos judiciais de uma pessoa",
-        "description": "Consulta multiplos tribunais simultaneamente e retorna processos com classe, assunto, partes, movimentacoes e documentos. Suporta paginacao.",
+        "description": "Retorna processos vinculados a um CPF com classe, assunto, partes, advogados e ate 10 movimentacoes recentes por processo. Suporta paginacao por `limit`/`offset` e filtro por `categorias`.",
         "tags": [
           "Processos"
         ],
@@ -263,23 +262,23 @@
             }
           },
           {
-            "name": "pagina",
+            "name": "limit",
             "in": "query",
             "required": false,
-            "description": "Numero da pagina (default: 1)",
+            "description": "Maximo de processos por pagina (default 50, max 200)",
             "schema": {
               "type": "integer",
-              "default": 1
+              "default": 50
             }
           },
           {
-            "name": "por_pagina",
+            "name": "offset",
             "in": "query",
             "required": false,
-            "description": "Processos por pagina (default: 25)",
+            "description": "Offset para paginacao (default 0)",
             "schema": {
               "type": "integer",
-              "default": 25
+              "default": 0
             }
           },
           {
@@ -291,35 +290,51 @@
               "type": "string",
               "example": "falencia,recuperacao-judicial"
             }
+          },
+          {
+            "name": "realtime",
+            "in": "query",
+            "required": false,
+            "description": "Se \"true\", dispara scraping em tempo real nos tribunais e-SAJ e retorna `{ realtime: { job_id, status, poll_url } }` para polling em /processos/jobs/{jobId}.",
+            "schema": {
+              "type": "string",
+              "example": "true"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Processos encontrados com paginacao",
+            "description": "Processos encontrados",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProcessosResponse"
                 },
                 "example": {
+                  "documento": "123.456.789-01",
+                  "tipo_documento": "CPF",
+                  "total": 2,
+                  "limit": 50,
+                  "offset": 0,
                   "processos": [
                     {
                       "numero_processo": "00012345620208260100",
                       "numero_formatado": "0001234-56.2020.8.26.0100",
-                      "tribunal": "TJ-SP",
+                      "tribunal": "tjsp",
                       "classe_codigo": 7,
                       "classe_nome": "Procedimento Comum Cível",
                       "grau": "G1",
                       "data_ajuizamento": "2020-03-15",
                       "orgao_julgador": "2ª Vara Cível do Foro Central",
                       "assuntos": "Indenização por Dano Moral",
+                      "valor_acao": 10000,
                       "partes": [
-                        { "nome": "João Silva de Oliveira", "documento": "123.456.789-01", "tipo_documento": "CPF", "polo": "Autor", "tipo": "Física" },
-                        { "nome": "Comércio Eletrônico Abc Ltda", "documento": "98.765.432/0001-88", "tipo_documento": "CNPJ", "polo": "Réu", "tipo": "Jurídica" }
+                        { "nome": "João Silva de Oliveira", "documento": "123.456.789-01", "polo": "Ativo", "tipo": "Pessoa Física" },
+                        { "nome": "Comércio Eletrônico Abc Ltda", "documento": "98.765.432/0001-88", "polo": "Passivo", "tipo": "Pessoa Jurídica" }
                       ],
                       "advogados": [
-                        { "nome": "Dr. José Carlos Mendes", "documento": "111.222.333-44", "tipo_documento": "CPF", "oab": "SP123456" },
-                        { "nome": "Dra. Ana Paula Ferreira", "documento": "555.666.777-88", "tipo_documento": "CPF", "oab": "SP654321" }
+                        { "nome": "José Carlos Mendes", "oab": "SP123456", "polo": "Ativo", "documento": "111.222.333-44" },
+                        { "nome": "Ana Paula Ferreira", "oab": "SP654321", "polo": "Passivo", "documento": "" }
                       ],
                       "movimentacoes": [
                         { "data": "2020-06-10", "descricao": "Sentença procedente", "complemento": "Condenação em R$ 10.000,00" },
@@ -330,16 +345,17 @@
                     {
                       "numero_processo": "10054321520198260002",
                       "numero_formatado": "1005432-15.2019.8.26.0002",
-                      "tribunal": "TJ-SP",
+                      "tribunal": "tjsp",
                       "classe_codigo": 12,
                       "classe_nome": "Execução Fiscal",
                       "grau": "G1",
                       "data_ajuizamento": "2019-07-22",
                       "orgao_julgador": "1ª Vara da Fazenda Pública",
                       "assuntos": "IPTU / Imposto Predial e Territorial Urbano",
+                      "valor_acao": null,
                       "partes": [
-                        { "nome": "Município de São Paulo", "documento": "46.395.000/0001-39", "tipo_documento": "CNPJ", "polo": "Exequente", "tipo": "Jurídica" },
-                        { "nome": "João Silva de Oliveira", "documento": "123.456.789-01", "tipo_documento": "CPF", "polo": "Executado", "tipo": "Física" }
+                        { "nome": "Município de São Paulo", "documento": "46.395.000/0001-39", "polo": "Ativo", "tipo": "Pessoa Jurídica" },
+                        { "nome": "João Silva de Oliveira", "documento": "123.456.789-01", "polo": "Passivo", "tipo": "Pessoa Física" }
                       ],
                       "advogados": [],
                       "movimentacoes": [
@@ -378,7 +394,7 @@
       "get": {
         "operationId": "getProcessosByCnpj",
         "summary": "Processos judiciais de uma empresa",
-        "description": "Consulta multiplos tribunais simultaneamente e retorna processos da empresa com classe, assunto, partes, movimentacoes e documentos.",
+        "description": "Retorna processos vinculados a um CNPJ com classe, assunto, partes, advogados e ate 10 movimentacoes recentes por processo. Suporta paginacao por `limit`/`offset` e filtro por `categorias`.",
         "tags": [
           "Processos"
         ],
@@ -394,21 +410,23 @@
             }
           },
           {
-            "name": "pagina",
+            "name": "limit",
             "in": "query",
             "required": false,
+            "description": "Maximo de processos por pagina (default 50, max 200)",
             "schema": {
               "type": "integer",
-              "default": 1
+              "default": 50
             }
           },
           {
-            "name": "por_pagina",
+            "name": "offset",
             "in": "query",
             "required": false,
+            "description": "Offset para paginacao (default 0)",
             "schema": {
               "type": "integer",
-              "default": 25
+              "default": 0
             }
           },
           {
@@ -420,34 +438,50 @@
               "type": "string",
               "example": "falencia,recuperacao-judicial"
             }
+          },
+          {
+            "name": "realtime",
+            "in": "query",
+            "required": false,
+            "description": "Se \"true\", dispara scraping em tempo real nos tribunais e-SAJ e retorna `{ realtime: { job_id, status, poll_url } }` para polling em /processos/jobs/{jobId}.",
+            "schema": {
+              "type": "string",
+              "example": "true"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Processos encontrados com paginacao",
+            "description": "Processos encontrados",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProcessosResponse"
                 },
                 "example": {
+                  "documento": "12.345.678/0001-99",
+                  "tipo_documento": "CNPJ",
+                  "total": 2,
+                  "limit": 50,
+                  "offset": 0,
                   "processos": [
                     {
                       "numero_processo": "00054321020218260100",
                       "numero_formatado": "0005432-10.2021.8.26.0100",
-                      "tribunal": "TJ-SP",
+                      "tribunal": "tjsp",
                       "classe_codigo": 12,
                       "classe_nome": "Execução Fiscal",
                       "grau": "G1",
                       "data_ajuizamento": "2021-05-20",
                       "orgao_julgador": "2ª Vara de Execuções Fiscais",
                       "assuntos": "Dívida Ativa - ICMS",
+                      "valor_acao": 25000,
                       "partes": [
-                        { "nome": "Fazenda Pública do Estado de São Paulo", "documento": "46.395.000/0001-39", "tipo_documento": "CNPJ", "polo": "Exequente", "tipo": "Jurídica" },
-                        { "nome": "Silva Comércio Ltda", "documento": "12.345.678/0001-99", "tipo_documento": "CNPJ", "polo": "Executado", "tipo": "Jurídica" }
+                        { "nome": "Fazenda Pública do Estado de São Paulo", "documento": "46.395.000/0001-39", "polo": "Ativo", "tipo": "Pessoa Jurídica" },
+                        { "nome": "Silva Comércio Ltda", "documento": "12.345.678/0001-99", "polo": "Passivo", "tipo": "Pessoa Jurídica" }
                       ],
                       "advogados": [
-                        { "nome": "Dr. Paulo Roberto Procurador", "documento": "333.444.555-66", "tipo_documento": "CPF", "oab": "SP987654" }
+                        { "nome": "Paulo Roberto Procurador", "oab": "SP987654", "polo": "Ativo", "documento": "" }
                       ],
                       "movimentacoes": [
                         { "data": "2021-08-10", "descricao": "Penhora online realizada", "complemento": "Valor bloqueado: R$ 25.000,00" },
@@ -458,19 +492,20 @@
                     {
                       "numero_processo": "10087654320208020001",
                       "numero_formatado": "1008765-43.2020.8.02.0001",
-                      "tribunal": "TRT-2",
+                      "tribunal": "trt2",
                       "classe_codigo": 985,
                       "classe_nome": "Reclamação Trabalhista",
                       "grau": "G1",
                       "data_ajuizamento": "2020-11-10",
                       "orgao_julgador": "15ª Vara do Trabalho de São Paulo",
                       "assuntos": "Rescisão Indireta",
+                      "valor_acao": 45000,
                       "partes": [
-                        { "nome": "Maria Fernanda Santos", "documento": "999.888.777-66", "tipo_documento": "CPF", "polo": "Reclamante", "tipo": "Física" },
-                        { "nome": "Silva Comércio Ltda", "documento": "12.345.678/0001-99", "tipo_documento": "CNPJ", "polo": "Reclamado", "tipo": "Jurídica" }
+                        { "nome": "Maria Fernanda Santos", "documento": "999.888.777-66", "polo": "Ativo", "tipo": "Pessoa Física" },
+                        { "nome": "Silva Comércio Ltda", "documento": "12.345.678/0001-99", "polo": "Passivo", "tipo": "Pessoa Jurídica" }
                       ],
                       "advogados": [
-                        { "nome": "Dra. Carla Trabalhista", "documento": "777.888.999-00", "tipo_documento": "CPF", "oab": "SP111222" }
+                        { "nome": "Carla Trabalhista", "oab": "SP111222", "polo": "Ativo", "documento": "777.888.999-00" }
                       ],
                       "movimentacoes": [
                         { "data": "2021-02-15", "descricao": "Acordo homologado", "complemento": "Valor: R$ 45.000,00" }
@@ -508,7 +543,7 @@
       "get": {
         "operationId": "getProcessoByNumero",
         "summary": "Busca processo por numero",
-        "description": "Retorna detalhes completos de um processo judicial pelo numero (com ou sem formatacao).",
+        "description": "Retorna detalhes completos de um processo judicial pelo numero (com ou sem formatacao), incluindo valores mencionados, tags, eventos, audiencias, mandados, bens, identificadores, portes, partes e advogados. ATENCAO: as partes e advogados deste endpoint divergem da listagem por CPF/CNPJ — aqui `partes[].documento` pode ser null, `polo` vem em minusculas e `partes[].tipo` e o slug bruto (pessoa_fisica / pessoa_juridica). Este endpoint NAO retorna `movimentacoes` (use /processos/numero/{numero}/movimentacoes).",
         "tags": ["Processos"],
         "parameters": [
           {
@@ -533,29 +568,134 @@
                     "classe_codigo": { "type": "integer" },
                     "classe_nome": { "type": "string" },
                     "grau": { "type": "string" },
-                    "data_ajuizamento": { "type": "string" },
+                    "data_ajuizamento": { "type": "string", "description": "Data ISO (YYYY-MM-DD)" },
                     "orgao_julgador": { "type": "string" },
                     "assuntos": { "type": "string" },
-                    "partes": { "type": "array", "items": { "$ref": "#/components/schemas/Parte" } },
-                    "advogados": { "type": "array", "items": { "$ref": "#/components/schemas/Advogado" } }
+                    "valor_acao_num": { "type": "number", "nullable": true, "description": "Maior valor entre o valor declarado e os valores mencionados; null quando ausente" },
+                    "valor_acao_formatado": { "type": "string", "nullable": true, "description": "valor_acao_num formatado em BRL; null quando ausente" },
+                    "valores_mencionados": {
+                      "type": "array",
+                      "description": "Ate 20 valores monetarios mencionados (ordenados desc)",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "valor": { "type": "number" },
+                          "formatado": { "type": "string", "description": "Valor formatado em BRL" },
+                          "tipo": { "type": "string", "description": "Tipo do valor (slug)" }
+                        }
+                      }
+                    },
+                    "tags": {
+                      "type": "array",
+                      "description": "Tags brutas associadas ao processo",
+                      "items": { "type": "string" }
+                    },
+                    "eventos": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "tipo": { "type": "string" },
+                          "data": { "type": "string", "description": "Data ISO (YYYY-MM-DD)" }
+                        }
+                      }
+                    },
+                    "audiencias": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "tipo": { "type": "string" },
+                          "status": { "type": "string" },
+                          "data": { "type": "string", "description": "Data ISO (YYYY-MM-DD)" }
+                        }
+                      }
+                    },
+                    "mandados": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "tipo": { "type": "string" },
+                          "data": { "type": "string", "description": "Data ISO (YYYY-MM-DD)" }
+                        }
+                      }
+                    },
+                    "bens": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "identificadores": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "tipo": { "type": "string" },
+                          "valor": { "type": "string" }
+                        }
+                      }
+                    },
+                    "portes": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    },
+                    "partes": {
+                      "type": "array",
+                      "description": "Formato especifico deste endpoint (diverge da listagem por CPF/CNPJ).",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "nome": { "type": "string", "description": "Nome da parte (Title Case)" },
+                          "documento": { "type": "string", "nullable": true, "description": "CPF/CNPJ formatado; null quando ausente" },
+                          "polo": { "type": "string", "description": "Polo em minusculas (ex: ativo, passivo)" },
+                          "tipo": { "type": "string", "description": "Slug bruto do tipo (ex: pessoa_fisica, pessoa_juridica)" }
+                        }
+                      }
+                    },
+                    "advogados": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "nome": { "type": "string" },
+                          "oab": { "type": "string" },
+                          "polo": { "type": "string", "description": "Polo em minusculas" },
+                          "documento": { "type": "string", "description": "CPF formatado; string vazia (\"\") quando ausente" }
+                        }
+                      }
+                    }
                   }
                 },
                 "example": {
                   "numero_processo": "00000012320208260100",
                   "numero_formatado": "0000001-23.2020.8.26.0100",
-                  "tribunal": "TJ-SP",
+                  "tribunal": "tjsp",
                   "classe_codigo": 1234,
                   "classe_nome": "Procedimento Comum Cível",
                   "grau": "G1",
                   "data_ajuizamento": "2020-01-15",
                   "orgao_julgador": "1ª Vara Cível",
                   "assuntos": "Indenização por Dano Moral",
+                  "valor_acao_num": 50000,
+                  "valor_acao_formatado": "R$ 50.000",
+                  "valores_mencionados": [
+                    { "valor": 50000, "formatado": "R$ 50.000", "tipo": "causa" }
+                  ],
+                  "tags": ["evento.distribuicao", "porte.grande"],
+                  "eventos": [
+                    { "tipo": "distribuicao", "data": "2020-01-15" }
+                  ],
+                  "audiencias": [],
+                  "mandados": [],
+                  "bens": [],
+                  "identificadores": [],
+                  "portes": ["grande"],
                   "partes": [
-                    { "nome": "João Silva", "documento": "123.456.789-01", "tipo_documento": "CPF", "polo": "Autor", "tipo": "Física" },
-                    { "nome": "Empresa X Ltda", "documento": "12.345.678/0001-99", "tipo_documento": "CNPJ", "polo": "Réu", "tipo": "Jurídica" }
+                    { "nome": "João Silva", "documento": "123.456.789-01", "polo": "ativo", "tipo": "pessoa_fisica" },
+                    { "nome": "Empresa X Ltda", "documento": "12.345.678/0001-99", "polo": "passivo", "tipo": "pessoa_juridica" }
                   ],
                   "advogados": [
-                    { "nome": "Dr. José Advogado", "documento": "987.654.321-00", "tipo_documento": "CPF", "oab": "SP123456" }
+                    { "nome": "José Advogado", "oab": "SP123456", "polo": "ativo", "documento": "987.654.321-00" }
                   ]
                 }
               }
@@ -570,7 +710,7 @@
       "get": {
         "operationId": "getMovimentacoesByNumero",
         "summary": "Lista movimentacoes de um processo",
-        "description": "Retorna as movimentacoes mais recentes de um processo judicial, ordenadas por data (mais recentes primeiro). Use este endpoint quando precisar do historico detalhado de um processo especifico — a listagem por CPF/CNPJ (`/processos/cpf/{cpf}` e `/processos/cnpj/{cnpj}`) nao inclui movimentacoes por razoes de performance.",
+        "description": "Retorna as movimentacoes mais recentes de um processo judicial, ordenadas por data (mais recentes primeiro). A listagem por CPF/CNPJ ja inclui ate 10 movimentacoes por processo; use este endpoint para obter ate 100 movimentacoes de um processo especifico.",
         "tags": ["Processos"],
         "parameters": [
           {
@@ -678,29 +818,42 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "id": {
+                    "job_id": {
                       "type": "string",
-                      "description": "ID do job"
+                      "description": "ID do job (UUID)"
                     },
                     "status": {
                       "type": "string",
                       "description": "Status atual do job",
-                      "enum": ["pending", "processing", "completed", "failed"]
+                      "enum": ["waiting", "active", "completed", "failed"]
                     },
-                    "progress": {
+                    "created_at": {
                       "type": "integer",
-                      "description": "Progresso de 0 a 100"
+                      "description": "Timestamp de criacao do job (epoch em milissegundos)"
                     },
-                    "data": {
+                    "finished_at": {
+                      "type": "integer",
+                      "nullable": true,
+                      "description": "Timestamp de conclusao (epoch em ms); presente quando status e completed ou failed"
+                    },
+                    "result": {
                       "type": "object",
-                      "description": "Resultado do job quando completo"
+                      "nullable": true,
+                      "description": "Resultado do job quando status e completed (mesmo shape de /processos/cpf|cnpj)"
+                    },
+                    "error": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Mensagem de erro quando status e failed"
                     }
                   },
                   "example": {
-                    "id": "abc123",
+                    "job_id": "3f1c2b6e-1a2b-4c3d-9e8f-0a1b2c3d4e5f",
                     "status": "completed",
-                    "progress": 100,
-                    "data": {}
+                    "created_at": 1719500000000,
+                    "finished_at": 1719500025000,
+                    "result": {},
+                    "error": null
                   }
                 }
               }

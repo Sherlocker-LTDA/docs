@@ -19,26 +19,38 @@ Um **Benefício Social** representa um pagamento de programa social do governo f
 
 ```json
 {
-  "documento": "918.050.406-00",
-  "tipo_documento": "CPF",
-  "beneficios": {
-    "auxilio_brasil": [],
-    "bolsa_familia": [],
-    "auxilio_emergencial": [
-      {
-        "mes": "2020-04",
-        "parcela": 1,
-        "uf": "MG",
-        "municipio": "Belo Horizonte",
-        "enquadramento": "EXTRACAD",
-        "observacao": null,
-        "valor": 1200.00
-      }
-    ],
-    "bpc": []
-  }
+  "cpf": "91805040600",
+  "nome": "João Da Silva",
+  "total": 1,
+  "auxilio_brasil": [],
+  "auxilio_emergencial": [
+    {
+      "nis_beneficiario": "12345678901",
+      "nis_responsavel": "12345678901",
+      "mes_disponibilizacao": "2020-04",
+      "uf": "MG",
+      "codigo_municipio": "3106200",
+      "nome_municipio": "Belo Horizonte",
+      "enquadramento": "EXTRACAD",
+      "parcela": "1",
+      "observacao": null,
+      "valor_beneficio": 1200.00
+    }
+  ],
+  "bolsa_familia": [],
+  "bpc": []
 }
 ```
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `cpf` | string | CPF consultado (apenas dígitos) |
+| `nome` | string | Nome do beneficiário (Title Case). String vazia quando não resolvido |
+| `total` | integer | Total de benefícios encontrados (soma das quatro listas) |
+| `auxilio_brasil` | array | Parcelas do Auxílio Brasil |
+| `auxilio_emergencial` | array | Parcelas do Auxílio Emergencial |
+| `bolsa_familia` | array | Parcelas do Bolsa Família |
+| `bpc` | array | Parcelas do BPC |
 
 ## Auxílio Brasil / Bolsa Família
 
@@ -46,69 +58,83 @@ Ambos compartilham o mesmo formato.
 
 ```json
 {
-  "nome_favorecido": "Maria da Silva",
+  "nis_favorecido": "12345678901",
   "mes_competencia": "2023-01",
   "mes_referencia": "2023-01",
   "uf": "MG",
-  "municipio": "Belo Horizonte",
+  "codigo_municipio": "3106200",
+  "nome_municipio": "Belo Horizonte",
   "valor_parcela": 600.00
 }
 ```
 
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `nome_favorecido` | string | Nome do beneficiário (Title Case) |
+| `nis_favorecido` | string | NIS do favorecido |
 | `mes_competencia` | string | Mês de competência (YYYY-MM) |
 | `mes_referencia` | string | Mês de referência (YYYY-MM) |
 | `uf` | string | UF |
-| `municipio` | string | Nome do município (Title Case) |
-| `valor_parcela` | number | Valor da parcela em R$ |
+| `codigo_municipio` | string | Código do município |
+| `nome_municipio` | string | Nome do município (Title Case) |
+| `valor_parcela` | number \| null | Valor da parcela em R$ |
 
 ## Auxílio Emergencial
 
 ```json
 {
-  "mes": "2020-04",
-  "parcela": 1,
+  "nis_beneficiario": "12345678901",
+  "nis_responsavel": "12345678901",
+  "mes_disponibilizacao": "2020-04",
   "uf": "MG",
-  "municipio": "Belo Horizonte",
+  "codigo_municipio": "3106200",
+  "nome_municipio": "Belo Horizonte",
   "enquadramento": "EXTRACAD",
+  "parcela": "1",
   "observacao": null,
-  "valor": 1200.00
+  "valor_beneficio": 1200.00
 }
 ```
 
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `mes` | string | Mês de disponibilização (YYYY-MM) |
-| `parcela` | number \| null | Número da parcela (1, 2, 3...) |
+| `nis_beneficiario` | string | NIS do beneficiário |
+| `nis_responsavel` | string | NIS do responsável |
+| `mes_disponibilizacao` | string | Mês de disponibilização (YYYY-MM) |
 | `uf` | string | UF |
-| `municipio` | string | Nome do município (Title Case) |
+| `codigo_municipio` | string | Código do município |
+| `nome_municipio` | string | Nome do município (Title Case) |
 | `enquadramento` | string | Enquadramento (`EXTRACAD`, `CADÚNICO`) |
+| `parcela` | string | Número da parcela (1, 2, 3...) |
 | `observacao` | string \| null | Observações (null quando não há) |
-| `valor` | number | Valor do benefício em R$ |
+| `valor_beneficio` | number \| null | Valor do benefício em R$ |
 
 ## BPC (Benefício de Prestação Continuada)
 
 ```json
 {
+  "nis_beneficiario": "12345678901",
   "mes_competencia": "2023-01",
+  "mes_referencia": "2023-01",
   "uf": "MG",
-  "municipio": "Belo Horizonte",
+  "codigo_municipio": "3106200",
+  "nome_municipio": "Belo Horizonte",
   "numero_beneficio": "1234567890",
-  "judicial": false,
+  "beneficio_judicial": "Não",
   "valor_parcela": 1320.00
 }
 ```
 
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
+| `nis_beneficiario` | string | NIS do beneficiário |
 | `mes_competencia` | string | Mês de competência (YYYY-MM) |
+| `mes_referencia` | string | Mês de referência (YYYY-MM) |
 | `uf` | string | UF |
-| `municipio` | string | Nome do município (Title Case) |
-| `numero_beneficio` | string \| null | Número do benefício |
-| `judicial` | boolean | Se foi concedido judicialmente |
-| `valor_parcela` | number | Valor da parcela em R$ |
+| `codigo_municipio` | string | Código do município |
+| `nome_municipio` | string | Nome do município (Title Case) |
+| `numero_beneficio` | string | Número do benefício |
+| `beneficio_judicial` | string | Se foi concedido judicialmente (texto bruto, ex: `"Não"`) |
+| `valor_parcela` | number \| null | Valor da parcela em R$ |
 
 ## Renúncias Fiscais (Pessoa Jurídica)
 
