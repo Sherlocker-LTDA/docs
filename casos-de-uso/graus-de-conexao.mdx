@@ -132,7 +132,6 @@ A travessia é uma **busca em largura (BFS)**: você processa um grau inteiro an
 
 ```python
 import requests
-from collections import deque
 
 BASE = "https://221b-api.sherlocker.com.br/api/v1"
 TOKEN = "SEU_TOKEN"
@@ -141,50 +140,19 @@ def get(endpoint, **params):
     params["token"] = TOKEN
     return requests.get(f"{BASE}{endpoint}", params=params).json()
 
-def so_digitos(doc: str) -> str:
-    return "".join(c for c in doc if c.isdigit())
+# Grau 0 — a empresa e seu quadro societário
+empresa = get("/empresas/cnpj/33000167000101")
 
-def graus_de_conexao(cnpj_raiz, max_depth=2, fan_out=10, max_empresas_por_socio=10):
-    """Mapeia a rede societária a partir de um CNPJ, em largura (BFS)."""
-    visitados_pf = set()       # CPFs já expandidos (dedup + anti-ciclo)
-    visitados_cnpj = set()     # CNPJs já visitados
-    rede = []                  # arestas descobertas: (origem, socio, grau)
+# Grau 1 — loop pelos sócios
+for socio in empresa.get("socios", []):
+    print(f"{empresa['razao_social']} —> {socio['nome']} ({socio['qualificacao']})")
 
-    # fila de empresas a expandir: (cnpj, grau)
-    fila = deque([(so_digitos(cnpj_raiz), 0)])
-    visitados_cnpj.add(so_digitos(cnpj_raiz))
-
-    while fila:
-        cnpj, grau = fila.popleft()
-        if grau >= max_depth:
-            continue
-
-        empresa = get(f"/empresas/cnpj/{cnpj}")
-        socios = empresa.get("socios", [])[:fan_out]   # limita amplitude
-
-        for socio in socios:
-            doc = so_digitos(socio.get("documento", ""))
-            rede.append((empresa.get("razao_social"), socio.get("nome"), grau + 1))
-
-            # Sócio pessoa física → buscar as outras empresas dele
-            if len(doc) == 11 and doc not in visitados_pf:
-                visitados_pf.add(doc)
-                outras = get(f"/empresas/cpf/{doc}", limit=max_empresas_por_socio)
-                for emp in outras.get("empresas", []):
-                    cnpj_emp = so_digitos(emp.get("documento", ""))
-                    if cnpj_emp and cnpj_emp not in visitados_cnpj:
-                        visitados_cnpj.add(cnpj_emp)
-                        fila.append((cnpj_emp, grau + 1))
-
-            # Sócio pessoa jurídica → a própria empresa entra na fila
-            elif len(doc) == 14 and doc not in visitados_cnpj:
-                visitados_cnpj.add(doc)
-                fila.append((doc, grau + 1))
-
-    return rede
-
-for origem, socio, grau in graus_de_conexao("33000167000101", max_depth=2):
-    print(f"grau {grau}: {origem} —> {socio}")
+    # Grau 2 — outras empresas de cada sócio pessoa física
+    doc = socio.get("documento", "")
+    if socio.get("tipo") == "Pessoa Física" and doc:
+        cpf = "".join(c for c in doc if c.isdigit())
+        for emp in get(f"/empresas/cpf/{cpf}").get("empresas", []):
+            print(f"   ↳ também sócio de: {emp['razao_social']}")
 ```
 
 ### Otimização — aproveitando os sócios aninhados
