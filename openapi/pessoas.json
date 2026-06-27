@@ -3384,7 +3384,7 @@
     "/pessoas/email/{email}": {
       "get": {
         "operationId": "getPessoasByEmail",
-        "summary": "CPFs por email",
+        "summary": "Busca por Email",
         "description": "Busca reversa: retorna CPFs associados a um endereco de email.",
         "tags": [
           "Emails"

@@ -2247,10 +2247,10 @@
     "/empresas/email/{email}": {
       "get": {
         "operationId": "getEmpresasByEmail",
-        "summary": "Identificar empresas por email",
+        "summary": "Busca por Email",
         "description": "Busca reversa: identifica empresas que possuem o email informado no cadastro da Receita Federal. Retorna o perfil completo de cada empresa. O array `socios` nao e populado neste endpoint (use /empresas/cnpj/{cnpj} ou /empresas/cpf/{cpf} para o quadro societario).",
         "tags": [
-          "Busca Reversa"
+          "Empresas"
         ],
         "parameters": [
           {
@@ -2386,10 +2386,10 @@
     "/empresas/telefone/{telefone}": {
       "get": {
         "operationId": "getEmpresasByTelefone",
-        "summary": "Identificar empresas por telefone",
+        "summary": "Busca por telefone",
         "description": "Busca reversa: identifica empresas que possuem o telefone informado no cadastro da Receita Federal. Retorna o perfil completo de cada empresa. O array `socios` nao e populado neste endpoint (use /empresas/cnpj/{cnpj} ou /empresas/cpf/{cpf} para o quadro societario).",
         "tags": [
-          "Busca Reversa"
+          "Empresas"
         ],
         "parameters": [
           {

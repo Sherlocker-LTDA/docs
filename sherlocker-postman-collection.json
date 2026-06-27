@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "sherlocker-api-v1",
     "name": "Sherlocker API v1",
-    "description": "Autenticacao: Bearer token via header Authorization. Configure o token na aba Authorization da collection (nao e necessario preencher na aba Variables).",
+    "description": "Autenticacao: token via query param (?token=). O token esta configurado na aba Authorization da collection (tipo API Key, enviado como query param) e em {{token}}.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -26,6 +26,11 @@
       "description": "CNPJ para testes (somente numeros)"
     },
     {
+      "key": "documento",
+      "value": "12345678901",
+      "description": "CPF ou CNPJ (somente numeros)"
+    },
+    {
       "key": "telefone",
       "value": "11987654321",
       "description": "Telefone com DDD"
@@ -41,6 +46,16 @@
       "description": "Placa do veiculo (formato Mercosul)"
     },
     {
+      "key": "nome",
+      "value": "Joao da Silva",
+      "description": "Nome (melhora precisao em alguns endpoints)"
+    },
+    {
+      "key": "termo",
+      "value": "prefeitura municipal",
+      "description": "Termo de busca em documentos publicos"
+    },
+    {
       "key": "numero_processo",
       "value": "0000000-00.0000.0.00.0000",
       "description": "Numero unificado do processo (CNJ)"
@@ -53,7 +68,56 @@
   ],
   "item": [
     {
-      "name": "Cadastro - Pessoa Fisica",
+      "name": "Cadastro - Perfil Completo",
+      "item": [
+        {
+          "name": "Perfil Cadastral por CPF",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/perfil/cadastral/cpf/{{cpf}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "perfil",
+                "cadastral",
+                "cpf",
+                "{{cpf}}"
+              ],
+              "query": []
+            },
+            "description": "Agrega em uma chamada: identidade, enderecos, telefones, emails, parentes, empresas e empregos."
+          },
+          "response": []
+        },
+        {
+          "name": "Perfil Cadastral por CNPJ",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/perfil/cadastral/cnpj/{{cnpj}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "perfil",
+                "cadastral",
+                "cnpj",
+                "{{cnpj}}"
+              ],
+              "query": []
+            },
+            "description": "Agrega em uma chamada: dados cadastrais, atividades economicas e socios."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cadastro - Pessoa Física",
       "item": [
         {
           "name": "Informacoes basicas",
@@ -72,7 +136,7 @@
               ],
               "query": []
             },
-            "description": "Retorna informacoes cadastrais basicas de uma pessoa fisica pelo CPF."
+            "description": "Retorna os dados basicos da pessoa: identidade, genero, data de nascimento e parentes."
           },
           "response": []
         },
@@ -94,7 +158,7 @@
               ],
               "query": []
             },
-            "description": "Retorna enderecos vinculados a uma pessoa fisica pelo CPF."
+            "description": "Retorna todos os enderecos associados ao CPF, revelando movimentacao geografica ao longo do tempo."
           },
           "response": []
         },
@@ -116,17 +180,107 @@
               ],
               "query": []
             },
-            "description": "Retorna historico de empregos de uma pessoa fisica pelo CPF."
+            "description": "Retorna historico completo de vinculos empregaticios com empregador, cargo e datas de admissao/desligamento."
+          },
+          "response": []
+        },
+        {
+          "name": "Vinculos societarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/empresas/cpf/{{cpf}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "empresas",
+                "cpf",
+                "{{cpf}}"
+              ],
+              "query": [
+                {
+                  "key": "nome",
+                  "value": "{{nome}}",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Busca reversa: retorna todas as empresas onde a pessoa consta como socia ou administradora, cada uma com seu quadro societario completo (socios). Essencial para mapear a rede empresarial de um investigado e percorrer graus de conexao sem chamadas adicionais."
+          },
+          "response": []
+        },
+        {
+          "name": "Busca por telefone",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pessoas/telefone/{{telefone}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pessoas",
+                "telefone",
+                "{{telefone}}"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Busca reversa: dado um telefone, identifica os CPFs associados. Ponto de entrada quando voce tem apenas um numero de telefone."
+          },
+          "response": []
+        },
+        {
+          "name": "Busca por Email",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pessoas/email/{{email}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pessoas",
+                "email",
+                "{{email}}"
+              ],
+              "query": []
+            },
+            "description": "Busca reversa: retorna CPFs associados a um endereco de email."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Cadastro - Pessoa Juridica",
+      "name": "Cadastro - Pessoa Jurídica",
       "item": [
         {
-          "name": "Dados da empresa",
+          "name": "Informações básicas",
           "request": {
             "method": "GET",
             "header": [],
@@ -142,12 +296,12 @@
               ],
               "query": []
             },
-            "description": "Retorna dados cadastrais de uma empresa pelo CNPJ."
+            "description": "Retorna informações básicas da empresa: dados cadastrais, situação na Receita Federal, natureza jurídica, atividades (CNAEs), endereço, telefones, emails e quadro societário."
           },
           "response": []
         },
         {
-          "name": "Funcionarios",
+          "name": "Quadro de funcionarios",
           "request": {
             "method": "GET",
             "header": [],
@@ -162,53 +316,110 @@
                 "{{cnpj}}",
                 "funcionarios"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "disabled": true
+                }
+              ]
             },
-            "description": "Retorna lista de funcionarios vinculados a empresa."
+            "description": "Retorna os funcionarios vinculados a uma empresa com cargo, funcao, remuneracao e situacao. Util para avaliar porte operacional."
           },
           "response": []
         },
         {
-          "name": "Dividas da empresa",
+          "name": "Tabela de códigos",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/empresas/cnpj/{{cnpj}}/dividas",
+              "raw": "{{base_url}}/empresas/codigos",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "empresas",
-                "cnpj",
-                "{{cnpj}}",
-                "dividas"
+                "codigos"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
             },
-            "description": "Retorna dividas vinculadas a empresa pelo CNPJ."
+            "description": "Retorna tabelas de tradução de códigos usados nos dados de empresas. Use o parâmetro tipo para filtrar uma tabela específica."
           },
           "response": []
         },
         {
-          "name": "Beneficios fiscais",
+          "name": "Busca por telefone",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/empresas/cnpj/{{cnpj}}/beneficios",
+              "raw": "{{base_url}}/empresas/telefone/{{telefone}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "empresas",
-                "cnpj",
-                "{{cnpj}}",
-                "beneficios"
+                "telefone",
+                "{{telefone}}"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "disabled": true
+                }
+              ]
             },
-            "description": "Retorna beneficios fiscais da empresa pelo CNPJ."
+            "description": "Busca reversa: identifica empresas que possuem o telefone informado no cadastro da Receita Federal. Retorna o perfil completo de cada empresa. O array `socios` nao e populado neste endpoint (use /empresas/cnpj/{cnpj} ou /empresas/cpf/{cpf} para o quadro societario)."
+          },
+          "response": []
+        },
+        {
+          "name": "Busca por Email",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/empresas/email/{{email}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "empresas",
+                "email",
+                "{{email}}"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Busca reversa: identifica empresas que possuem o email informado no cadastro da Receita Federal. Retorna o perfil completo de cada empresa. O array `socios` nao e populado neste endpoint (use /empresas/cnpj/{cnpj} ou /empresas/cpf/{cpf} para o quadro societario)."
           },
           "response": []
         }
@@ -232,9 +443,52 @@
                 "cpf",
                 "{{cpf}}"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "disabled": true
+                }
+              ]
             },
-            "description": "Retorna telefones vinculados a um CPF."
+            "description": "Retorna todos os telefones associados ao CPF."
+          },
+          "response": []
+        },
+        {
+          "name": "Telefones por CNPJ",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/telefones/cnpj/{{cnpj}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "telefones",
+                "cnpj",
+                "{{cnpj}}"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Retorna todos os telefones associados ao CNPJ."
           },
           "response": []
         },
@@ -253,134 +507,62 @@
                 "cpf",
                 "{{cpf}}"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "disabled": true
+                }
+              ]
             },
-            "description": "Retorna emails vinculados a um CPF."
+            "description": "Retorna todos os emails associados ao CPF."
+          },
+          "response": []
+        },
+        {
+          "name": "Emails por CNPJ",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/emails/cnpj/{{cnpj}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "emails",
+                "cnpj",
+                "{{cnpj}}"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Retorna todos os emails associados ao CNPJ."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Cadastro - Busca Reversa",
+      "name": "Cadastro - Dívidas",
       "item": [
         {
-          "name": "Busca por telefone",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/pessoas/telefone/{{telefone}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "pessoas",
-                "telefone",
-                "{{telefone}}"
-              ],
-              "query": []
-            },
-            "description": "Busca reversa: retorna pessoas vinculadas a um telefone."
-          },
-          "response": []
-        },
-        {
-          "name": "CPFs por email",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/pessoas/email/{{email}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "pessoas",
-                "email",
-                "{{email}}"
-              ],
-              "query": []
-            },
-            "description": "Busca reversa: retorna CPFs vinculados a um email."
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Cadastro - Busca por Empresa",
-      "item": [
-        {
-          "name": "Empresas por CPF",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/empresas/cpf/{{cpf}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "empresas",
-                "cpf",
-                "{{cpf}}"
-              ],
-              "query": []
-            },
-            "description": "Retorna empresas vinculadas a um CPF."
-          },
-          "response": []
-        },
-        {
-          "name": "Empresas por email",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/empresas/email/{{email}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "empresas",
-                "email",
-                "{{email}}"
-              ],
-              "query": []
-            },
-            "description": "Retorna empresas vinculadas a um email."
-          },
-          "response": []
-        },
-        {
-          "name": "Empresas por telefone",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/empresas/telefone/{{telefone}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "empresas",
-                "telefone",
-                "{{telefone}}"
-              ],
-              "query": []
-            },
-            "description": "Retorna empresas vinculadas a um telefone."
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Cadastro - Dividas",
-      "item": [
-        {
-          "name": "Dividas por CPF",
+          "name": "Dívidas federais por CPF",
           "request": {
             "method": "GET",
             "header": [],
@@ -396,12 +578,12 @@
               ],
               "query": []
             },
-            "description": "Retorna dividas ativas vinculadas a um CPF."
+            "description": "Retorna dívidas na Dívida Ativa da União, FGTS e Previdenciária vinculadas ao CPF. Inscrições com o mesmo número são agrupadas como histórico."
           },
           "response": []
         },
         {
-          "name": "Dividas por CNPJ",
+          "name": "Dívidas federais por CNPJ",
           "request": {
             "method": "GET",
             "header": [],
@@ -417,17 +599,17 @@
               ],
               "query": []
             },
-            "description": "Retorna dividas ativas vinculadas a um CNPJ."
+            "description": "Retorna dívidas na Dívida Ativa da União, FGTS e Previdenciária vinculadas ao CNPJ."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Cadastro - Beneficios Sociais",
+      "name": "Cadastro - Benefícios Sociais",
       "item": [
         {
-          "name": "Beneficios por CPF",
+          "name": "Beneficios sociais de uma pessoa",
           "request": {
             "method": "GET",
             "header": [],
@@ -441,14 +623,20 @@
                 "cpf",
                 "{{cpf}}"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "nome",
+                  "value": "{{nome}}",
+                  "disabled": true
+                }
+              ]
             },
-            "description": "Retorna beneficios sociais vinculados a um CPF."
+            "description": "Retorna beneficios sociais recebidos: Auxilio Brasil, Bolsa Familia, BPC e Auxilio Emergencial."
           },
           "response": []
         },
         {
-          "name": "Beneficios por CNPJ",
+          "name": "Renuncias fiscais de uma empresa",
           "request": {
             "method": "GET",
             "header": [],
@@ -464,14 +652,14 @@
               ],
               "query": []
             },
-            "description": "Retorna beneficios sociais vinculados a um CNPJ."
+            "description": "Retorna renuncias fiscais, habilitacoes e imunidades tributarias da empresa."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Cadastro - Licitacoes",
+      "name": "Cadastro - Licitações",
       "item": [
         {
           "name": "Licitacoes por CPF",
@@ -490,7 +678,7 @@
               ],
               "query": []
             },
-            "description": "Retorna licitacoes vinculadas a um CPF."
+            "description": "Busca todas as licitacoes publicas em que o CPF participou. Retorna dados completos de cada licitacao incluindo itens e demais participantes."
           },
           "response": []
         },
@@ -511,17 +699,151 @@
               ],
               "query": []
             },
-            "description": "Retorna licitacoes vinculadas a um CNPJ."
+            "description": "Busca todas as licitacoes publicas em que o CNPJ participou. Retorna dados completos de cada licitacao incluindo itens e demais participantes."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Patrimonio - Imoveis",
+      "name": "Cadastro - Listas Restritivas",
       "item": [
         {
-          "name": "Imoveis por CPF",
+          "name": "Listas restritivas de uma pessoa",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/listas-restritivas/cpf/{{cpf}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "listas-restritivas",
+                "cpf",
+                "{{cpf}}"
+              ],
+              "query": [
+                {
+                  "key": "nome",
+                  "value": "{{nome}}",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Consulta um CPF contra as 10 listas aplicaveis a pessoa fisica (CEIS, CNEP, CEAF, TCU, BACEN, sancoes internacionais, IBAMA Embargos, IBAMA Autos de Infracao, PEP, Debarment Multilateral). Valida o digito verificador do CPF."
+          },
+          "response": []
+        },
+        {
+          "name": "Listas restritivas de uma empresa",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/listas-restritivas/cnpj/{{cnpj}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "listas-restritivas",
+                "cnpj",
+                "{{cnpj}}"
+              ],
+              "query": [
+                {
+                  "key": "nome",
+                  "value": "{{nome}}",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Consulta um CNPJ contra as 10 listas aplicaveis a pessoa juridica (CEIS, CNEP, TCU, sancoes internacionais, Lista Suja, CEPIM, Acordos de Leniencia, IBAMA Embargos, IBAMA Autos de Infracao, Debarment Multilateral). Valida o digito verificador do CNPJ."
+          },
+          "response": []
+        },
+        {
+          "name": "Listas restritivas por documento",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/listas-restritivas/{{documento}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "listas-restritivas",
+                "{{documento}}"
+              ],
+              "query": [
+                {
+                  "key": "nome",
+                  "value": "{{nome}}",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Detecta o tipo pelo numero de digitos: 11 = CPF, 14 = CNPJ. Outro tamanho retorna 400. Aqui o documento e apenas limpo; o digito verificador NAO e validado, so o tamanho. Use /cpf ou /cnpj quando souber o tipo (eles validam o digito verificador)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Patrimônio - Perfil Completo",
+      "item": [
+        {
+          "name": "Perfil Patrimonial por CPF",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/perfil/patrimonial/cpf/{{cpf}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "perfil",
+                "patrimonial",
+                "cpf",
+                "{{cpf}}"
+              ],
+              "query": []
+            },
+            "description": "Agrega em uma chamada: veiculos, imoveis, aeronaves, patentes e perfil rural."
+          },
+          "response": []
+        },
+        {
+          "name": "Perfil Patrimonial por CNPJ",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/perfil/patrimonial/cnpj/{{cnpj}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "perfil",
+                "patrimonial",
+                "cnpj",
+                "{{cnpj}}"
+              ],
+              "query": []
+            },
+            "description": "Agrega em uma chamada: veiculos, imoveis, aeronaves, patentes e rural da empresa."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Patrimônio - Propriedades Urbanas",
+      "item": [
+        {
+          "name": "Imoveis urbanos de uma pessoa",
           "request": {
             "method": "GET",
             "header": [],
@@ -537,12 +859,12 @@
               ],
               "query": []
             },
-            "description": "Retorna imoveis urbanos vinculados a um CPF."
+            "description": "Retorna propriedades urbanas do CPF, imoveis de parentes e enderecos resididos (imoveis de terceiros nos enderecos onde a pessoa mora/morou). Documento invalido retorna HTTP 200 com corpo { \"erro\": \"CPF invalido\" }."
           },
           "response": []
         },
         {
-          "name": "Imoveis por CNPJ",
+          "name": "Imoveis urbanos de uma empresa",
           "request": {
             "method": "GET",
             "header": [],
@@ -558,17 +880,17 @@
               ],
               "query": []
             },
-            "description": "Retorna imoveis urbanos vinculados a um CNPJ."
+            "description": "Retorna as propriedades urbanas registradas em nome do CNPJ. Nao inclui parentes nem enderecos resididos. CNPJ invalido retorna HTTP 200 com corpo { \"erro\": \"CNPJ invalido\" }."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Patrimonio - Rural",
+      "name": "Patrimônio - Propriedades Rurais",
       "item": [
         {
-          "name": "Perfil rural CPF",
+          "name": "Perfil rural de uma pessoa",
           "request": {
             "method": "GET",
             "header": [],
@@ -584,12 +906,12 @@
               ],
               "query": []
             },
-            "description": "Retorna perfil rural (propriedades, CAR, CAFIR) vinculado a um CPF."
+            "description": "Retorna propriedades SNCR e CAFIR, infracoes IBAMA, autorizacoes florestais (AUTEX), transportes florestais (DOF), produtores organicos e resumo consolidado."
           },
           "response": []
         },
         {
-          "name": "Perfil rural CNPJ",
+          "name": "Perfil rural de uma empresa",
           "request": {
             "method": "GET",
             "header": [],
@@ -605,17 +927,17 @@
               ],
               "query": []
             },
-            "description": "Retorna perfil rural (propriedades, CAR, CAFIR) vinculado a um CNPJ."
+            "description": "Mesma estrutura de resposta de /rural/cpf/{cpf}; 'tipo' retorna PJ."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Patrimonio - Veiculos",
+      "name": "Patrimônio - Veículos",
       "item": [
         {
-          "name": "Veiculos por CPF",
+          "name": "Veiculos de uma pessoa",
           "request": {
             "method": "GET",
             "header": [],
@@ -631,12 +953,12 @@
               ],
               "query": []
             },
-            "description": "Retorna veiculos vinculados a um CPF."
+            "description": "Retorna todos os veiculos registrados em nome de uma pessoa fisica."
           },
           "response": []
         },
         {
-          "name": "Veiculos por CNPJ",
+          "name": "Frota de uma empresa",
           "request": {
             "method": "GET",
             "header": [],
@@ -652,12 +974,12 @@
               ],
               "query": []
             },
-            "description": "Retorna veiculos vinculados a um CNPJ."
+            "description": "Retorna todos os veiculos registrados em nome de uma empresa."
           },
           "response": []
         },
         {
-          "name": "Veiculo por placa",
+          "name": "Identificar veiculo por placa",
           "request": {
             "method": "GET",
             "header": [],
@@ -673,22 +995,22 @@
               ],
               "query": []
             },
-            "description": "Retorna dados de um veiculo pela placa."
+            "description": "Busca reversa: identifica o veiculo e seu proprietario a partir da placa. Aceita formato antigo (ABC1234) e Mercosul (ABC1D23)."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Patrimonio - Aeronaves",
+      "name": "Patrimônio - Aeronaves",
       "item": [
         {
-          "name": "Aeronaves por CPF",
+          "name": "Aeronaves de uma pessoa",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/aeronaves/cpf/{{cpf}}",
+              "raw": "{{base_url}}/aeronaves/cpf/{{cpf}}?nome={{nome}}",
               "host": [
                 "{{base_url}}"
               ],
@@ -697,14 +1019,20 @@
                 "cpf",
                 "{{cpf}}"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "nome",
+                  "value": "{{nome}}",
+                  "disabled": false
+                }
+              ]
             },
-            "description": "Retorna aeronaves vinculadas a um CPF."
+            "description": "Retorna aeronaves e drones registrados em nome de uma pessoa fisica."
           },
           "response": []
         },
         {
-          "name": "Aeronaves por CNPJ",
+          "name": "Aeronaves de uma empresa",
           "request": {
             "method": "GET",
             "header": [],
@@ -718,16 +1046,22 @@
                 "cnpj",
                 "{{cnpj}}"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "nome",
+                  "value": "{{nome}}",
+                  "disabled": true
+                }
+              ]
             },
-            "description": "Retorna aeronaves vinculadas a um CNPJ."
+            "description": "Retorna aeronaves e drones registrados em nome de uma empresa."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Patrimonio - Patentes",
+      "name": "Patrimônio - Patentes",
       "item": [
         {
           "name": "Patentes por CPF",
@@ -746,7 +1080,7 @@
               ],
               "query": []
             },
-            "description": "Retorna patentes registradas vinculadas a um CPF."
+            "description": "Retorna todas as patentes registradas no INPI vinculadas ao CPF informado."
           },
           "response": []
         },
@@ -767,17 +1101,17 @@
               ],
               "query": []
             },
-            "description": "Retorna patentes registradas vinculadas a um CNPJ."
+            "description": "Retorna todas as patentes registradas no INPI vinculadas ao CNPJ informado."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Juridico - Processos",
+      "name": "Jurídico - Processos",
       "item": [
         {
-          "name": "Processos por CPF",
+          "name": "Processos judiciais de uma pessoa",
           "request": {
             "method": "GET",
             "header": [],
@@ -791,14 +1125,35 @@
                 "cpf",
                 "{{cpf}}"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "disabled": true
+                },
+                {
+                  "key": "categorias",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "realtime",
+                  "value": "false",
+                  "disabled": true
+                }
+              ]
             },
-            "description": "Retorna processos judiciais vinculados a um CPF."
+            "description": "Retorna processos vinculados a um CPF com classe, assunto, partes, advogados e ate 10 movimentacoes recentes por processo. Suporta paginacao por `limit`/`offset` e filtro por `categorias`."
           },
           "response": []
         },
         {
-          "name": "Processos por CNPJ",
+          "name": "Processos judiciais de uma empresa",
           "request": {
             "method": "GET",
             "header": [],
@@ -812,14 +1167,35 @@
                 "cnpj",
                 "{{cnpj}}"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "disabled": true
+                },
+                {
+                  "key": "categorias",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "realtime",
+                  "value": "false",
+                  "disabled": true
+                }
+              ]
             },
-            "description": "Retorna processos judiciais vinculados a um CNPJ."
+            "description": "Retorna processos vinculados a um CNPJ com classe, assunto, partes, advogados e ate 10 movimentacoes recentes por processo. Suporta paginacao por `limit`/`offset` e filtro por `categorias`."
           },
           "response": []
         },
         {
-          "name": "Processo por numero",
+          "name": "Busca processo por numero",
           "request": {
             "method": "GET",
             "header": [],
@@ -835,17 +1211,65 @@
               ],
               "query": []
             },
-            "description": "Retorna detalhes de um processo judicial pelo numero unificado (CNJ)."
+            "description": "Retorna detalhes completos de um processo judicial pelo numero (com ou sem formatacao), incluindo valores mencionados, tags, eventos, audiencias, mandados, bens, identificadores, portes, partes e advogados. ATENCAO: as partes e advogados deste endpoint divergem da listagem por CPF/CNPJ — aqui `partes[].documento` pode ser null, `polo` vem em minusculas e `partes[].tipo` e o slug bruto (pessoa_fisica / pessoa_juridica). Este endpoint NAO retorna `movimentacoes` (use /processos/numero/{numero}/movimentacoes)."
+          },
+          "response": []
+        },
+        {
+          "name": "Lista movimentacoes de um processo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/processos/numero/{{numero_processo}}/movimentacoes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "processos",
+                "numero",
+                "{{numero_processo}}",
+                "movimentacoes"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Retorna as movimentacoes mais recentes de um processo judicial, ordenadas por data (mais recentes primeiro). A listagem por CPF/CNPJ ja inclui ate 10 movimentacoes por processo; use este endpoint para obter ate 100 movimentacoes de um processo especifico."
+          },
+          "response": []
+        },
+        {
+          "name": "Lista categorias de processos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/processos/categorias",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "processos",
+                "categorias"
+              ],
+              "query": []
+            },
+            "description": "Retorna todas as categorias disponiveis com totais de classes e processos. Use os slugs como valor do parametro `categorias` nos endpoints de CPF e CNPJ."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Juridico - Documentos",
+      "name": "Jurídico - Documentos Públicos",
       "item": [
         {
-          "name": "Busca em fontes publicas",
+          "name": "Buscar em fontes publicas",
           "request": {
             "method": "GET",
             "header": [],
@@ -861,104 +1285,22 @@
               "query": [
                 {
                   "key": "query",
-                  "value": "{{termo}}"
+                  "value": "{{termo}}",
+                  "disabled": false
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "page_size",
+                  "value": "20",
+                  "disabled": true
                 }
               ]
             },
-            "description": "Busca documentos em fontes publicas (diarios oficiais, publicacoes, etc.)."
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Perfis Agregados",
-      "item": [
-        {
-          "name": "Perfil Cadastral CPF",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/perfil/cadastral/cpf/{{cpf}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "perfil",
-                "cadastral",
-                "cpf",
-                "{{cpf}}"
-              ],
-              "query": []
-            },
-            "description": "Retorna perfil cadastral completo de uma pessoa fisica (dados, enderecos, telefones, emails, empresas)."
-          },
-          "response": []
-        },
-        {
-          "name": "Perfil Cadastral CNPJ",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/perfil/cadastral/cnpj/{{cnpj}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "perfil",
-                "cadastral",
-                "cnpj",
-                "{{cnpj}}"
-              ],
-              "query": []
-            },
-            "description": "Retorna perfil cadastral completo de uma empresa (dados, socios, funcionarios, dividas)."
-          },
-          "response": []
-        },
-        {
-          "name": "Perfil Patrimonial CPF",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/perfil/patrimonial/cpf/{{cpf}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "perfil",
-                "patrimonial",
-                "cpf",
-                "{{cpf}}"
-              ],
-              "query": []
-            },
-            "description": "Retorna perfil patrimonial completo de uma pessoa fisica (imoveis, veiculos, aeronaves, rural)."
-          },
-          "response": []
-        },
-        {
-          "name": "Perfil Patrimonial CNPJ",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/perfil/patrimonial/cnpj/{{cnpj}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "perfil",
-                "patrimonial",
-                "cnpj",
-                "{{cnpj}}"
-              ],
-              "query": []
-            },
-            "description": "Retorna perfil patrimonial completo de uma empresa (imoveis, veiculos, aeronaves, rural)."
+            "description": "Busca full-text em documentos publicos. Aceita CPF, CNPJ, nomes ou termos livres."
           },
           "response": []
         }
@@ -966,11 +1308,21 @@
     }
   ],
   "auth": {
-    "type": "bearer",
-    "bearer": [
+    "type": "apikey",
+    "apikey": [
       {
-        "key": "token",
+        "key": "key",
+        "value": "token",
+        "type": "string"
+      },
+      {
+        "key": "value",
         "value": "{{token}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "query",
         "type": "string"
       }
     ]
