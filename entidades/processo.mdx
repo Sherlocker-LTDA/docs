@@ -19,9 +19,10 @@ Um **Processo** representa um processo judicial coletado de múltiplos tribunais
 | `data_ajuizamento` | string | Data ISO (YYYY-MM-DD) |
 | `orgao_julgador` | string | Vara ou turma responsável (Title Case) |
 | `assuntos` | string | Assuntos do processo |
+| `valor_acao` | number \| null | Valor da ação em reais; `null` quando não declarado |
 | `partes` | Parte[] | Lista de partes envolvidas |
 | `advogados` | Advogado[] | Lista de advogados atuantes |
-| `movimentacoes` | object[] | Últimas movimentações do processo |
+| `movimentacoes` | object[] | Até 10 movimentações mais recentes do processo |
 
 ## Exemplo
 
@@ -36,16 +37,17 @@ Um **Processo** representa um processo judicial coletado de múltiplos tribunais
   "data_ajuizamento": "2020-03-15",
   "orgao_julgador": "2ª Vara Cível do Foro Central",
   "assuntos": "Indenização por Dano Moral",
+  "valor_acao": 10000,
   "partes": [
-    { "nome": "João Silva de Oliveira", "documento": "123.456.789-01", "polo": "ativo", "tipo": "Física" },
-    { "nome": "Comércio Eletrônico Abc Ltda", "documento": "98.765.432/0001-88", "polo": "passivo", "tipo": "Jurídica" }
+    { "nome": "João Silva de Oliveira", "documento": "123.456.789-01", "polo": "Ativo", "tipo": "Pessoa Física" },
+    { "nome": "Comércio Eletrônico Abc Ltda", "documento": "98.765.432/0001-88", "polo": "Passivo", "tipo": "Pessoa Jurídica" }
   ],
   "advogados": [
-    { "nome": "Dr. José Carlos Mendes", "oab": "SP123456", "polo": "ativo", "documento": "111.222.333-44" }
+    { "nome": "José Carlos Mendes", "oab": "SP123456", "polo": "Ativo", "documento": "111.222.333-44" }
   ],
   "movimentacoes": [
     { "data": "2020-06-10", "descricao": "Sentença procedente", "complemento": "Condenação em R$ 10.000,00" },
-    { "data": "2020-03-15", "descricao": "Distribuído por sorteio", "complemento": null }
+    { "data": "2020-03-15", "descricao": "Distribuído por sorteio", "complemento": "" }
   ]
 }
 ```
@@ -55,9 +57,9 @@ Um **Processo** representa um processo judicial coletado de múltiplos tribunais
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `nome` | string | Nome da parte (Title Case) |
-| `documento` | string \| null | CPF ou CNPJ formatado |
-| `polo` | string | `ativo`, `passivo`, `terceiro`, `interessado` |
-| `tipo` | string | Tipo da parte (ex: `Física`, `Jurídica`) |
+| `documento` | string | CPF ou CNPJ formatado; string vazia (`""`) quando ausente |
+| `polo` | string | Polo capitalizado (ex: `Ativo`, `Passivo`, `Terceiro`, `Outro`) |
+| `tipo` | string | `Pessoa Física`, `Pessoa Jurídica` ou `Autoridade` |
 
 ## Advogado
 
@@ -65,8 +67,8 @@ Um **Processo** representa um processo judicial coletado de múltiplos tribunais
 |-------|------|-----------|
 | `nome` | string | Nome do advogado (Title Case) |
 | `oab` | string | Número OAB com UF (ex: `SP123456`) |
-| `polo` | string | Polo que representa |
-| `documento` | string \| null | CPF do advogado |
+| `polo` | string | Polo que representa (capitalizado) |
+| `documento` | string | CPF do advogado formatado; string vazia (`""`) quando ausente |
 
 ## Movimentação
 
@@ -74,7 +76,7 @@ Um **Processo** representa um processo judicial coletado de múltiplos tribunais
 |-------|------|-----------|
 | `data` | string | Data ISO (YYYY-MM-DD) |
 | `descricao` | string | Descrição da movimentação |
-| `complemento` | string \| null | Complemento da movimentação |
+| `complemento` | string | Complemento da movimentação; string vazia (`""`) quando ausente |
 
 ## Filtro por categoria
 

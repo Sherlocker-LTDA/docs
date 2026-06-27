@@ -10,14 +10,11 @@ Um **Imóvel** no Sherlocker representa um registro de propriedade, cobrindo tan
 
 | Dado disponível | Endpoint | Resultado |
 |----------------|----------|-----------|
-| CPF | `GET /pessoas/cpf/{cpf}/imoveis` | Imóveis urbanos da pessoa |
-| CPF | `GET /pessoas/cpf/{cpf}/rural` | Perfil rural completo |
-| CNPJ | `GET /empresas/cnpj/{cnpj}/imoveis` | Imóveis da empresa |
-| CNPJ | `GET /empresas/cnpj/{cnpj}/rural` | Rural da empresa |
-| CPF/UF | `GET /imoveis/cpf/{cpf}/{uf}` | Filtrado por estado |
+| CPF | `GET /imoveis/cpf/{cpf}` | Imóveis urbanos da pessoa (+ parentes e endereços resididos) |
+| CNPJ | `GET /imoveis/cnpj/{cnpj}` | Imóveis urbanos da empresa |
 
 <Tip>
-  Na rota principal de pessoa (`GET /pessoas/cpf/{cpf}`), os imóveis já vêm incluídos nos campos `imoveis` (urbanos) e `rural`. Use as sub-rotas para consultas mais rápidas.
+  A resposta por CPF inclui também `parentes` e `enderecos_resididos`. A resposta por CNPJ traz apenas `propriedades`.
 </Tip>
 
 ## Imóveis urbanos
@@ -29,8 +26,9 @@ Cobertura de **1.400+ municípios** via integração com portais IPTU.
 | Campo | Descrição | Exemplo |
 |-------|-----------|---------|
 | `id` | Identificador único | `a1b2c3d4e5f6` |
-| `fonte` | Portal de origem | `bh`, `sp-iptu`, `poa` |
-| `sql_iptu` | Inscrição municipal | `0123456789` |
+| `fonte` | Plataforma/origem do dado IPTU municipal | `betha`, `elotech`, `sia` |
+| `sql_iptu` | Inscrição municipal (SQL) | `0123456789` |
+| `inscricao` | Inscrição municipal | `0123456789` |
 | `localizacao.logradouro` | Rua/Avenida | `R HENRIQUE PASSINI` |
 | `localizacao.numero` | Número | `748` |
 | `localizacao.bairro` | Bairro | `SERRA` |
@@ -48,8 +46,8 @@ Cobertura de **1.400+ municípios** via integração com portais IPTU.
 
 Cada imóvel inclui dados do proprietário:
 - `nome` — nome conforme cadastro municipal
-- `documento` — CPF ou CNPJ
-- `tipoDocumento` — `CPF` ou `CNPJ`
+- `documento` — CPF/CNPJ formatado, ou `null` quando ausente
+- `tipoDocumento` — `CPF` ou `CNPJ` (camelCase; pode estar ausente)
 
 ## Imóveis rurais
 
@@ -70,19 +68,18 @@ import requests
 
 BASE = "https://221b-api.sherlocker.com.br/api/v1"
 
-# Imoveis urbanos via perfil completo
-pessoa = requests.get(f"{BASE}/pessoas/cpf/12345678901", params={"token": TOKEN}).json()
-imoveis = pessoa.get("imoveis", [])
-rural = pessoa.get("rural", {})
+# Imoveis urbanos por CPF
+resp = requests.get(f"{BASE}/imoveis/cpf/12345678901", params={"token": TOKEN}).json()
+propriedades = resp.get("propriedades", [])
+parentes = resp.get("parentes", [])
+enderecos_resididos = resp.get("enderecos_resididos", [])
 
-# Via sub-rota especifica
-resp = requests.get(f"{BASE}/pessoas/cpf/12345678901/imoveis", params={"token": TOKEN}).json()
-
-for im in imoveis:
+for im in propriedades:
     loc = im.get("localizacao", {})
     print(f"{loc.get('logradouro')}, {loc.get('numero')} - {loc.get('cidade')}/{loc.get('uf')}")
     print(f"  Valor venal: R$ {im.get('valor_venal', 0):,.2f}")
     print(f"  Area: {im.get('area_terreno', 0)} m2 terreno, {im.get('area_construida', 0)} m2 construido")
+    print(f"  Agrupados: {im.get('quantidade', 1)}")
 ```
 
 ## Estratégia de levantamento patrimonial
@@ -93,7 +90,7 @@ for im in imoveis:
 4. **Cruzamento** — comparar endereços de moradia com endereços de propriedade
 
 <Info>
-  Consultas de imóveis podem levar alguns segundos por dependerem de portais municipais. Para consultas em lote, use `?enrich=true` para incluir dados de leilão e Caixa Econômica.
+  As consultas usam a base unificada de IPTU (1.400+ municípios) e respondem em poucos segundos.
 </Info>
 
 <CardGroup cols={2}>
@@ -105,8 +102,5 @@ for im in imoveis:
   </Card>
   <Card title="Rural por CPF" icon="tractor" href="/api-reference/rural/perfil-rural-de-uma-pessoa">
     Perfil rural completo
-  </Card>
-  <Card title="Por estado" icon="map" href="/api-reference/imoveis/imoveis-urbanos-de-uma-pessoa-por-estado">
-    Filtrado por UF
   </Card>
 </CardGroup>

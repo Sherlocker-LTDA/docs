@@ -72,7 +72,7 @@
       "PatentesResponse": {
         "type": "object",
         "properties": {
-          "success": { "type": "boolean" },
+          "sucesso": { "type": "boolean" },
           "documento": { "type": "string" },
           "tipo": { "type": "string", "enum": ["cpf", "cnpj"] },
           "total": { "type": "integer" },
@@ -85,8 +85,12 @@
       "ErrorResponse": {
         "type": "object",
         "properties": {
-          "success": { "type": "boolean", "example": false },
-          "error": { "type": "string" }
+          "sucesso": { "type": "boolean", "example": false },
+          "documento": { "type": "string" },
+          "tipo": { "type": "string", "enum": ["cpf", "cnpj"] },
+          "total": { "type": "integer", "example": 0 },
+          "patentes": { "type": "array", "items": { "$ref": "#/components/schemas/Patente" }, "example": [] },
+          "error": { "type": "string", "description": "Mensagem de erro (ex: CPF invalido)" }
         }
       }
     }
@@ -114,7 +118,7 @@
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/PatentesResponse" },
                 "example": {
-                  "success": true,
+                  "sucesso": true,
                   "documento": "12345678901",
                   "tipo": "cpf",
                   "total": 1,
@@ -125,7 +129,7 @@
                       "resumo": "Equipamento eletronico para veiculos automotivos que analisa dados do computador de bordo em tempo real.",
                       "depositante": "FULANO DE TAL",
                       "documento": "12345678901",
-                      "tipo_pessoa": "Pessoa Fisica",
+                      "tipo_pessoa": "Pessoa Física",
                       "pais": "BR",
                       "estado": "PR",
                       "data_inicio": "2015-11-17",
@@ -187,7 +191,7 @@
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/PatentesResponse" },
                 "example": {
-                  "success": true,
+                  "sucesso": true,
                   "documento": "11325650000123",
                   "tipo": "cnpj",
                   "total": 3,
@@ -198,7 +202,7 @@
                       "resumo": "Sistema para gerenciamento automatizado de operacoes de transporte de passageiros, com contagem de passageiros, analise de fluxo, telemetria e rastreamento GPS integrados.",
                       "depositante": "TRIMBLE BRASIL LTDA.",
                       "documento": "11325650000123",
-                      "tipo_pessoa": "Pessoa Juridica",
+                      "tipo_pessoa": "Pessoa Jurídica",
                       "pais": "BR",
                       "estado": "SP",
                       "data_inicio": "2026-02-03",

@@ -1,17 +1,17 @@
 ---
 title: "Propriedade Urbana"
-description: "Propriedade urbana com dados de IPTU, ITBI e proprietário"
+description: "Propriedade urbana com dados de IPTU e proprietário"
 icon: "house"
 ---
 
-Uma **Propriedade Urbana** representa uma propriedade registrada em cadastro municipal. Os dados podem vir de diferentes fontes tributárias — o campo `fonte` indica a origem e o campo `uf` o estado.
+Uma **Propriedade Urbana** representa uma propriedade registrada em cadastro municipal de IPTU. O campo `fonte` indica a plataforma/origem do dado e o campo `localizacao.uf` o estado.
 
 ## Tipagem
 
 ```json
 {
   "id": "a1b2c3d4e5f6",
-  "fonte": "iptu",
+  "fonte": "betha",
   "sql_iptu": "0123456789",
   "inscricao": "0123456789",
   "localizacao": {
@@ -40,34 +40,22 @@ Uma **Propriedade Urbana** representa uma propriedade registrada em cadastro mun
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `id` | string | Identificador único interno |
-| `fonte` | string | Tipo de fonte tributária (ver tabela abaixo) |
+| `fonte` | string | Plataforma/origem do dado IPTU municipal (ver abaixo) |
 | `sql_iptu` | string | Inscrição municipal / SQL IPTU |
-| `localizacao` | object | Endereço completo do imóvel |
-| `localizacao.uf` | string | Estado — combinar com `fonte` para saber a origem (ex: fonte `iptu` + uf `SP` = IPTU de São Paulo) |
+| `inscricao` | string | Inscrição municipal |
+| `localizacao` | object | Endereço completo do imóvel (inclui `complemento`) |
+| `localizacao.uf` | string | Estado do imóvel |
 | `area_terreno` | number | Área do terreno em m² |
 | `area_construida` | number | Área construída em m² |
 | `ano_construcao` | number | Ano de construção |
 | `tipo_uso` | string | `RESIDENCIAL`, `COMERCIAL`, `INDUSTRIAL`, `TERRITORIAL` |
 | `valor_venal` | number | Valor venal em R$ (base para cálculo do IPTU) |
 | `valor_iptu` | number | Valor do IPTU anual em R$ |
-| `proprietario` | object | Nome, documento (CPF/CNPJ) do proprietário |
+| `proprietario` | object | Proprietário: `nome`, `documento` (CPF/CNPJ formatado ou `null`), `tipoDocumento` |
 
 ## Fontes de dados
 
-O campo `fonte` indica de qual tributo/cadastro os dados foram extraídos:
-
-| Fonte | Descrição | Dados típicos |
-|-------|-----------|---------------|
-| `iptu` | Imposto Predial e Territorial Urbano | Área, valor venal, tipo de uso, proprietário |
-| `itbi` | Imposto de Transmissão de Bens Imóveis | Valor de transação, comprador, vendedor |
-
-Para saber a **origem específica**, combine `fonte` + `localizacao.uf`:
-
-| Exemplo | Significa |
-|---------|-----------|
-| `fonte: "iptu"` + `uf: "SP"` | IPTU de São Paulo |
-| `fonte: "iptu"` + `uf: "MG"` | IPTU de Minas Gerais |
-| `fonte: "itbi"` + `uf: "RJ"` | ITBI do Rio de Janeiro |
+O campo `fonte` identifica a plataforma/sistema do portal de IPTU municipal de onde o registro foi extraído — por exemplo `betha`, `elotech`, `sia`. A estrutura do registro é **idêntica** independentemente da `fonte`.
 
 ## Cobertura
 
@@ -99,4 +87,3 @@ graph LR
 |------|-----------|
 | `GET /imoveis/cpf/{cpf}` | Imóveis por proprietário (CPF) |
 | `GET /imoveis/cnpj/{cnpj}` | Imóveis por proprietário (CNPJ) |
-| `GET /imoveis/cpf/{cpf}?uf=SP` | Filtrado por estado |

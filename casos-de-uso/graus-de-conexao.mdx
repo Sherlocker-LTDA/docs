@@ -1,0 +1,282 @@
+---
+title: "Graus de Conexão"
+description: "Percorrer a rede societária a partir de uma empresa ou pessoa — empresa → sócios → empresas dos sócios — controlando profundidade e amplitude"
+icon: "share-nodes"
+---
+
+A rede societária brasileira é um **grafo**: empresas se conectam a pessoas (e a outras empresas) pelo quadro de sócios. A partir de um único CNPJ ou CPF você consegue mapear toda a vizinhança — sócios diretos, as outras empresas desses sócios, os sócios dessas empresas, e assim por diante.
+
+Cada salto nesse caminho é um **grau de conexão**.
+
+## O modelo
+
+Pense em dois tipos de nó que se alternam: **empresas** (CNPJ) e **pessoas** (CPF). Uma aresta liga uma empresa a quem é sócio dela.
+
+```mermaid
+graph LR
+  E0["🏢 Empresa Alvo<br/>(grau 0)"]
+  P1["👤 Sócio A"]
+  P2["👤 Sócio B"]
+  E1["🏢 Outra empresa<br/>do Sócio A (grau 1)"]
+  E2["🏢 Outra empresa<br/>do Sócio B (grau 1)"]
+  P3["👤 Sócio C<br/>(grau 2)"]
+
+  E0 --> P1
+  E0 --> P2
+  P1 --> E1
+  P2 --> E2
+  E1 --> P3
+```
+
+- **Grau 0** — a empresa de onde você parte.
+- **Grau 1** — as outras empresas dos sócios diretos.
+- **Grau 2** — as empresas dos sócios dessas empresas.
+- ...e assim sucessivamente.
+
+<Note>
+Partir de uma **pessoa** (CPF) é simétrico: o grau 0 são as empresas onde ela é sócia, e a partir daí o caminho é o mesmo.
+</Note>
+
+## Duas rotas, ida e volta
+
+A travessia usa apenas dois endpoints, que são o inverso um do outro:
+
+<CardGroup cols={2}>
+  <Card title="Empresa → sócios" icon="building">
+    `GET /empresas/cnpj/{cnpj}` retorna a empresa **já com o array `socios`**. Cada sócio traz `documento` (CPF/CNPJ) e `tipo`.
+  </Card>
+  <Card title="Pessoa → empresas" icon="user">
+    `GET /empresas/cpf/{cpf}` faz a busca reversa: todas as empresas onde o CPF é sócio — **cada uma também já com seu `socios`**.
+  </Card>
+</CardGroup>
+
+<Tip>
+Como o `/empresas/cpf` **já devolve os sócios de cada empresa**, ao expandir a rede a partir de uma pessoa você ganha o próximo grau na mesma resposta — sem precisar voltar no `/empresas/cnpj` para cada empresa descoberta. Menos chamadas, menos latência.
+</Tip>
+
+### Como o retorno encadeia
+
+```mermaid
+sequenceDiagram
+  participant App
+  participant API as Sherlocker API
+
+  App->>API: GET /empresas/cnpj/33000167000101
+  API-->>App: { razao_social, socios: [ {documento, tipo}, ... ] }
+  Note over App: extrai CPFs dos sócios PF
+
+  App->>API: GET /empresas/cpf/40607712015
+  API-->>App: { empresas: [ { documento, razao_social, socios: [...] }, ... ] }
+  Note over App: cada empresa já vem com sócios →<br/>próximo grau sem nova chamada
+```
+
+## Formato da resposta
+
+`GET /empresas/cnpj/{cnpj}` (grau 0 a partir de uma empresa):
+
+```json
+{
+  "documento": "33.000.167/0001-01",
+  "razao_social": "Petroleo Brasileiro S A Petrobras",
+  "situacao": "Ativa",
+  "socios": [
+    {
+      "nome": "Claudio Romeo Schlosser",
+      "documento": "406.077.120-15",
+      "tipo_documento": "CPF",
+      "tipo": "Pessoa Física",
+      "qualificacao": "Diretor",
+      "data_entrada": "2023-04-17"
+    }
+  ]
+}
+```
+
+`GET /empresas/cpf/{cpf}` (grau 1 — as outras empresas do sócio, **com sócios aninhados**):
+
+```json
+{
+  "empresas": [
+    {
+      "documento": "11.111.111/0001-11",
+      "razao_social": "Empresa B Participações Ltda",
+      "situacao": "Ativa",
+      "socios": [
+        { "nome": "Claudio Romeo Schlosser", "documento": "406.077.120-15", "tipo": "Pessoa Física", "qualificacao": "Sócio-Administrador" },
+        { "nome": "Maria Souza",             "documento": "123.456.789-09", "tipo": "Pessoa Física", "qualificacao": "Sócio" }
+      ]
+    }
+  ]
+}
+```
+
+Repare que cada empresa do array **já carrega seus próprios sócios** — `Maria Souza` é o nó de grau 2 pronto para ser expandido.
+
+## Percorrendo a rede
+
+A travessia é uma **busca em largura (BFS)**: você processa um grau inteiro antes de descer para o próximo. Três controles são essenciais:
+
+<Steps>
+  <Step title="Profundidade máxima (max_depth)">
+    Quantos graus descer. O número de nós cresce exponencialmente — raramente faz sentido passar de 2 ou 3.
+  </Step>
+  <Step title="Amplitude por nó (fan-out)">
+    Quantos sócios/empresas expandir por nó. Sócios de uma holding ou empresas de um sócio profissional podem chegar a centenas — limite para não explodir.
+  </Step>
+  <Step title="Deduplicação (visited)">
+    A rede tem ciclos (A é sócio de B, B é sócio de A). Sem um conjunto de "já visitados", o percurso entra em loop.
+  </Step>
+</Steps>
+
+### Código — travessia a partir de uma empresa
+
+```python
+import requests
+from collections import deque
+
+BASE = "https://221b-api.sherlocker.com.br/api/v1"
+TOKEN = "SEU_TOKEN"
+
+def get(endpoint, **params):
+    params["token"] = TOKEN
+    return requests.get(f"{BASE}{endpoint}", params=params).json()
+
+def so_digitos(doc: str) -> str:
+    return "".join(c for c in doc if c.isdigit())
+
+def graus_de_conexao(cnpj_raiz, max_depth=2, fan_out=10, max_empresas_por_socio=10):
+    """Mapeia a rede societária a partir de um CNPJ, em largura (BFS)."""
+    visitados_pf = set()       # CPFs já expandidos (dedup + anti-ciclo)
+    visitados_cnpj = set()     # CNPJs já visitados
+    rede = []                  # arestas descobertas: (origem, socio, grau)
+
+    # fila de empresas a expandir: (cnpj, grau)
+    fila = deque([(so_digitos(cnpj_raiz), 0)])
+    visitados_cnpj.add(so_digitos(cnpj_raiz))
+
+    while fila:
+        cnpj, grau = fila.popleft()
+        if grau >= max_depth:
+            continue
+
+        empresa = get(f"/empresas/cnpj/{cnpj}")
+        socios = empresa.get("socios", [])[:fan_out]   # limita amplitude
+
+        for socio in socios:
+            doc = so_digitos(socio.get("documento", ""))
+            rede.append((empresa.get("razao_social"), socio.get("nome"), grau + 1))
+
+            # Sócio pessoa física → buscar as outras empresas dele
+            if len(doc) == 11 and doc not in visitados_pf:
+                visitados_pf.add(doc)
+                outras = get(f"/empresas/cpf/{doc}", limit=max_empresas_por_socio)
+                for emp in outras.get("empresas", []):
+                    cnpj_emp = so_digitos(emp.get("documento", ""))
+                    if cnpj_emp and cnpj_emp not in visitados_cnpj:
+                        visitados_cnpj.add(cnpj_emp)
+                        fila.append((cnpj_emp, grau + 1))
+
+            # Sócio pessoa jurídica → a própria empresa entra na fila
+            elif len(doc) == 14 and doc not in visitados_cnpj:
+                visitados_cnpj.add(doc)
+                fila.append((doc, grau + 1))
+
+    return rede
+
+for origem, socio, grau in graus_de_conexao("33000167000101", max_depth=2):
+    print(f"grau {grau}: {origem} —> {socio}")
+```
+
+### Otimização — aproveitando os sócios aninhados
+
+Quando você expande uma **pessoa**, o `/empresas/cpf` já devolve os sócios de cada empresa. Dá para descer um grau extra **sem nenhuma chamada nova**:
+
+```python
+def expandir_pessoa(cpf, fan_out=10):
+    """Um único GET entrega grau 1 (empresas) e grau 2 (sócios dessas empresas)."""
+    resp = get(f"/empresas/cpf/{so_digitos(cpf)}", limit=fan_out)
+    grau1, grau2 = [], []
+    for emp in resp.get("empresas", []):
+        grau1.append(emp["documento"])                         # empresa do sócio (grau 1)
+        for s in emp.get("socios", [])[:fan_out]:
+            grau2.append((emp["documento"], s["documento"]))   # co-sócio (grau 2) — de graça
+    return grau1, grau2
+```
+
+## Calculando o tamanho máximo da rede
+
+O número de nós cresce de forma **exponencial** com a profundidade. Se cada nó tem em média `f` conexões (fan-out) e você desce `d` graus:
+
+```
+nós no grau k   = f^k
+total de nós    = 1 + f + f² + ... + f^d = (f^(d+1) − 1) / (f − 1)
+```
+
+E como cada nó expandido custa aproximadamente uma chamada, o número de **chamadas à API** segue a mesma ordem de grandeza (antes da deduplicação, que reduz o real).
+
+```python
+def estimar_rede(fan_out, max_depth):
+    if fan_out == 1:
+        return max_depth + 1
+    total = (fan_out ** (max_depth + 1) - 1) // (fan_out - 1)
+    por_grau = [fan_out ** k for k in range(max_depth + 1)]
+    return total, por_grau
+
+total, por_grau = estimar_rede(fan_out=10, max_depth=3)
+print(por_grau)  # [1, 10, 100, 1000]
+print(total)     # 1111 nós no pior caso
+```
+
+| fan-out | grau 1 | grau 2 | grau 3 | total (pior caso) |
+| ------- | ------ | ------ | ------ | ----------------- |
+| 5       | 5      | 25     | 125    | **156**           |
+| 10      | 10     | 100    | 1.000  | **1.111**         |
+| 20      | 20     | 400    | 8.000  | **8.421**         |
+
+<Warning>
+A tabela é o **teto teórico**. Na prática, a deduplicação (`visited`) corta muito, porque redes reais são densamente interligadas — os mesmos sócios e empresas reaparecem. Ainda assim, trate `fan_out` e `max_depth` como **orçamento de chamadas**: 2 graus com fan-out 10 já é o ponto de equilíbrio para a maioria das investigações.
+</Warning>
+
+### Limitando o orçamento na prática
+
+```python
+MAX_CHAMADAS = 200
+
+def graus_com_orcamento(cnpj_raiz, max_depth=3, fan_out=10, max_chamadas=MAX_CHAMADAS):
+    chamadas = 0
+    # ... mesma BFS, mas antes de cada get():
+    #   if chamadas >= max_chamadas: break
+    #   chamadas += 1
+    # Garante custo previsível independente do tamanho real da rede.
+```
+
+## Boas práticas
+
+<Steps>
+  <Step title="Comece raso">
+    `max_depth=1` ou `2` resolve a maioria dos casos. Cada grau a mais multiplica o custo.
+  </Step>
+  <Step title="Sempre deduplique">
+    Mantenha `visited` para CPFs e CNPJs. Redes societárias têm ciclos.
+  </Step>
+  <Step title="Aproveite os sócios aninhados">
+    Ao expandir uma pessoa, leia os `socios` que já vêm no `/empresas/cpf` antes de fazer chamadas novas.
+  </Step>
+  <Step title="Defina um teto de chamadas">
+    Um limite global de requisições protege contra holdings com centenas de participações.
+  </Step>
+  <Step title="Filtre por relevância">
+    Ignore sócios com `data_saida` antiga ou empresas `Baixada` se só interessa o vínculo ativo.
+  </Step>
+</Steps>
+
+## APIs utilizadas
+
+<CardGroup cols={2}>
+  <Card title="Perfil da empresa" icon="building" href="/api-reference/empresas/informacoes-basicas">
+    `GET /empresas/cnpj/{cnpj}` — dados cadastrais + quadro societário (`socios`).
+  </Card>
+  <Card title="Vínculos societários" icon="share-nodes" href="/api-reference/busca-reversa/vinculos-societarios">
+    `GET /empresas/cpf/{cpf}` — empresas de uma pessoa, cada uma com seus sócios.
+  </Card>
+</CardGroup>

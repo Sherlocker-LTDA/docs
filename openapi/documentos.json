@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Sherlocker Documentos API",
-    "description": "Inteligencia documental: busca full-text em diarios oficiais (DOU, DJSP) e publicacoes governamentais.",
+    "description": "Inteligencia documental: busca full-text no Diario Oficial de Sao Paulo (DOSP) e no Diario Judicial (PJE).",
     "version": "1.0"
   },
   "servers": [
@@ -29,7 +29,7 @@
         "properties": {
           "type": {
             "type": "string",
-            "description": "Tipo do documento"
+            "description": "Tipo do documento (rotulo legivel). Valores: \"Diario Oficial de Sao Paulo\" (DOSP) ou \"Diario Judicial\" (PJE)."
           },
           "title": {
             "type": "string"
@@ -55,7 +55,7 @@
                 },
                 "type": {
                   "type": "string",
-                  "description": "PF, PJ, etc"
+                  "description": "Papel do nome no documento: \"Mencionado\" ou \"Advogado\""
                 }
               }
             },
@@ -63,11 +63,16 @@
           },
           "date": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "description": "Data da publicacao. Sempre null para a fonte PJE."
           },
           "source": {
             "type": "string",
-            "description": "Fonte do documento (DOU, DJSP, etc)"
+            "enum": [
+              "DOSP",
+              "PJE"
+            ],
+            "description": "Fonte do documento: \"DOSP\" (Diario Oficial de Sao Paulo) ou \"PJE\" (Diario Judicial)."
           }
         }
       },
@@ -151,10 +156,10 @@
             "name": "page_size",
             "in": "query",
             "required": false,
-            "description": "Itens por pagina (default: 10)",
+            "description": "Itens por pagina (default: 20)",
             "schema": {
               "type": "integer",
-              "default": 10
+              "default": 20
             }
           }
         ],
@@ -168,53 +173,42 @@
                 },
                 "example": {
                   "page": 1,
-                  "page_size": 10,
-                  "total_items": 5,
+                  "page_size": 20,
+                  "total_items": 2,
                   "results": [
                     {
-                      "type": "diario_oficial",
-                      "title": "Diário Oficial do Estado de São Paulo",
-                      "description": "Seção I - Poder Executivo",
+                      "type": "Diário Judicial",
+                      "title": "Intimação - 0000001-23.2020.8.26.0100",
+                      "description": "Tribunal: TJSP, Órgão: 1ª Vara Cível, Classe: Procedimento Comum Cível",
+                      "text": "...intimada a parte João Silva de Oliveira para manifestar-se no prazo legal...",
+                      "link": "https://comunica.pje.jus.br/consulta/123456",
+                      "names": [
+                        {
+                          "name": "JOAO SILVA DE OLIVEIRA",
+                          "type": "Mencionado"
+                        },
+                        {
+                          "name": "Maria Souza",
+                          "type": "Advogado"
+                        }
+                      ],
+                      "date": null,
+                      "source": "PJE"
+                    },
+                    {
+                      "type": "Diário Oficial de São Paulo",
+                      "title": "Diário Oficial Empresarial",
+                      "description": "Caderno Executivo - Seção I",
                       "text": "...João Silva de Oliveira nomeado para o cargo de Diretor Técnico, conforme Decreto nº 12.345...",
-                      "link": "https://www.imprensaoficial.com.br/DO/BuscaDO2001Documento_11_4.aspx?...",
+                      "link": "https://doe.sp.gov.br/empresarial/edicao-123/caderno-1/pagina-45",
                       "names": [
                         {
-                          "name": "João Silva de Oliveira",
-                          "type": "PF"
+                          "name": "JOAO SILVA DE OLIVEIRA",
+                          "type": "Mencionado"
                         }
                       ],
-                      "date": "2020-01-15",
-                      "source": "DOE-SP"
-                    },
-                    {
-                      "type": "diario_oficial",
-                      "title": "Diário Oficial da União",
-                      "description": "Seção III - Contratos",
-                      "text": "...Contrato firmado com Silva Comércio LTDA, CNPJ 12.345.678/0001-99, para fornecimento de equipamentos...",
-                      "link": "https://www.in.gov.br/web/dou/-/...",
-                      "names": [
-                        {
-                          "name": "Silva Comércio LTDA",
-                          "type": "PJ"
-                        }
-                      ],
-                      "date": "2021-06-20",
-                      "source": "DOU"
-                    },
-                    {
-                      "type": "diario_justica",
-                      "title": "Diário da Justiça de São Paulo",
-                      "description": "Caderno Judicial - 1ª Instância - Capital",
-                      "text": "...Processo nº 0000001-23.2020.8.26.0100 - Autor: João Silva de Oliveira - Ação de Indenização...",
-                      "link": "https://www.djsp.jus.br/...",
-                      "names": [
-                        {
-                          "name": "João Silva de Oliveira",
-                          "type": "PF"
-                        }
-                      ],
-                      "date": "2020-03-10",
-                      "source": "DJSP"
+                      "date": "2024-01-15",
+                      "source": "DOSP"
                     }
                   ]
                 }

@@ -16,7 +16,7 @@ Um **Veículo** representa um veículo automotor (carro, moto, caminhão, ônibu
   "ano_documento": 2025,
   "placa": "QPS0133",
   "placa_antiga": "QPS0133",
-  "placa_nova": null,
+  "placa_nova": "",
   "renavam": "1173451703",
   "chassi": "93YRBB005KJ664188",
   "ano_fabricacao": 2018,
@@ -26,25 +26,26 @@ Um **Veículo** representa um veículo automotor (carro, moto, caminhão, ônibu
   "cor": "Branca",
   "combustivel": "Alcool / Gasolina",
   "tipo_veiculo": "Automovel",
-  "especie_veiculo": "1",
+  "especie_veiculo": "Passageiro",
   "potencia": "70",
   "cilindradas": "999",
   "quantidade_passageiro": "5",
   "municipio": "Belo Horizonte",
   "uf": "MG",
-  "situacao_veiculo": "S",
-  "restricoes": [],
-  "nacionalidade": "1",
-  "carroceria": null,
-  "tipo_montagem": "1",
+  "situacao_veiculo": "Regular",
+  "nacionalidade": "Nacional",
+  "carroceria": "",
+  "tipo_montagem": "Completa",
   "peso_bruto_total": "116",
   "cap_maxima_tracao": "116",
   "capacidade_carga": "0",
   "motor": "B4DA402Q084089",
-  "caixa_cambio": null,
-  "situacao_chassi": "N",
+  "caixa_cambio": "",
+  "situacao_chassi": "Normal",
   "eixos": "2",
-  "media_preco": null
+  "media_preco": "",
+  "updated_at": 0,
+  "restricoes": []
 }
 ```
 
@@ -58,11 +59,11 @@ Um **Veículo** representa um veículo automotor (carro, moto, caminhão, ônibu
 | `ano_documento` | number | Ano do documento |
 | `placa` | string | Placa atual |
 | `placa_antiga` | string | Placa formato antigo |
-| `placa_nova` | string \| null | Placa formato Mercosul |
+| `placa_nova` | string | Placa formato Mercosul (string vazia se não houver) |
 | `renavam` | string | Código RENAVAM |
 | `chassi` | string | Número do chassi |
 | `ano_fabricacao` | number | Ano de fabricação |
-| `ano_modelo` | number | Ano do modelo |
+| `ano_modelo` | number \| null | Ano do modelo (`null` quando desconhecido) |
 | `marca` | string | Fabricante (ex: `RENAULT`, `FIAT`) |
 | `modelo` | string | Modelo do veículo (ex: `KWID ZEN 10MT`) |
 | `cor` | string | Cor predominante |
@@ -77,16 +78,17 @@ Um **Veículo** representa um veículo automotor (carro, moto, caminhão, ônibu
 | `situacao_veiculo` | string | Situação do veículo |
 | `restricoes` | string[] | Array de restrições ativas (vazio se nenhuma) |
 | `nacionalidade` | string | Código de nacionalidade |
-| `carroceria` | string \| null | Tipo de carroceria |
+| `carroceria` | string | Tipo de carroceria (string vazia se não houver) |
 | `tipo_montagem` | string | Tipo de montagem |
 | `peso_bruto_total` | string | Peso bruto total (kg) |
 | `cap_maxima_tracao` | string | Capacidade máxima de tração (kg) |
 | `capacidade_carga` | string | Capacidade de carga (kg) |
 | `motor` | string | Número do motor |
-| `caixa_cambio` | string \| null | Número da caixa de câmbio |
+| `caixa_cambio` | string | Número da caixa de câmbio (string vazia se não houver) |
 | `situacao_chassi` | string | Situação do chassi (`N` = normal) |
 | `eixos` | string | Quantidade de eixos |
-| `media_preco` | string \| null | Média de preço FIPE |
+| `media_preco` | string | Média de preço FIPE (string vazia se não houver) |
+| `updated_at` | number | Timestamp da última atualização do registro |
 
 ## Endpoints
 

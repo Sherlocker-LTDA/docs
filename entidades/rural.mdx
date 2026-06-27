@@ -12,9 +12,7 @@ O módulo **Rural** do Sherlocker agrega dados de propriedades rurais, fiscaliza
 |----------------|----------|-----------|
 | CPF | `GET /rural/cpf/{cpf}` | Perfil rural completo |
 | CNPJ | `GET /rural/cnpj/{cnpj}` | Perfil rural da empresa |
-| Código SNCR | `GET /rural/imovel/{codigo}` | Imóvel rural por código |
-| Código IBGE | `GET /rural/municipio/{codIbge}` | Imóveis por município |
-| NIRF | `GET /rural/cafir/{nirf}` | Imóvel CAFIR por NIRF |
+| Job ID | `GET /rural/jobs/{jobId}` | Status de um job assíncrono |
 
 <Tip>
   Na rota principal de pessoa (`GET /pessoas/cpf/{cpf}`), o campo `rural` já vem incluído com o perfil completo. Use `/rural/cpf/{cpf}` quando precisar apenas dos dados rurais.
@@ -34,9 +32,14 @@ Cadastro oficial de imóveis rurais do Brasil.
 | `area_total` | Área total em hectares |
 | `modulos_fiscais` | Quantidade de módulos fiscais |
 | `nome_detentor` | Nome do proprietário/detentor |
-| `cpf_cnpj` | Documento do detentor |
+| `documento` | Documento do detentor (CPF/CNPJ, somente dígitos) |
+| `cpf_cnpj_mask` | Documento do detentor mascarado |
+| `tipo` | `PF` ou `PJ` |
+| `cod_ibge` | Código IBGE do município |
+| `tipo_detentor` | Tipo de detentor |
 | `fracao` | Percentual de participação (%) |
 | `condicao_detentor` | Proprietário, arrendatário, etc. |
+| `pais` | País do detentor |
 
 ### CAFIR — Cadastro Fiscal de Imóveis Rurais (Receita Federal)
 
@@ -65,14 +68,20 @@ Autos de infração, multas e embargos ambientais.
 
 ### DOF — Transporte Florestal
 
-Guias de transporte de produtos florestais (madeira, carvão, etc.).
+Guias de transporte de produtos florestais (madeira, carvão, etc.). No perfil completo, o bloco `transportes` traz totais consolidados (`total`, `volume_total`, `valor_total`), agregações (`produtos`, `por_produto`, `por_ano`) e os principais parceiros comerciais em `parceiros[]`.
 
-| Campo | Descrição |
+| Campo (`parceiros[]`) | Descrição |
 |-------|-----------|
-| `produto` | Tipo de produto florestal |
-| `volume` | Volume transportado |
-| `valor_total` | Valor total da operação |
-| `remetente` / `destinatario` | Partes envolvidas |
+| `documento` | CPF/CNPJ do parceiro (somente dígitos) |
+| `tipo` | `PF` ou `PJ` |
+| `nome` | Nome do parceiro |
+| `municipio` / `uf` | Localização do parceiro |
+| `direcao` | `remetente` ou `destinatario` |
+| `qtd_operacoes` | Quantidade de operações |
+| `volume_total` | Volume total transportado |
+| `valor_total` | Valor total das operações |
+| `produtos` | Lista de produtos transportados |
+| `periodo` | `primeiro` e `ultimo` (datas de emissão) |
 
 ### Produtores orgânicos
 
@@ -107,27 +116,18 @@ BASE = "https://221b-api.sherlocker.com.br/api/v1"
 # Perfil rural completo
 rural = requests.get(f"{BASE}/rural/cpf/12345678901", params={"token": TOKEN}).json()
 
-resumo = rural.get("rural", {}).get("resumo", {})
+resumo = rural.get("resumo", {})
 print(f"Area total: {resumo.get('area_total_ha', 0)} ha")
 print(f"Imoveis SNCR: {resumo.get('qtd_imoveis_sncr', 0)}")
 print(f"Infracoes IBAMA: {resumo.get('qtd_infracoes', 0)}")
 print(f"Multas: R$ {resumo.get('valor_total_multas', 0):,.2f}")
-
-# Busca por municipio
-imoveis = requests.get(f"{BASE}/rural/municipio/3106200", params={"token": TOKEN}).json()
 ```
 
 <CardGroup cols={2}>
-  <Card title="Por CPF" icon="user" href="/api-reference/rural/perfil-rural-por-cpf">
+  <Card title="Por CPF" icon="user" href="/api-reference/rural/perfil-rural-de-uma-pessoa">
     Perfil rural completo
   </Card>
-  <Card title="Por CNPJ" icon="building" href="/api-reference/rural/perfil-rural-por-cnpj">
+  <Card title="Por CNPJ" icon="building" href="/api-reference/rural/perfil-rural-de-uma-empresa">
     Perfil rural da empresa
-  </Card>
-  <Card title="Por município" icon="map" href="/api-reference/rural/imoveis-por-municipio">
-    Imóveis rurais do município
-  </Card>
-  <Card title="Fiscalização" icon="shield" href="/api-reference/rural/fiscalizacao-ambiental">
-    Infrações IBAMA
   </Card>
 </CardGroup>
