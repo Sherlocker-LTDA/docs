@@ -24,6 +24,160 @@
       }
     },
     "schemas": {
+      "TimelineEventValor": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "description": "Codigo bruto (situacao, porte, natureza, CNAE) quando houver"
+          },
+          "descricao": {
+            "type": "string",
+            "description": "Descricao legivel (ja enriquecida)"
+          }
+        }
+      },
+      "TimelineEventPessoa": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "description": "Nome do socio (Title Case)"
+          },
+          "documento": {
+            "type": "string",
+            "nullable": true,
+            "description": "CPF/CNPJ formatado, ou null"
+          },
+          "qualificacao": {
+            "type": "string",
+            "description": "Qualificacao (Socio-Administrador, Diretor, ...)"
+          }
+        }
+      },
+      "TimelineEvent": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Data do evento (YYYY-MM-DD). Oficial quando data_oficial=true, senao dia 01 do mes"
+          },
+          "data_oficial": {
+            "type": "boolean",
+            "description": "true = data de registro oficial; false = aproximada (so o mes e conhecido)"
+          },
+          "mes_referencia": {
+            "type": "string",
+            "description": "Mes em que a alteracao foi detectada (YYYY-MM)"
+          },
+          "entidade": {
+            "type": "string",
+            "description": "empresa, estabelecimento, socio, simples ou cnae"
+          },
+          "estabelecimento": {
+            "type": "string",
+            "description": "CNPJ formatado do estabelecimento do evento"
+          },
+          "tipo": {
+            "type": "string",
+            "description": "Um dos 15 tipos de evento",
+            "enum": [
+              "socio_entrada",
+              "socio_saida",
+              "capital_alterado",
+              "situacao_alterada",
+              "empresa_baixada",
+              "razao_social_alterada",
+              "porte_alterado",
+              "natureza_juridica_alterada",
+              "nome_fantasia_alterado",
+              "endereco_alterado",
+              "cnae_principal_alterado",
+              "cnae_secundario_incluido",
+              "cnae_secundario_removido",
+              "simples_alterado",
+              "mei_alterado"
+            ]
+          },
+          "categoria": {
+            "type": "string",
+            "enum": ["socios", "cadastro", "atividade", "situacao", "tributario"]
+          },
+          "origem": {
+            "type": "string",
+            "enum": ["alteracao", "estado_inicial"],
+            "description": "alteracao = mudanca detectada; estado_inicial = linha de base do 1o mes coberto"
+          },
+          "titulo": {
+            "type": "string"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "campo": {
+            "type": "string",
+            "description": "Coluna de origem da mudanca, quando aplicavel"
+          },
+          "de": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/TimelineEventValor" }],
+            "description": "Valor anterior (null quando nao se aplica)"
+          },
+          "para": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/TimelineEventValor" }],
+            "description": "Valor novo (null quando nao se aplica)"
+          },
+          "pessoa": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/TimelineEventPessoa" }],
+            "description": "Preenchido so em eventos de socio"
+          }
+        }
+      },
+      "LinhaDoTempoCobertura": {
+        "type": "object",
+        "properties": {
+          "dados_a_partir_de": {
+            "type": "string",
+            "nullable": true,
+            "description": "1o mes coberto (YYYY-MM), ou null se nada foi processado"
+          },
+          "meses_disponiveis": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Meses com processamento concluido (YYYY-MM), ascendente"
+          },
+          "aviso": {
+            "type": "string",
+            "description": "Aviso sobre cobertura parcial e o significado de estado_inicial"
+          }
+        }
+      },
+      "LinhaDoTempoResponse": {
+        "type": "object",
+        "properties": {
+          "cnpj": {
+            "type": "string",
+            "description": "CNPJ consultado, formatado"
+          },
+          "cobertura": {
+            "$ref": "#/components/schemas/LinhaDoTempoCobertura"
+          },
+          "retornados": {
+            "type": "integer",
+            "description": "Quantidade de eventos devolvidos"
+          },
+          "truncado": {
+            "type": "boolean",
+            "description": "true quando retornados bateu no limite (ha mais eventos)"
+          },
+          "linha_do_tempo": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/TimelineEvent" }
+          }
+        }
+      },
       "Estabelecimento": {
         "type": "object",
         "properties": {
@@ -1233,6 +1387,149 @@
           },
           "400": {
             "description": "Parametro invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/empresas/cnpj/{cnpj}/linha-do-tempo": {
+      "get": {
+        "operationId": "getLinhaDoTempoByCnpj",
+        "summary": "Linha do tempo da empresa",
+        "description": "Cronologia reversa (mais recente primeiro) de eventos e alteracoes cadastrais da empresa: entrada/saida de socio, capital, situacao, razao social, endereco, CNAE e Simples/MEI. Cada resposta traz um mapa de cobertura (a partir de quando a base e confiavel). Custo: 1 token.",
+        "tags": [
+          "Empresas"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ da empresa (14 digitos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000199"
+            }
+          },
+          {
+            "name": "tipos",
+            "in": "query",
+            "required": false,
+            "description": "Filtra por tipo de evento. CSV dos 15 tipos (ex.: socio_entrada,capital_alterado). Omitido = todos.",
+            "schema": {
+              "type": "string",
+              "example": "socio_entrada,socio_saida"
+            }
+          },
+          {
+            "name": "desde",
+            "in": "query",
+            "required": false,
+            "description": "Mes inicial inclusive (YYYY-MM)",
+            "schema": {
+              "type": "string",
+              "example": "2024-01"
+            }
+          },
+          {
+            "name": "ate",
+            "in": "query",
+            "required": false,
+            "description": "Mes final inclusive (YYYY-MM)",
+            "schema": {
+              "type": "string",
+              "example": "2024-12"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "description": "Maximo de eventos retornados (1 a 2000, padrao 500). Sem offset: use truncado + filtros para ver mais.",
+            "schema": {
+              "type": "integer",
+              "default": 500,
+              "maximum": 2000,
+              "example": 500
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Linha do tempo com cobertura e eventos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinhaDoTempoResponse"
+                },
+                "example": {
+                  "cnpj": "12.345.678/0001-99",
+                  "cobertura": {
+                    "dados_a_partir_de": "2024-01",
+                    "meses_disponiveis": ["2024-01", "2024-02", "2024-03", "2024-04", "2024-05"],
+                    "aviso": "Meses não listados ainda não foram processados; alterações nesses períodos podem não aparecer. Eventos com origem 'estado_inicial' representam o estado no início do monitoramento, não uma alteração."
+                  },
+                  "retornados": 2,
+                  "truncado": false,
+                  "linha_do_tempo": [
+                    {
+                      "data": "2024-05-15",
+                      "data_oficial": true,
+                      "mes_referencia": "2024-05",
+                      "entidade": "empresa",
+                      "estabelecimento": "12.345.678/0001-99",
+                      "tipo": "razao_social_alterada",
+                      "categoria": "cadastro",
+                      "origem": "alteracao",
+                      "titulo": "Razão social alterada",
+                      "descricao": "Razão social alterada de \"Empresa Velha Ltda\" para \"Empresa Nova Ltda\".",
+                      "campo": "razao_social",
+                      "de": { "descricao": "Empresa Velha Ltda" },
+                      "para": { "descricao": "Empresa Nova Ltda" },
+                      "pessoa": null
+                    },
+                    {
+                      "data": "2024-04-10",
+                      "data_oficial": true,
+                      "mes_referencia": "2024-04",
+                      "entidade": "socio",
+                      "estabelecimento": "12.345.678/0001-99",
+                      "tipo": "socio_entrada",
+                      "categoria": "socios",
+                      "origem": "alteracao",
+                      "titulo": "Entrada de sócio",
+                      "descricao": "João Silva Da Costa entrou como Sócio-Administrador.",
+                      "de": null,
+                      "para": { "descricao": "João Silva Da Costa" },
+                      "pessoa": {
+                        "nome": "João Silva Da Costa",
+                        "documento": "123.456.789-10",
+                        "qualificacao": "Sócio-Administrador"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parametro invalido (tipos fora da lista, desde/ate fora de YYYY-MM, limite invalido)",
             "content": {
               "application/json": {
                 "schema": {
