@@ -1007,10 +1007,13 @@
                   "type": "string"
                 },
                 "documento": {
-                  "type": "string"
+                  "type": "string",
+                  "nullable": true,
+                  "description": "CPF ou CNPJ formatado. Null quando o CPF do sócio está mascarado e não pôde ser resolvido"
                 },
                 "tipo_documento": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "CPF ou CNPJ"
                 },
                 "tipo": {
                   "type": "string",
@@ -1022,21 +1025,50 @@
                 "data_entrada": {
                   "type": "string"
                 },
+                "pais": {
+                  "type": "string",
+                  "description": "País do sócio (padrão Brasil)"
+                },
+                "origem": {
+                  "type": "string",
+                  "description": "Fonte do vínculo societário (ex: qsa)"
+                },
                 "data_nascimento": {
                   "type": "string",
-                  "nullable": true
+                  "nullable": true,
+                  "description": "Somente Pessoa Física"
                 },
                 "sexo": {
                   "type": "string",
-                  "nullable": true
+                  "nullable": true,
+                  "description": "Somente Pessoa Física"
                 },
                 "idade": {
                   "type": "integer",
-                  "nullable": true
+                  "nullable": true,
+                  "description": "Somente Pessoa Física"
                 },
                 "faixa_etaria": {
                   "type": "string",
-                  "nullable": true
+                  "nullable": true,
+                  "description": "Somente Pessoa Física"
+                },
+                "representante": {
+                  "type": "object",
+                  "nullable": true,
+                  "description": "Representante legal — somente Pessoa Jurídica",
+                  "properties": {
+                    "nome": {
+                      "type": "string"
+                    },
+                    "documento": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "qualificacao": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -1147,6 +1179,8 @@
                       "tipo": "Pessoa Física",
                       "qualificacao": "Diretor",
                       "data_entrada": "2023-04-17",
+                      "pais": "Brasil",
+                      "origem": "qsa",
                       "data_nascimento": "1964-04-15",
                       "sexo": "Masculino",
                       "idade": 61,
@@ -2339,7 +2373,7 @@
       "get": {
         "operationId": "getSociedadesByCpf",
         "summary": "Vinculos societarios",
-        "description": "Busca reversa: retorna todas as empresas onde a pessoa consta como socia ou administradora. Essencial para mapear a rede empresarial de um investigado.",
+        "description": "Busca reversa: retorna todas as empresas onde a pessoa consta como socia ou administradora, cada uma com seu quadro societario completo (socios). Essencial para mapear a rede empresarial de um investigado e percorrer graus de conexao sem chamadas adicionais.",
         "tags": [
           "Busca Reversa"
         ],
@@ -2389,34 +2423,95 @@
         ],
         "responses": {
           "200": {
-            "description": "Lista de sociedades",
+            "description": "Lista de empresas onde a pessoa consta como socia ou administradora",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "socios": {
+                    "empresas": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/Socio"
+                        "$ref": "#/components/schemas/EmpresaResponse"
                       }
                     }
                   }
                 },
                 "example": {
-                  "socios": [
+                  "empresas": [
                     {
-                      "nome": "João Silva",
-                      "documento": "123.456.789-10",
-                      "tipo_documento": "CPF",
-                      "tipo": "Pessoa Física",
-                      "qualificacao": "Sócio-Administrador",
-                      "data_entrada": "2019-01-15",
-                      "data_nascimento": "1990-01-15",
-                      "sexo": "Masculino",
-                      "idade": 34,
-                      "faixa_etaria": "30 a 40 anos",
-                      "representante": null
+                      "documento": "33.000.167/0001-01",
+                      "tipo_documento": "CNPJ",
+                      "cnpj_basico": "33000167",
+                      "razao_social": "Petroleo Brasileiro S A Petrobras",
+                      "nome_fantasia": "Petrobras - Edise",
+                      "situacao": "Ativa",
+                      "data_situacao": "2005-11-03",
+                      "motivo_situacao": "Sem Motivo",
+                      "data_abertura": "1966-09-28",
+                      "capital_social": 205431960490.52,
+                      "porte": "Média ou Grande Porte",
+                      "matriz_filial": "Matriz",
+                      "natureza_juridica": {
+                        "codigo": "2038",
+                        "descricao": "Sociedade de Economia Mista"
+                      },
+                      "atividade_principal": {
+                        "codigo": "0600001",
+                        "descricao": "Extração de petróleo e gás natural"
+                      },
+                      "atividades_secundarias": [
+                        {
+                          "codigo": "1921700",
+                          "descricao": "Fabricação de produtos do refino de petróleo"
+                        },
+                        {
+                          "codigo": "3520401",
+                          "descricao": "Produção de gás; processamento de gás natural"
+                        }
+                      ],
+                      "endereco": {
+                        "logradouro": "Avenida Republica do Chile",
+                        "numero": "65",
+                        "complemento": null,
+                        "bairro": "Centro",
+                        "cidade": "Rio de Janeiro",
+                        "uf": "RJ",
+                        "cep": "20031170"
+                      },
+                      "telefones": [
+                        {
+                          "ddi": "55",
+                          "ddd": "21",
+                          "numero": "21660000",
+                          "numero_completo": "552121660000",
+                          "estado": "RJ",
+                          "operadora": "Fixo"
+                        }
+                      ],
+                      "emails": [
+                        {
+                          "email": "cc-rfisc@petrobras.com.br",
+                          "dominio": "petrobras.com.br",
+                          "corporativo": true
+                        }
+                      ],
+                      "socios": [
+                        {
+                          "nome": "Claudio Romeo Schlosser",
+                          "documento": "406.077.120-15",
+                          "tipo_documento": "CPF",
+                          "tipo": "Pessoa Física",
+                          "qualificacao": "Diretor",
+                          "data_entrada": "2023-04-17",
+                          "data_nascimento": "1964-04-15",
+                          "sexo": "Masculino",
+                          "idade": 61,
+                          "faixa_etaria": "Mais de 60 anos"
+                        }
+                      ],
+                      "situacao_especial": null,
+                      "data_situacao_especial": null
                     }
                   ]
                 }
@@ -2450,7 +2545,7 @@
       "get": {
         "operationId": "getEmpresasByEmail",
         "summary": "Identificar empresas por email",
-        "description": "Busca reversa: identifica empresas que possuem o email informado no cadastro da Receita Federal.",
+        "description": "Busca reversa: identifica empresas que possuem o email informado no cadastro da Receita Federal. Retorna o perfil completo de cada empresa. O array `socios` nao e populado neste endpoint (use /empresas/cnpj/{cnpj} ou /empresas/cpf/{cpf} para o quadro societario).",
         "tags": [
           "Busca Reversa"
         ],
@@ -2491,7 +2586,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Empresas encontradas",
+            "description": "Empresas encontradas (perfil completo, `socios` vazio)",
             "content": {
               "application/json": {
                 "schema": {
@@ -2500,18 +2595,7 @@
                     "empresas": {
                       "type": "array",
                       "items": {
-                        "type": "object",
-                        "properties": {
-                          "cnpj": {
-                            "type": "string"
-                          },
-                          "ddd": {
-                            "type": "string"
-                          },
-                          "telefone": {
-                            "type": "string"
-                          }
-                        }
+                        "$ref": "#/components/schemas/EmpresaResponse"
                       }
                     }
                   }
@@ -2521,8 +2605,52 @@
                     {
                       "documento": "12.345.678/0001-99",
                       "tipo_documento": "CNPJ",
-                      "ddd": "11",
-                      "telefone": "33334444"
+                      "cnpj_basico": "12345678",
+                      "razao_social": "Empresa Exemplo Ltda",
+                      "nome_fantasia": "Exemplo",
+                      "situacao": "Ativa",
+                      "data_situacao": "2010-05-20",
+                      "capital_social": 100000,
+                      "porte": "Empresa de Pequeno Porte",
+                      "matriz_filial": "Matriz",
+                      "natureza_juridica": {
+                        "codigo": "2062",
+                        "descricao": "Sociedade Empresária Limitada"
+                      },
+                      "atividade_principal": {
+                        "codigo": "4729199",
+                        "descricao": "Comércio varejista de outros produtos"
+                      },
+                      "atividades_secundarias": [],
+                      "endereco": {
+                        "logradouro": "Rua Exemplo",
+                        "numero": "100",
+                        "complemento": null,
+                        "bairro": "Centro",
+                        "cidade": "São Paulo",
+                        "uf": "SP",
+                        "cep": "01000000"
+                      },
+                      "telefones": [
+                        {
+                          "ddi": "55",
+                          "ddd": "11",
+                          "numero": "33334444",
+                          "numero_completo": "551133334444",
+                          "estado": "SP",
+                          "operadora": "Fixo"
+                        }
+                      ],
+                      "emails": [
+                        {
+                          "email": "contato@empresa.com.br",
+                          "dominio": "empresa.com.br",
+                          "corporativo": true
+                        }
+                      ],
+                      "socios": [],
+                      "situacao_especial": null,
+                      "data_situacao_especial": null
                     }
                   ]
                 }
@@ -2556,7 +2684,7 @@
       "get": {
         "operationId": "getEmpresasByTelefone",
         "summary": "Identificar empresas por telefone",
-        "description": "Busca reversa: identifica empresas que possuem o telefone informado no cadastro da Receita Federal.",
+        "description": "Busca reversa: identifica empresas que possuem o telefone informado no cadastro da Receita Federal. Retorna o perfil completo de cada empresa. O array `socios` nao e populado neste endpoint (use /empresas/cnpj/{cnpj} ou /empresas/cpf/{cpf} para o quadro societario).",
         "tags": [
           "Busca Reversa"
         ],
@@ -2597,7 +2725,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Empresas encontradas",
+            "description": "Empresas encontradas (perfil completo, `socios` vazio)",
             "content": {
               "application/json": {
                 "schema": {
@@ -2606,18 +2734,7 @@
                     "empresas": {
                       "type": "array",
                       "items": {
-                        "type": "object",
-                        "properties": {
-                          "cnpj": {
-                            "type": "string"
-                          },
-                          "ddd": {
-                            "type": "string"
-                          },
-                          "telefone": {
-                            "type": "string"
-                          }
-                        }
+                        "$ref": "#/components/schemas/EmpresaResponse"
                       }
                     }
                   }
@@ -2627,8 +2744,52 @@
                     {
                       "documento": "12.345.678/0001-99",
                       "tipo_documento": "CNPJ",
-                      "ddd": "11",
-                      "telefone": "33334444"
+                      "cnpj_basico": "12345678",
+                      "razao_social": "Empresa Exemplo Ltda",
+                      "nome_fantasia": "Exemplo",
+                      "situacao": "Ativa",
+                      "data_situacao": "2010-05-20",
+                      "capital_social": 100000,
+                      "porte": "Empresa de Pequeno Porte",
+                      "matriz_filial": "Matriz",
+                      "natureza_juridica": {
+                        "codigo": "2062",
+                        "descricao": "Sociedade Empresária Limitada"
+                      },
+                      "atividade_principal": {
+                        "codigo": "4729199",
+                        "descricao": "Comércio varejista de outros produtos"
+                      },
+                      "atividades_secundarias": [],
+                      "endereco": {
+                        "logradouro": "Rua Exemplo",
+                        "numero": "100",
+                        "complemento": null,
+                        "bairro": "Centro",
+                        "cidade": "São Paulo",
+                        "uf": "SP",
+                        "cep": "01000000"
+                      },
+                      "telefones": [
+                        {
+                          "ddi": "55",
+                          "ddd": "11",
+                          "numero": "33334444",
+                          "numero_completo": "551133334444",
+                          "estado": "SP",
+                          "operadora": "Fixo"
+                        }
+                      ],
+                      "emails": [
+                        {
+                          "email": "contato@empresa.com.br",
+                          "dominio": "empresa.com.br",
+                          "corporativo": true
+                        }
+                      ],
+                      "socios": [],
+                      "situacao_especial": null,
+                      "data_situacao_especial": null
                     }
                   ]
                 }

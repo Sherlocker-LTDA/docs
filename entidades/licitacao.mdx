@@ -12,7 +12,7 @@ Uma **Licitação** representa um processo de contratação pública em que o CP
 {
   "id": "d6fcd05b-a94a-45ff-a1d2-91bde34ff84a",
   "id_licitacao": "0759868300017010000012026",
-  "id_pregao": null,
+  "id_pregao": "",
   "id_uasg": "2",
   "titulo": "Edital de Chamamento Publico no 2102.001-2025/2026",
   "descricao": "CREDENCIAMENTO DE LEILOEIROS OFICIAIS PARA A REALIZACAO DE LEILOES DESTINADOS A ALIENACAO DE BENS MOVEIS DA PREFEITURA MUNICIPAL DE MERUOCA/CE.",
@@ -39,8 +39,8 @@ Uma **Licitação** representa um processo de contratação pública em que o CP
   "participantes": [
     {
       "id": "22bda7e1-a742-4ea4-ae94-0ee84c61a166",
-      "documento": "03916718630",
-      "nome": "FERNANDO CAETANO MOREIRA FILHO",
+      "documento": "039.167.186-30",
+      "nome": "Fernando Caetano Moreira Filho",
       "tipo": "PF",
       "totalLicitacoes": 47
     }
@@ -54,7 +54,7 @@ Uma **Licitação** representa um processo de contratação pública em que o CP
 |-------|------|-----------|
 | `id` | string (uuid) | ID interno da licitação |
 | `id_licitacao` | string | Número da licitação no sistema de origem |
-| `id_pregao` | string \| null | Número do pregão (se houver) |
+| `id_pregao` | string | Número do pregão. String vazia quando ausente na fonte (nunca `null`) |
 | `id_uasg` | string | Código UASG do órgão contratante |
 | `titulo` | string | Título do edital |
 | `descricao` | string | Objeto da licitação |
@@ -87,7 +87,7 @@ Uma **Licitação** representa um processo de contratação pública em que o CP
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `id` | string (uuid) | ID do participante |
-| `documento` | string | CPF ou CNPJ |
+| `documento` | string | CPF ou CNPJ, formatado (ex: `039.167.186-30`) |
 | `nome` | string | Nome ou razão social |
 | `tipo` | string | `PF` (pessoa física) ou `PJ` (pessoa jurídica) |
 | `totalLicitacoes` | number | Total de licitações do participante |

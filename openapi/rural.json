@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Sherlocker Rural API",
-    "description": "Perfil rural completo: imoveis rurais (SNCR, CAFIR), fiscalizacao ambiental (IBAMA) e transporte florestal (DOF) por CPF ou CNPJ.",
+    "description": "Perfil rural completo: imoveis rurais (SNCR, CAFIR), fiscalizacao ambiental (IBAMA), autorizacoes florestais (AUTEX), transporte florestal (DOF) e produtores organicos por CPF ou CNPJ.",
     "version": "1.0"
   },
   "servers": [
@@ -47,22 +47,39 @@
             "type": "number"
           },
           "cod_ibge": {
-            "type": "string"
+            "type": "string",
+            "description": "Codigo IBGE do municipio"
           },
           "nome_detentor": {
             "type": "string"
           },
-          "cpf_cnpj": {
-            "type": "string"
+          "cpf_cnpj_mask": {
+            "type": "string",
+            "description": "Documento mascarado do detentor"
+          },
+          "documento": {
+            "type": "string",
+            "description": "CPF/CNPJ do detentor (somente digitos)"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "PF",
+              "PJ"
+            ],
+            "description": "PF (CPF, 11 digitos) ou PJ (CNPJ, 14 digitos)"
           },
           "tipo_detentor": {
             "type": "string"
           },
           "fracao": {
             "type": "number",
-            "description": "Fracao de posse"
+            "description": "Fracao de posse (%)"
           },
           "condicao_detentor": {
+            "type": "string"
+          },
+          "pais": {
             "type": "string"
           }
         }
@@ -72,7 +89,7 @@
         "properties": {
           "nirf": {
             "type": "string",
-            "description": "Numero de registro CAFIR"
+            "description": "Numero do Imovel na Receita Federal (CAFIR)"
           },
           "area_total": {
             "type": "number",
@@ -123,8 +140,16 @@
           "tipo_auto": {
             "type": "string"
           },
-          "cpf_cnpj": {
-            "type": "string"
+          "documento": {
+            "type": "string",
+            "description": "CPF/CNPJ do infrator (somente digitos)"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "PF",
+              "PJ"
+            ]
           },
           "nome_infrator": {
             "type": "string"
@@ -156,6 +181,86 @@
             "description": "Valor da multa em reais"
           },
           "situacao_debito": {
+            "type": "string"
+          }
+        }
+      },
+      "AutorizacaoAgrupada": {
+        "type": "object",
+        "description": "Autorizacao de exploracao florestal (AUTEX) agrupada por numero de serie",
+        "properties": {
+          "numero_de_serie": {
+            "type": "string"
+          },
+          "tipo_autex": {
+            "type": "string"
+          },
+          "municipio": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "situacao": {
+            "type": "string"
+          },
+          "data_emissao": {
+            "type": "string"
+          },
+          "data_vencimento": {
+            "type": "string"
+          },
+          "produtos": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "produto": {
+                  "type": "string"
+                },
+                "quantidade_autorizada": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ProdutorRow": {
+        "type": "object",
+        "description": "Produtor organico certificado",
+        "properties": {
+          "nome_produtor": {
+            "type": "string"
+          },
+          "documento": {
+            "type": "string",
+            "description": "CPF/CNPJ do produtor (somente digitos)"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "PF",
+              "PJ"
+            ]
+          },
+          "cpf_cnpj_mask": {
+            "type": "string",
+            "description": "Documento mascarado"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "cidade": {
+            "type": "string"
+          },
+          "escopo": {
+            "type": "string"
+          },
+          "atividade": {
+            "type": "string"
+          },
+          "situacao": {
             "type": "string"
           }
         }
@@ -194,9 +299,19 @@
       },
       "RuralProfile": {
         "type": "object",
+        "description": "Perfil rural agregado. Retornado de forma identica por /rural/cpf/{cpf} e /rural/cnpj/{cnpj}; a unica diferenca e o valor de 'tipo' (PF para CPF, PJ para CNPJ).",
         "properties": {
-          "cpf_cnpj": {
-            "type": "string"
+          "documento": {
+            "type": "string",
+            "description": "CPF/CNPJ consultado (somente digitos)"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "PF",
+              "PJ"
+            ],
+            "description": "PF quando consultado por CPF (11 digitos), PJ quando consultado por CNPJ (14 digitos)"
           },
           "propriedades_sncr": {
             "type": "array",
@@ -228,6 +343,12 @@
                   "type": "string"
                 }
               },
+              "por_produto": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ProdutoAgrupado"
+                }
+              },
               "por_ano": {
                 "type": "array",
                 "items": {
@@ -245,25 +366,31 @@
                   }
                 }
               },
-              "por_produto": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/ProdutoAgrupado"
-                }
-              },
               "parceiros": {
                 "type": "array",
-                "description": "Parceiros comerciais (remetentes e destinatarios)",
+                "description": "Parceiros comerciais (remetentes e destinatarios), limitado aos 5 principais de cada direcao",
                 "items": {
                   "$ref": "#/components/schemas/TransporteAgrupado"
                 }
               }
             }
           },
+          "autorizacoes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutorizacaoAgrupada"
+            }
+          },
           "infracoes": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/FiscalizacaoRow"
+            }
+          },
+          "produtor_organico": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProdutorRow"
             }
           },
           "resumo": {
@@ -321,10 +448,18 @@
       },
       "TransporteAgrupado": {
         "type": "object",
-        "description": "Parceiro comercial com operacoes de transporte agrupadas",
+        "description": "Parceiro comercial com operacoes de transporte agrupadas. No perfil completo os campos 'por_produto' e 'operacoes' vem vazios (detalhe disponivel em endpoint dedicado).",
         "properties": {
-          "cpf_cnpj": {
-            "type": "string"
+          "documento": {
+            "type": "string",
+            "description": "CPF/CNPJ do parceiro (somente digitos)"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "PF",
+              "PJ"
+            ]
           },
           "nome": {
             "type": "string"
@@ -360,7 +495,7 @@
           },
           "por_produto": {
             "type": "array",
-            "description": "Produtos transportados agrupados por tipo",
+            "description": "Vazio no perfil completo",
             "items": {
               "$ref": "#/components/schemas/ProdutoAgrupado"
             }
@@ -378,9 +513,20 @@
           },
           "operacoes": {
             "type": "array",
+            "description": "Vazio no perfil completo",
             "items": {
               "$ref": "#/components/schemas/TransporteDetalhe"
             }
+          }
+        }
+      },
+      "RuralErro": {
+        "type": "object",
+        "description": "Resposta de erro retornada com status HTTP 200 quando o documento e invalido ou o servico esta indisponivel.",
+        "properties": {
+          "erro": {
+            "type": "string",
+            "example": "CPF/CNPJ invalido"
           }
         }
       },
@@ -415,7 +561,7 @@
       "get": {
         "operationId": "getRuralByCpf",
         "summary": "Perfil rural de uma pessoa",
-        "description": "Retorna propriedades SNCR e CAFIR, infracoes IBAMA, transportes florestais (DOF) e resumo consolidado.",
+        "description": "Retorna propriedades SNCR e CAFIR, infracoes IBAMA, autorizacoes florestais (AUTEX), transportes florestais (DOF), produtores organicos e resumo consolidado.",
         "tags": [
           "Rural"
         ],
@@ -433,14 +579,22 @@
         ],
         "responses": {
           "200": {
-            "description": "Perfil rural completo",
+            "description": "Perfil rural completo. Em caso de documento invalido ou servico indisponivel, retorna { erro: string } tambem com status 200.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RuralProfile"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/RuralProfile"
+                    },
+                    {
+                      "$ref": "#/components/schemas/RuralErro"
+                    }
+                  ]
                 },
                 "example": {
-                  "cpf_cnpj": "12345678901",
+                  "documento": "12345678901",
+                  "tipo": "PF",
                   "propriedades_sncr": [
                     {
                       "codigo_imovel": "9200123456",
@@ -451,10 +605,13 @@
                       "modulos_fiscais": 25.0,
                       "cod_ibge": "3543402",
                       "nome_detentor": "João Silva",
-                      "cpf_cnpj": "12345678901",
+                      "cpf_cnpj_mask": "123.***.***-01",
+                      "documento": "12345678901",
+                      "tipo": "PF",
                       "tipo_detentor": "Proprietário",
                       "fracao": 100.0,
-                      "condicao_detentor": "Proprietário"
+                      "condicao_detentor": "Proprietário",
+                      "pais": "BRASIL"
                     }
                   ],
                   "propriedades_cafir": [
@@ -481,6 +638,15 @@
                     "produtos": [
                       "Eucalipto"
                     ],
+                    "por_produto": [
+                      {
+                        "produto": "Eucalipto",
+                        "qtd": 5,
+                        "volume": 250.0,
+                        "valor": 75000.0,
+                        "unidade": "m3"
+                      }
+                    ],
                     "por_ano": [
                       {
                         "ano": 2023,
@@ -493,18 +659,10 @@
                         "volume": 100.0
                       }
                     ],
-                    "por_produto": [
-                      {
-                        "produto": "Eucalipto",
-                        "qtd": 5,
-                        "volume": 250.0,
-                        "valor": 75000.0,
-                        "unidade": "m3"
-                      }
-                    ],
                     "parceiros": [
                       {
-                        "cpf_cnpj": "98765432000188",
+                        "documento": "98765432000188",
+                        "tipo": "PJ",
                         "nome": "Madeireira Central LTDA",
                         "uf": "SP",
                         "municipio": "Ribeirão Preto",
@@ -515,37 +673,38 @@
                         "produtos": [
                           "Eucalipto"
                         ],
-                        "por_produto": [
-                          {
-                            "produto": "Eucalipto",
-                            "qtd": 5,
-                            "volume": 250.0,
-                            "valor": 75000.0,
-                            "unidade": "m3"
-                          }
-                        ],
+                        "por_produto": [],
                         "periodo": {
                           "primeiro": "2023-03-10",
                           "ultimo": "2024-08-20"
                         },
-                        "operacoes": [
-                          {
-                            "data_emissao": "2024-08-20",
-                            "produto": "Eucalipto",
-                            "nome_popular": "Eucalipto",
-                            "volume": 50.0,
-                            "unidade": "m3",
-                            "valor_total": 15000.0
-                          }
-                        ]
+                        "operacoes": []
                       }
                     ]
                   },
+                  "autorizacoes": [
+                    {
+                      "numero_de_serie": "AUTEX-2023-0001",
+                      "tipo_autex": "Supressão de vegetação",
+                      "municipio": "Ribeirão Preto",
+                      "uf": "SP",
+                      "situacao": "Ativa",
+                      "data_emissao": "2023-02-01",
+                      "data_vencimento": "2024-02-01",
+                      "produtos": [
+                        {
+                          "produto": "Eucalipto",
+                          "quantidade_autorizada": 500.0
+                        }
+                      ]
+                    }
+                  ],
                   "infracoes": [
                     {
                       "numero_auto": "9876543",
                       "tipo_auto": "Multa",
-                      "cpf_cnpj": "12345678901",
+                      "documento": "12345678901",
+                      "tipo": "PF",
                       "nome_infrator": "João Silva",
                       "municipio": "Ribeirão Preto",
                       "uf": "SP",
@@ -558,13 +717,26 @@
                       "situacao_debito": "Em cobrança"
                     }
                   ],
+                  "produtor_organico": [
+                    {
+                      "nome_produtor": "João Silva",
+                      "documento": "12345678901",
+                      "tipo": "PF",
+                      "cpf_cnpj_mask": "123.***.***-01",
+                      "uf": "SP",
+                      "cidade": "Ribeirão Preto",
+                      "escopo": "Produção primária vegetal",
+                      "atividade": "Olericultura",
+                      "situacao": "Ativo"
+                    }
+                  ],
                   "resumo": {
-                    "area_total_ha": 500.5,
+                    "area_total_ha": 1001.0,
                     "qtd_imoveis_sncr": 1,
                     "qtd_imoveis_cafir": 1,
                     "qtd_infracoes": 1,
                     "valor_total_multas": 50000.0,
-                    "qtd_autorizacoes": 0,
+                    "qtd_autorizacoes": 1,
                     "qtd_transportes": 5,
                     "estados": [
                       "SP"
@@ -601,6 +773,7 @@
       "get": {
         "operationId": "getRuralByCnpj",
         "summary": "Perfil rural de uma empresa",
+        "description": "Mesma estrutura de resposta de /rural/cpf/{cpf}; 'tipo' retorna PJ.",
         "tags": [
           "Rural"
         ],
@@ -618,14 +791,22 @@
         ],
         "responses": {
           "200": {
-            "description": "Perfil rural completo",
+            "description": "Perfil rural completo. Em caso de documento invalido ou servico indisponivel, retorna { erro: string } tambem com status 200.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RuralProfile"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/RuralProfile"
+                    },
+                    {
+                      "$ref": "#/components/schemas/RuralErro"
+                    }
+                  ]
                 },
                 "example": {
-                  "cpf_cnpj": "12345678000199",
+                  "documento": "12345678000199",
+                  "tipo": "PJ",
                   "propriedades_sncr": [
                     {
                       "codigo_imovel": "9200654321",
@@ -636,10 +817,13 @@
                       "modulos_fiscais": 60.0,
                       "cod_ibge": "3509502",
                       "nome_detentor": "Silva Comércio LTDA",
-                      "cpf_cnpj": "12345678000199",
+                      "cpf_cnpj_mask": "12.345.***/0001-99",
+                      "documento": "12345678000199",
+                      "tipo": "PJ",
                       "tipo_detentor": "Proprietário",
                       "fracao": 100.0,
-                      "condicao_detentor": "Proprietário"
+                      "condicao_detentor": "Proprietário",
+                      "pais": "BRASIL"
                     }
                   ],
                   "propriedades_cafir": [
@@ -664,13 +848,15 @@
                     "volume_total": 0,
                     "valor_total": 0,
                     "produtos": [],
-                    "por_ano": [],
                     "por_produto": [],
+                    "por_ano": [],
                     "parceiros": []
                   },
+                  "autorizacoes": [],
                   "infracoes": [],
+                  "produtor_organico": [],
                   "resumo": {
-                    "area_total_ha": 1200.0,
+                    "area_total_ha": 2400.0,
                     "qtd_imoveis_sncr": 1,
                     "qtd_imoveis_cafir": 1,
                     "qtd_infracoes": 0,

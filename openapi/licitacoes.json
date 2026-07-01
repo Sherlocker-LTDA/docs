@@ -53,7 +53,7 @@
         "type": "object",
         "properties": {
           "id": { "type": "string", "format": "uuid" },
-          "documento": { "type": "string", "description": "CPF ou CNPJ do participante" },
+          "documento": { "type": "string", "description": "CPF ou CNPJ do participante, formatado (ex: 039.167.186-30). Observacao: difere do campo documento no nivel raiz da resposta, que vem apenas com digitos." },
           "nome": { "type": "string", "description": "Nome ou razao social" },
           "tipo": { "type": "string", "enum": ["PF", "PJ"], "description": "Tipo de pessoa" },
           "totalLicitacoes": { "type": "number", "description": "Total de licitacoes do participante" }
@@ -64,7 +64,7 @@
         "properties": {
           "id": { "type": "string", "format": "uuid" },
           "id_licitacao": { "type": "string", "description": "Numero da licitacao no sistema de origem" },
-          "id_pregao": { "type": "string", "description": "Numero do pregao" },
+          "id_pregao": { "type": "string", "description": "Numero do pregao. String vazia quando ausente na fonte (nunca null)." },
           "id_uasg": { "type": "string", "description": "Codigo UASG do orgao" },
           "titulo": { "type": "string", "description": "Titulo do edital" },
           "descricao": { "type": "string", "description": "Descricao do objeto da licitacao" },
@@ -92,7 +92,7 @@
       "LicitacoesResponse": {
         "type": "object",
         "properties": {
-          "documento": { "type": "string", "description": "Documento consultado" },
+          "documento": { "type": "string", "description": "Documento consultado, apenas digitos (sem formatacao). Observacao: difere de participantes[].documento, que vem formatado." },
           "total": { "type": "number", "description": "Total de licitacoes encontradas" },
           "licitacoes": {
             "type": "array",
@@ -124,8 +124,7 @@
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/LicitacoesResponse" },
                 "example": {
-                  "documento": "039.167.186-30",
-                  "tipo_documento": "CPF",
+                  "documento": "03916718630",
                   "total": 2,
                   "licitacoes": [
                     {

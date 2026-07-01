@@ -11,9 +11,9 @@ Uma **Parte** representa uma pessoa física ou jurídica envolvida em um process
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `nome` | string | Nome da parte (Title Case) |
-| `documento` | string | CPF ou CNPJ formatado (pode ser vazio) |
-| `polo` | string | `ativo`, `passivo`, `terceiro`, `interessado` |
-| `tipo` | string | Tipo de pessoa (ex: `Física`, `Jurídica`) |
+| `documento` | string | CPF ou CNPJ formatado; string vazia (`""`) quando ausente |
+| `polo` | string | Polo capitalizado (`Ativo`, `Passivo`, `Terceiro`, `Outro`) |
+| `tipo` | string | `Pessoa Física`, `Pessoa Jurídica` ou `Autoridade` |
 
 ## Exemplo
 
@@ -21,8 +21,8 @@ Uma **Parte** representa uma pessoa física ou jurídica envolvida em um process
 {
   "nome": "João Silva de Oliveira",
   "documento": "123.456.789-01",
-  "polo": "ativo",
-  "tipo": "Física"
+  "polo": "Ativo",
+  "tipo": "Pessoa Física"
 }
 ```
 
@@ -30,7 +30,13 @@ Uma **Parte** representa uma pessoa física ou jurídica envolvida em um process
 
 | Polo | Descrição |
 |------|-----------|
-| `ativo` | Quem inicia a ação (autor, exequente, reclamante) |
-| `passivo` | Contra quem a ação é movida (réu, executado, reclamado) |
-| `terceiro` | Parte interessada que ingressa no processo |
-| `interessado` | Interessado no processo |
+| `Ativo` | Quem inicia a ação (autor, exequente, reclamante) |
+| `Passivo` | Contra quem a ação é movida (réu, executado, reclamado) |
+| `Terceiro` | Parte interessada que ingressa no processo |
+| `Outro` | Demais participantes |
+
+<Note>
+  No endpoint `GET /processos/numero/{numero}` as partes têm formato diferente:
+  `documento` pode ser `null`, `polo` vem em minúsculas (`ativo`, `passivo`) e
+  `tipo` é o slug bruto (`pessoa_fisica`, `pessoa_juridica`).
+</Note>

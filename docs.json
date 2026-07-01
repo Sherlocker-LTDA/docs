@@ -61,7 +61,8 @@
               "casos-de-uso/segmentacao-patrimonial",
               "casos-de-uso/due-diligence",
               "casos-de-uso/levantamento-patrimonial",
-              "casos-de-uso/localizacao-partes"
+              "casos-de-uso/localizacao-partes",
+              "casos-de-uso/graus-de-conexao"
             ]
           }
         ]
@@ -98,7 +99,10 @@
             "pages": [
               "GET /pessoas/cpf/{cpf}",
               "GET /pessoas/cpf/{cpf}/enderecos",
-              "GET /pessoas/cpf/{cpf}/empregos"
+              "GET /pessoas/cpf/{cpf}/empregos",
+              "/openapi/empresas.json GET /empresas/cpf/{cpf}",
+              "GET /pessoas/telefone/{telefone}",
+              "GET /pessoas/email/{email}"
             ]
           },
           {
@@ -107,9 +111,10 @@
             "pages": [
               "GET /empresas/cnpj/{cnpj}",
               "GET /empresas/cnpj/{cnpj}/funcionarios",
-              "GET /empresas/cnpj/{cnpj}/beneficios",
               "GET /empresas/cnpj/{cnpj}/linha-do-tempo",
-              "GET /empresas/codigos"
+              "GET /empresas/codigos",
+              "GET /empresas/telefone/{telefone}",
+              "GET /empresas/email/{email}"
             ]
           },
           {
@@ -117,24 +122,9 @@
             "openapi": "/openapi/pessoas.json",
             "pages": [
               "GET /telefones/cpf/{cpf}",
-              "GET /emails/cpf/{cpf}"
-            ]
-          },
-          {
-            "group": "Busca Reversa",
-            "openapi": "/openapi/pessoas.json",
-            "pages": [
-              "GET /pessoas/telefone/{telefone}",
-              "GET /pessoas/email/{email}"
-            ]
-          },
-          {
-            "group": "Busca por Empresa",
-            "openapi": "/openapi/empresas.json",
-            "pages": [
-              "GET /empresas/cpf/{cpf}",
-              "GET /empresas/email/{email}",
-              "GET /empresas/telefone/{telefone}"
+              "GET /telefones/cnpj/{cnpj}",
+              "GET /emails/cpf/{cpf}",
+              "GET /emails/cnpj/{cnpj}"
             ]
           },
           {

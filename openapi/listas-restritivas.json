@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Sherlocker Listas Restritivas API",
-    "description": "Consulta consolidada de sancoes, impedimentos e alertas (PEP) contra 11 listas oficiais. Retorna ocorrencias agrupadas (sancoes / restritivas / alertas) e um mapa de cobertura auditavel por lista, com saude da fonte e nivel de confiabilidade. Sincrono: a resposta ja vem completa, sem job nem polling.",
+    "description": "Consulta consolidada de sancoes, impedimentos e alertas (PEP) contra 13 listas oficiais. Retorna ocorrencias agrupadas (sancoes / restritivas / alertas) e um mapa de cobertura auditavel por lista, com saude da fonte e nivel de confiabilidade. Sincrono: a resposta ja vem completa, sem job nem polling.",
     "version": "1.0"
   },
   "servers": [
@@ -30,7 +30,7 @@
         "properties": {
           "lista_id": {
             "type": "string",
-            "description": "Identificador da lista (ceis, cnep, ceaf, tcu, bcb, sancoes, lista-suja, cepim, acordos-leniencia, ibama, pep)",
+            "description": "Identificador da lista (ceis, cnep, ceaf, tcu, bcb, sancoes, lista-suja, cepim, acordos-leniencia, ibama, ibama-autos, pep, debarment-multilateral)",
             "example": "cnep"
           },
           "fonte": {
@@ -97,7 +97,7 @@
       },
       "CoberturaItem": {
         "type": "object",
-        "description": "Status de uma das 11 listas. O array cobertura sempre traz as 11, mesmo sem registro, para auditoria do que foi (ou nao foi) verificado.",
+        "description": "Status de uma das 13 listas. O array cobertura sempre traz as 13, mesmo sem registro, para auditoria do que foi (ou nao foi) verificado.",
         "properties": {
           "lista_id": {
             "type": "string",
@@ -189,7 +189,7 @@
           },
           "fontes_aplicaveis": {
             "type": "number",
-            "description": "Listas que se aplicam ao tipo do documento (8 para CPF, 8 para CNPJ)"
+            "description": "Listas que se aplicam ao tipo do documento (10 para CPF, 10 para CNPJ)"
           },
           "fontes_consultadas": {
             "type": "number"
@@ -312,7 +312,7 @@
       "get": {
         "operationId": "getListasRestritivasByCpf",
         "summary": "Listas restritivas de uma pessoa",
-        "description": "Consulta um CPF contra as 8 listas aplicaveis a pessoa fisica (CEIS, CNEP, CEAF, TCU, BACEN, sancoes internacionais, IBAMA, PEP). Valida o digito verificador do CPF.",
+        "description": "Consulta um CPF contra as 10 listas aplicaveis a pessoa fisica (CEIS, CNEP, CEAF, TCU, BACEN, sancoes internacionais, IBAMA Embargos, IBAMA Autos de Infracao, PEP, Debarment Multilateral). Valida o digito verificador do CPF.",
         "tags": [
           "Listas Restritivas"
         ],
@@ -363,8 +363,8 @@
                       "restritivas": 0,
                       "alertas": 0
                     },
-                    "fontes_aplicaveis": 8,
-                    "fontes_consultadas": 8,
+                    "fontes_aplicaveis": 10,
+                    "fontes_consultadas": 10,
                     "com_ocorrencia": 0,
                     "indisponiveis": 0,
                     "nao_aplicaveis": 3,
@@ -438,7 +438,7 @@
       "get": {
         "operationId": "getListasRestritivasByCnpj",
         "summary": "Listas restritivas de uma empresa",
-        "description": "Consulta um CNPJ contra as 8 listas aplicaveis a pessoa juridica (CEIS, CNEP, TCU, sancoes internacionais, Lista Suja, CEPIM, Acordos de Leniencia, IBAMA). Valida o digito verificador do CNPJ.",
+        "description": "Consulta um CNPJ contra as 10 listas aplicaveis a pessoa juridica (CEIS, CNEP, TCU, sancoes internacionais, Lista Suja, CEPIM, Acordos de Leniencia, IBAMA Embargos, IBAMA Autos de Infracao, Debarment Multilateral). Valida o digito verificador do CNPJ.",
         "tags": [
           "Listas Restritivas"
         ],
@@ -489,8 +489,8 @@
                       "restritivas": 0,
                       "alertas": 0
                     },
-                    "fontes_aplicaveis": 8,
-                    "fontes_consultadas": 8,
+                    "fontes_aplicaveis": 10,
+                    "fontes_consultadas": 10,
                     "com_ocorrencia": 1,
                     "indisponiveis": 0,
                     "nao_aplicaveis": 3,

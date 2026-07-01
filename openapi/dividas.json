@@ -27,7 +27,7 @@
         "properties": {
           "situacao": {
             "type": "string",
-            "nullable": true
+            "description": "Situacao da inscricao. String vazia quando ausente na fonte."
           },
           "valor": {
             "type": "number",
@@ -35,7 +35,8 @@
           },
           "data_inscricao": {
             "type": "string",
-            "nullable": true
+            "format": "date",
+            "description": "Data da inscricao (YYYY-MM-DD). String vazia quando ausente na fonte."
           }
         }
       },
@@ -55,14 +56,15 @@
           },
           "receita": {
             "type": "string",
-            "nullable": true
+            "description": "Tipo de tributo/receita. String vazia quando ausente na fonte."
           },
           "ajuizado": {
             "type": "boolean"
           },
           "data_inscricao": {
             "type": "string",
-            "nullable": true
+            "format": "date",
+            "description": "Data da inscricao mais recente (YYYY-MM-DD). String vazia quando ausente na fonte."
           },
           "valor_atual": {
             "type": "number",
@@ -74,11 +76,11 @@
           },
           "unidade_responsavel": {
             "type": "string",
-            "nullable": true
+            "description": "Unidade responsavel pela inscricao. String vazia quando ausente na fonte."
           },
           "entidade_responsavel": {
             "type": "string",
-            "nullable": true
+            "description": "Entidade responsavel. Presente apenas quando fonte = \"fgts\"."
           },
           "historico": {
             "type": "array",
@@ -92,11 +94,12 @@
         "type": "object",
         "properties": {
           "documento": {
-            "type": "string"
+            "type": "string",
+            "description": "CPF ou CNPJ consultado, apenas digitos (sem formatacao)."
           },
           "nome": {
             "type": "string",
-            "nullable": true
+            "description": "Nome ou razao social do devedor. String vazia quando o documento nao tem dividas."
           },
           "total": {
             "type": "integer"
@@ -157,9 +160,8 @@
                   "$ref": "#/components/schemas/DividasResponse"
                 },
                 "example": {
-                  "documento": "123.456.789-01",
-                  "tipo_documento": "CPF",
-                  "nome": "Fulano de Tal",
+                  "documento": "12345678901",
+                  "nome": "Fulano De Tal",
                   "total": 2,
                   "valor_total": 21230.5,
                   "ajuizado": true,

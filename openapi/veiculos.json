@@ -27,12 +27,21 @@
       "Veiculo": {
         "type": "object",
         "properties": {
-          "cpf_cnpj": {
+          "documento": {
             "type": "string",
-            "description": "CPF ou CNPJ do proprietario"
+            "description": "CPF ou CNPJ do proprietario (apenas digitos, sem formatacao)"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": ["PF", "PJ"],
+            "description": "PF (pessoa fisica) ou PJ (pessoa juridica)"
           },
           "nome_proprietario": {
             "type": "string"
+          },
+          "ano_documento": {
+            "type": "integer",
+            "description": "Ano do documento/registro"
           },
           "placa": {
             "type": "string",
@@ -40,7 +49,11 @@
           },
           "placa_antiga": {
             "type": "string",
-            "description": "Placa formato antigo (ABC-1234)"
+            "description": "Placa formato antigo, sem hifen (ex: ABC1234)"
+          },
+          "placa_nova": {
+            "type": "string",
+            "description": "Placa formato Mercosul (string vazia se nao houver)"
           },
           "renavam": {
             "type": "string"
@@ -52,7 +65,9 @@
             "type": "integer"
           },
           "ano_modelo": {
-            "type": "integer"
+            "type": "integer",
+            "nullable": true,
+            "description": "Ano do modelo (null quando desconhecido)"
           },
           "marca": {
             "type": "string"
@@ -60,16 +75,10 @@
           "modelo": {
             "type": "string"
           },
-          "combustivel": {
-            "type": "string"
-          },
           "cor": {
             "type": "string"
           },
-          "municipio": {
-            "type": "string"
-          },
-          "uf": {
+          "combustivel": {
             "type": "string"
           },
           "tipo_veiculo": {
@@ -79,10 +88,6 @@
           "especie_veiculo": {
             "type": "string"
           },
-          "situacao_veiculo": {
-            "type": "string",
-            "description": "Circulacao, Baixado, Roubado, etc"
-          },
           "potencia": {
             "type": "string"
           },
@@ -91,6 +96,58 @@
           },
           "quantidade_passageiro": {
             "type": "string"
+          },
+          "municipio": {
+            "type": "string"
+          },
+          "uf": {
+            "type": "string"
+          },
+          "situacao_veiculo": {
+            "type": "string",
+            "description": "Regular, Irregular, Roubo/Furto, Baixado, etc"
+          },
+          "nacionalidade": {
+            "type": "string",
+            "description": "Nacional ou Importado"
+          },
+          "carroceria": {
+            "type": "string",
+            "description": "Tipo de carroceria (string vazia se nao houver)"
+          },
+          "tipo_montagem": {
+            "type": "string"
+          },
+          "peso_bruto_total": {
+            "type": "string"
+          },
+          "cap_maxima_tracao": {
+            "type": "string"
+          },
+          "capacidade_carga": {
+            "type": "string"
+          },
+          "motor": {
+            "type": "string"
+          },
+          "caixa_cambio": {
+            "type": "string",
+            "description": "Numero da caixa de cambio (string vazia se nao houver)"
+          },
+          "situacao_chassi": {
+            "type": "string",
+            "description": "Normal, Remarcado, etc"
+          },
+          "eixos": {
+            "type": "string"
+          },
+          "media_preco": {
+            "type": "string",
+            "description": "Media de preco FIPE (string vazia se nao houver)"
+          },
+          "updated_at": {
+            "type": "integer",
+            "description": "Timestamp da ultima atualizacao do registro"
           },
           "restricoes": {
             "type": "array",
@@ -168,28 +225,42 @@
                 "example": {
                   "veiculos": [
                     {
-                      "documento": "123.456.789-01",
-                      "tipo_documento": "CPF",
-                      "nome_proprietario": "João Silva de Oliveira",
-                      "placa": "ABC1D23",
-                      "placa_antiga": "ABC1234",
-                      "renavam": "12345678901",
-                      "chassi": "9BWAG45N1YT123456",
-                      "ano_fabricacao": 2021,
-                      "ano_modelo": 2022,
-                      "marca": "FIAT",
-                      "modelo": "FIAT/STRADA TREK CE",
-                      "combustivel": "Flex",
-                      "cor": "Prata",
-                      "municipio": "São Paulo",
-                      "uf": "SP",
-                      "tipo_veiculo": "Automóvel",
+                      "documento": "91805040600",
+                      "tipo": "PF",
+                      "nome_proprietario": "HELENICE LUZIA PEREZ",
+                      "ano_documento": 2025,
+                      "placa": "QPS0133",
+                      "placa_antiga": "QPS0133",
+                      "placa_nova": "",
+                      "renavam": "1173451703",
+                      "chassi": "93YRBB005KJ664188",
+                      "ano_fabricacao": 2018,
+                      "ano_modelo": 2019,
+                      "marca": "RENAULT",
+                      "modelo": "KWID ZEN 10MT",
+                      "cor": "Branca",
+                      "combustivel": "Alcool / Gasolina",
+                      "tipo_veiculo": "Automovel",
                       "especie_veiculo": "Passageiro",
-                      "situacao_veiculo": "Circulação",
-                      "potencia": "130",
-                      "cilindradas": "1300",
+                      "potencia": "70",
+                      "cilindradas": "999",
                       "quantidade_passageiro": "5",
-                      "restricoes": ["Alienação Fiduciária"]
+                      "municipio": "Belo Horizonte",
+                      "uf": "MG",
+                      "situacao_veiculo": "Regular",
+                      "nacionalidade": "Nacional",
+                      "carroceria": "",
+                      "tipo_montagem": "Completa",
+                      "peso_bruto_total": "116",
+                      "cap_maxima_tracao": "116",
+                      "capacidade_carga": "0",
+                      "motor": "B4DA402Q084089",
+                      "caixa_cambio": "",
+                      "situacao_chassi": "Normal",
+                      "eixos": "2",
+                      "media_preco": "",
+                      "updated_at": 0,
+                      "restricoes": []
                     }
                   ]
                 }
@@ -250,27 +321,41 @@
                 "example": {
                   "veiculos": [
                     {
-                      "documento": "12.345.678/0001-99",
-                      "tipo_documento": "CNPJ",
-                      "nome_proprietario": "Silva Comércio Ltda",
+                      "documento": "12345678000199",
+                      "tipo": "PJ",
+                      "nome_proprietario": "SILVA COMERCIO LTDA",
+                      "ano_documento": 2024,
                       "placa": "DEF2G34",
                       "placa_antiga": "DEF2345",
+                      "placa_nova": "",
                       "renavam": "98765432101",
                       "chassi": "9BWHE21JX24012345",
                       "ano_fabricacao": 2020,
                       "ano_modelo": 2021,
-                      "marca": "VOLKSWAGEN",
-                      "modelo": "VW/SAVEIRO ROBUST CS",
-                      "combustivel": "Flex",
+                      "marca": "VW",
+                      "modelo": "SAVEIRO ROBUST CS",
                       "cor": "Branca",
-                      "municipio": "São Paulo",
-                      "uf": "SP",
-                      "tipo_veiculo": "Automóvel",
+                      "combustivel": "Flex",
+                      "tipo_veiculo": "Caminhonete",
                       "especie_veiculo": "Carga",
-                      "situacao_veiculo": "Circulação",
                       "potencia": "104",
                       "cilindradas": "1600",
                       "quantidade_passageiro": "2",
+                      "municipio": "Sao Paulo",
+                      "uf": "SP",
+                      "situacao_veiculo": "Regular",
+                      "nacionalidade": "Nacional",
+                      "carroceria": "",
+                      "tipo_montagem": "Completa",
+                      "peso_bruto_total": "1800",
+                      "cap_maxima_tracao": "1800",
+                      "capacidade_carga": "650",
+                      "motor": "CWS123456",
+                      "caixa_cambio": "",
+                      "situacao_chassi": "Normal",
+                      "eixos": "2",
+                      "media_preco": "",
+                      "updated_at": 0,
                       "restricoes": []
                     }
                   ]
@@ -332,28 +417,42 @@
                 "example": {
                   "veiculos": [
                     {
-                      "documento": "123.456.789-01",
-                      "tipo_documento": "CPF",
-                      "nome_proprietario": "João Silva de Oliveira",
-                      "placa": "ABC1D23",
-                      "placa_antiga": "ABC1234",
-                      "renavam": "12345678901",
-                      "chassi": "9BWAG45N1YT123456",
-                      "ano_fabricacao": 2021,
-                      "ano_modelo": 2022,
-                      "marca": "FIAT",
-                      "modelo": "FIAT/STRADA TREK CE",
-                      "combustivel": "Flex",
-                      "cor": "Prata",
-                      "municipio": "São Paulo",
-                      "uf": "SP",
-                      "tipo_veiculo": "Automóvel",
+                      "documento": "91805040600",
+                      "tipo": "PF",
+                      "nome_proprietario": "HELENICE LUZIA PEREZ",
+                      "ano_documento": 2025,
+                      "placa": "QPS0133",
+                      "placa_antiga": "QPS0133",
+                      "placa_nova": "",
+                      "renavam": "1173451703",
+                      "chassi": "93YRBB005KJ664188",
+                      "ano_fabricacao": 2018,
+                      "ano_modelo": 2019,
+                      "marca": "RENAULT",
+                      "modelo": "KWID ZEN 10MT",
+                      "cor": "Branca",
+                      "combustivel": "Alcool / Gasolina",
+                      "tipo_veiculo": "Automovel",
                       "especie_veiculo": "Passageiro",
-                      "situacao_veiculo": "Circulação",
-                      "potencia": "130",
-                      "cilindradas": "1300",
+                      "potencia": "70",
+                      "cilindradas": "999",
                       "quantidade_passageiro": "5",
-                      "restricoes": ["Alienação Fiduciária"]
+                      "municipio": "Belo Horizonte",
+                      "uf": "MG",
+                      "situacao_veiculo": "Regular",
+                      "nacionalidade": "Nacional",
+                      "carroceria": "",
+                      "tipo_montagem": "Completa",
+                      "peso_bruto_total": "116",
+                      "cap_maxima_tracao": "116",
+                      "capacidade_carga": "0",
+                      "motor": "B4DA402Q084089",
+                      "caixa_cambio": "",
+                      "situacao_chassi": "Normal",
+                      "eixos": "2",
+                      "media_preco": "",
+                      "updated_at": 0,
+                      "restricoes": ["Alienacao Fiduciaria"]
                     }
                   ]
                 }
