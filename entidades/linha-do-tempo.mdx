@@ -1,0 +1,185 @@
+---
+title: "Linha do Tempo"
+description: "Cronologia de eventos e alterações cadastrais de uma empresa (sócios, capital, situação, atividades)"
+icon: "clock-rotate-left"
+---
+
+A **Linha do Tempo** devolve a cronologia reversa (mais recente primeiro) de eventos
+e alterações cadastrais de uma empresa — entrada e saída de sócios, mudança de
+capital, situação cadastral, razão social, endereço, atividades (CNAE) e opção pelo
+Simples/MEI. É derivada de um event-log construído a partir das cargas mensais da
+Receita, então cada resposta traz também um mapa de **cobertura**: a partir de
+quando a base é confiável.
+
+<Note>
+A entrada é sempre um **CNPJ** (14 dígitos). O escopo é o grupo econômico (raiz de
+8 dígitos), então filiais aparecem identificadas no campo `estabelecimento`.
+</Note>
+
+## Tipagem
+
+```json
+{
+  "cnpj": "12.345.678/0001-99",
+  "cobertura": {
+    "dados_a_partir_de": "2024-01",
+    "meses_disponiveis": ["2024-01", "2024-02", "2024-03", "2024-04", "2024-05"],
+    "aviso": "Meses não listados ainda não foram processados; alterações nesses períodos podem não aparecer. Eventos com origem 'estado_inicial' representam o estado no início do monitoramento, não uma alteração."
+  },
+  "retornados": 3,
+  "truncado": true,
+  "linha_do_tempo": [
+    {
+      "data": "2024-05-15",
+      "data_oficial": true,
+      "mes_referencia": "2024-05",
+      "entidade": "empresa",
+      "estabelecimento": "12.345.678/0001-99",
+      "tipo": "razao_social_alterada",
+      "categoria": "cadastro",
+      "origem": "alteracao",
+      "titulo": "Razão social alterada",
+      "descricao": "Razão social alterada de \"Empresa Velha Ltda\" para \"Empresa Nova Ltda\".",
+      "campo": "razao_social",
+      "de": { "descricao": "Empresa Velha Ltda" },
+      "para": { "descricao": "Empresa Nova Ltda" },
+      "pessoa": null
+    },
+    {
+      "data": "2024-04-10",
+      "data_oficial": true,
+      "mes_referencia": "2024-04",
+      "entidade": "socio",
+      "estabelecimento": "12.345.678/0001-99",
+      "tipo": "socio_entrada",
+      "categoria": "socios",
+      "origem": "alteracao",
+      "titulo": "Entrada de sócio",
+      "descricao": "João Silva Da Costa entrou como Sócio-Administrador.",
+      "de": null,
+      "para": { "descricao": "João Silva Da Costa" },
+      "pessoa": {
+        "nome": "João Silva Da Costa",
+        "documento": "123.456.789-10",
+        "qualificacao": "Sócio-Administrador"
+      }
+    },
+    {
+      "data": "2024-03-01",
+      "data_oficial": false,
+      "mes_referencia": "2024-03",
+      "entidade": "empresa",
+      "estabelecimento": "12.345.678/0001-99",
+      "tipo": "capital_alterado",
+      "categoria": "cadastro",
+      "origem": "alteracao",
+      "titulo": "Capital social alterado",
+      "descricao": "Capital social alterado de \"R$ 50.000,00\" para \"R$ 100.000,00\".",
+      "campo": "capital",
+      "de": { "descricao": "R$ 50.000,00" },
+      "para": { "descricao": "R$ 100.000,00" },
+      "pessoa": null
+    }
+  ]
+}
+```
+
+## Campos
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `cnpj` | string | CNPJ consultado, formatado (XX.XXX.XXX/XXXX-XX) |
+| `cobertura` | object | Metadados da janela histórica coberta (ver abaixo) |
+| `retornados` | number | Quantidade de eventos devolvidos |
+| `truncado` | boolean | `true` quando `retornados` bateu no `limite` (há mais eventos) |
+| `linha_do_tempo` | array | Lista de eventos, mais recentes primeiro |
+
+### Cobertura
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `dados_a_partir_de` | string \| null | Primeiro mês coberto (`YYYY-MM`), ou `null` se nada foi processado |
+| `meses_disponiveis` | string[] | Meses com processamento concluído (`YYYY-MM`), em ordem ascendente |
+| `aviso` | string | Aviso fixo sobre cobertura parcial e o significado de `estado_inicial` |
+
+## Evento
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `data` | string | Data do evento (`YYYY-MM-DD`). Oficial quando `data_oficial=true`; senão dia 01 do mês |
+| `data_oficial` | boolean | `true` = data de registro oficial; `false` = aproximada (só o mês é conhecido) |
+| `mes_referencia` | string | Mês em que a alteração foi detectada (`YYYY-MM`) |
+| `entidade` | string | `empresa`, `estabelecimento`, `socio`, `simples` ou `cnae` |
+| `estabelecimento` | string | CNPJ formatado do estabelecimento do evento |
+| `tipo` | string | Um dos 15 tipos (ver tabela) |
+| `categoria` | string | `socios`, `cadastro`, `atividade`, `situacao` ou `tributario` |
+| `origem` | string | `alteracao` (mudança detectada) ou `estado_inicial` (linha de base) |
+| `titulo` | string | Título legível do evento |
+| `descricao` | string | Frase pronta para exibição |
+| `campo` | string \| null | Coluna de origem da mudança (quando aplicável) |
+| `de` | object \| null | Valor anterior `{ codigo?, descricao }` |
+| `para` | object \| null | Valor novo `{ codigo?, descricao }` |
+| `pessoa` | object \| null | Só em eventos de sócio: `{ nome, documento, qualificacao }` |
+
+## Tipos de evento
+
+| `tipo` | Categoria | Descrição |
+|--------|-----------|-----------|
+| `socio_entrada` | socios | Entrada de sócio no quadro societário |
+| `socio_saida` | socios | Saída de sócio |
+| `capital_alterado` | cadastro | Alteração de capital social |
+| `razao_social_alterada` | cadastro | Alteração de razão social |
+| `nome_fantasia_alterado` | cadastro | Alteração de nome fantasia |
+| `porte_alterado` | cadastro | Alteração de porte |
+| `natureza_juridica_alterada` | cadastro | Alteração de natureza jurídica |
+| `endereco_alterado` | cadastro | Alteração de endereço |
+| `situacao_alterada` | situacao | Alteração da situação cadastral |
+| `empresa_baixada` | situacao | Baixa da empresa |
+| `cnae_principal_alterado` | atividade | Alteração da atividade principal (CNAE) |
+| `cnae_secundario_incluido` | atividade | Inclusão de atividade secundária |
+| `cnae_secundario_removido` | atividade | Remoção de atividade secundária |
+| `simples_alterado` | tributario | Opção ou saída do Simples Nacional |
+| `mei_alterado` | tributario | Opção ou saída do MEI |
+
+## Cobertura e datas
+
+<Warning>
+Uma `linha_do_tempo` vazia num período **anterior** a `dados_a_partir_de` significa
+"a base não cobre esse período", **não** "a empresa não mudou". Sempre leia a
+`cobertura` antes de concluir "nada consta".
+</Warning>
+
+<Note>
+Eventos com `origem: "estado_inicial"` representam o estado no início do
+monitoramento (a linha de base do primeiro mês coberto), **não** uma alteração. Um
+sócio em `estado_inicial` já existia antes da janela — não entrou naquele mês.
+</Note>
+
+<Tip>
+Quando `data_oficial` é `false`, a `data` é aproximada (dia 01 do mês detectado):
+sabemos o mês, não o dia. Exiba como "mês/ano (aproximado)" em vez de cravar um dia.
+</Tip>
+
+## Pontos de entrada
+
+| Dado disponível | Endpoint | Resultado |
+|----------------|----------|-----------|
+| CNPJ | `GET /empresas/cnpj/{cnpj}/linha-do-tempo` | Cronologia reversa de eventos + cobertura |
+
+### Filtros
+
+| Parâmetro | Tipo | Padrão | Descrição |
+|-----------|------|--------|-----------|
+| `tipos` | string (CSV) | todos | Um ou mais dos 15 tipos, separados por vírgula |
+| `desde` | string | — | Mês inicial inclusive (`YYYY-MM`) |
+| `ate` | string | — | Mês final inclusive (`YYYY-MM`) |
+| `limite` | integer | 500 | Máximo de eventos (1–2000). Sem `offset`: use `truncado` + filtros para ver mais |
+
+```bash
+# Só eventos de sócio a partir de 2024-01
+curl "https://221b-api.sherlocker.com.br/api/v1/empresas/cnpj/12345678000199/linha-do-tempo?tipos=socio_entrada,socio_saida&desde=2024-01&token=SEU_TOKEN"
+```
+
+<Card title="Entidade Empresa" icon="building" href="/entidades/empresa">
+Dados cadastrais base da empresa (situação, sócios, endereço) que a linha do tempo complementa com histórico.
+</Card>

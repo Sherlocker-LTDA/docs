@@ -84,6 +84,7 @@
             "pages": [
               "entidades/pessoa",
               "entidades/empresa",
+              "entidades/linha-do-tempo",
               "entidades/telefone",
               "entidades/email",
               "entidades/endereco",
@@ -110,6 +111,7 @@
             "pages": [
               "GET /empresas/cnpj/{cnpj}",
               "GET /empresas/cnpj/{cnpj}/funcionarios",
+              "GET /empresas/cnpj/{cnpj}/linha-do-tempo",
               "GET /empresas/codigos",
               "GET /empresas/telefone/{telefone}",
               "GET /empresas/email/{email}"
