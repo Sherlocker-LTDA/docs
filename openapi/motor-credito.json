@@ -1,0 +1,707 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Motor de Crédito - API v1",
+    "description": "API pública do Motor de Crédito: cria operações assíncronas de análise de borderô CNAB 400 (cedente, sacados, títulos e validação cruzada com NFe) e consulta o resultado por polling. Cada entidade única do borderô gera uma análise do Motor de Análise, consultável via GET /v1/analyses/{id}. Autenticação por chave de API (Bearer slhk_) no header. Erros em RFC 7807 (application/problem+json). Em beta: requer a feature analysis_engine habilitada no workspace.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.sherlocker.com.br",
+      "description": "Beta - host definitivo sera confirmado na promocao a producao; durante o beta use o host fornecido pelo time Sherlocker"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Chave de API do workspace (prefixo slhk_), enviada no header: Authorization: Bearer slhk_sua_chave_aqui"
+      }
+    },
+    "schemas": {
+      "CreateOperationRequest": {
+        "type": "object",
+        "required": ["cnab_base64"],
+        "properties": {
+          "cnab_base64": {
+            "type": "string",
+            "format": "byte",
+            "description": "Arquivo CNAB 400 remessa codificado em base64. Máximo de 16 MB decodificado.",
+            "example": "MDEyMzQ1Njc4OS4uLg=="
+          },
+          "nfe_zip_base64": {
+            "type": "string",
+            "format": "byte",
+            "description": "ZIP com XMLs de NFe para validação cruzada dos títulos, codificado em base64. Opcional, sujeito à disponibilidade do recurso no beta: se o recurso de XML estiver desabilitado no ambiente, o campo é aceito e ignorado. Máximo de 32 MB decodificado."
+          },
+          "engine_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID da engine de borderô a usar. Omitido: usa a engine template de borderô do sistema. Engine inexistente ou de outro workspace retorna 404 not_found; engine arquivada, incompatível ou sem nenhum bloco ativo retorna 422 no_engine."
+          },
+          "file_name": {
+            "type": "string",
+            "description": "Nome do arquivo para exibição (ex.: remessa-0605.rem). Opcional.",
+            "example": "remessa-0605.rem"
+          },
+          "purpose": {
+            "type": "string",
+            "description": "Finalidade da operação (texto livre). Opcional; mesma semântica do POST /v1/analyses."
+          },
+          "legal_basis": {
+            "type": "string",
+            "enum": ["consentimento", "legitimo_interesse", "cumprimento_obrigacao_legal", "protecao_credito"],
+            "description": "Base legal LGPD para tratamento de dados pessoais. Opcional; mesma semântica do POST /v1/analyses."
+          }
+        }
+      },
+      "CreateOperationAccepted": {
+        "type": "object",
+        "required": ["id", "status"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID da operação criada. Use no GET /v1/operations/{id}."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending"],
+            "description": "Sempre pending imediatamente após a criação."
+          },
+          "titulos_count": {
+            "type": "number",
+            "description": "Total de títulos encontrados no arquivo CNAB."
+          },
+          "entities_count": {
+            "type": "number",
+            "description": "Total de entidades únicas do borderô (cedente + sacados únicos). É a base da cobrança."
+          },
+          "tokens_charged": {
+            "type": "number",
+            "description": "Tokens debitados do saldo do workspace na criação (entities_count × preço unitário de análise)."
+          },
+          "balance": {
+            "type": "number",
+            "description": "Saldo de tokens do workspace após o débito, quando disponível (melhor esforço)."
+          },
+          "poll_after_seconds": {
+            "type": "number",
+            "description": "Sugestão de espera (segundos) antes do primeiro poll."
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Identificador da requisição para rastreio e suporte, quando disponível. Igual ao header x-request-id da resposta. Em replay idempotente, é o request_id original da 202."
+          }
+        }
+      },
+      "OperationSummary": {
+        "type": "object",
+        "description": "Resumo consolidado da operação. Disponível apenas quando status é completed.",
+        "properties": {
+          "titulos": {
+            "type": "number",
+            "description": "Total de títulos do borderô."
+          },
+          "aprovados": {
+            "type": "number",
+            "description": "Títulos com verdict aprovado."
+          },
+          "alertas": {
+            "type": "number",
+            "description": "Títulos com verdict alerta."
+          },
+          "reprovados": {
+            "type": "number",
+            "description": "Títulos com verdict reprovado."
+          },
+          "valor_total": {
+            "type": "number",
+            "description": "Valor monetário total do borderô."
+          },
+          "valor_aprovado": {
+            "type": "number",
+            "description": "Valor monetário dos títulos aprovados."
+          },
+          "cedente_verdict": {
+            "type": "string",
+            "enum": ["aprovado", "alerta", "reprovado", "incompleto"],
+            "nullable": true,
+            "description": "Veredito da análise do cedente (mesma semântica de verdict do Motor de Análise). Pode ser null se o veredito não estiver disponível — campo preenchido em melhor esforço."
+          },
+          "entities_count": {
+            "type": "number",
+            "description": "Entidades únicas analisadas e cobradas (cedente + sacados únicos)."
+          }
+        }
+      },
+      "OperationTitulo": {
+        "type": "object",
+        "description": "Resultado individual de um título do borderô.",
+        "properties": {
+          "seu_numero": {
+            "type": "string",
+            "description": "Identificador do título no arquivo remessa (campo seu número do CNAB 400)."
+          },
+          "sacado_document": {
+            "type": "string",
+            "description": "Documento do sacado (apenas dígitos), extraído do CNAB."
+          },
+          "valor": {
+            "type": "number",
+            "description": "Valor do título."
+          },
+          "vencimento": {
+            "type": "string",
+            "format": "date",
+            "description": "Data de vencimento do título (YYYY-MM-DD)."
+          },
+          "verdict": {
+            "type": "string",
+            "enum": ["aprovado", "alerta", "reprovado", "incompleto"],
+            "description": "Veredito consolidado do título (análise do cedente + análise do sacado + validações de título/NFe). incompleto = alguma verificação ficou indisponível, sem nenhum bloqueio."
+          },
+          "nfe_status": {
+            "type": "string",
+            "enum": ["no_key", "not_checked", "pass", "alert", "blocked", "unavailable"],
+            "description": "Resultado consolidado dos blocos de NFe do título: no_key (título sem chave de NFe no CNAB), not_checked (engine sem bloco de NFe ativo), pass/alert/blocked/unavailable (pior status entre os blocos de NFe executados)."
+          },
+          "cedente_analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "Análise do cedente no Motor de Análise; null se a análise da entidade não estiver disponível. Consulte o detalhamento (verdict, blocks, coverage) via GET /v1/analyses/{id}."
+          },
+          "sacado_analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "Análise do sacado no Motor de Análise; null se a análise da entidade não estiver disponível. Compartilhada entre títulos do mesmo sacado. Consulte via GET /v1/analyses/{id}."
+          }
+        }
+      },
+      "Operation": {
+        "type": "object",
+        "required": ["id", "status", "created_at"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID da operação."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "running", "completed", "failed"],
+            "description": "Estado do ciclo de vida da operação. Em failed, os tokens são estornados automaticamente."
+          },
+          "engine_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Engine de borderô efetivamente usada (explícita ou o template do sistema)."
+          },
+          "file_name": {
+            "type": "string",
+            "description": "Nome de exibição do arquivo CNAB enviado."
+          },
+          "titulos_count": {
+            "type": "number",
+            "description": "Total de títulos do arquivo CNAB, quando disponível."
+          },
+          "entities_count": {
+            "type": "number",
+            "description": "Total de entidades únicas do borderô (cedente + sacados únicos), quando disponível."
+          },
+          "summary": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OperationSummary"
+              }
+            ],
+            "description": "Resumo consolidado da operação. Presente apenas quando status é completed (ausente em pending/running/failed)."
+          },
+          "titulos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OperationTitulo"
+            },
+            "description": "Resultado por título. Presente apenas quando status é completed (ausente em pending/running/failed)."
+          },
+          "tokens_charged": {
+            "type": "number",
+            "description": "Tokens debitados por esta operação (entidades únicas × preço unitário)."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp ISO 8601 de criação."
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp ISO 8601 de término. Presente apenas em estados terminais (completed/failed)."
+          },
+          "poll_after_seconds": {
+            "type": "number",
+            "description": "Segundos a aguardar antes do próximo poll. Presente apenas em estados não-terminais (pending/running)."
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Identificador da requisição para rastreio e suporte."
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "required": ["type", "title", "status", "code"],
+        "description": "Erro no formato RFC 7807 (application/problem+json). Use o campo code para tratamento programático; type é apenas identificador.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "URI que identifica o tipo do problema (https://docs.sherlocker.com.br/problems/<code>)."
+          },
+          "title": {
+            "type": "string",
+            "description": "Resumo curto do tipo do problema."
+          },
+          "status": {
+            "type": "integer",
+            "description": "Status HTTP desta ocorrência."
+          },
+          "code": {
+            "type": "string",
+            "description": "Código estável para tratamento programático (ex.: insufficient_tokens)."
+          },
+          "detail": {
+            "type": "string",
+            "description": "Explicação legível específica desta ocorrência."
+          },
+          "instance": {
+            "type": "string",
+            "description": "Identificador da ocorrência (/v1?request_id=<request_id>)."
+          },
+          "errors": {
+            "type": "array",
+            "description": "Erros de validação por campo. Presente apenas em validation_error (400).",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": {
+            "type": "number",
+            "description": "Tokens necessários. Presente apenas em insufficient_tokens (402)."
+          },
+          "balance": {
+            "type": "number",
+            "description": "Saldo atual de tokens. Presente apenas em insufficient_tokens (402)."
+          },
+          "request_access_url": {
+            "type": "string",
+            "description": "Onde solicitar acesso. Presente apenas em feature_not_enabled (403)."
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/v1/operations": {
+      "post": {
+        "summary": "Criar operação de borderô",
+        "description": "Cria uma operação assíncrona de análise de borderô a partir de um arquivo CNAB 400 remessa em base64 (máx. 16 MB decodificado), com ZIP de XMLs de NFe opcional (máx. 32 MB decodificado, sujeito à disponibilidade do recurso no beta) para validação cruzada. Os tokens são debitados na criação, após o parse do CNAB: uma cobrança por entidade única do borderô (cedente + sacados únicos) ao preço unitário de análise. Operações que terminam em failed são estornadas automaticamente. Retorna 202 na primeira submissão e 200 no replay idempotente (mesma Idempotency-Key + mesmo conteúdo em até 24h, sem nova cobrança e com o request_id original; o hash canônico cobre o SHA-256 dos bytes decodificados dos arquivos + engine_id + legal_basis).",
+        "operationId": "createOperation",
+        "tags": ["Operações"],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Chave única por borderô (UUID recomendado). Obrigatória. Reenviar a mesma chave com o mesmo conteúdo em até 24h devolve a resposta original (HTTP 200) sem nova cobrança; mesma chave com conteúdo diferente (arquivo, ZIP, engine_id ou legal_basis) devolve 409. A comparação usa o SHA-256 dos bytes decodificados — recodificar o base64 não gera conflito."
+          },
+          {
+            "name": "x-request-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identificador de rastreio opcional fornecido pelo cliente. Gerado pelo servidor se omitido; ecoado no header da resposta."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOperationRequest"
+              },
+              "examples": {
+                "cnab": {
+                  "summary": "Borderô CNAB 400",
+                  "value": {
+                    "cnab_base64": "MDEyMzQ1Njc4OS4uLg==",
+                    "file_name": "remessa-0605.rem"
+                  }
+                },
+                "cnab_com_nfe": {
+                  "summary": "Borderô com validação de NFe",
+                  "value": {
+                    "cnab_base64": "MDEyMzQ1Njc4OS4uLg==",
+                    "nfe_zip_base64": "UEsDBBQuLi4=",
+                    "file_name": "remessa-0605.rem",
+                    "purpose": "operacao de desconto de duplicatas"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Operação aceita e enfileirada para processamento. CNAB parseado e tokens debitados (uma cobrança por entidade única do borderô).",
+            "headers": {
+              "x-request-id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Identificador da requisição (ecoado ou gerado)."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateOperationAccepted"
+                },
+                "example": {
+                  "id": "b2c3d4e5-0000-0000-0000-000000000001",
+                  "status": "pending",
+                  "titulos_count": 42,
+                  "entities_count": 12,
+                  "tokens_charged": 12,
+                  "balance": 988,
+                  "poll_after_seconds": 2,
+                  "request_id": "3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Replay idempotente: mesma Idempotency-Key + mesmo conteúdo (SHA-256 dos bytes dos arquivos + engine_id + legal_basis) dentro da janela de 24h. Corpo idêntico ao da resposta 202 original, incluindo o request_id original; nenhum token adicional é cobrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateOperationAccepted"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida: header Idempotency-Key ausente (bad_request), ou cnab_base64 ausente / base64 inválido / CNAB que não parseia / arquivo acima do limite / campo com tipo/enum inválido (validation_error, com errors[]). Nada é cobrado — o débito só acontece após o parse.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/validation_error",
+                  "title": "Validation Error",
+                  "status": 400,
+                  "code": "validation_error",
+                  "detail": "One or more fields failed validation.",
+                  "errors": [
+                    {
+                      "field": "cnab_base64",
+                      "message": "file is not a valid CNAB 400 remessa"
+                    }
+                  ],
+                  "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Chave de API ausente, malformada, inválida ou revogada.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/unauthorized",
+                  "title": "Unauthorized",
+                  "status": 401,
+                  "code": "unauthorized",
+                  "detail": "Authentication is required to access this resource.",
+                  "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Saldo de tokens do workspace insuficiente para as entidades únicas do borderô. Campos extras: required (tokens necessários) e balance (saldo atual). Nada é cobrado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/insufficient_tokens",
+                  "title": "Payment Required",
+                  "status": 402,
+                  "code": "insufficient_tokens",
+                  "detail": "Insufficient tokens: 5 available, 12 required",
+                  "required": 12,
+                  "balance": 5,
+                  "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Feature analysis_engine não habilitada no workspace (feature_not_enabled, com request_access_url) ou acesso negado genérico (forbidden).",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/feature_not_enabled",
+                  "title": "Feature Not Enabled",
+                  "status": 403,
+                  "code": "feature_not_enabled",
+                  "detail": "The analysis_engine feature is not enabled for this workspace. To request access visit https://docs.sherlocker.com.br/api/access or contact support at https://docs.sherlocker.com.br/support.",
+                  "request_access_url": "https://docs.sherlocker.com.br/api/access",
+                  "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado: engine_id inexistente ou de outro workspace (a API não revela a existência de engines de outros workspaces).",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/not_found",
+                  "title": "Not Found",
+                  "status": 404,
+                  "code": "not_found",
+                  "detail": "Engine not found",
+                  "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflito de idempotência: requisição concorrente com a mesma Idempotency-Key em andamento, ou mesma chave reutilizada com conteúdo diferente (o hash canônico cobre o SHA-256 dos bytes decodificados dos arquivos + engine_id + legal_basis).",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/idempotency_conflict",
+                  "title": "Conflict",
+                  "status": 409,
+                  "code": "idempotency_conflict",
+                  "detail": "A request with the same idempotency key is already in progress or completed.",
+                  "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Engine não utilizável: arquivada, incompatível com a operação, sem nenhum bloco ativo, ou nenhuma engine de borderô disponível (sem engine_id e sem template aplicável).",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/no_engine",
+                  "title": "Unprocessable Entity",
+                  "status": 422,
+                  "code": "no_engine",
+                  "detail": "No bordero engine is available for this operation.",
+                  "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro inesperado no servidor. Reenvie com a mesma Idempotency-Key (retry seguro) e inclua o instance (request_id) ao acionar o suporte.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/server_error",
+                  "title": "Internal Server Error",
+                  "status": 500,
+                  "code": "server_error",
+                  "detail": "An unexpected error occurred.",
+                  "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/operations/{id}": {
+      "get": {
+        "summary": "Consultar operação",
+        "description": "Retorna o estado atual e o resultado de uma operação de borderô. Enquanto pending/running, a resposta inclui poll_after_seconds no body e o header Retry-After com o mesmo valor (2s): aguarde esse intervalo antes do próximo poll. Quando completed, adiciona finished_at, summary e titulos — cada título com cedente_analysis_id e sacado_analysis_id, consultáveis no detalhe via GET /v1/analyses/{id} do Motor de Análise. Em failed, adiciona apenas finished_at (sem summary/titulos) e os tokens são estornados automaticamente.",
+        "operationId": "getOperation",
+        "tags": ["Operações"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "UUID da operação (campo id da resposta do POST)."
+          },
+          {
+            "name": "x-request-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identificador de rastreio opcional fornecido pelo cliente. Gerado pelo servidor se omitido; ecoado no header da resposta."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado atual da operação. Header Retry-After presente apenas em estados não-terminais (pending/running).",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Segundos a aguardar antes do próximo poll. Presente apenas quando status é pending ou running."
+              },
+              "x-request-id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Identificador da requisição (ecoado ou gerado)."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operation"
+                },
+                "examples": {
+                  "running": {
+                    "summary": "Em processamento",
+                    "value": {
+                      "id": "b2c3d4e5-0000-0000-0000-000000000001",
+                      "status": "running",
+                      "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+                      "file_name": "remessa-0605.rem",
+                      "titulos_count": 42,
+                      "entities_count": 12,
+                      "tokens_charged": 12,
+                      "created_at": "2026-07-06T10:00:00Z",
+                      "poll_after_seconds": 2,
+                      "request_id": "3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                    }
+                  },
+                  "completed": {
+                    "summary": "Concluída",
+                    "value": {
+                      "id": "b2c3d4e5-0000-0000-0000-000000000001",
+                      "status": "completed",
+                      "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+                      "file_name": "remessa-0605.rem",
+                      "titulos_count": 42,
+                      "entities_count": 12,
+                      "created_at": "2026-07-06T10:00:00Z",
+                      "finished_at": "2026-07-06T10:02:15Z",
+                      "summary": {
+                        "titulos": 42,
+                        "aprovados": 30,
+                        "alertas": 8,
+                        "reprovados": 4,
+                        "valor_total": 123456.78,
+                        "valor_aprovado": 100000.0,
+                        "cedente_verdict": "aprovado",
+                        "entities_count": 12
+                      },
+                      "titulos": [
+                        {
+                          "seu_numero": "DUP-0001",
+                          "sacado_document": "12345678000190",
+                          "valor": 1234.56,
+                          "vencimento": "2026-08-01",
+                          "verdict": "aprovado",
+                          "nfe_status": "pass",
+                          "cedente_analysis_id": "a1b2c3d4-0000-0000-0000-000000000010",
+                          "sacado_analysis_id": "a1b2c3d4-0000-0000-0000-000000000011"
+                        }
+                      ],
+                      "tokens_charged": 12,
+                      "request_id": "3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Chave de API ausente, malformada, inválida ou revogada.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Operação inexistente ou pertencente a outro workspace.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/not_found",
+                  "title": "Not Found",
+                  "status": 404,
+                  "code": "not_found",
+                  "detail": "Operation not found",
+                  "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

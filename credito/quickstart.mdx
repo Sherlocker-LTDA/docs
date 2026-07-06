@@ -1,110 +1,161 @@
 ---
 title: "Quickstart"
-description: "Comece a analisar crédito em 5 minutos"
+description: "Analise seu primeiro borderô CNAB 400 com a API do Motor de Crédito"
 icon: "rocket"
 ---
 
-# Quickstart — Sherlocker Crédito
+Neste guia você envia um borderô CNAB 400, acompanha o processamento até o resultado consolidado e faz o drill-down na análise de risco de uma das entidades. É a mesma esteira de análise da interface web do Sherlocker, agora acessível por API.
 
-Siga este guia para criar sua primeira operação de análise de crédito.
+<Note>
+  Não confunda com o **Motor de Análise** ([documentado aqui](/motor-analise/introducao)), que avalia o risco de um CNPJ ou CPF individual. O Motor de Crédito analisa o borderô inteiro — e usa o Motor de Análise por baixo para cada entidade.
+</Note>
 
 ## Pré-requisitos
 
-- Token da API Sherlocker (`SEU_TOKEN`)
-- Arquivo CNAB 400 remessa (`.rem` ou `.txt`)
+- **Acesso ao beta**: a feature `analysis_engine` precisa estar habilitada no seu workspace. Solicite em [/api/access](/api/access).
+- **Chave de API**: criada no app Sherlocker em **Settings → API Keys**. As chaves têm prefixo `slhk_` e são exibidas uma única vez — guarde em local seguro.
+- **Saldo de tokens**: a operação consome tokens do mesmo pool do workspace usado no app — um débito por entidade única do borderô (veja [Cobrança](/credito/cobranca)).
+- **Arquivo CNAB 400 remessa** (`.rem` ou `.txt`), com no máximo 16 MB decodificado.
 
-## 1. Listar engines disponíveis
+A base URL de todos os exemplos é `https://<API_HOST>/v1`.
 
-Primeiro, veja quais motores de regras estão disponíveis:
+<Note>
+  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+</Note>
 
-<CodeGroup>
-```bash cURL
-curl "https://221b-api.sherlocker.com.br/api/v1/credito/engines?token=SEU_TOKEN"
-```
+<Steps>
+<Step title="Gere o base64 do arquivo CNAB">
 
-```python Python
-import requests
-
-resp = requests.get(
-    "https://221b-api.sherlocker.com.br/api/v1/credito/engines",
-    params={"token": "SEU_TOKEN"}
-)
-engines = resp.json()
-print(engines)
-```
-
-```javascript Node.js
-const resp = await fetch(
-  "https://221b-api.sherlocker.com.br/api/v1/credito/engines?token=SEU_TOKEN"
-);
-const engines = await resp.json();
-console.log(engines);
-```
-</CodeGroup>
-
-O resultado mostra os engines com `id`, `name`, `ruleCount` e se é um `isTemplate`.
-
-## 2. Criar uma operação
-
-Envie o arquivo CNAB 400 com o CNPJ do cedente:
+O arquivo vai no body JSON, codificado em base64, no campo `cnab_base64`:
 
 <CodeGroup>
 ```bash cURL
-curl -X POST "https://221b-api.sherlocker.com.br/api/v1/credito/operacoes?token=SEU_TOKEN" \
-  -F "file=@bordero.rem" \
-  -F "cedenteCnpj=12345678000199"
+# macOS
+CNAB_B64=$(base64 -i remessa-0605.rem | tr -d '\n')
+
+# Linux
+CNAB_B64=$(base64 -w0 remessa-0605.rem)
 ```
 
 ```python Python
-import requests
+import base64
 
-with open("bordero.rem", "rb") as f:
-    resp = requests.post(
-        "https://221b-api.sherlocker.com.br/api/v1/credito/operacoes",
-        params={"token": "SEU_TOKEN"},
-        files={"file": ("bordero.rem", f)},
-        data={"cedenteCnpj": "12345678000199"}
-    )
-
-result = resp.json()
-operation_id = result["operationId"]
-print(f"Operação criada: {operation_id}")
+with open("remessa-0605.rem", "rb") as f:
+    cnab_b64 = base64.b64encode(f.read()).decode()
 ```
 
 ```javascript Node.js
-const form = new FormData();
-form.append("file", fs.createReadStream("bordero.rem"));
-form.append("cedenteCnpj", "12345678000199");
+import { readFileSync } from "node:fs";
 
-const resp = await fetch(
-  "https://221b-api.sherlocker.com.br/api/v1/credito/operacoes?token=SEU_TOKEN",
-  { method: "POST", body: form }
-);
-const { operationId } = await resp.json();
-console.log(`Operação criada: ${operationId}`);
+const cnabB64 = readFileSync("remessa-0605.rem").toString("base64");
 ```
 </CodeGroup>
 
 <Tip>
-  Opcionalmente, inclua um ZIP com XMLs de NFe no campo `xmls` para melhorar a precisão da análise.
+  Tem os XMLs de NFe dos títulos? Compacte-os em um ZIP (máx. 32 MB decodificado), gere o base64 do mesmo jeito e envie no campo opcional `nfe_zip_base64` — o motor cruza cada título com o XML correspondente e reporta o resultado em `nfe_status`. O recurso é opcional e sujeito à disponibilidade no beta (se desabilitado no ambiente, o campo é aceito e ignorado). Veja [Títulos e NFe](/credito/titulos-e-nfe).
 </Tip>
 
-**Resposta (202):**
-```json
-{
-  "operationId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "status": "queued",
-  "createdAt": "2026-03-24T14:30:00.000Z"
-}
-```
+</Step>
+<Step title="Crie a operação">
 
-## 3. Acompanhar o status
-
-Consulte o status até que a operação esteja `completed`:
+Envie um `POST /v1/operations`. O header `Idempotency-Key` é **obrigatório** — use um UUID novo por borderô:
 
 <CodeGroup>
 ```bash cURL
-curl "https://221b-api.sherlocker.com.br/api/v1/credito/operacoes/OPERATION_ID?token=SEU_TOKEN"
+curl -X POST "https://<API_HOST>/v1/operations" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  -d "{
+    \"cnab_base64\": \"$CNAB_B64\",
+    \"file_name\": \"remessa-0605.rem\"
+  }"
+```
+
+```python Python
+import uuid
+import requests
+
+resp = requests.post(
+    "https://<API_HOST>/v1/operations",
+    headers={
+        "Authorization": "Bearer slhk_sua_chave_aqui",
+        "Idempotency-Key": str(uuid.uuid4()),
+    },
+    json={
+        "cnab_base64": cnab_b64,
+        "file_name": "remessa-0605.rem",
+    },
+)
+print(resp.status_code)  # 202
+operation = resp.json()
+operation_id = operation["id"]
+```
+
+```javascript Node.js
+const resp = await fetch("https://<API_HOST>/v1/operations", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer slhk_sua_chave_aqui",
+    "Content-Type": "application/json",
+    "Idempotency-Key": crypto.randomUUID(),
+  },
+  body: JSON.stringify({
+    cnab_base64: cnabB64,
+    file_name: "remessa-0605.rem",
+  }),
+});
+console.log(resp.status); // 202
+const operation = await resp.json();
+const operationId = operation.id;
+```
+</CodeGroup>
+
+Sem `engine_id`, a operação usa a engine template de borderô do sistema (veja [Engines](/credito/engines)). `file_name` é apenas para exibição; `purpose` e `legal_basis` são opcionais, com os mesmos valores aceitos em `POST /v1/analyses`.
+
+**Resposta (202 Accepted):**
+
+```json
+{
+  "id": "b2c3d4e5-0000-0000-0000-000000000001",
+  "status": "pending",
+  "titulos_count": 42,
+  "entities_count": 12,
+  "tokens_charged": 12,
+  "balance": 988,
+  "poll_after_seconds": 2,
+  "request_id": "req-uuid"
+}
+```
+
+A resposta já conta o borderô: `titulos_count` é o total de títulos do arquivo e `entities_count` é o total de **entidades únicas** cobradas (1 cedente + 11 sacados únicos = 12, neste exemplo). Os tokens são debitados na criação, logo após o parse do CNAB — os valores acima são **ilustrativos**; o preço unitário está em definição durante o beta (veja [Cobrança](/credito/cobranca)). Guarde o `id`: é com ele que você consulta o resultado.
+
+<Tip>
+  Em timeout ou erro 5xx, reenvie o POST com a **mesma** `Idempotency-Key` — a deduplicação usa o hash do **conteúdo** dos arquivos (SHA-256 dos bytes decodificados) + `engine_id` + `legal_basis`, então reenviar o mesmo borderô é sempre seguro: você recebe `200` com a resposta original, sem nova cobrança. Detalhes em [Idempotência](/credito/idempotencia).
+</Tip>
+
+</Step>
+<Step title="Acompanhe até o resultado">
+
+Consulte `GET /v1/operations/{id}` até o status ficar terminal (`completed` ou `failed`). Enquanto a operação está `pending` ou `running`, a resposta traz `poll_after_seconds` no body e `Retry-After` no header — honre esse intervalo (consultar mais rápido não acelera o resultado, e o limite global é de 100 requisições por minuto por IP):
+
+<CodeGroup>
+```bash cURL
+OPERATION_ID="b2c3d4e5-0000-0000-0000-000000000001"
+
+while true; do
+  RESP=$(curl -s "https://<API_HOST>/v1/operations/$OPERATION_ID" \
+    -H "Authorization: Bearer slhk_sua_chave_aqui")
+  STATUS=$(echo "$RESP" | jq -r '.status')
+  echo "status: $STATUS"
+
+  if [ "$STATUS" = "completed" ] || [ "$STATUS" = "failed" ]; then
+    echo "$RESP" | jq .
+    break
+  fi
+
+  sleep "$(echo "$RESP" | jq -r '.poll_after_seconds // 2')"
+done
 ```
 
 ```python Python
@@ -112,103 +163,187 @@ import time
 
 while True:
     resp = requests.get(
-        f"https://221b-api.sherlocker.com.br/api/v1/credito/operacoes/{operation_id}",
-        params={"token": "SEU_TOKEN"}
+        f"https://<API_HOST>/v1/operations/{operation_id}",
+        headers={"Authorization": "Bearer slhk_sua_chave_aqui"},
     )
-    status = resp.json()["status"]
-    print(f"Status: {status}")
+    op = resp.json()
+    print(f"status: {op['status']}")
 
-    if status in ("completed", "failed"):
+    if op["status"] in ("completed", "failed"):
         break
-    time.sleep(2)
+
+    # Intervalo sugerido pela API (tambem enviado no header Retry-After)
+    time.sleep(op.get("poll_after_seconds") or 2)
+
+print(op["summary"])
+```
+
+```javascript Node.js
+let op;
+while (true) {
+  const resp = await fetch(`https://<API_HOST>/v1/operations/${operationId}`, {
+    headers: { Authorization: "Bearer slhk_sua_chave_aqui" },
+  });
+  op = await resp.json();
+  console.log(`status: ${op.status}`);
+
+  if (op.status === "completed" || op.status === "failed") break;
+
+  // Intervalo sugerido pela API (tambem enviado no header Retry-After)
+  const waitSeconds = op.poll_after_seconds ?? 2;
+  await new Promise((r) => setTimeout(r, waitSeconds * 1000));
+}
+console.log(op.summary);
 ```
 </CodeGroup>
 
-**Status possíveis:** `queued` → `processing` → `completed` / `failed`
+**Fluxo de status:** `pending` → `running` → `completed` | `failed`. Por ora a API é polling-only (sem webhooks). Operações que terminam em `failed` são reembolsadas automaticamente.
 
-## 4. Obter o resultado
+</Step>
+<Step title="Interprete summary e titulos">
 
-Quando `completed`, consulte o resultado:
+**Resposta (200, operação concluída):**
 
-<CodeGroup>
-```bash cURL
-# Apenas issues (padrão)
-curl "https://221b-api.sherlocker.com.br/api/v1/credito/operacoes/OPERATION_ID/result?token=SEU_TOKEN"
-
-# Árvore completa
-curl "https://221b-api.sherlocker.com.br/api/v1/credito/operacoes/OPERATION_ID/result?token=SEU_TOKEN&filter=all"
-```
-
-```python Python
-resp = requests.get(
-    f"https://221b-api.sherlocker.com.br/api/v1/credito/operacoes/{operation_id}/result",
-    params={"token": "SEU_TOKEN", "filter": "all"}
-)
-resultado = resp.json()
-
-# Resumo
-summary = resultado["summary"]
-print(f"Total titulos: {summary['totalTitulos']}")
-print(f"Aprovados: {summary['approved']} (R$ {summary['approvedValue']:.2f})")
-print(f"Bloqueados: {summary['blocked']} (R$ {summary['blockedValue']:.2f})")
-print(f"Alertas: {summary['alerted']} (R$ {summary['alertedValue']:.2f})")
-
-# Issues do cedente
-for issue in resultado["cedente"]["issues"]:
-    print(f"[{issue['category']}] {issue['ruleName']}: {issue['message']}")
-```
-</CodeGroup>
-
-**Estrutura do resultado:**
-
-```
-Cedente (empresa que cede os títulos)
-  ├── status: approved | blocked | alerted
-  ├── issues: [ regras violadas ]
-  └── Sacados (devedores)
-       ├── status: approved | blocked | alerted
-       ├── issues: [ regras violadas ]
-       └── Títulos (duplicatas)
-            ├── status: approved | blocked | alerted
-            ├── valor, dataVencimento, nfeChave
-            └── issues: [ regras violadas ]
-```
-
-## 5. (Opcional) Criar engine personalizado
-
-Crie um engine com regras customizadas ou clone um existente:
-
-<CodeGroup>
-```bash cURL
-# Clonar engine existente
-curl -X POST "https://221b-api.sherlocker.com.br/api/v1/credito/engines?token=SEU_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Meu Engine", "cloneFrom": "ENGINE_ID_EXISTENTE"}'
-```
-
-```python Python
-resp = requests.post(
-    "https://221b-api.sherlocker.com.br/api/v1/credito/engines",
-    params={"token": "SEU_TOKEN"},
-    json={
-        "name": "Meu Engine Personalizado",
-        "cloneFrom": "ENGINE_ID_EXISTENTE"
+```json
+{
+  "id": "b2c3d4e5-0000-0000-0000-000000000001",
+  "status": "completed",
+  "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+  "file_name": "remessa-0605.rem",
+  "titulos_count": 42,
+  "entities_count": 12,
+  "created_at": "2026-07-06T10:00:00Z",
+  "finished_at": "2026-07-06T10:02:15Z",
+  "summary": {
+    "titulos": 42,
+    "aprovados": 30,
+    "alertas": 8,
+    "reprovados": 4,
+    "valor_total": 123456.78,
+    "valor_aprovado": 100000.00,
+    "cedente_verdict": "aprovado",
+    "entities_count": 12
+  },
+  "titulos": [
+    {
+      "seu_numero": "DUP-0001",
+      "sacado_document": "12345678000190",
+      "valor": 1234.56,
+      "vencimento": "2026-08-01",
+      "verdict": "aprovado",
+      "nfe_status": "pass",
+      "cedente_analysis_id": "a1b2c3d4-0000-0000-0000-000000000010",
+      "sacado_analysis_id": "a1b2c3d4-0000-0000-0000-000000000011"
     }
+  ],
+  "tokens_charged": 12,
+  "request_id": "req-uuid"
+}
+```
+
+Os campos que importam para a sua decisão:
+
+| Campo | Significado |
+|---|---|
+| `summary.cedente_verdict` | Veredito da análise do cedente (ou `null` se indisponível) — se o cedente reprova, a operação inteira merece atenção |
+| `summary.aprovados` / `alertas` / `reprovados` | Contagem de títulos por veredito; `valor_total` e `valor_aprovado` trazem os valores monetários |
+| `titulos[].verdict` | `aprovado` \| `alerta` \| `reprovado` \| `incompleto` — veredito individual do título |
+| `titulos[].nfe_status` | `no_key` \| `not_checked` \| `pass` \| `alert` \| `blocked` \| `unavailable` — resultado consolidado dos blocos de NFe do título (veja [Títulos e NFe](/credito/titulos-e-nfe)) |
+
+Um filtro típico — separar os títulos que precisam de revisão manual:
+
+```python Python
+para_revisar = [t for t in op["titulos"] if t["verdict"] != "aprovado"]
+for t in para_revisar:
+    print(f"{t['seu_numero']}  sacado={t['sacado_document']}  "
+          f"verdict={t['verdict']}  nfe={t['nfe_status']}")
+```
+
+</Step>
+<Step title="Faça o drill-down em uma análise">
+
+`cedente_analysis_id` e `sacado_analysis_id` são análises **normais** do Motor de Análise. Para entender *por que* um título reprovou, consulte a análise da entidade e leia `verdict`, `blocks` e `coverage`:
+
+<CodeGroup>
+```bash cURL
+curl "https://<API_HOST>/v1/analyses/a1b2c3d4-0000-0000-0000-000000000011" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui"
+```
+
+```python Python
+titulo = para_revisar[0]
+resp = requests.get(
+    f"https://<API_HOST>/v1/analyses/{titulo['sacado_analysis_id']}",
+    headers={"Authorization": "Bearer slhk_sua_chave_aqui"},
 )
-engine = resp.json()
-print(f"Engine criado: {engine['id']} com {engine['ruleCount']} regras")
+analysis = resp.json()
+for block in analysis["blocks"]:
+    if block["status"] in ("alert", "blocked"):
+        print(f"[{block['status']}] {block['id']}: {block['detail']}")
+```
+
+```javascript Node.js
+const titulo = op.titulos.find((t) => t.verdict !== "aprovado");
+const resp = await fetch(
+  `https://<API_HOST>/v1/analyses/${titulo.sacado_analysis_id}`,
+  { headers: { Authorization: "Bearer slhk_sua_chave_aqui" } }
+);
+const analysis = await resp.json();
+for (const block of analysis.blocks) {
+  if (block.status === "alert" || block.status === "blocked") {
+    console.log(`[${block.status}] ${block.id}: ${block.detail}`);
+  }
+}
 ```
 </CodeGroup>
 
-Depois, use o `engineId` ao criar novas operações para aplicar suas regras personalizadas.
+O formato da resposta é o do Motor de Análise — [ciclo de vida](/motor-analise/ciclo-de-vida) e [catálogo de blocos](/motor-analise/blocos). Entidades repetidas no borderô (o mesmo sacado em vários títulos) apontam para a **mesma** análise.
+
+</Step>
+</Steps>
+
+## Tratamento de erros
+
+Todos os erros seguem RFC 7807 (`Content-Type: application/problem+json`). Use o campo `code` para decidir o que fazer — o campo `type` é apenas um identificador. Exemplo de CNAB que não parseia:
+
+**Resposta (400):**
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/validation_error",
+  "title": "Validation Error",
+  "status": 400,
+  "code": "validation_error",
+  "detail": "One or more fields failed validation.",
+  "errors": [
+    { "field": "cnab_base64", "message": "file is not a valid CNAB 400 remessa" }
+  ],
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+Como nada foi parseado, **nada é cobrado** — o débito só acontece após o parse bem-sucedido do CNAB. O registro completo dos códigos de erro está em [Erros](/credito/erros).
+
+## O que você construiu
+
+- Um fluxo completo de análise de borderô: `POST /v1/operations` (202) → polling em `GET /v1/operations/{id}` → resumo em `summary` e veredito por título em `titulos[]`.
+- Upload seguro contra duplicidade com `Idempotency-Key` — retries do mesmo arquivo não geram cobrança dupla.
+- Polling que respeita `poll_after_seconds` / `Retry-After`.
+- Drill-down do veredito de qualquer título até a análise de risco completa da entidade via `GET /v1/analyses/{id}`.
 
 ## Próximos passos
 
 <CardGroup cols={2}>
-  <Card title="Operações" icon="file-circle-check" href="/entidades/operacao-credito">
-    Entenda a estrutura completa de uma operação
+  <Card title="Ciclo de vida" icon="arrows-rotate" href="/credito/ciclo-de-vida">
+    Estados da operação, verdicts e a relação com as análises-filhas
   </Card>
-  <Card title="Engines" icon="gears" href="/entidades/engine-credito">
-    Configure regras blocking e alert
+  <Card title="Idempotência" icon="repeat" href="/credito/idempotencia">
+    Retry seguro de upload — o hash cobre o conteúdo dos arquivos
+  </Card>
+  <Card title="Cobrança" icon="coins" href="/credito/cobranca">
+    Modelo por entidade única, com exemplo numérico e estorno
+  </Card>
+  <Card title="Títulos e NFe" icon="file-invoice" href="/credito/titulos-e-nfe">
+    O shape de cada título e os estados de nfe_status
   </Card>
 </CardGroup>

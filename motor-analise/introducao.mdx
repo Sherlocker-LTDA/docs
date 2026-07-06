@@ -48,15 +48,16 @@ Análises que terminam em `failed` têm os tokens reembolsados automaticamente. 
 
 ## Motor de Análise vs Motor de Crédito
 
-Não confunda com o **Motor de Crédito** (rotas `/credito/*`), também documentado neste site. São produtos diferentes, com hosts e autenticação diferentes:
+Não confunda com o **[Motor de Crédito](/credito/introducao)**, também documentado neste site. São produtos complementares que compartilham a mesma base `/v1`, a mesma chave `slhk_` e a mesma feature `analysis_engine`:
 
 | | Motor de Análise | Motor de Crédito |
 |---|---|---|
-| O que analisa | Um CNPJ ou CPF individual (cadastro, sanções, risco) | Um borderô completo em CNAB 400 (cedente, sacados, títulos) |
-| Endpoints | `POST /v1/analyses` e `GET /v1/analyses/{id}` em `https://<API_HOST>` | `/api/v1/credito/*` no `221b-api.sherlocker.com.br` |
-| Autenticação | Header `Authorization: Bearer slhk_sua_chave_aqui` | Query param `?token=` |
+| O que analisa | Um CNPJ ou CPF individual (cadastro, sanções, risco) | Um borderô completo em CNAB 400 (cedente, sacados, títulos e NFe) |
+| Endpoints | `POST /v1/analyses` e `GET /v1/analyses/{id}` | `POST /v1/operations` e `GET /v1/operations/{id}` |
+| Cobrança | Por análise | Por entidade única do borderô (cedente + sacados únicos) |
+| Resultado | `verdict` + `blocks` + `coverage` | `summary` + veredito por título, com `cedente_analysis_id`/`sacado_analysis_id` apontando para análises completas |
 
-Se o seu caso é analisar uma operação de desconto de duplicatas a partir de um arquivo CNAB, use o Motor de Crédito. Se é avaliar o risco de um CNPJ ou CPF específico, esta é a API certa.
+Se o seu caso é analisar uma operação de desconto de duplicatas a partir de um arquivo CNAB 400, use o Motor de Crédito. Se é avaliar o risco de um CNPJ ou CPF específico, esta é a API certa. Os dois compõem: cada título do resultado do Motor de Crédito referencia análises normais desta API, consultáveis via `GET /v1/analyses/{id}`.
 
 ## Próximos passos
 

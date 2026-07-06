@@ -1,0 +1,232 @@
+---
+title: "Idempotência"
+description: "Retry seguro no POST /v1/operations — o hash canônico cobre o conteúdo dos arquivos"
+icon: "repeat"
+---
+
+Toda chamada `POST /v1/operations` exige o header `Idempotency-Key`. Sem ele (ou com valor vazio), a API responde `400 bad_request` com a mensagem "Idempotency-Key header required".
+
+O header é obrigatório por um motivo simples: rede falha — e uploads de borderô, por serem payloads grandes, falham com mais frequência que requisições pequenas. Um timeout no seu lado não significa que a requisição não chegou: a operação pode ter sido criada e os tokens debitados sem que você tenha recebido a resposta. Sem idempotência, repetir o upload criaria uma segunda operação e uma segunda cobrança (uma por entidade única do borderô). Com a `Idempotency-Key`, repetir é sempre seguro: a API reconhece a repetição e devolve a resposta original, sem cobrar de novo.
+
+## O hash cobre o conteúdo dos arquivos
+
+Para decidir se duas requisições com a mesma key são "a mesma", a API calcula um hash canônico que inclui:
+
+- o **SHA-256 dos bytes decodificados** do CNAB (`cnab_base64`) e, quando enviado, do ZIP de NFe (`nfe_zip_base64`);
+- o `engine_id`;
+- o `legal_basis`.
+
+Isso significa que a comparação é pelo **conteúdo dos arquivos**, não pela string base64: reenviar o mesmo `remessa-0605.rem` é um replay, mesmo que o cliente recodifique o base64 de outra forma. Já trocar o arquivo, o ZIP de NFe, o `engine_id` ou o `legal_basis` mantendo a mesma key resulta em `409 idempotency_conflict`.
+
+## Como funciona
+
+A deduplicação vale por uma janela de **24 horas** a partir da primeira requisição.
+
+| Situação | Resposta |
+|---|---|
+| Primeira requisição com a key | `202 Accepted` — operação criada, tokens debitados |
+| Mesma key + mesmo conteúdo (dentro de 24h) | `200 OK` com o mesmo body da 202 original, **sem nova cobrança** |
+| Mesma key + conteúdo **diferente** (arquivo, ZIP, `engine_id` ou `legal_basis`) | `409` `idempotency_conflict` |
+| Mesma key com a primeira requisição ainda em andamento | `409` `idempotency_conflict` — aguarde e consulte via `GET` |
+| Key ausente ou vazia | `400` `bad_request` |
+
+Repare no status code: `202` significa "criei agora"; `200` significa "isto é um replay — nada novo foi criado nem cobrado". Seu código pode tratar os dois como sucesso, já que o body é o mesmo.
+
+### Concorrência
+
+Se duas requisições com a mesma key chegarem ao mesmo tempo, a primeira vence. A concorrente recebe `409` enquanto a primeira ainda está em andamento. Não gere uma key nova nesse caso: aguarde um instante e consulte o resultado com `GET /v1/operations/{id}`, usando o `id` da resposta 202 original. Se você ainda não tem o `id` (por exemplo, o upload deu timeout no seu lado), repita o POST com a **mesma** key até receber `200` (replay) ou `202` (se a primeira chamada nunca chegou ao servidor).
+
+## Receita prática
+
+1. **Derive a key do ID interno do seu borderô.** Gere um UUID no momento em que a remessa entra no seu sistema e persista junto com ela. UUID é o formato recomendado. Uma key por borderô — nunca reutilize a mesma key para arquivos ou operações diferentes.
+2. **Timeout ou 5xx → repita com a MESMA key.** A resposta será a 202 original (se o upload não chegou) ou um replay 200 (se chegou). Nos dois casos, sem cobrança dupla.
+3. **4xx de validação → corrija e use uma key NOVA.** A key antiga está amarrada ao conteúdo antigo: mesma key + arquivo corrigido resulta em `409 idempotency_conflict`.
+
+<Warning>
+  Nunca gere uma key nova ao repetir um upload que falhou por timeout ou 5xx. Uma key nova cria uma operação nova — e uma cobrança nova, por todas as entidades do borderô.
+</Warning>
+
+<Note>
+  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+</Note>
+
+<CodeGroup>
+```python Python
+import base64
+import requests
+import time
+import uuid
+
+URL = "https://<API_HOST>/v1/operations"
+API_KEY = "slhk_sua_chave_aqui"
+
+# 1 key por bordero; na pratica, gere quando a remessa entra no seu sistema
+idempotency_key = str(uuid.uuid4())
+
+with open("remessa-0605.rem", "rb") as f:
+    body = {
+        "cnab_base64": base64.b64encode(f.read()).decode(),
+        "file_name": "remessa-0605.rem",
+    }
+
+for attempt in range(5):
+    try:
+        resp = requests.post(
+            URL,
+            headers={
+                "Authorization": f"Bearer {API_KEY}",
+                "Idempotency-Key": idempotency_key,
+            },
+            json=body,
+            timeout=30,
+        )
+    except requests.Timeout:
+        time.sleep(2 ** attempt)
+        continue  # retry com a MESMA key
+
+    if resp.status_code in (202, 200):
+        op = resp.json()  # 202 = criada agora; 200 = replay, sem nova cobranca
+        break
+
+    if resp.status_code >= 500:
+        time.sleep(2 ** attempt)
+        continue  # retry com a MESMA key
+
+    if resp.status_code == 409:
+        # concorrente em andamento: aguarde e consulte via GET /v1/operations/{id}
+        break
+
+    resp.raise_for_status()  # 4xx: corrija e use uma key NOVA
+```
+
+```javascript Node.js
+import { readFileSync } from "node:fs";
+
+const URL = "https://<API_HOST>/v1/operations";
+const API_KEY = "slhk_sua_chave_aqui";
+
+// 1 key por bordero; na pratica, gere quando a remessa entra no seu sistema
+const idempotencyKey = crypto.randomUUID();
+
+const body = {
+  cnab_base64: readFileSync("remessa-0605.rem").toString("base64"),
+  file_name: "remessa-0605.rem",
+};
+
+let op;
+for (let attempt = 0; attempt < 5; attempt++) {
+  let resp;
+  try {
+    resp = await fetch(URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${API_KEY}`,
+        "Idempotency-Key": idempotencyKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(30_000),
+    });
+  } catch {
+    await new Promise((r) => setTimeout(r, 2 ** attempt * 1000));
+    continue; // retry com a MESMA key
+  }
+
+  if (resp.status === 202 || resp.status === 200) {
+    op = await resp.json(); // 202 = criada agora; 200 = replay, sem nova cobranca
+    break;
+  }
+  if (resp.status >= 500) {
+    await new Promise((r) => setTimeout(r, 2 ** attempt * 1000));
+    continue; // retry com a MESMA key
+  }
+  if (resp.status === 409) {
+    // concorrente em andamento: aguarde e consulte via GET /v1/operations/{id}
+    break;
+  }
+  throw new Error(`HTTP ${resp.status}`); // 4xx: corrija e use uma key NOVA
+}
+```
+</CodeGroup>
+
+## Os três cenários na prática
+
+### 1. Primeira submissão → 202
+
+```bash cURL
+CNAB_B64=$(base64 -i remessa-0605.rem | tr -d '\n')
+
+curl -i -X POST "https://<API_HOST>/v1/operations" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Idempotency-Key: 9f3c2d1e-7a54-4b0c-8e2f-1d6a5b4c3e2a" \
+  -H "Content-Type: application/json" \
+  -d "{\"cnab_base64\": \"$CNAB_B64\", \"file_name\": \"remessa-0605.rem\"}"
+```
+
+**Resposta (202 Accepted):**
+
+```json
+{
+  "id": "b2c3d4e5-0000-0000-0000-000000000001",
+  "status": "pending",
+  "titulos_count": 42,
+  "entities_count": 12,
+  "tokens_charged": 12,
+  "balance": 988,
+  "poll_after_seconds": 2,
+  "request_id": "req-uuid"
+}
+```
+
+<Note>
+  Os valores de `tokens_charged` e `balance` acima são ilustrativos. O preço por entidade está em definição durante o beta — o valor efetivamente cobrado vem sempre em `tokens_charged` na resposta. Veja [Cobrança](/credito/cobranca).
+</Note>
+
+### 2. Replay — mesma key, mesmo arquivo → 200
+
+Repita exatamente o mesmo comando do cenário 1 (mesma key, mesmo arquivo):
+
+**Resposta (200 OK):** o mesmo body JSON do cenário 1 — mesmo `id`, mesmos `tokens_charged` e `balance`, e inclusive o `request_id` **original** da 202. Nenhuma operação nova foi criada e nada foi cobrado de novo. É por isso que repetir o upload após timeout é seguro.
+
+### 3. Mesma key, conteúdo diferente → 409
+
+Enviar a mesma key com outro arquivo (ou o mesmo arquivo e um `engine_id` diferente):
+
+```bash cURL
+OUTRO_B64=$(base64 -i remessa-0606.rem | tr -d '\n')
+
+curl -i -X POST "https://<API_HOST>/v1/operations" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Idempotency-Key: 9f3c2d1e-7a54-4b0c-8e2f-1d6a5b4c3e2a" \
+  -H "Content-Type: application/json" \
+  -d "{\"cnab_base64\": \"$OUTRO_B64\", \"file_name\": \"remessa-0606.rem\"}"
+```
+
+**Resposta (409, `application/problem+json`):**
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/idempotency_conflict",
+  "title": "Conflict",
+  "status": 409,
+  "code": "idempotency_conflict",
+  "detail": "A request with the same idempotency key is already in progress or completed.",
+  "instance": "/v1?request_id=req-uuid"
+}
+```
+
+O mesmo `code` (`idempotency_conflict`) também é retornado no caso de concorrência — uma requisição com a mesma key ainda em andamento. Faça branching pelo `code`, não pelo texto de `detail`, que pode variar. Detalhes do formato em [Erros](/credito/erros) e [idempotency_conflict](/problems/idempotency_conflict).
+
+## Próximos passos
+
+<CardGroup cols={3}>
+  <Card title="Ciclo de vida" icon="arrows-rotate" href="/credito/ciclo-de-vida">
+    Status da operação e como fazer polling com `poll_after_seconds`
+  </Card>
+  <Card title="Cobrança" icon="coins" href="/credito/cobranca">
+    Modelo por entidade única e o estorno em `failed`
+  </Card>
+  <Card title="Erros" icon="triangle-exclamation" href="/credito/erros">
+    Formato RFC 7807 e todos os códigos de erro
+  </Card>
+</CardGroup>
