@@ -1,0 +1,212 @@
+---
+title: "Idempotência"
+description: "Retry seguro no POST /v1/analyses — como a Idempotency-Key evita cobrança dupla"
+icon: "repeat"
+---
+
+Toda chamada `POST /v1/analyses` exige o header `Idempotency-Key`. Sem ele (ou com valor vazio), a API responde `400 bad_request` com a mensagem "Idempotency-Key header required".
+
+O header é obrigatório por um motivo simples: rede falha. Um timeout no seu lado não significa que a requisição não chegou — a análise pode ter sido criada e os tokens debitados sem que você tenha recebido a resposta. Sem idempotência, repetir a chamada criaria uma segunda análise e uma segunda cobrança. Com a `Idempotency-Key`, repetir é sempre seguro: a API reconhece a repetição e devolve a resposta original, sem cobrar de novo.
+
+## Como funciona
+
+A deduplicação vale por uma janela de **24 horas** a partir da primeira requisição.
+
+| Situação | Resposta |
+|---|---|
+| Primeira requisição com a key | `202 Accepted` — análise criada, tokens debitados |
+| Mesma key + mesmo body (dentro de 24h) | `200 OK` com o mesmo body da 202 original, **sem nova cobrança** |
+| Mesma key + body **diferente** | `409` `idempotency_conflict` |
+| Mesma key com a primeira requisição ainda em andamento | `409` `idempotency_conflict` — aguarde e consulte via `GET` |
+| Key ausente ou vazia | `400` `bad_request` |
+
+Repare no status code: `202` significa "criei agora"; `200` significa "isto é um replay — nada novo foi criado nem cobrado". Seu código pode tratar os dois como sucesso, já que o body é o mesmo.
+
+### Concorrência
+
+Se duas requisições com a mesma key chegarem ao mesmo tempo, a primeira vence. A concorrente recebe `409` enquanto a primeira ainda está em andamento. Não gere uma key nova nesse caso: aguarde um instante e consulte o resultado com `GET /v1/analyses/{id}`, usando o `id` da resposta 202 original. Se você ainda não tem o `id` (por exemplo, a primeira chamada deu timeout no seu lado), repita o POST com a **mesma** key até receber `200` (replay) ou `202` (se a primeira chamada nunca chegou ao servidor).
+
+## Receita prática
+
+1. **Derive a key do ID interno do seu job.** Gere um UUID no momento em que o job é criado no seu sistema e persista junto com ele. UUID é o formato recomendado. Uma key por job — nunca reutilize a mesma key para documentos ou jobs diferentes.
+2. **Timeout ou 5xx → repita com a MESMA key.** A resposta será a 202 original (se a primeira chamada não chegou) ou um replay 200 (se chegou). Nos dois casos, sem cobrança dupla.
+3. **4xx de validação → corrija o body e use uma key NOVA.** A key antiga está amarrada ao body antigo: mesma key + body corrigido resulta em `409 idempotency_conflict`.
+
+<Warning>
+  Nunca gere uma key nova ao repetir uma requisição que falhou por timeout ou 5xx. Uma key nova cria uma análise nova — e uma cobrança nova.
+</Warning>
+
+<Note>
+  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+</Note>
+
+<CodeGroup>
+```python Python
+import requests
+import time
+import uuid
+
+URL = "https://<API_HOST>/v1/analyses"
+API_KEY = "slhk_sua_chave_aqui"
+
+# 1 key por job interno; na pratica, gere na criacao do job e persista junto a ele
+idempotency_key = str(uuid.uuid4())
+
+body = {"document": "12345678000195"}
+
+for attempt in range(5):
+    try:
+        resp = requests.post(
+            URL,
+            headers={
+                "Authorization": f"Bearer {API_KEY}",
+                "Idempotency-Key": idempotency_key,
+            },
+            json=body,
+            timeout=10,
+        )
+    except requests.Timeout:
+        time.sleep(2 ** attempt)
+        continue  # retry com a MESMA key
+
+    if resp.status_code in (202, 200):
+        run = resp.json()  # 202 = criada agora; 200 = replay, sem nova cobranca
+        break
+
+    if resp.status_code >= 500:
+        time.sleep(2 ** attempt)
+        continue  # retry com a MESMA key
+
+    if resp.status_code == 409:
+        # concorrente em andamento: aguarde e consulte via GET /v1/analyses/{id}
+        break
+
+    resp.raise_for_status()  # 4xx: corrija o body e use uma key NOVA
+```
+
+```javascript Node.js
+const URL = "https://<API_HOST>/v1/analyses";
+const API_KEY = "slhk_sua_chave_aqui";
+
+// 1 key por job interno; na pratica, gere na criacao do job e persista junto a ele
+const idempotencyKey = crypto.randomUUID();
+
+const body = { document: "12345678000195" };
+
+let run;
+for (let attempt = 0; attempt < 5; attempt++) {
+  let resp;
+  try {
+    resp = await fetch(URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${API_KEY}`,
+        "Idempotency-Key": idempotencyKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(10_000),
+    });
+  } catch {
+    await new Promise((r) => setTimeout(r, 2 ** attempt * 1000));
+    continue; // retry com a MESMA key
+  }
+
+  if (resp.status === 202 || resp.status === 200) {
+    run = await resp.json(); // 202 = criada agora; 200 = replay, sem nova cobranca
+    break;
+  }
+  if (resp.status >= 500) {
+    await new Promise((r) => setTimeout(r, 2 ** attempt * 1000));
+    continue; // retry com a MESMA key
+  }
+  if (resp.status === 409) {
+    // concorrente em andamento: aguarde e consulte via GET /v1/analyses/{id}
+    break;
+  }
+  throw new Error(`HTTP ${resp.status}`); // 4xx: corrija o body e use uma key NOVA
+}
+```
+</CodeGroup>
+
+## Os três cenários na prática
+
+### 1. Primeira submissão → 202
+
+```bash cURL
+curl -i -X POST "https://<API_HOST>/v1/analyses" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Idempotency-Key: 9f3c2d1e-7a54-4b0c-8e2f-1d6a5b4c3e2a" \
+  -H "Content-Type: application/json" \
+  -d '{"document": "12345678000195"}'
+```
+
+**Resposta (202 Accepted):**
+
+```json
+{
+  "id": "a1b2c3d4-0000-0000-0000-000000000001",
+  "status": "pending",
+  "tokens_charged": 10,
+  "balance": 990,
+  "poll_after_seconds": 2,
+  "request_id": "req-uuid"
+}
+```
+
+<Note>
+  Os valores de `tokens_charged` e `balance` acima são ilustrativos. O preço por análise está em definição durante o beta — o valor efetivamente cobrado vem sempre em `tokens_charged` na resposta. Veja [Cobrança](/motor-analise/cobranca).
+</Note>
+
+### 2. Replay — mesma key, mesmo body → 200
+
+Repita exatamente o mesmo comando do cenário 1 (mesma key, mesmo body):
+
+```bash cURL
+curl -i -X POST "https://<API_HOST>/v1/analyses" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Idempotency-Key: 9f3c2d1e-7a54-4b0c-8e2f-1d6a5b4c3e2a" \
+  -H "Content-Type: application/json" \
+  -d '{"document": "12345678000195"}'
+```
+
+**Resposta (200 OK):** o mesmo body JSON do cenário 1, byte a byte — mesmo `id`, mesmos `tokens_charged` e `balance`. Nenhuma análise nova foi criada e nada foi cobrado de novo. É por isso que repetir após timeout é seguro.
+
+### 3. Mesma key, body diferente → 409
+
+```bash cURL
+curl -i -X POST "https://<API_HOST>/v1/analyses" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Idempotency-Key: 9f3c2d1e-7a54-4b0c-8e2f-1d6a5b4c3e2a" \
+  -H "Content-Type: application/json" \
+  -d '{"document": "12345678000195", "purpose": "onboarding de cedente"}'
+```
+
+**Resposta (409, `application/problem+json`):**
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/idempotency_conflict",
+  "title": "Conflict",
+  "status": 409,
+  "code": "idempotency_conflict",
+  "detail": "A request with the same idempotency key is already in progress or completed.",
+  "instance": "/v1?request_id=req-uuid"
+}
+```
+
+O mesmo `code` (`idempotency_conflict`) também é retornado no caso de concorrência — uma requisição com a mesma key ainda em andamento. Faça branching pelo `code`, não pelo texto de `detail`, que pode variar. Detalhes do formato em [Erros](/motor-analise/erros) e [idempotency_conflict](/problems/idempotency_conflict).
+
+## Próximos passos
+
+<CardGroup cols={3}>
+  <Card title="Ciclo de vida" icon="arrows-spin" href="/motor-analise/ciclo-de-vida">
+    Status da análise e como fazer polling com `poll_after_seconds`
+  </Card>
+  <Card title="Cobrança" icon="coins" href="/motor-analise/cobranca">
+    Quando os tokens são debitados e quando há reembolso
+  </Card>
+  <Card title="Erros" icon="triangle-exclamation" href="/motor-analise/erros">
+    Formato RFC 7807 e todos os códigos de erro
+  </Card>
+</CardGroup>

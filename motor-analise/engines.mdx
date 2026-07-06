@@ -1,0 +1,197 @@
+---
+title: "Engines"
+description: "Como o Motor de Análise decide quais blocos rodar, com qual ação e quais parâmetros"
+icon: "gears"
+---
+
+Uma **engine** é a configuração de uma análise: para cada bloco de verificação (ex.: `SITUACAO_CADASTRAL_CNPJ`, `SANCAO_NACIONAL`), a engine define a **ação** aplicada quando o bloco é acionado — bloqueio, alerta ou ignorar — e os **parâmetros** de avaliação (ex.: capital social mínimo). Toda análise criada via `POST /v1/analyses` roda com exatamente uma engine, e é ela que determina o `verdict` final.
+
+## Ações e efeito no verdict
+
+| Ação | Efeito no bloco | Efeito no `verdict` |
+|------|-----------------|---------------------|
+| **Bloqueio** (`block`) | Bloco acionado sai com status `blocked` | Qualquer bloco `blocked` → `reprovado` |
+| **Alerta** (`alert`) | Bloco acionado sai com status `alert` | Um ou mais blocos `alert` (sem nenhum `blocked`) → `alerta` |
+| **Ignorar** (`ignore`) | Bloco não é avaliado | Nenhum |
+
+Se nenhum bloco sai em `alert` ou `blocked`, o `verdict` é `aprovado`. Se o motor termina mas um ou mais blocos ficam `unavailable` (a fonte de dados falhou), o `verdict` é `incompleto` — confira o campo `coverage` da resposta. Veja [Ciclo de vida](/motor-analise/ciclo-de-vida) para o detalhe de status e verdicts.
+
+Blocos marcados como **ignorar** nos templates são opt-in: vêm desligados por padrão e passam a contar quando você muda a ação para alerta ou bloqueio em uma engine própria.
+
+## Como o `engine_id` é resolvido
+
+Ao criar uma análise, a API resolve a engine nesta ordem:
+
+1. **`engine_id` explícito no body** — a engine precisa existir, pertencer ao seu workspace (ou ser um template do sistema) e ter o `subject_type` compatível com o documento (`pj` para CNPJ, `pf` para CPF).
+2. **Engine padrão do workspace** — se `engine_id` for omitido e o workspace tiver uma engine padrão para aquele `subject_type`, ela é usada.
+3. **Template do sistema** — sem engine padrão, a API usa o template global do Sherlocker para o `subject_type` (descritos abaixo).
+
+Se nenhuma das três opções resolve, a resposta é `422` com code [`no_engine`](/problems/no_engine).
+
+Exemplo com `engine_id` explícito:
+
+<Note>
+  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+</Note>
+
+<CodeGroup>
+```bash cURL
+curl -X POST "https://<API_HOST>/v1/analyses" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Idempotency-Key: 7c9e6679-7425-40de-944b-e07fc1f90ae7" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "document": "12345678000195",
+    "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f"
+  }'
+```
+
+```python Python
+import requests
+
+resp = requests.post(
+    "https://<API_HOST>/v1/analyses",
+    headers={
+        "Authorization": "Bearer slhk_sua_chave_aqui",
+        "Idempotency-Key": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    },
+    json={
+        "document": "12345678000195",
+        "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+    },
+)
+print(resp.status_code, resp.json())
+```
+
+```javascript Node.js
+const resp = await fetch("https://<API_HOST>/v1/analyses", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer slhk_sua_chave_aqui",
+    "Idempotency-Key": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    document: "12345678000195",
+    engine_id: "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+  }),
+});
+console.log(resp.status, await resp.json());
+```
+</CodeGroup>
+
+### Erros de resolução
+
+| Situação | Resposta |
+|----------|----------|
+| `engine_id` não existe ou pertence a outro workspace | `404` [`not_found`](/problems/not_found) |
+| `engine_id` arquivado | `422` [`no_engine`](/problems/no_engine) |
+| `subject_type` da engine incompatível com o documento (ex.: engine `pj` para um CPF) | `422` [`no_engine`](/problems/no_engine) |
+| Nenhuma engine resolvida (sem `engine_id`, sem padrão do workspace, sem template) | `422` [`no_engine`](/problems/no_engine) |
+
+## Onde as engines são geridas
+
+Engines são criadas, editadas, definidas como padrão e arquivadas **no app Sherlocker** (interface web). A API `/v1` não tem endpoints de CRUD de engines — hoje ela só consome uma engine já existente via `engine_id` ou pela resolução automática. Para criar uma política própria (mudar ações, ajustar parâmetros, ativar blocos opt-in), use o app.
+
+## Templates do sistema
+
+Quando o workspace não tem engine padrão e o `engine_id` é omitido, a análise roda com o template global do Sherlocker para o `subject_type`. São políticas conservadoras: irregularidade cadastral, óbito, sanção nacional, trabalho escravo e eventos de falência/recuperação judicial bloqueiam; sinais financeiros (Serasa, dívida ativa) e processos judiciais relevantes geram alerta.
+
+Os parâmetros listados abaixo são os valores padrão do template. Cada bloco aceita parâmetros configuráveis por engine no app — o catálogo completo está em [Blocos](/motor-analise/blocos).
+
+### Sherlocker PJ (template) — 23 blocos
+
+Usado em análises de CNPJ (`subject_type: "pj"`).
+
+**Bloqueio**
+
+| Bloco | Parâmetros padrão |
+|-------|-------------------|
+| `SITUACAO_CADASTRAL_CNPJ` | — |
+| `FALENCIA_DECRETADA` | — |
+| `FALENCIA_REQUERIDA` | `janela_meses: 6`, `janela_alerta_meses: 12` |
+| `RECUPERACAO_JUDICIAL` | `janela_meses: 6`, `janela_alerta_meses: 12` |
+| `CONSULTA_OBITO` | — |
+| `LISTA_TRABALHO_ESCRAVO` | — |
+| `SANCAO_NACIONAL` | — |
+
+**Alerta**
+
+| Bloco | Parâmetros padrão |
+|-------|-------------------|
+| `IDADE_EMPRESA` | `meses_minimos: 12` |
+| `CAPITAL_SOCIAL_MINIMO` | `capital_minimo: 10000` |
+| `CNAE_RISCO` | `cnaes_risco`: lista com 13 CNAEs de risco |
+| `DIVIDA_ATIVA` | `valor_minimo: 100000` |
+| `PROCESSOS_RELEVANTES` | `minimo_como_reu: 10`, `termos_classe: []` |
+| `ACORDOS_LENIENCIA` | — |
+| `IBAMA` | — |
+| `SERASA_PROTESTOS` | `quantidade_minima: 1`, `valor_minimo: 0` |
+| `SERASA_PEFIN` | `quantidade_minima: 1`, `valor_minimo: 0` |
+| `SERASA_REFIN` | `quantidade_minima: 1`, `valor_minimo: 0` |
+| `SERASA_CHEQUES` | `quantidade_minima: 1` |
+| `SERASA_PONTUALIDADE_PAGAMENTO` | `pontualidade_minima_pct: 85` |
+| `SERASA_EVOLUCAO_CONSULTAS` | `crescimento_minimo_pct: 85`, `media_minima_3m: 14` |
+
+**Ignorado (opt-in)**
+
+| Bloco | Parâmetros padrão |
+|-------|-------------------|
+| `EMPRESA_PUBLICA` | — |
+| `SANCAO_INTERNACIONAL` | — |
+| `DEBARMENT_MULTILATERAL` | — |
+
+### Sherlocker PF (template) — 18 blocos
+
+Usado em análises de CPF (`subject_type: "pf"`). Lembre que análises de CPF exigem a feature `analysis_engine_pf` no workspace, além de `analysis_engine`.
+
+**Bloqueio**
+
+| Bloco | Parâmetros padrão |
+|-------|-------------------|
+| `CONSULTA_OBITO` | — |
+| `SANCAO_NACIONAL` | — |
+| `SERASA_SITUACAO_CPF` | — |
+
+**Alerta**
+
+| Bloco | Parâmetros padrão |
+|-------|-------------------|
+| `PROCESSOS_RELEVANTES` | `minimo_como_reu: 10`, `termos_classe: []` |
+| `PEP` | — |
+| `BANCO_CENTRAL` | — |
+| `IBAMA` | — |
+| `SERASA_PROTESTOS` | `quantidade_minima: 1`, `valor_minimo: 0` |
+| `SERASA_PEFIN` | `quantidade_minima: 1`, `valor_minimo: 0` |
+| `SERASA_REFIN` | `quantidade_minima: 1`, `valor_minimo: 0` |
+| `SERASA_CHEQUES` | `quantidade_minima: 1` |
+| `SERASA_DIVIDAS_VENCIDAS` | `quantidade_minima: 1`, `valor_minimo: 0` |
+| `SERASA_ACOES_JUDICIAIS_PF` | `quantidade_minima: 1`, `valor_minimo: 0` |
+| `SERASA_DOCUMENTOS_ROUBADOS_PF` | — |
+| `SERASA_ARQUIVO_FINO_PF` | — |
+
+**Ignorado (opt-in)**
+
+| Bloco | Parâmetros padrão |
+|-------|-------------------|
+| `DIVIDA_ATIVA` | `valor_minimo: 100000` |
+| `SANCAO_INTERNACIONAL` | — |
+| `DEBARMENT_MULTILATERAL` | — |
+
+<Warning>
+  Os blocos `SERASA_*` dependem da integração Serasa habilitada no workspace. Sem ela, esses blocos saem com status `unavailable` e o `verdict` fica `incompleto` — nunca um bloqueio falso. Confira o campo `coverage` da resposta para ver qual fonte ficou indisponível.
+</Warning>
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Blocos" icon="cubes" href="/motor-analise/blocos">
+    Catálogo completo de blocos de verificação, com escopo, grupo e descrição
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/motor-analise/quickstart">
+    Crie sua primeira análise via API em minutos
+  </Card>
+  <Card title="Erros" icon="triangle-exclamation" href="/motor-analise/erros">
+    Formato RFC 7807 e o registro completo de codes, incluindo no_engine
+  </Card>
+</CardGroup>

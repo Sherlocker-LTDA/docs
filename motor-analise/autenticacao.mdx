@@ -1,0 +1,169 @@
+---
+title: "Autenticação"
+description: "Como autenticar na API do Motor de Análise com chave Bearer"
+icon: "key"
+---
+
+Toda requisição à API `/v1` do Motor de Análise exige uma chave de API no header `Authorization`, no formato Bearer:
+
+```
+Authorization: Bearer slhk_sua_chave_aqui
+```
+
+As chaves têm o prefixo `slhk_` e são vinculadas ao seu workspace no Sherlocker.
+
+<Warning>
+  **Diferente do restante das docs deste site.** As demais APIs documentadas aqui (221b-api) autenticam via query param `?token=`. A API do Motor de Análise **não aceita** token em query param — apenas o header `Authorization: Bearer`. O host também é outro: não use o host das outras docs nos exemplos abaixo.
+</Warning>
+
+## Criar e guardar a chave
+
+<Steps>
+  <Step title="Crie a chave no app Sherlocker">
+    Acesse **Settings → API Keys** no app Sherlocker e crie uma nova chave.
+  </Step>
+  <Step title="Copie a chave imediatamente">
+    A chave é exibida **uma única vez**. Depois de fechar a tela, não é possível vê-la de novo.
+  </Step>
+  <Step title="Guarde em local seguro">
+    Armazene em um secret manager ou variável de ambiente. Nunca comite a chave no repositório nem a exponha em código de frontend.
+  </Step>
+</Steps>
+
+<Tip>
+  Se perder ou suspeitar de vazamento, revogue a chave no app e crie uma nova. Chaves revogadas passam a responder `401`.
+</Tip>
+
+## Exemplo mínimo
+
+Um `GET` em um run inexistente serve como teste rápido da chave — não debita tokens. Resposta `404 not_found` significa que a autenticação funcionou; `401` indica problema na chave; `403 feature_not_enabled` indica chave válida, mas workspace sem a feature `analysis_engine` — veja a tabela abaixo.
+
+<CodeGroup>
+```bash cURL
+curl -i "https://<API_HOST>/v1/analyses/00000000-0000-0000-0000-000000000000" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui"
+```
+
+```python Python
+import requests
+
+resp = requests.get(
+    "https://<API_HOST>/v1/analyses/00000000-0000-0000-0000-000000000000",
+    headers={"Authorization": "Bearer slhk_sua_chave_aqui"}
+)
+print(resp.status_code)
+print(resp.json())
+```
+
+```javascript Node.js
+const resp = await fetch(
+  "https://<API_HOST>/v1/analyses/00000000-0000-0000-0000-000000000000",
+  { headers: { Authorization: "Bearer slhk_sua_chave_aqui" } }
+);
+console.log(resp.status);
+console.log(await resp.json());
+```
+</CodeGroup>
+
+<Note>
+  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+</Note>
+
+## Falhas de autenticação e acesso
+
+Todos os erros seguem o formato RFC 7807 (`Content-Type: application/problem+json`). Use o campo `code` para tratamento programático — detalhes em [Erros](/motor-analise/erros).
+
+| Situação | HTTP | `code` | Como resolver |
+|---|---|---|---|
+| Header `Authorization` ausente ou malformado | 401 | `unauthorized` | Envie `Authorization: Bearer slhk_<chave>` |
+| Chave inválida | 401 | `unauthorized` | Confira se copiou a chave completa, com o prefixo `slhk_` |
+| Chave revogada | 401 | `unauthorized` | Crie uma nova chave em Settings → API Keys |
+| Feature `analysis_engine` desabilitada no workspace | 403 | `feature_not_enabled` | Solicite acesso pela `request_access_url` do body |
+| Feature `analysis_engine_pf` desabilitada (análises de CPF) | 403 | `feature_not_enabled` | Solicite acesso pela `request_access_url` do body |
+
+O acesso à API é liberado por workspace: a feature `analysis_engine` cobre qualquer chamada `/v1`, e análises de CPF exigem adicionalmente a feature `analysis_engine_pf`.
+
+**Exemplo de `401`:**
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/unauthorized",
+  "title": "Unauthorized",
+  "status": 401,
+  "code": "unauthorized",
+  "detail": "The Authorization header is missing, malformed, or the API key is invalid or revoked.",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+**Exemplo de `403 feature_not_enabled`:**
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/feature_not_enabled",
+  "title": "Feature Not Enabled",
+  "status": 403,
+  "code": "feature_not_enabled",
+  "detail": "The analysis_engine feature is not enabled for this workspace. To request access visit https://docs.sherlocker.com.br/api/access or contact support at https://docs.sherlocker.com.br/support.",
+  "request_access_url": "https://docs.sherlocker.com.br/api/access",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+## Tracing com `x-request-id`
+
+O header `x-request-id` é opcional em toda requisição. Se você não enviar, o servidor gera um UUID. Em qualquer caso, o identificador é:
+
+- ecoado no header `x-request-id` da resposta;
+- incluído no campo `request_id` do body das respostas de sucesso;
+- incluído no campo `instance` dos erros, no formato `/v1?request_id=<id>`.
+
+Envie o seu próprio `x-request-id` para correlacionar as chamadas com os logs do seu sistema. Ao acionar o suporte, informe o valor de `instance` (ou o `request_id`) — é assim que a requisição é localizada nos logs do servidor.
+
+<CodeGroup>
+```bash cURL
+curl "https://<API_HOST>/v1/analyses/00000000-0000-0000-0000-000000000000" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "x-request-id: meu-trace-id-123"
+```
+
+```python Python
+import requests
+
+resp = requests.get(
+    "https://<API_HOST>/v1/analyses/00000000-0000-0000-0000-000000000000",
+    headers={
+        "Authorization": "Bearer slhk_sua_chave_aqui",
+        "x-request-id": "meu-trace-id-123"
+    }
+)
+print(resp.headers["x-request-id"])
+```
+
+```javascript Node.js
+const resp = await fetch(
+  "https://<API_HOST>/v1/analyses/00000000-0000-0000-0000-000000000000",
+  {
+    headers: {
+      Authorization: "Bearer slhk_sua_chave_aqui",
+      "x-request-id": "meu-trace-id-123"
+    }
+  }
+);
+console.log(resp.headers.get("x-request-id"));
+```
+</CodeGroup>
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/motor-analise/quickstart">
+    Crie sua primeira análise de CNPJ ou CPF
+  </Card>
+  <Card title="Erros" icon="triangle-exclamation" href="/motor-analise/erros">
+    Formato RFC 7807 e o registro completo de codes
+  </Card>
+  <Card title="Idempotência" icon="rotate" href="/motor-analise/idempotencia">
+    Header Idempotency-Key e retries seguros
+  </Card>
+</CardGroup>

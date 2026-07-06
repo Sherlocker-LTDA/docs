@@ -1,0 +1,46 @@
+---
+title: "bad_request"
+description: "Erro 400: requisição malformada ou elemento obrigatório ausente"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `400`
+
+## O que significa
+
+A requisição está malformada ou falta um elemento obrigatório que é verificado antes da validação de campos. O motivo exato vem no campo `detail`.
+
+## Causas comuns
+
+- Header `Idempotency-Key` ausente ou vazio no `POST /v1/analyses` (detail: `Idempotency-Key header required`).
+- `document` sem nenhum dígito (detail: `document is required and must contain a CPF (11 digits) or CNPJ (14 digits) — masked or unmasked accepted`).
+- `document` com tamanho errado: depois de remover a máscara, precisa ter 11 dígitos (CPF) ou 14 dígitos (CNPJ).
+- Dígito verificador inválido (detail: `CNPJ inválido` ou `CPF inválido`).
+
+## Como corrigir
+
+- Envie o header `Idempotency-Key` em todo `POST /v1/analyses`. Recomendamos um UUID, amarrado ao ID interno do job no seu sistema.
+- Envie `document` com 11 dígitos (CPF) ou 14 dígitos (CNPJ). Máscara é aceita: caracteres não numéricos são removidos.
+- Valide o dígito verificador do documento antes de enviar.
+- Depois de corrigir o body, use uma **nova** `Idempotency-Key`. A mesma key com body diferente retorna [`409 idempotency_conflict`](/problems/idempotency_conflict).
+
+## Exemplo
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/bad_request",
+  "title": "Bad Request",
+  "status": 400,
+  "code": "bad_request",
+  "detail": "Idempotency-Key header required",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+O texto de `detail` varia conforme a causa.
+
+## Relacionado
+
+- [Erros da API](/motor-analise/erros)
+- [Idempotência](/motor-analise/idempotencia)
+- [Quickstart](/motor-analise/quickstart)

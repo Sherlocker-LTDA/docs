@@ -1,0 +1,118 @@
+---
+title: "Cobrança"
+description: "Quando uma análise cobra tokens, quando reembolsa e como acompanhar o saldo"
+icon: "coins"
+---
+
+Cada análise do Motor de Análise consome **tokens do workspace**: o mesmo pool de tokens usado pela interface web do Sherlocker. Esta página explica quando o débito acontece, quando há reembolso e como conferir o saldo.
+
+<Warning>
+  **Preço em definição durante o beta.** Não fixe um custo por análise em código: o valor efetivamente cobrado vem sempre no campo `tokens_charged` da resposta. Todos os valores de tokens nesta página são **ilustrativos**.
+</Warning>
+
+## O débito acontece na criação
+
+Os tokens são debitados no momento do `POST /v1/analyses`, antes de a análise rodar. A resposta `202 Accepted` confirma o débito com dois campos:
+
+- `tokens_charged`: quanto foi debitado por esta análise
+- `balance`: saldo do workspace após o débito
+
+<Note>
+  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+</Note>
+
+<CodeGroup>
+```bash cURL
+curl -X POST "https://<API_HOST>/v1/analyses" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Idempotency-Key: 7f4a9c1e-2b3d-4e5f-8a9b-0c1d2e3f4a5b" \
+  -H "Content-Type: application/json" \
+  -d '{"document": "12345678000195"}'
+```
+
+```python Python
+import requests
+
+resp = requests.post(
+    "https://<API_HOST>/v1/analyses",
+    headers={
+        "Authorization": "Bearer slhk_sua_chave_aqui",
+        "Idempotency-Key": "7f4a9c1e-2b3d-4e5f-8a9b-0c1d2e3f4a5b",
+    },
+    json={"document": "12345678000195"}
+)
+print(resp.json())
+```
+
+```javascript Node.js
+const resp = await fetch("https://<API_HOST>/v1/analyses", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer slhk_sua_chave_aqui",
+    "Idempotency-Key": "7f4a9c1e-2b3d-4e5f-8a9b-0c1d2e3f4a5b",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ document: "12345678000195" }),
+});
+console.log(await resp.json());
+```
+</CodeGroup>
+
+**Resposta (202), com valores de tokens ilustrativos:**
+
+```json
+{
+  "id": "a1b2c3d4-0000-0000-0000-000000000001",
+  "status": "pending",
+  "tokens_charged": 10,
+  "balance": 990,
+  "poll_after_seconds": 2,
+  "request_id": "req-uuid"
+}
+```
+
+`tokens_charged` e `balance` são informados em melhor esforço: se a consulta de saldo falhar no momento da resposta, os campos podem estar ausentes, o que não altera a cobrança em si.
+
+Se o saldo do workspace for insuficiente, o `POST` falha com [`402 insufficient_tokens`](/problems/insufficient_tokens) e **nada é cobrado** — nenhuma análise é executada. O erro traz os campos `required` e `balance` para você saber quanto falta.
+
+## Reembolso automático em `failed`
+
+Se a análise terminar com `status: "failed"` (falha interna do motor), os tokens debitados na criação são **reembolsados automaticamente**. O reembolso é assíncrono — ele não aparece no body do `GET /v1/analyses/{id}`, mas fica registrado no extrato de tokens do workspace no app Sherlocker.
+
+## `completed` cobra sempre, inclusive verdict `incompleto`
+
+Uma análise que termina `completed` é cobrada **sempre**, mesmo quando o `verdict` é `incompleto`. O motivo: o motor executou o trabalho (rodou todos os blocos da engine) e `incompleto` significa apenas que uma ou mais fontes de dados externas ficaram indisponíveis durante a execução.
+
+Nesse caso, use o campo `coverage` da resposta do `GET /v1/analyses/{id}` para ver exatamente quais fontes falharam (`coverage[].status: "failed"`) e quais foram consultadas. Veja detalhes em [Ciclo de vida](/motor-analise/ciclo-de-vida).
+
+## Replay idempotente não cobra
+
+Reenviar o `POST` com a mesma `Idempotency-Key` e o mesmo body dentro da janela de 24 horas retorna `200 OK` com o body original da `202` — **sem nova cobrança**. É por isso que, em retries de timeout ou erro de rede, você deve reusar a mesma key. Veja [Idempotência](/motor-analise/idempotencia).
+
+## Resumo: cenário × cobrança
+
+| Cenário | HTTP | Cobra tokens? |
+|---|---|---|
+| Nova análise criada | `202` | Sim (débito na criação) |
+| Replay idempotente (mesma key + mesmo body) | `200` | Não |
+| Análise termina `failed` | — | Cobrada na criação e **reembolsada automaticamente** |
+| Análise termina `completed` com verdict `incompleto` | — | Sim (o trabalho foi executado) |
+| Requisição rejeitada com erro (`400`, `401`, `402`, `403`, `409`, `422`) | `4xx` | Não |
+
+## Saldo e recarga
+
+O saldo de tokens e a recarga (top-up) são gerenciados no **app Sherlocker**: a API `/v1` compartilha o mesmo pool de tokens do workspace. O extrato do workspace no app mostra os débitos por análise e os reembolsos de análises `failed`.
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Idempotência" icon="rotate" href="/motor-analise/idempotencia">
+    Retry seguro sem risco de cobrança dupla
+  </Card>
+  <Card title="Ciclo de vida" icon="arrows-spin" href="/motor-analise/ciclo-de-vida">
+    Status, verdicts e o campo coverage
+  </Card>
+  <Card title="Erros" icon="triangle-exclamation" href="/motor-analise/erros">
+    Formato RFC 7807 e o erro insufficient_tokens
+  </Card>
+</CardGroup>

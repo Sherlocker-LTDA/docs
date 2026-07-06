@@ -1,0 +1,70 @@
+---
+title: "Solicitar acesso à API"
+description: "Como pedir acesso ao beta fechado da API do Motor de Análise"
+icon: "unlock"
+---
+
+A API `/v1` do Motor de Análise está em **beta fechado**. O acesso é liberado por workspace, mediante solicitação ao time Sherlocker.
+
+<Note>
+  Esta página trata da API do **Motor de Análise** (análise cadastral e de risco de um CNPJ ou CPF). Não confundir com o Motor de Crédito (análise de borderô/CNAB), documentado em outra seção do site.
+</Note>
+
+## Features de acesso
+
+O acesso é controlado por duas features, habilitadas por workspace:
+
+| Feature | O que libera |
+|---------|--------------|
+| `analysis_engine` | Qualquer chamada à API `/v1` (inclui análises de CNPJ) |
+| `analysis_engine_pf` | Análises de CPF (`subject_type: "pf"`) — exigida **além** de `analysis_engine` |
+
+Sem a feature necessária, a API responde `403` com o código `feature_not_enabled`:
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/feature_not_enabled",
+  "title": "Feature Not Enabled",
+  "status": 403,
+  "code": "feature_not_enabled",
+  "detail": "The analysis_engine feature is not enabled for this workspace. To request access visit https://docs.sherlocker.com.br/api/access or contact support at https://docs.sherlocker.com.br/support.",
+  "request_access_url": "https://docs.sherlocker.com.br/api/access",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+## Como solicitar
+
+<Steps>
+  <Step title="Entre em contato">
+    Fale com o time Sherlocker. Veja como acionar o time em [Suporte](/support).
+  </Step>
+  <Step title="Informe os dados do pedido">
+    Inclua na mensagem:
+
+    - **Nome do workspace** que deve receber o acesso
+    - **Caso de uso** (o que você pretende analisar e em que fluxo)
+    - Se precisa de análises de **PJ (CNPJ)**, **PF (CPF)** ou ambas — análises de CPF exigem a feature adicional `analysis_engine_pf`
+  </Step>
+  <Step title="Aguarde a liberação">
+    O time habilita as features no seu workspace e confirma pelo mesmo canal.
+  </Step>
+</Steps>
+
+## Depois do acesso
+
+Com as features habilitadas, crie uma chave de API no app Sherlocker (Settings → API Keys) e siga o [Quickstart](/motor-analise/quickstart) para rodar a primeira análise.
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/motor-analise/quickstart">
+    Rode sua primeira análise em minutos
+  </Card>
+  <Card title="Autenticação" icon="key" href="/motor-analise/autenticacao">
+    Como usar sua chave `slhk_` no header Authorization
+  </Card>
+  <Card title="Suporte" icon="headset" href="/support">
+    Como falar com o time Sherlocker
+  </Card>
+</CardGroup>

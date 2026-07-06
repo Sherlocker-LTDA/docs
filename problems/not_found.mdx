@@ -1,0 +1,44 @@
+---
+title: "not_found"
+description: "Erro 404: análise inexistente ou pertencente a outro workspace"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `404`
+
+## O que significa
+
+A análise com o `id` informado em `GET /v1/analyses/{id}` não existe, ou pertence a um workspace diferente do da chave de API usada. Por segurança, os dois casos retornam o mesmo `404`.
+
+## Causas comuns
+
+- `id` incorreto, truncado ou com caractere a mais (o `id` é o UUID retornado na resposta `202` do `POST /v1/analyses`).
+- Chave de API de um workspace diferente do que criou a análise.
+- Consulta a um `id` gerado no seu sistema em vez do `id` retornado pela API.
+
+## Como corrigir
+
+- Use exatamente o campo `id` do body da resposta `202` de criação.
+- Confirme que a chave de API pertence ao mesmo workspace que criou a análise.
+- Se você usa múltiplos workspaces, armazene o `id` da análise junto da referência do workspace que a criou.
+
+## Exemplo
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/not_found",
+  "title": "Not Found",
+  "status": 404,
+  "code": "not_found",
+  "detail": "Analysis run not found.",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+O texto de `detail` varia conforme a causa.
+
+## Relacionado
+
+- [Erros da API](/motor-analise/erros)
+- [Ciclo de vida da análise](/motor-analise/ciclo-de-vida)
+- [Quickstart](/motor-analise/quickstart)

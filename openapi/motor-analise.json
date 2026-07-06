@@ -1,0 +1,638 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Motor de Análise - API v1",
+    "description": "API pública do Motor de Análise: cria análises de risco assíncronas de CNPJ (PJ) e CPF (PF) e consulta o resultado por polling. Autenticação por chave de API (Bearer slhk_) no header. Erros em RFC 7807 (application/problem+json). Em beta: requer as features analysis_engine (e analysis_engine_pf para CPF) habilitadas no workspace.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.sherlocker.com.br",
+      "description": "Beta - host definitivo sera confirmado na promocao a producao; durante o beta use o host fornecido pelo time Sherlocker"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Chave de API do workspace (prefixo slhk_), enviada no header: Authorization: Bearer slhk_sua_chave_aqui"
+      }
+    },
+    "schemas": {
+      "CreateAnalysisRequest": {
+        "type": "object",
+        "required": ["document"],
+        "properties": {
+          "document": {
+            "type": "string",
+            "description": "CNPJ (14 dígitos) ou CPF (11 dígitos) do analisado, com ou sem máscara.",
+            "example": "12345678000195"
+          },
+          "subject_type": {
+            "type": "string",
+            "enum": ["pj", "pf"],
+            "description": "Tipo do analisado. Auto-detectado pelo tamanho do documento (14 → pj, 11 → pf). Se enviado, precisa ser compatível com o documento."
+          },
+          "engine_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID da engine de análise a usar. Omitido: usa a engine padrão do workspace ou o template do sistema (PJ/PF)."
+          },
+          "purpose": {
+            "type": "string",
+            "description": "Finalidade da análise (texto livre). Opcional; gravada no log de auditoria PF em análises de CPF."
+          },
+          "legal_basis": {
+            "type": "string",
+            "enum": ["consentimento", "legitimo_interesse", "cumprimento_obrigacao_legal", "protecao_credito"],
+            "description": "Base legal LGPD para tratamento de dados pessoais. Opcional; gravada no log de auditoria PF em análises de CPF."
+          }
+        }
+      },
+      "CreateAnalysisAccepted": {
+        "type": "object",
+        "required": ["id", "status"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID da análise criada. Use no GET /v1/analyses/{id}."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending"],
+            "description": "Sempre pending imediatamente após a criação."
+          },
+          "tokens_charged": {
+            "type": "number",
+            "description": "Tokens debitados do saldo do workspace na criação."
+          },
+          "balance": {
+            "type": "number",
+            "description": "Saldo de tokens do workspace após o débito."
+          },
+          "poll_after_seconds": {
+            "type": "number",
+            "description": "Sugestão de espera (segundos) antes do primeiro poll."
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Identificador da requisição para rastreio e suporte. Igual ao header x-request-id da resposta."
+          }
+        }
+      },
+      "AnalysisEvidence": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "Campo avaliado pela regra."
+          },
+          "value": {
+            "type": "string",
+            "description": "Valor encontrado na fonte de dados."
+          },
+          "expected": {
+            "type": "string",
+            "description": "Valor esperado pela regra do bloco."
+          },
+          "result": {
+            "type": "string",
+            "description": "Resultado da comparação (ex.: match, divergent)."
+          }
+        }
+      },
+      "AnalysisBlock": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identificador do bloco (ex.: SITUACAO_CADASTRAL_CNPJ)."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pass", "alert", "blocked", "unavailable"],
+            "description": "Resultado do bloco."
+          },
+          "detail": {
+            "type": "string",
+            "description": "Resumo legível do achado do bloco."
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalysisEvidence"
+            },
+            "description": "Evidências de suporte, quando disponíveis."
+          }
+        }
+      },
+      "AnalysisCoverage": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "Identificador da fonte de dados consultada."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["fetched", "cached", "failed"],
+            "description": "Resultado da busca na fonte."
+          },
+          "fetched_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Timestamp ISO 8601 de quando o dado foi obtido, se conhecido."
+          }
+        }
+      },
+      "Analysis": {
+        "type": "object",
+        "required": ["id", "status", "subject_type", "document", "created_at"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID da análise."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "running", "completed", "failed"],
+            "description": "Estado do ciclo de vida da análise."
+          },
+          "subject_type": {
+            "type": "string",
+            "enum": ["pj", "pf"],
+            "description": "Tipo do analisado."
+          },
+          "document": {
+            "type": "string",
+            "description": "Documento (CNPJ/CPF) analisado, apenas dígitos."
+          },
+          "verdict": {
+            "type": "string",
+            "enum": ["aprovado", "alerta", "reprovado", "incompleto"],
+            "nullable": true,
+            "description": "Veredito final de risco; null enquanto pending/running. incompleto = algum bloco ficou unavailable (ver coverage)."
+          },
+          "blocks": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AnalysisBlock"
+            },
+            "description": "Resultados individuais dos blocos; null até a análise terminar."
+          },
+          "coverage": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/AnalysisCoverage"
+            },
+            "description": "Relatório de cobertura das fontes de dados; null até a análise terminar."
+          },
+          "tokens_charged": {
+            "type": "number",
+            "description": "Tokens debitados por esta análise."
+          },
+          "balance": {
+            "type": "number",
+            "description": "Saldo de tokens do workspace após o débito."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp ISO 8601 de criação."
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Timestamp ISO 8601 de término (completed ou failed); null enquanto em andamento."
+          },
+          "poll_after_seconds": {
+            "type": "number",
+            "description": "Segundos a aguardar antes do próximo poll. Presente apenas em estados não-terminais (pending/running)."
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Identificador da requisição para rastreio e suporte."
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "required": ["type", "title", "status", "code"],
+        "description": "Erro no formato RFC 7807 (application/problem+json). Use o campo code para tratamento programático; type é apenas identificador.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "URI que identifica o tipo do problema (https://docs.sherlocker.com.br/problems/<code>)."
+          },
+          "title": {
+            "type": "string",
+            "description": "Resumo curto do tipo do problema."
+          },
+          "status": {
+            "type": "integer",
+            "description": "Status HTTP desta ocorrência."
+          },
+          "code": {
+            "type": "string",
+            "description": "Código estável para tratamento programático (ex.: insufficient_tokens)."
+          },
+          "detail": {
+            "type": "string",
+            "description": "Explicação legível específica desta ocorrência."
+          },
+          "instance": {
+            "type": "string",
+            "description": "Identificador da ocorrência (/v1?request_id=<request_id>)."
+          },
+          "errors": {
+            "type": "array",
+            "description": "Erros de validação por campo. Presente apenas em validation_error (400).",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": {
+            "type": "number",
+            "description": "Tokens necessários. Presente apenas em insufficient_tokens (402)."
+          },
+          "balance": {
+            "type": "number",
+            "description": "Saldo atual de tokens. Presente apenas em insufficient_tokens (402)."
+          },
+          "request_access_url": {
+            "type": "string",
+            "description": "Onde solicitar acesso. Presente apenas em feature_not_enabled (403)."
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/v1/analyses": {
+      "post": {
+        "summary": "Criar análise",
+        "description": "Cria uma análise de risco assíncrona para um CNPJ (PJ) ou CPF (PF). O tipo é auto-detectado pelo tamanho do documento (14 → pj, 11 → pf) ou definido em subject_type. Análises de CPF exigem a feature analysis_engine_pf. Os tokens são debitados na criação; análises que terminam em failed são reembolsadas automaticamente. Retorna 202 na primeira submissão e 200 no replay idempotente (mesma Idempotency-Key + mesmo body em até 24h, sem nova cobrança).",
+        "operationId": "createAnalysis",
+        "tags": ["Análises"],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Chave única por requisição lógica (UUID recomendado). Obrigatória. Reenviar a mesma chave com o mesmo body em até 24h devolve a resposta original (HTTP 200) sem nova cobrança; mesma chave com body diferente devolve 409."
+          },
+          {
+            "name": "x-request-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identificador de rastreio opcional fornecido pelo cliente. Gerado pelo servidor se omitido; ecoado no header da resposta."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAnalysisRequest"
+              },
+              "examples": {
+                "pj": {
+                  "summary": "Análise de CNPJ (PJ)",
+                  "value": {
+                    "document": "12345678000195",
+                    "subject_type": "pj",
+                    "purpose": "due diligence de fornecedor"
+                  }
+                },
+                "pf": {
+                  "summary": "Análise de CPF (PF)",
+                  "value": {
+                    "document": "111.444.777-35",
+                    "subject_type": "pf",
+                    "legal_basis": "protecao_credito",
+                    "purpose": "onboarding KYC"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Análise aceita e enfileirada para processamento. Tokens debitados.",
+            "headers": {
+              "x-request-id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Identificador da requisição (ecoado ou gerado)."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateAnalysisAccepted"
+                },
+                "example": {
+                  "id": "a1b2c3d4-0000-0000-0000-000000000001",
+                  "status": "pending",
+                  "tokens_charged": 10,
+                  "balance": 990,
+                  "poll_after_seconds": 2,
+                  "request_id": "3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Replay idempotente: mesma Idempotency-Key + mesmo body dentro da janela de 24h. Corpo idêntico ao da resposta 202 original; nenhum token adicional é cobrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateAnalysisAccepted"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requisição inválida: header Idempotency-Key ausente (bad_request), documento sem dígitos / tamanho errado / dígito verificador inválido (bad_request) ou campo com tipo/enum inválido (validation_error, com errors[]).",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/bad_request",
+                  "title": "Bad Request",
+                  "status": 400,
+                  "code": "bad_request",
+                  "detail": "Idempotency-Key header required",
+                  "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Chave de API ausente, malformada, inválida ou revogada.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/unauthorized",
+                  "title": "Unauthorized",
+                  "status": 401,
+                  "code": "unauthorized",
+                  "detail": "Authentication is required to access this resource.",
+                  "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Saldo de tokens do workspace insuficiente. Campos extras: required (tokens necessários) e balance (saldo atual).",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/insufficient_tokens",
+                  "title": "Payment Required",
+                  "status": 402,
+                  "code": "insufficient_tokens",
+                  "detail": "Insufficient tokens: 5 available, 10 required",
+                  "required": 10,
+                  "balance": 5,
+                  "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Feature não habilitada no workspace: analysis_engine (qualquer chamada /v1) ou analysis_engine_pf (análises de CPF). Campo extra request_access_url indica onde solicitar acesso.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/feature_not_enabled",
+                  "title": "Feature Not Enabled",
+                  "status": 403,
+                  "code": "feature_not_enabled",
+                  "detail": "The analysis_engine feature is not enabled for this workspace. To request access visit https://docs.sherlocker.com.br/api/access or contact support at https://docs.sherlocker.com.br/support.",
+                  "request_access_url": "https://docs.sherlocker.com.br/api/access",
+                  "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflito de idempotência: requisição concorrente com a mesma Idempotency-Key em andamento, ou mesma chave reutilizada com body diferente.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/idempotency_conflict",
+                  "title": "Conflict",
+                  "status": 409,
+                  "code": "idempotency_conflict",
+                  "detail": "A request with the same idempotency key is already in progress or completed.",
+                  "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Nenhuma engine disponível para a requisição: workspace sem engine padrão e sem template aplicável, engine_id inexistente/arquivada, ou subject_type incompatível com a engine.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/no_engine",
+                  "title": "Unprocessable Entity",
+                  "status": 422,
+                  "code": "no_engine",
+                  "detail": "No analysis engine is configured or the engine cannot process this request.",
+                  "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/analyses/{id}": {
+      "get": {
+        "summary": "Consultar análise",
+        "description": "Retorna o estado atual e o resultado de uma análise. Enquanto pending/running, a resposta inclui poll_after_seconds no body e o header Retry-After com o mesmo valor: aguarde esse intervalo antes do próximo poll. Quando completed/failed, traz verdict, blocks e coverage.",
+        "operationId": "getAnalysis",
+        "tags": ["Análises"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "UUID da análise (campo id da resposta do POST)."
+          },
+          {
+            "name": "x-request-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identificador de rastreio opcional fornecido pelo cliente. Gerado pelo servidor se omitido; ecoado no header da resposta."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado atual da análise. Header Retry-After presente apenas em estados não-terminais (pending/running).",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Segundos a aguardar antes do próximo poll. Presente apenas quando status é pending ou running."
+              },
+              "x-request-id": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Identificador da requisição (ecoado ou gerado)."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Analysis"
+                },
+                "examples": {
+                  "running": {
+                    "summary": "Em processamento",
+                    "value": {
+                      "id": "a1b2c3d4-0000-0000-0000-000000000001",
+                      "status": "running",
+                      "subject_type": "pj",
+                      "document": "12345678000195",
+                      "verdict": null,
+                      "blocks": null,
+                      "coverage": null,
+                      "created_at": "2026-06-30T10:00:00Z",
+                      "finished_at": null,
+                      "poll_after_seconds": 2,
+                      "request_id": "3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                    }
+                  },
+                  "completed": {
+                    "summary": "Concluída",
+                    "value": {
+                      "id": "a1b2c3d4-0000-0000-0000-000000000001",
+                      "status": "completed",
+                      "subject_type": "pj",
+                      "document": "12345678000195",
+                      "verdict": "aprovado",
+                      "blocks": [
+                        {
+                          "id": "SITUACAO_CADASTRAL_CNPJ",
+                          "status": "pass",
+                          "detail": "CNPJ ativo na Receita Federal.",
+                          "evidence": []
+                        },
+                        {
+                          "id": "SANCAO_NACIONAL",
+                          "status": "pass",
+                          "detail": "Não encontrado em listas de sanções nacionais.",
+                          "evidence": []
+                        }
+                      ],
+                      "coverage": [
+                        {
+                          "source": "company",
+                          "status": "fetched",
+                          "fetched_at": "2026-06-30T10:00:00Z"
+                        },
+                        {
+                          "source": "serasa",
+                          "status": "fetched",
+                          "fetched_at": "2026-06-30T10:00:05Z"
+                        }
+                      ],
+                      "created_at": "2026-06-30T10:00:00Z",
+                      "finished_at": "2026-06-30T10:00:30Z",
+                      "request_id": "3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Chave de API ausente, malformada, inválida ou revogada.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Análise inexistente ou pertencente a outro workspace.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/not_found",
+                  "title": "Not Found",
+                  "status": 404,
+                  "code": "not_found",
+                  "detail": "Analysis run not found",
+                  "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+---
+title: "idempotency_conflict"
+description: "Erro 409: conflito de Idempotency-Key (em andamento ou body diferente)"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `409`
+
+## O que significa
+
+A `Idempotency-Key` enviada conflita com uma requisição anterior. Há dois cenários:
+
+1. **Requisição concorrente**: outra requisição com a mesma key ainda está em andamento. A primeira vence; a concorrente recebe `409` enquanto a original não termina.
+2. **Mesma key, body diferente**: uma requisição anterior já usou essa key com um body diferente dentro da janela de deduplicação de 24 horas.
+
+Para referência: mesma key + **mesmo** body dentro de 24 horas não é erro, retorna `200` com o body original da `202`, sem nova cobrança.
+
+## Causas comuns
+
+- Retries automáticos disparando em paralelo com a requisição original ainda em voo.
+- Reuso da mesma key após corrigir um erro de validação (o body mudou, a key não).
+- Key gerada de forma não única no seu sistema (por exemplo, key fixa por cliente em vez de por job).
+
+## Como corrigir
+
+- **Concorrência**: não reenvie o POST. Aguarde a requisição original terminar e consulte `GET /v1/analyses/{id}` usando o `id` da resposta `202` original.
+- **Body diferente**: se a mudança de body é intencional (nova análise), gere uma **nova** `Idempotency-Key`.
+- **Retry seguro**: em timeout ou erro 5xx de rede, reenvie com a **mesma** key (nunca gere key nova em retry, há risco de cobrança dupla). Em 4xx de validação, corrija o body e use key **nova**.
+- Gere a key como UUID e amarre ao ID interno do job no seu sistema, garantindo uma key por análise pretendida.
+
+## Exemplo
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/idempotency_conflict",
+  "title": "Conflict",
+  "status": 409,
+  "code": "idempotency_conflict",
+  "detail": "A request with this Idempotency-Key is already in progress.",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+O texto de `detail` varia conforme o cenário.
+
+## Relacionado
+
+- [Erros da API](/motor-analise/erros)
+- [Idempotência](/motor-analise/idempotencia)
+- [Ciclo de vida da análise](/motor-analise/ciclo-de-vida)

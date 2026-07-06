@@ -271,6 +271,67 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Motor de Análise",
+        "icon": "gauge-high",
+        "groups": [
+          {
+            "group": "Começando",
+            "pages": [
+              "motor-analise/introducao",
+              "motor-analise/quickstart",
+              "motor-analise/autenticacao"
+            ]
+          },
+          {
+            "group": "Conceitos",
+            "pages": [
+              "motor-analise/ciclo-de-vida",
+              "motor-analise/idempotencia",
+              "motor-analise/cobranca",
+              "motor-analise/engines"
+            ]
+          },
+          {
+            "group": "Referência",
+            "pages": [
+              "motor-analise/blocos",
+              "motor-analise/erros"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "openapi": "/openapi/motor-analise.json",
+            "pages": [
+              "POST /v1/analyses",
+              "GET /v1/analyses/{id}"
+            ]
+          },
+          {
+            "group": "Códigos de erro",
+            "pages": [
+              "problems/validation_error",
+              "problems/bad_request",
+              "problems/unauthorized",
+              "problems/insufficient_tokens",
+              "problems/feature_not_enabled",
+              "problems/forbidden",
+              "problems/not_found",
+              "problems/idempotency_conflict",
+              "problems/no_engine",
+              "problems/http_error",
+              "problems/server_error"
+            ]
+          },
+          {
+            "group": "Acesso e suporte",
+            "pages": [
+              "api/access",
+              "support"
+            ]
+          }
+        ]
       }
     ]
   }
