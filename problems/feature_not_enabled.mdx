@@ -8,11 +8,11 @@ icon: "circle-exclamation"
 
 ## O que significa
 
-Uma feature obrigatória não está habilitada para o workspace. A API `/v1` do Motor de Análise está em beta e o acesso é liberado por workspace, por duas features distintas:
+Uma feature obrigatória não está habilitada para o workspace. A API `/v1` dos Motores de Análise está em beta e o acesso é liberado por workspace, por duas features distintas:
 
 | Feature | Quando é exigida |
 |---|---|
-| `analysis_engine` | Qualquer chamada à API `/v1`. |
+| `analysis_engine` | Qualquer chamada à API `/v1` — os dois motores, incluindo `POST /v1/operations` (borderô). |
 | `analysis_engine_pf` | Análises de CPF (`subject_type: "pf"`), exigida em conjunto com `analysis_engine`. |
 
 Ou seja: um workspace pode ter acesso a análises de CNPJ (PJ) e ainda assim receber `feature_not_enabled` ao enviar um CPF, se `analysis_engine_pf` não estiver habilitada.
@@ -56,4 +56,4 @@ A resposta inclui o campo extra `request_access_url`, apontando para a página d
 
 - [Erros da API](/motor-analise/erros)
 - [Solicitar acesso](/api/access)
-- [Introdução ao Motor de Análise](/motor-analise/introducao)
+- [Motores de Análise](/motores/introducao)

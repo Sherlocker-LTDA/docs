@@ -17,7 +17,8 @@ Use o campo `code` para tratamento programático. O `type` é um identificador, 
 - `subject_type` com valor fora do enum (`pj` | `pf`).
 - `legal_basis` com valor fora do enum (`consentimento` | `legitimo_interesse` | `cumprimento_obrigacao_legal` | `protecao_credito`).
 - Campo enviado com o tipo errado (por exemplo, `document` como número em vez de string).
-- Campo obrigatório vazio (por exemplo, `document` vazio).
+- Campo obrigatório vazio (por exemplo, `document` vazio no `POST /v1/analyses`).
+- **Motor de Borderô** (`POST /v1/operations`): `cnab_base64` ausente ou vazio, base64 inválido, arquivo que não parseia como CNAB 400 remessa, ou arquivo acima do limite (16 MB decodificado para o CNAB; 32 MB para o ZIP de NFe). Nada é cobrado — o débito só acontece após o parse bem-sucedido do CNAB.
 
 ## Como corrigir
 

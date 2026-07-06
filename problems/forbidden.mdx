@@ -10,6 +10,10 @@ icon: "circle-exclamation"
 
 O workspace ou usuário autenticado não tem permissão para acessar o recurso solicitado. É o 403 genérico da API, usado quando a negação **não** é causada por feature desabilitada. Quando o motivo for uma feature do beta, a API retorna [`feature_not_enabled`](/problems/feature_not_enabled), que traz o campo `request_access_url`.
 
+<Note>
+  `engine_id` de uma engine de outro workspace **não** retorna `forbidden`: retorna [`404 not_found`](/problems/not_found), para não revelar a existência de engines de outros workspaces.
+</Note>
+
 ## Causas comuns
 
 - Chave de API de um workspace sem permissão sobre o recurso solicitado.

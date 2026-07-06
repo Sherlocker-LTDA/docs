@@ -12,14 +12,16 @@ A requisição está malformada ou falta um elemento obrigatório que é verific
 
 ## Causas comuns
 
-- Header `Idempotency-Key` ausente ou vazio no `POST /v1/analyses` (detail: `Idempotency-Key header required`).
-- `document` sem nenhum dígito (detail: `document is required and must contain a CPF (11 digits) or CNPJ (14 digits) — masked or unmasked accepted`).
-- `document` com tamanho errado: depois de remover a máscara, precisa ter 11 dígitos (CPF) ou 14 dígitos (CNPJ).
-- Dígito verificador inválido (detail: `CNPJ inválido` ou `CPF inválido`).
+- Header `Idempotency-Key` ausente ou vazio no `POST /v1/analyses` ou no `POST /v1/operations` (detail: `Idempotency-Key header required`).
+- **Motor de CPF/CNPJ:** `document` sem nenhum dígito (detail: `document is required and must contain a CPF (11 digits) or CNPJ (14 digits) — masked or unmasked accepted`).
+- **Motor de CPF/CNPJ:** `document` com tamanho errado: depois de remover a máscara, precisa ter 11 dígitos (CPF) ou 14 dígitos (CNPJ).
+- **Motor de CPF/CNPJ:** dígito verificador inválido (detail: `CNPJ inválido` ou `CPF inválido`).
+
+No Motor de Borderô, problemas com o conteúdo do body (base64 inválido, CNAB que não parseia) retornam [`400 validation_error`](/problems/validation_error).
 
 ## Como corrigir
 
-- Envie o header `Idempotency-Key` em todo `POST /v1/analyses`. Recomendamos um UUID, amarrado ao ID interno do job no seu sistema.
+- Envie o header `Idempotency-Key` em todo POST. Recomendamos um UUID, amarrado ao ID interno do job (ou do borderô) no seu sistema.
 - Envie `document` com 11 dígitos (CPF) ou 14 dígitos (CNPJ). Máscara é aceita: caracteres não numéricos são removidos.
 - Valide o dígito verificador do documento antes de enviar.
 - Depois de corrigir o body, use uma **nova** `Idempotency-Key`. A mesma key com body diferente retorna [`409 idempotency_conflict`](/problems/idempotency_conflict).

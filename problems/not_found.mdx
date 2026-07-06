@@ -1,6 +1,6 @@
 ---
 title: "not_found"
-description: "Erro 404: análise inexistente ou pertencente a outro workspace"
+description: "Erro 404: análise ou operação inexistente, ou pertencente a outro workspace"
 icon: "circle-exclamation"
 ---
 
@@ -8,19 +8,25 @@ icon: "circle-exclamation"
 
 ## O que significa
 
-A análise com o `id` informado em `GET /v1/analyses/{id}` não existe, ou pertence a um workspace diferente do da chave de API usada. Por segurança, os dois casos retornam o mesmo `404`.
+O recurso solicitado não existe ou pertence a um workspace diferente do da chave de API usada. Por segurança, os dois casos retornam o mesmo `404`. Vale para:
+
+1. **Análise**: o `id` informado em `GET /v1/analyses/{id}` não existe ou é de outro workspace.
+2. **Operação**: o `id` informado em `GET /v1/operations/{id}` não existe ou é de outro workspace.
+3. **Engine**: o `engine_id` informado no POST não existe, ou a engine pertence a outro workspace — a API não revela a existência de engines de outros workspaces.
 
 ## Causas comuns
 
-- `id` incorreto, truncado ou com caractere a mais (o `id` é o UUID retornado na resposta `202` do `POST /v1/analyses`).
-- Chave de API de um workspace diferente do que criou a análise.
+- `id` incorreto, truncado ou com caractere a mais (o `id` é o UUID retornado na resposta `202` do POST de criação).
+- Chave de API de um workspace diferente do que criou a análise/operação.
 - Consulta a um `id` gerado no seu sistema em vez do `id` retornado pela API.
+- `engine_id` de uma engine de outro workspace.
 
 ## Como corrigir
 
 - Use exatamente o campo `id` do body da resposta `202` de criação.
-- Confirme que a chave de API pertence ao mesmo workspace que criou a análise.
-- Se você usa múltiplos workspaces, armazene o `id` da análise junto da referência do workspace que a criou.
+- Confirme que a chave de API pertence ao mesmo workspace que criou a análise/operação.
+- Confira o `engine_id`: ele deve ser o UUID de uma engine do seu workspace (ou omita o campo para usar a resolução automática).
+- Se você usa múltiplos workspaces, armazene o `id` junto da referência do workspace que o criou.
 
 ## Exemplo
 
@@ -41,4 +47,4 @@ O texto de `detail` varia conforme a causa.
 
 - [Erros da API](/motor-analise/erros)
 - [Ciclo de vida da análise](/motor-analise/ciclo-de-vida)
-- [Quickstart](/motor-analise/quickstart)
+- [Ciclo de vida da operação](/credito/ciclo-de-vida)

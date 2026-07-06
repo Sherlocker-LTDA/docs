@@ -1,10 +1,10 @@
 ---
 title: "Erros"
-description: "Índice de erros da API do Motor de Análise: formato RFC 7807, códigos e tratamento"
+description: "Referência comum de erros dos Motores de Análise: formato RFC 7807, códigos e tratamento"
 icon: "triangle-exclamation"
 ---
 
-Toda resposta de erro da API `/v1` segue o [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) e é retornada com `Content-Type: application/problem+json`. Isso vale para os dois endpoints (`POST /v1/analyses` e `GET /v1/analyses/{id}`).
+Toda resposta de erro da API `/v1` segue o [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) e é retornada com `Content-Type: application/problem+json`. Isso vale para os **dois motores** — Motor de CPF/CNPJ (`POST /v1/analyses`, `GET /v1/analyses/{id}`) e Motor de Borderô (`POST /v1/operations`, `GET /v1/operations/{id}`): mesmo formato, mesmos códigos.
 
 <Note>
   Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
@@ -48,21 +48,21 @@ O `request_id` em `instance` é o mesmo que você enviou no header opcional `x-r
 
 ## Registro de códigos
 
-Cada código tem uma página própria em `/problems/<code>`:
+Cada código tem uma página própria em `/problems/<code>`, válida para os dois motores. A coluna "quando acontece" indica os gatilhos em cada um:
 
 | `code` | HTTP | Quando acontece | Campos extras |
 |---|---|---|---|
-| [`validation_error`](/problems/validation_error) | 400 | Campo do body falhou validação (tipo/enum) | `errors[]` |
-| [`bad_request`](/problems/bad_request) | 400 | `Idempotency-Key` ausente; `document` sem dígitos, com tamanho errado ou dígito verificador inválido | — |
-| [`unauthorized`](/problems/unauthorized) | 401 | Header `Authorization` ausente/malformado; chave de API inválida ou revogada | — |
-| [`insufficient_tokens`](/problems/insufficient_tokens) | 402 | Saldo de tokens do workspace insuficiente | `required`, `balance` |
-| [`feature_not_enabled`](/problems/feature_not_enabled) | 403 | Feature `analysis_engine` (qualquer chamada `/v1`) ou `analysis_engine_pf` (análises de CPF) desabilitada no workspace | `request_access_url` |
-| [`forbidden`](/problems/forbidden) | 403 | 403 genérico, não relacionado a feature | — |
-| [`not_found`](/problems/not_found) | 404 | Run inexistente ou pertencente a outro workspace | — |
-| [`idempotency_conflict`](/problems/idempotency_conflict) | 409 | Mesma `Idempotency-Key` com requisição ainda em andamento, ou mesma key com body diferente | — |
-| [`no_engine`](/problems/no_engine) | 422 | Sem engine configurada no workspace; `engine_id` inválido/arquivado; `subject_type` incompatível com a engine | — |
-| [`http_error`](/problems/http_error) | varia | Fallback genérico para HTTP não mapeado em um código mais específico | — |
-| [`server_error`](/problems/server_error) | 500 | Erro inesperado no servidor; use o `instance` (request_id) ao acionar o suporte | — |
+| [`validation_error`](/problems/validation_error) | 400 | **CPF/CNPJ:** campo do body com tipo/enum inválido. **Borderô:** `cnab_base64` ausente, base64 inválido, CNAB que não parseia, arquivo acima do limite | `errors[]` |
+| [`bad_request`](/problems/bad_request) | 400 | **Ambos:** `Idempotency-Key` ausente. **CPF/CNPJ:** `document` sem dígitos, tamanho errado ou dígito verificador inválido | — |
+| [`unauthorized`](/problems/unauthorized) | 401 | **Ambos:** header `Authorization` ausente/malformado; chave inválida ou revogada | — |
+| [`insufficient_tokens`](/problems/insufficient_tokens) | 402 | **Ambos:** saldo do workspace insuficiente — no borderô, o custo é por entidade única (cedente + sacados únicos) | `required`, `balance` |
+| [`feature_not_enabled`](/problems/feature_not_enabled) | 403 | **Ambos:** feature `analysis_engine` desabilitada. **CPF/CNPJ:** `analysis_engine_pf` para análises de CPF | `request_access_url` |
+| [`forbidden`](/problems/forbidden) | 403 | **Ambos:** 403 genérico, não relacionado a feature | — |
+| [`not_found`](/problems/not_found) | 404 | **Ambos:** análise/operação inexistente ou de outro workspace; `engine_id` inexistente ou de outro workspace | — |
+| [`idempotency_conflict`](/problems/idempotency_conflict) | 409 | **Ambos:** mesma `Idempotency-Key` em andamento, ou reutilizada com conteúdo diferente — no CPF/CNPJ o hash cobre o body; no borderô, o SHA-256 dos bytes dos arquivos + `engine_id` + `legal_basis` | — |
+| [`no_engine`](/problems/no_engine) | 422 | **Ambos:** engine arquivada ou incompatível; nenhuma engine disponível. **Borderô:** engine sem nenhum bloco ativo | — |
+| [`http_error`](/problems/http_error) | varia | **Ambos:** fallback genérico para HTTP não mapeado em um código mais específico | — |
+| [`server_error`](/problems/server_error) | 500 | **Ambos:** erro inesperado no servidor; use o `instance` (request_id) ao acionar o suporte | — |
 
 <Note>
   O limite global da API é de 100 requisições por minuto por IP. Exceder o limite retorna `429` — honre o header `Retry-After` antes de tentar de novo.
@@ -91,9 +91,11 @@ Lista cada campo que falhou e a mensagem da restrição:
 }
 ```
 
+No Motor de Borderô, os mesmos `errors[]` reportam problemas com os arquivos (ex.: `{ "field": "cnab_base64", "message": "file is not a valid CNAB 400 remessa" }`). Nesse caso nada é cobrado — no borderô, o débito só acontece após o parse bem-sucedido do CNAB.
+
 ### `insufficient_tokens` — `required` e `balance`
 
-Informa quantos tokens a análise exigia (`required`) e o saldo atual do workspace (`balance`). Os valores abaixo são **ilustrativos** — o custo por análise está em definição durante o beta:
+Informa quantos tokens a requisição exigia (`required`) e o saldo atual do workspace (`balance`). No Motor de CPF/CNPJ, `required` é o custo da análise; no Motor de Borderô, as entidades únicas do arquivo vezes o preço unitário. Os valores abaixo são **ilustrativos** — o preço está em definição durante o beta:
 
 ```json
 {
@@ -101,14 +103,14 @@ Informa quantos tokens a análise exigia (`required`) e o saldo atual do workspa
   "title": "Payment Required",
   "status": 402,
   "code": "insufficient_tokens",
-  "detail": "Insufficient tokens: 50 available, 100 required",
-  "required": 100,
-  "balance": 50,
+  "detail": "Insufficient tokens: 5 available, 12 required",
+  "required": 12,
+  "balance": 5,
   "instance": "/v1?request_id=req-uuid-here"
 }
 ```
 
-O saldo é gerenciado no app Sherlocker — veja [Cobrança](/motor-analise/cobranca).
+O saldo é gerenciado no app Sherlocker — veja [Cobrança do Motor de CPF/CNPJ](/motor-analise/cobranca) e [Cobrança do Motor de Borderô](/credito/cobranca).
 
 ### `feature_not_enabled` — `request_access_url`
 
@@ -128,11 +130,11 @@ Aponta para a página de solicitação de acesso ao beta:
 
 ## Tratando erros no código
 
-Faça o branching pelo campo `code`. Regras práticas:
+Faça o branching pelo campo `code` — o tratamento é o mesmo nos dois motores. Regras práticas:
 
-- `validation_error` / `bad_request`: corrija a requisição. Se for reenviar um POST corrigido, use uma `Idempotency-Key` **nova** (a mesma key com body diferente retorna `409`).
-- `idempotency_conflict` com requisição em andamento: não reenvie o POST — consulte `GET /v1/analyses/{id}` com o `id` da resposta 202 original.
-- `server_error` (e timeouts de rede): reenvie **com a mesma** `Idempotency-Key`, com back-off. Detalhes em [Idempotência](/motor-analise/idempotencia).
+- `validation_error` / `bad_request`: corrija a requisição. Se for reenviar um POST com conteúdo diferente, use uma `Idempotency-Key` **nova** (a mesma key com conteúdo diferente retorna `409`).
+- `idempotency_conflict` com requisição em andamento: não reenvie o POST — consulte via `GET` (`/v1/analyses/{id}` ou `/v1/operations/{id}`) com o `id` da resposta 202 original.
+- `server_error` (e timeouts de rede): reenvie **com a mesma** `Idempotency-Key`, com back-off. Detalhes em [Idempotência (CPF/CNPJ)](/motor-analise/idempotencia) e [Idempotência (Borderô)](/credito/idempotencia).
 
 <CodeGroup>
 ```python Python
@@ -150,11 +152,12 @@ class SherlockerApiError(Exception):
 
 
 def handle_sherlocker_error(resp: requests.Response) -> None:
+    """Tratamento unico para /v1/analyses e /v1/operations."""
     problem = resp.json()
     code = problem.get("code")
 
     if code == "validation_error":
-        # Corrija a requisicao: veja problem["errors"]
+        # Corrija a requisicao: veja problem["errors"]; key NOVA no reenvio
         msgs = ", ".join(e["message"] for e in problem.get("errors", []))
         raise SherlockerApiError({**problem, "detail": f"Validacao falhou: {msgs}"})
 
@@ -176,14 +179,14 @@ def handle_sherlocker_error(resp: requests.Response) -> None:
         raise SherlockerApiError(problem)
 
     if code == "idempotency_conflict":
-        # Consulte o run existente em vez de repetir o POST
+        # Consulte o run/operacao existente em vez de repetir o POST
         raise SherlockerApiError(problem)
 
     if code in ("forbidden", "not_found", "no_engine"):
         raise SherlockerApiError(problem)
 
     # server_error / http_error / desconhecido:
-    # retry com back-off; inclua problem["instance"] ao acionar o suporte
+    # retry com a MESMA key e back-off; inclua problem["instance"] no suporte
     raise SherlockerApiError(problem)
 ```
 
@@ -195,13 +198,14 @@ def handle_sherlocker_error(resp: requests.Response) -> None:
  *   errors: [{ field, message }]        (validation_error)
  *   required, balance                   (insufficient_tokens)
  *   request_access_url                  (feature_not_enabled)
+ * Tratamento unico para /v1/analyses e /v1/operations.
  */
 async function handleSherlockerError(res) {
   const problem = await res.json();
 
   switch (problem.code) {
     case "validation_error":
-      // Corrija a requisicao: veja problem.errors[]
+      // Corrija a requisicao: veja problem.errors[]; key NOVA no reenvio
       throw new Error(`Validacao falhou: ${problem.errors?.map((e) => e.message).join(", ")}`);
 
     case "bad_request":
@@ -225,18 +229,18 @@ async function handleSherlockerError(res) {
       throw new Error("Acesso negado");
 
     case "not_found":
-      throw new Error("Analise nao encontrada");
+      throw new Error("Analise ou operacao nao encontrada");
 
     case "idempotency_conflict":
-      // Consulte o run existente em vez de repetir o POST
-      throw new Error("Requisicao concorrente em andamento: faca polling do run original");
+      // Consulte o run/operacao existente em vez de repetir o POST
+      throw new Error("Requisicao concorrente em andamento: faca polling da original");
 
     case "no_engine":
-      throw new Error("Nenhuma engine configurada para este workspace");
+      throw new Error("Nenhuma engine disponivel para esta requisicao");
 
     case "server_error":
     default:
-      // Retry com back-off; inclua problem.instance ao acionar o suporte
+      // Retry com a MESMA key e back-off; inclua problem.instance no suporte
       throw new Error(`Erro no servidor (instance: ${problem.instance})`);
   }
 }

@@ -1,14 +1,10 @@
 ---
 title: "Solicitar acesso à API"
-description: "Como pedir acesso ao beta fechado da API do Motor de Análise"
+description: "Como pedir acesso ao beta fechado da API dos Motores de Análise"
 icon: "unlock"
 ---
 
-A API `/v1` do Motor de Análise está em **beta fechado**. O acesso é liberado por workspace, mediante solicitação ao time Sherlocker.
-
-<Note>
-  Esta página trata da API do **Motor de Análise** (análise cadastral e de risco de um CNPJ ou CPF). Não confundir com o Motor de Crédito (análise de borderô/CNAB), documentado em outra seção do site.
-</Note>
+A API `/v1` dos [Motores de Análise](/motores/introducao) está em **beta fechado**. O acesso é liberado por workspace, mediante solicitação ao time Sherlocker, e cobre os dois motores: o de **CPF/CNPJ** (`/v1/analyses`) e o de **borderô** (`/v1/operations`).
 
 ## Features de acesso
 
@@ -16,7 +12,7 @@ O acesso é controlado por duas features, habilitadas por workspace:
 
 | Feature | O que libera |
 |---------|--------------|
-| `analysis_engine` | Qualquer chamada à API `/v1` (inclui análises de CNPJ) |
+| `analysis_engine` | Qualquer chamada à API `/v1` — análises de CNPJ e operações de borderô |
 | `analysis_engine_pf` | Análises de CPF (`subject_type: "pf"`) — exigida **além** de `analysis_engine` |
 
 Sem a feature necessária, a API responde `403` com o código `feature_not_enabled`:
@@ -43,7 +39,7 @@ Sem a feature necessária, a API responde `403` com o código `feature_not_enabl
     Inclua na mensagem:
 
     - **Nome do workspace** que deve receber o acesso
-    - **Caso de uso** (o que você pretende analisar e em que fluxo)
+    - **Caso de uso** (o que você pretende analisar e em que fluxo — ex.: onboarding/KYC com CNPJ/CPF, esteira de FIDC com borderôs CNAB 400)
     - Se precisa de análises de **PJ (CNPJ)**, **PF (CPF)** ou ambas — análises de CPF exigem a feature adicional `analysis_engine_pf`
   </Step>
   <Step title="Aguarde a liberação">
@@ -53,13 +49,16 @@ Sem a feature necessária, a API responde `403` com o código `feature_not_enabl
 
 ## Depois do acesso
 
-Com as features habilitadas, crie uma chave de API no app Sherlocker (Settings → API Keys) e siga o [Quickstart](/motor-analise/quickstart) para rodar a primeira análise.
+Com as features habilitadas, crie uma chave de API no app Sherlocker (Settings → API Keys) — a mesma chave serve os dois motores — e siga o quickstart do motor que você vai usar.
 
 ## Próximos passos
 
 <CardGroup cols={2}>
-  <Card title="Quickstart" icon="rocket" href="/motor-analise/quickstart">
+  <Card title="Quickstart — CPF/CNPJ" icon="rocket" href="/motor-analise/quickstart">
     Rode sua primeira análise em minutos
+  </Card>
+  <Card title="Quickstart — Borderô" icon="file-invoice-dollar" href="/credito/quickstart">
+    Analise seu primeiro borderô CNAB 400
   </Card>
   <Card title="Autenticação" icon="key" href="/motor-analise/autenticacao">
     Como usar sua chave `slhk_` no header Authorization

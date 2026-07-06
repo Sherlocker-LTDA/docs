@@ -4,7 +4,7 @@ description: "Como acionar o time Sherlocker e o que incluir num report de API"
 icon: "headset"
 ---
 
-Durante o beta, o suporte da API do Motor de Análise é feito diretamente com o time Sherlocker, pelo **canal combinado no onboarding do beta**.
+Durante o beta, o suporte da API dos Motores de Análise (CPF/CNPJ e borderô) é feito diretamente com o time Sherlocker, pelo **canal combinado no onboarding do beta**.
 
 ## O que incluir num report de API
 
@@ -14,9 +14,10 @@ Para que o time localize sua requisição nos logs, inclua sempre:
 |------|----------------|
 | `request_id` | Header de resposta `x-request-id`, campo `instance` do erro (`/v1?request_id=<id>`) ou campo `request_id` do body |
 | Timestamp | Data e hora da requisição (com fuso horário) |
-| Endpoint | Método e rota chamados (ex.: `POST /v1/analyses`) |
+| Endpoint | Método e rota chamados (ex.: `POST /v1/analyses` ou `POST /v1/operations`) |
 | `code` do erro | Campo `code` do body de erro (ex.: `server_error`) |
 | Body do erro | O JSON completo da resposta, se possível |
+| `id` da análise/operação | Quando o problema é em um run específico (resultado inesperado, `failed`) |
 
 Todo erro da API segue o formato RFC 7807 e traz esses campos:
 
@@ -42,6 +43,6 @@ Todo erro da API segue o formato RFC 7807 e traz esses campos:
     Todos os códigos de erro e como tratá-los
   </Card>
   <Card title="Solicitar acesso à API" icon="unlock" href="/api/access">
-    Peça acesso ao beta do Motor de Análise
+    Peça acesso ao beta dos Motores de Análise
   </Card>
 </CardGroup>

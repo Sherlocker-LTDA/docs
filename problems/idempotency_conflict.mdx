@@ -11,22 +11,27 @@ icon: "circle-exclamation"
 A `Idempotency-Key` enviada conflita com uma requisição anterior. Há dois cenários:
 
 1. **Requisição concorrente**: outra requisição com a mesma key ainda está em andamento. A primeira vence; a concorrente recebe `409` enquanto a original não termina.
-2. **Mesma key, body diferente**: uma requisição anterior já usou essa key com um body diferente dentro da janela de deduplicação de 24 horas.
+2. **Mesma key, conteúdo diferente**: uma requisição anterior já usou essa key com um conteúdo diferente dentro da janela de deduplicação de 24 horas.
 
-Para referência: mesma key + **mesmo** body dentro de 24 horas não é erro, retorna `200` com o body original da `202`, sem nova cobrança.
+O que conta como "mesmo conteúdo" depende do motor:
+
+- **`POST /v1/analyses`**: o body da requisição.
+- **`POST /v1/operations`**: o hash canônico — **SHA-256 dos bytes decodificados** dos arquivos (`cnab_base64` e `nfe_zip_base64`) + `engine_id` + `legal_basis`. Recodificar o base64 do mesmo arquivo **não** gera conflito; trocar o arquivo, o ZIP, a engine ou a base legal gera.
+
+Para referência: mesma key + **mesmo** conteúdo dentro de 24 horas não é erro, retorna `200` com o body original da `202` (incluindo o `request_id` original), sem nova cobrança.
 
 ## Causas comuns
 
 - Retries automáticos disparando em paralelo com a requisição original ainda em voo.
-- Reuso da mesma key após corrigir um erro de validação (o body mudou, a key não).
-- Key gerada de forma não única no seu sistema (por exemplo, key fixa por cliente em vez de por job).
+- Reuso da mesma key após corrigir um erro de validação (o conteúdo mudou, a key não).
+- Key gerada de forma não única no seu sistema (por exemplo, key fixa por cliente em vez de por job/borderô).
 
 ## Como corrigir
 
-- **Concorrência**: não reenvie o POST. Aguarde a requisição original terminar e consulte `GET /v1/analyses/{id}` usando o `id` da resposta `202` original.
-- **Body diferente**: se a mudança de body é intencional (nova análise), gere uma **nova** `Idempotency-Key`.
-- **Retry seguro**: em timeout ou erro 5xx de rede, reenvie com a **mesma** key (nunca gere key nova em retry, há risco de cobrança dupla). Em 4xx de validação, corrija o body e use key **nova**.
-- Gere a key como UUID e amarre ao ID interno do job no seu sistema, garantindo uma key por análise pretendida.
+- **Concorrência**: não reenvie o POST. Aguarde a requisição original terminar e consulte via `GET` (`/v1/analyses/{id}` ou `/v1/operations/{id}`) usando o `id` da resposta `202` original.
+- **Conteúdo diferente**: se a mudança é intencional (nova análise, outro borderô), gere uma **nova** `Idempotency-Key`.
+- **Retry seguro**: em timeout ou erro 5xx de rede, reenvie com a **mesma** key (nunca gere key nova em retry, há risco de cobrança dupla). Em 4xx de validação, corrija e use key **nova**.
+- Gere a key como UUID e amarre ao ID interno do job (ou do borderô) no seu sistema, garantindo uma key por requisição pretendida.
 
 ## Exemplo
 
@@ -46,5 +51,5 @@ O texto de `detail` varia conforme o cenário.
 ## Relacionado
 
 - [Erros da API](/motor-analise/erros)
-- [Idempotência](/motor-analise/idempotencia)
-- [Ciclo de vida da análise](/motor-analise/ciclo-de-vida)
+- [Idempotência (CPF/CNPJ)](/motor-analise/idempotencia)
+- [Idempotência (Borderô)](/credito/idempotencia)

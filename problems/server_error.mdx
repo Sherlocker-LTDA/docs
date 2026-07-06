@@ -19,7 +19,7 @@ O campo `instance` carrega o `request_id` da chamada (`/v1?request_id=<id>`), qu
 
 ## Como corrigir
 
-- Refaça a requisição com back-off exponencial. Em `POST /v1/analyses`, reenvie com a **mesma** `Idempotency-Key`: assim não há risco de cobrança dupla se a requisição original tiver sido processada.
+- Refaça a requisição com back-off exponencial. Em `POST /v1/analyses` e `POST /v1/operations`, reenvie com a **mesma** `Idempotency-Key`: assim não há risco de cobrança dupla se a requisição original tiver sido processada.
 - Se o erro persistir, acione o suporte em [/support](/support) informando o valor de `instance` (ou o `request_id`).
 - Para facilitar o suporte, envie o header `x-request-id` com um identificador do seu sistema em todas as chamadas.
 
