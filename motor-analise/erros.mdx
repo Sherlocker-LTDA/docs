@@ -110,7 +110,7 @@ Informa quantos tokens a requisição exigia (`required`) e o saldo atual do wor
 }
 ```
 
-O saldo é gerenciado no app Sherlocker — veja [Cobrança do Motor de CPF/CNPJ](/motor-analise/cobranca) e [Cobrança do Motor de Borderô](/credito/cobranca).
+O saldo é gerenciado no app Sherlocker — veja [Cobrança](/motores/cobranca).
 
 ### `feature_not_enabled` — `request_access_url`
 
@@ -134,7 +134,7 @@ Faça o branching pelo campo `code` — o tratamento é o mesmo nos dois motores
 
 - `validation_error` / `bad_request`: corrija a requisição. Se for reenviar um POST com conteúdo diferente, use uma `Idempotency-Key` **nova** (a mesma key com conteúdo diferente retorna `409`).
 - `idempotency_conflict` com requisição em andamento: não reenvie o POST — consulte via `GET` (`/v1/analyses/{id}` ou `/v1/operations/{id}`) com o `id` da resposta 202 original.
-- `server_error` (e timeouts de rede): reenvie **com a mesma** `Idempotency-Key`, com back-off. Detalhes em [Idempotência (CPF/CNPJ)](/motor-analise/idempotencia) e [Idempotência (Borderô)](/credito/idempotencia).
+- `server_error` (e timeouts de rede): reenvie **com a mesma** `Idempotency-Key`, com back-off. Detalhes em [Idempotência](/motores/idempotencia).
 
 <CodeGroup>
 ```python Python
@@ -250,13 +250,13 @@ async function handleSherlockerError(res) {
 ## Relacionado
 
 <CardGroup cols={3}>
-  <Card title="Idempotência" icon="rotate" href="/motor-analise/idempotencia">
+  <Card title="Idempotência" icon="rotate" href="/motores/idempotencia">
     Como tratar 409, retries seguros e a janela de 24h
   </Card>
   <Card title="Autenticação" icon="key" href="/motor-analise/autenticacao">
     Chaves `slhk_`, header Bearer e as causas de 401/403
   </Card>
-  <Card title="Cobrança" icon="coins" href="/motor-analise/cobranca">
+  <Card title="Cobrança" icon="coins" href="/motores/cobranca">
     Débito de tokens, reembolso em `failed` e saldo
   </Card>
 </CardGroup>

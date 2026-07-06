@@ -73,7 +73,7 @@ const analysisId = analysis.id;
 ```
 </CodeGroup>
 
-O documento pode ir com ou sem máscara — a API remove os não-dígitos e detecta o `subject_type` pelo tamanho (14 dígitos → `pj`, 11 → `pf`). Sem `engine_id`, a análise usa a engine padrão do workspace ou o template do sistema (veja [Engines](/motor-analise/engines)).
+O documento pode ir com ou sem máscara — a API remove os não-dígitos e detecta o `subject_type` pelo tamanho (14 dígitos → `pj`, 11 → `pf`). Sem `engine_id`, a análise usa a engine padrão do workspace ou o template do sistema (veja [Engines](/motores/engines)).
 
 **Resposta (202 Accepted):**
 
@@ -88,10 +88,10 @@ O documento pode ir com ou sem máscara — a API remove os não-dígitos e dete
 }
 ```
 
-Os tokens são debitados na criação e confirmados em `tokens_charged` e `balance`, quando disponíveis (valores acima são **ilustrativos** — o preço por análise está em definição durante o beta; veja [Cobrança](/motor-analise/cobranca)). Guarde o `id`: é com ele que você consulta o resultado.
+Os tokens são debitados na criação e confirmados em `tokens_charged` e `balance`, quando disponíveis (valores acima são **ilustrativos** — o preço por análise está em definição durante o beta; veja [Cobrança](/motores/cobranca)). Guarde o `id`: é com ele que você consulta o resultado.
 
 <Tip>
-  Em timeout ou erro 5xx, reenvie o POST com a **mesma** `Idempotency-Key` — se a requisição original tiver sido processada, você recebe `200` com a resposta original, sem nova cobrança (janela de 24 horas); se ela ainda estiver em andamento, você recebe `409` e deve consultar via `GET` com o `id` da 202 original. Detalhes em [Idempotência](/motor-analise/idempotencia).
+  Em timeout ou erro 5xx, reenvie o POST com a **mesma** `Idempotency-Key` — se a requisição original tiver sido processada, você recebe `200` com a resposta original, sem nova cobrança (janela de 24 horas); se ela ainda estiver em andamento, você recebe `409` e deve consultar via `GET` com o `id` da 202 original. Detalhes em [Idempotência](/motores/idempotencia).
 </Tip>
 
 </Step>
@@ -297,13 +297,13 @@ O registro completo dos 11 códigos de erro, com os campos extras de cada um, es
 ## Próximos passos
 
 <CardGroup cols={2}>
-  <Card title="Ciclo de vida" icon="arrows-spin" href="/motor-analise/ciclo-de-vida">
+  <Card title="Ciclo de vida" icon="arrows-spin" href="/motores/ciclo-de-vida">
     Estados da análise, polling e o que muda em cada transição
   </Card>
-  <Card title="Idempotência" icon="rotate" href="/motor-analise/idempotencia">
+  <Card title="Idempotência" icon="rotate" href="/motores/idempotencia">
     Retries seguros, janela de 24h e resolução de conflitos 409
   </Card>
-  <Card title="Cobrança" icon="coins" href="/motor-analise/cobranca">
+  <Card title="Cobrança" icon="coins" href="/motores/cobranca">
     Quando os tokens são debitados e quando há reembolso automático
   </Card>
 </CardGroup>

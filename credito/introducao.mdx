@@ -47,7 +47,7 @@ Todos os endpoints usam a base `https://<API_HOST>/v1` e autenticação pelo hea
   Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado quando a API for promovida a produção.
 </Note>
 
-A cobrança é por **entidade única** do borderô (cedente + sacados únicos), não por título: um borderô de 42 títulos com 1 cedente e 11 sacados únicos cobra 12 análises. Operações que terminam em `failed` têm os tokens reembolsados automaticamente. Veja [Cobrança](/credito/cobranca). A API é polling-only por enquanto: não há webhooks nem listagem de operações.
+A cobrança é por **entidade única** do borderô (cedente + sacados únicos), não por título: um borderô de 42 títulos com 1 cedente e 11 sacados únicos cobra 12 análises. Operações que terminam em `failed` têm os tokens reembolsados automaticamente. Veja [Cobrança](/motores/cobranca). A API é polling-only por enquanto: não há webhooks nem listagem de operações.
 
 ## E o Motor de CPF/CNPJ?
 
@@ -62,7 +62,7 @@ Este é o motor de **borderô completo**. Se o seu caso é avaliar o risco de um
   <Card title="Autenticação" icon="key" href="/motor-analise/autenticacao">
     Chaves de API, header Bearer e rastreamento de requisições
   </Card>
-  <Card title="Ciclo de vida" icon="arrows-rotate" href="/credito/ciclo-de-vida">
+  <Card title="Ciclo de vida" icon="arrows-rotate" href="/motores/ciclo-de-vida">
     Status da operação, verdicts por título e as análises-filhas
   </Card>
   <Card title="Títulos e NFe" icon="file-invoice" href="/credito/titulos-e-nfe">

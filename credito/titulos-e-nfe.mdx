@@ -27,12 +27,12 @@ Quando a operação chega a `completed`, o campo `titulos[]` do `GET /v1/operati
 | `sacado_document` | string | Documento do sacado (apenas dígitos), extraído do CNAB |
 | `valor` | number | Valor do título |
 | `vencimento` | string | Data de vencimento (`YYYY-MM-DD`) |
-| `verdict` | enum | `aprovado` \| `alerta` \| `reprovado` \| `incompleto` — veredito consolidado do título (veja [Ciclo de vida](/credito/ciclo-de-vida)) |
+| `verdict` | enum | `aprovado` \| `alerta` \| `reprovado` \| `incompleto` — veredito consolidado do título (veja [Ciclo de vida](/motores/ciclo-de-vida)) |
 | `nfe_status` | enum | Resultado consolidado dos blocos de NFe do título — tabela abaixo |
 | `cedente_analysis_id` | UUID \| null | Análise do cedente no Motor de Análise (a mesma para todos os títulos da operação); `null` se a análise da entidade não estiver disponível |
 | `sacado_analysis_id` | UUID \| null | Análise do sacado no Motor de Análise (compartilhada entre títulos do mesmo sacado); `null` se a análise da entidade não estiver disponível |
 
-`cedente_analysis_id` e `sacado_analysis_id` são análises **normais**: consulte `GET /v1/analyses/{id}` para o detalhamento completo (`verdict`, `blocks`, `coverage`) de cada entidade, no formato do [Motor de Análise](/motor-analise/ciclo-de-vida).
+`cedente_analysis_id` e `sacado_analysis_id` são análises **normais**: consulte `GET /v1/analyses/{id}` para o detalhamento completo (`verdict`, `blocks`, `coverage`) de cada entidade, no formato do [Motor de Análise](/motores/ciclo-de-vida).
 
 ## Validação cruzada com NFe
 
@@ -109,12 +109,12 @@ console.log(resp.status, await resp.json());
 </Note>
 
 <Tip>
-  O ZIP de NFe entra no hash canônico da idempotência (SHA-256 do conteúdo): reenviar o mesmo CNAB com um ZIP diferente e a mesma `Idempotency-Key` resulta em `409 idempotency_conflict`. Veja [Idempotência](/credito/idempotencia).
+  O ZIP de NFe entra no hash canônico da idempotência (SHA-256 do conteúdo): reenviar o mesmo CNAB com um ZIP diferente e a mesma `Idempotency-Key` resulta em `409 idempotency_conflict`. Veja [Idempotência](/motores/idempotencia).
 </Tip>
 
 ## Estados de `nfe_status`
 
-O campo consolida os **blocos de NFe** do título. Dois estados indicam que a validação não rodou; os outros quatro refletem o **pior status** entre os blocos de NFe executados (a mesma escala de status de bloco do [Motor de Análise](/motor-analise/ciclo-de-vida)):
+O campo consolida os **blocos de NFe** do título. Dois estados indicam que a validação não rodou; os outros quatro refletem o **pior status** entre os blocos de NFe executados (a mesma escala de status de bloco do [Motor de Análise](/motores/ciclo-de-vida)):
 
 | `nfe_status` | Significado |
 |--------------|-------------|
@@ -125,7 +125,7 @@ O campo consolida os **blocos de NFe** do título. Dois estados indicam que a va
 | `blocked` | Pior status entre os blocos de NFe: impeditivo (ex.: divergência ou ausência de lastro tratada como bloqueio) |
 | `unavailable` | Pior status entre os blocos de NFe: alguma verificação não pôde ser executada (fonte ou dado indisponível) |
 
-Como cada bloco de NFe reage — o que vira `alert`, o que vira `blocked` — depende da configuração da [engine de borderô](/credito/engines), e o resultado dos blocos entra no `verdict` consolidado do título.
+Como cada bloco de NFe reage — o que vira `alert`, o que vira `blocked` — depende da configuração da [engine de borderô](/motores/engines), e o resultado dos blocos entra no `verdict` consolidado do título.
 
 <Warning>
   `no_key` e `not_checked` não são problemas — são a **ausência de validação**. Se a sua esteira exige lastro de NFe para todos os títulos, envie sempre o `nfe_zip_base64`, use uma engine com blocos de NFe ativos e trate `alert`, `blocked` e `unavailable` na sua regra de aprovação.
@@ -143,10 +143,10 @@ Arquivos acima do limite, base64 inválido ou CNAB que não parseia retornam `40
 ## Próximos passos
 
 <CardGroup cols={3}>
-  <Card title="Ciclo de vida" icon="arrows-rotate" href="/credito/ciclo-de-vida">
+  <Card title="Ciclo de vida" icon="arrows-rotate" href="/motores/ciclo-de-vida">
     Como o verdict de cada título é consolidado
   </Card>
-  <Card title="Engines" icon="gears" href="/credito/engines">
+  <Card title="Engines" icon="gears" href="/motores/engines">
     A política que decide o efeito de cada validação
   </Card>
   <Card title="Quickstart" icon="rocket" href="/credito/quickstart">

@@ -25,7 +25,7 @@ O campo `evidence[]` traz, quando aplicável, os dados que sustentam o resultado
 | `blocked` | O bloco encontrou um achado que reprova a análise. |
 | `unavailable` | A fonte de dados do bloco falhou — o bloco não pôde ser avaliado. |
 
-O status dos blocos determina o `verdict` da análise: `aprovado` (nenhum bloco em alerta ou bloqueio), `alerta` (ao menos um bloco `alert`), `reprovado` (ao menos um bloco `blocked`) e `incompleto` (ao menos um bloco `unavailable` — confira o campo `coverage` para ver qual fonte falhou). Veja [Ciclo de vida](/motor-analise/ciclo-de-vida).
+O status dos blocos determina o `verdict` da análise: `aprovado` (nenhum bloco em alerta ou bloqueio), `alerta` (ao menos um bloco `alert`), `reprovado` (ao menos um bloco `blocked`) e `incompleto` (ao menos um bloco `unavailable` — confira o campo `coverage` para ver qual fonte falhou). Veja [Ciclo de vida](/motores/ciclo-de-vida).
 
 ## Ação configurável por engine
 
@@ -37,7 +37,7 @@ Cada engine define, bloco a bloco, qual ação tomar quando o bloco dispara:
 | Alerta (`alert`) | Achados do bloco geram no máximo `alert`. |
 | Ignorar (`ignore`) | O bloco não é executado: não exige fonte de dados e não afeta o veredito. |
 
-A coluna **Ação padrão** abaixo é a do catálogo. Cada engine pode sobrescrever a ação de qualquer bloco no app Sherlocker; os templates do sistema, por exemplo, mantêm alguns blocos de conformidade desligados por padrão (opt-in). Veja [Engines e templates](/motor-analise/engines).
+A coluna **Ação padrão** abaixo é a do catálogo. Cada engine pode sobrescrever a ação de qualquer bloco no app Sherlocker; os templates do sistema, por exemplo, mantêm alguns blocos de conformidade desligados por padrão (opt-in). Veja [Engines e templates](/motores/engines).
 
 ## Parâmetros configuráveis
 
@@ -110,10 +110,10 @@ Alguns blocos aceitam parâmetros — por exemplo, capital social mínimo, idade
 ## Relacionado
 
 <CardGroup cols={3}>
-  <Card title="Engines e templates" icon="gears" href="/motor-analise/engines">
+  <Card title="Engines e templates" icon="gears" href="/motores/engines">
     Como o motor escolhe a engine e o que os templates do sistema ligam por padrão
   </Card>
-  <Card title="Ciclo de vida" icon="arrows-rotate" href="/motor-analise/ciclo-de-vida">
+  <Card title="Ciclo de vida" icon="arrows-rotate" href="/motores/ciclo-de-vida">
     Status da análise, veredito e como interpretar coverage
   </Card>
   <Card title="Quickstart" icon="rocket" href="/motor-analise/quickstart">

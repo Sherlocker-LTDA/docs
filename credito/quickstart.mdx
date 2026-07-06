@@ -14,7 +14,7 @@ Neste guia você envia um borderô CNAB 400, acompanha o processamento até o re
 
 - **Acesso ao beta**: a feature `analysis_engine` precisa estar habilitada no seu workspace. Solicite em [Solicitar acesso](/api/access).
 - **Chave de API**: criada no app Sherlocker em **Settings → API Keys**. As chaves têm prefixo `slhk_` e são exibidas uma única vez — guarde em local seguro.
-- **Saldo de tokens**: a operação consome tokens do mesmo pool do workspace usado no app — um débito por entidade única do borderô (veja [Cobrança](/credito/cobranca)).
+- **Saldo de tokens**: a operação consome tokens do mesmo pool do workspace usado no app — um débito por entidade única do borderô (veja [Cobrança](/motores/cobranca)).
 - **Arquivo CNAB 400 remessa** (`.rem` ou `.txt`), com no máximo 16 MB decodificado.
 
 A base URL de todos os exemplos é `https://<API_HOST>/v1`.
@@ -111,7 +111,7 @@ const operationId = operation.id;
 ```
 </CodeGroup>
 
-Sem `engine_id`, a operação usa a engine template de borderô do sistema (veja [Engines](/credito/engines)). `file_name` é apenas para exibição; `purpose` e `legal_basis` são opcionais, com os mesmos valores aceitos em `POST /v1/analyses`.
+Sem `engine_id`, a operação usa a engine template de borderô do sistema (veja [Engines](/motores/engines)). `file_name` é apenas para exibição; `purpose` e `legal_basis` são opcionais, com os mesmos valores aceitos em `POST /v1/analyses`.
 
 **Resposta (202 Accepted):**
 
@@ -128,10 +128,10 @@ Sem `engine_id`, a operação usa a engine template de borderô do sistema (veja
 }
 ```
 
-A resposta já conta o borderô: `titulos_count` é o total de títulos do arquivo e `entities_count` é o total de **entidades únicas** cobradas (1 cedente + 11 sacados únicos = 12, neste exemplo). Os tokens são debitados na criação, logo após o parse do CNAB — os valores acima são **ilustrativos**; o preço unitário está em definição durante o beta (veja [Cobrança](/credito/cobranca)). Guarde o `id`: é com ele que você consulta o resultado.
+A resposta já conta o borderô: `titulos_count` é o total de títulos do arquivo e `entities_count` é o total de **entidades únicas** cobradas (1 cedente + 11 sacados únicos = 12, neste exemplo). Os tokens são debitados na criação, logo após o parse do CNAB — os valores acima são **ilustrativos**; o preço unitário está em definição durante o beta (veja [Cobrança](/motores/cobranca)). Guarde o `id`: é com ele que você consulta o resultado.
 
 <Tip>
-  Em timeout ou erro 5xx, reenvie o POST com a **mesma** `Idempotency-Key` — a deduplicação usa o hash do **conteúdo** dos arquivos (SHA-256 dos bytes decodificados) + `engine_id` + `legal_basis`, então reenviar o mesmo borderô é sempre seguro: você recebe `200` com a resposta original, sem nova cobrança. Detalhes em [Idempotência](/credito/idempotencia).
+  Em timeout ou erro 5xx, reenvie o POST com a **mesma** `Idempotency-Key` — a deduplicação usa o hash do **conteúdo** dos arquivos (SHA-256 dos bytes decodificados) + `engine_id` + `legal_basis`, então reenviar o mesmo borderô é sempre seguro: você recebe `200` com a resposta original, sem nova cobrança. Detalhes em [Idempotência](/motores/idempotencia).
 </Tip>
 
 </Step>
@@ -297,7 +297,7 @@ for (const block of analysis.blocks) {
 ```
 </CodeGroup>
 
-O formato da resposta é o do Motor de Análise — [ciclo de vida](/motor-analise/ciclo-de-vida) e [catálogo de blocos](/motor-analise/blocos). Entidades repetidas no borderô (o mesmo sacado em vários títulos) apontam para a **mesma** análise.
+O formato da resposta é o do Motor de Análise — [ciclo de vida](/motores/ciclo-de-vida) e [catálogo de blocos](/motor-analise/blocos). Entidades repetidas no borderô (o mesmo sacado em vários títulos) apontam para a **mesma** análise.
 
 </Step>
 </Steps>
@@ -334,13 +334,13 @@ Como nada foi parseado, **nada é cobrado** — o débito só acontece após o p
 ## Próximos passos
 
 <CardGroup cols={2}>
-  <Card title="Ciclo de vida" icon="arrows-rotate" href="/credito/ciclo-de-vida">
+  <Card title="Ciclo de vida" icon="arrows-rotate" href="/motores/ciclo-de-vida">
     Estados da operação, verdicts e a relação com as análises-filhas
   </Card>
-  <Card title="Idempotência" icon="repeat" href="/credito/idempotencia">
+  <Card title="Idempotência" icon="repeat" href="/motores/idempotencia">
     Retry seguro de upload — o hash cobre o conteúdo dos arquivos
   </Card>
-  <Card title="Cobrança" icon="coins" href="/credito/cobranca">
+  <Card title="Cobrança" icon="coins" href="/motores/cobranca">
     Modelo por entidade única, com exemplo numérico e estorno
   </Card>
   <Card title="Títulos e NFe" icon="file-invoice" href="/credito/titulos-e-nfe">
