@@ -53,7 +53,7 @@ Repare que borderôs concentrados (muitos títulos, poucos sacados) custam propo
 Os tokens são debitados no momento do `POST /v1/operations`, **depois do parse do CNAB** — é o parse que revela quantas entidades únicas o arquivo tem. A consequência prática:
 
 - Arquivo com base64 inválido ou CNAB que não parseia → `400 validation_error`, **nada é cobrado**.
-- Saldo insuficiente para as entidades do borderô → [`402 insufficient_tokens`](/problems/insufficient_tokens), **nada é cobrado** — o erro traz `required` e `balance` para você saber quanto falta.
+- Saldo insuficiente para as entidades do borderô → [`402 insufficient_tokens`](/credito/problems/insufficient_tokens), **nada é cobrado** — o erro traz `required` e `balance` para você saber quanto falta.
 - Parse ok e saldo ok → `202 Accepted` com o débito confirmado em `tokens_charged` e o saldo restante em `balance`.
 
 `tokens_charged` e `balance` são informados em melhor esforço: se a consulta de saldo falhar no momento da resposta, os campos podem estar ausentes, o que não altera a cobrança em si.

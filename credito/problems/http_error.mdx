@@ -1,0 +1,44 @@
+---
+title: "http_error"
+description: "Erro genérico: exceção HTTP não mapeada em um código específico"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** variável
+
+## O que significa
+
+Fallback genérico para exceções HTTP que não foram mapeadas em um código de problema mais específico. O campo `status` do body (e o status da resposta) refletem o código HTTP real do erro.
+
+Diferente dos demais problemas, `http_error` não indica uma causa única: trate-o pelo status HTTP e pelo `detail`.
+
+## Causas comuns
+
+- Erro HTTP em um caminho da API sem handler dedicado.
+- Condições de borda não cobertas pelos códigos específicos (`validation_error`, `bad_request`, `unauthorized` etc.).
+
+## Como corrigir
+
+- Leia o campo `detail` e o status HTTP da resposta para entender o contexto.
+- Trate por faixa de status: 4xx indica problema na requisição (corrija antes de reenviar); 5xx permite retry com back-off — no `POST /v1/operations`, sempre com a **mesma** `Idempotency-Key`.
+- Se o erro parecer indevido, acione o suporte em [Suporte](/credito/suporte) informando o `instance` (contém o `request_id`).
+
+## Exemplo
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/http_error",
+  "title": "HTTP Error",
+  "status": 405,
+  "code": "http_error",
+  "detail": "Method Not Allowed",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+Exemplo ilustrativo: `status` e `detail` refletem o erro HTTP real de cada resposta.
+
+## Relacionado
+
+- [Erros da API](/credito/erros)
+- [Quickstart](/credito/quickstart)

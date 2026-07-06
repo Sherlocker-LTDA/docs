@@ -1,0 +1,64 @@
+---
+title: "Solicitar acesso à API"
+description: "Como pedir acesso ao beta fechado da API do Motor de Crédito"
+icon: "unlock"
+---
+
+A API `/v1` do Motor de Crédito está em **beta fechado**. O acesso é liberado por workspace, mediante solicitação ao time Sherlocker.
+
+## Feature de acesso
+
+O acesso é controlado pela feature `analysis_engine`, habilitada por workspace — a **mesma** que libera o [Motor de Análise](/motor-analise/introducao). Uma única liberação dá acesso aos dois produtos:
+
+| Feature | O que libera |
+|---------|--------------|
+| `analysis_engine` | Qualquer chamada à API `/v1`, incluindo `POST /v1/operations` e `GET /v1/operations/{id}` |
+
+Sem a feature, a API responde `403` com o código [`feature_not_enabled`](/credito/problems/feature_not_enabled):
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/feature_not_enabled",
+  "title": "Feature Not Enabled",
+  "status": 403,
+  "code": "feature_not_enabled",
+  "detail": "The analysis_engine feature is not enabled for this workspace. To request access visit https://docs.sherlocker.com.br/api/access or contact support at https://docs.sherlocker.com.br/support.",
+  "request_access_url": "https://docs.sherlocker.com.br/api/access",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+## Como solicitar
+
+<Steps>
+  <Step title="Entre em contato">
+    Fale com o time Sherlocker. Veja como acionar o time em [Suporte](/credito/suporte).
+  </Step>
+  <Step title="Informe os dados do pedido">
+    Inclua na mensagem:
+
+    - **Nome do workspace** que deve receber o acesso
+    - **Caso de uso** — para o Motor de Crédito, mencione a análise de borderôs CNAB 400 (FIDC, securitizadora, factoring) e o volume estimado de operações
+  </Step>
+  <Step title="Aguarde a liberação">
+    O time habilita a feature no seu workspace e confirma pelo mesmo canal.
+  </Step>
+</Steps>
+
+## Depois do acesso
+
+Com a feature habilitada, crie uma chave de API no app Sherlocker (Settings → API Keys) e siga o [Quickstart](/credito/quickstart) para analisar o primeiro borderô.
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/credito/quickstart">
+    Analise seu primeiro borderô em minutos
+  </Card>
+  <Card title="Autenticação" icon="key" href="/credito/autenticacao">
+    Como usar sua chave `slhk_` no header Authorization
+  </Card>
+  <Card title="Suporte" icon="headset" href="/credito/suporte">
+    Como falar com o time Sherlocker
+  </Card>
+</CardGroup>
