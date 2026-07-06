@@ -52,7 +52,7 @@ const cnabB64 = readFileSync("remessa-0605.rem").toString("base64");
 </CodeGroup>
 
 <Tip>
-  Tem os XMLs de NFe dos títulos? Compacte-os em um ZIP (máx. 32 MB decodificado), gere o base64 do mesmo jeito e envie no campo opcional `nfe_zip_base64` — o motor cruza cada título com o XML correspondente e reporta o resultado em `nfe_status`. Veja [Títulos e NFe](/credito/titulos-e-nfe).
+  Tem os XMLs de NFe dos títulos? Compacte-os em um ZIP (máx. 32 MB decodificado), gere o base64 do mesmo jeito e envie no campo opcional `nfe_zip_base64` — o motor cruza cada título com o XML correspondente e reporta o resultado em `nfe_status`. O recurso é opcional e sujeito à disponibilidade no beta (se desabilitado no ambiente, o campo é aceito e ignorado). Veja [Títulos e NFe](/credito/titulos-e-nfe).
 </Tip>
 
 </Step>
@@ -131,7 +131,7 @@ Sem `engine_id`, a operação usa a engine template de borderô do sistema (veja
 A resposta já conta o borderô: `titulos_count` é o total de títulos do arquivo e `entities_count` é o total de **entidades únicas** cobradas (1 cedente + 11 sacados únicos = 12, neste exemplo). Os tokens são debitados na criação, logo após o parse do CNAB — os valores acima são **ilustrativos**; o preço unitário está em definição durante o beta (veja [Cobrança](/credito/cobranca)). Guarde o `id`: é com ele que você consulta o resultado.
 
 <Tip>
-  Em timeout ou erro 5xx, reenvie o POST com a **mesma** `Idempotency-Key` — a deduplicação usa o hash do **conteúdo** dos arquivos (SHA-256) + `engine_id`, então reenviar o mesmo borderô é sempre seguro: você recebe `200` com a resposta original, sem nova cobrança. Detalhes em [Idempotência](/credito/idempotencia).
+  Em timeout ou erro 5xx, reenvie o POST com a **mesma** `Idempotency-Key` — a deduplicação usa o hash do **conteúdo** dos arquivos (SHA-256 dos bytes decodificados) + `engine_id` + `legal_basis`, então reenviar o mesmo borderô é sempre seguro: você recebe `200` com a resposta original, sem nova cobrança. Detalhes em [Idempotência](/credito/idempotencia).
 </Tip>
 
 </Step>
@@ -210,6 +210,8 @@ console.log(op.summary);
   "status": "completed",
   "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
   "file_name": "remessa-0605.rem",
+  "titulos_count": 42,
+  "entities_count": 12,
   "created_at": "2026-07-06T10:00:00Z",
   "finished_at": "2026-07-06T10:02:15Z",
   "summary": {
@@ -229,7 +231,7 @@ console.log(op.summary);
       "valor": 1234.56,
       "vencimento": "2026-08-01",
       "verdict": "aprovado",
-      "nfe_status": "validada",
+      "nfe_status": "pass",
       "cedente_analysis_id": "a1b2c3d4-0000-0000-0000-000000000010",
       "sacado_analysis_id": "a1b2c3d4-0000-0000-0000-000000000011"
     }
@@ -243,10 +245,10 @@ Os campos que importam para a sua decisão:
 
 | Campo | Significado |
 |---|---|
-| `summary.cedente_verdict` | Veredito da análise do cedente — se o cedente reprova, a operação inteira merece atenção |
+| `summary.cedente_verdict` | Veredito da análise do cedente (ou `null` se indisponível) — se o cedente reprova, a operação inteira merece atenção |
 | `summary.aprovados` / `alertas` / `reprovados` | Contagem de títulos por veredito; `valor_total` e `valor_aprovado` trazem os valores monetários |
-| `titulos[].verdict` | `aprovado` \| `alerta` \| `reprovado` — veredito individual do título |
-| `titulos[].nfe_status` | `validada` \| `nao_encontrada` \| `divergente` \| `nao_aplicavel` — resultado do cruzamento com a NFe (veja [Títulos e NFe](/credito/titulos-e-nfe)) |
+| `titulos[].verdict` | `aprovado` \| `alerta` \| `reprovado` \| `incompleto` — veredito individual do título |
+| `titulos[].nfe_status` | `no_key` \| `not_checked` \| `pass` \| `alert` \| `blocked` \| `unavailable` — resultado consolidado dos blocos de NFe do título (veja [Títulos e NFe](/credito/titulos-e-nfe)) |
 
 Um filtro típico — separar os títulos que precisam de revisão manual:
 

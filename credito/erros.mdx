@@ -57,10 +57,10 @@ Cada código tem uma página própria em `/problems/<code>`. A coluna "quando ac
 | [`unauthorized`](/problems/unauthorized) | 401 | Header `Authorization` ausente/malformado; chave de API inválida ou revogada | — |
 | [`insufficient_tokens`](/problems/insufficient_tokens) | 402 | Saldo insuficiente para as entidades únicas do borderô | `required`, `balance` |
 | [`feature_not_enabled`](/problems/feature_not_enabled) | 403 | Feature `analysis_engine` desabilitada no workspace | `request_access_url` |
-| [`forbidden`](/problems/forbidden) | 403 | `engine_id` de uma engine de outro workspace | — |
-| [`not_found`](/problems/not_found) | 404 | Operação inexistente ou de outro workspace; `engine_id` inexistente | — |
-| [`idempotency_conflict`](/problems/idempotency_conflict) | 409 | Mesma `Idempotency-Key` com requisição ainda em andamento, ou mesma key com conteúdo diferente (o hash cobre o SHA-256 dos arquivos + `engine_id`) | — |
-| [`no_engine`](/problems/no_engine) | 422 | Nenhuma engine de borderô disponível para a operação | — |
+| [`forbidden`](/problems/forbidden) | 403 | 403 genérico, não relacionado a feature | — |
+| [`not_found`](/problems/not_found) | 404 | Operação inexistente ou de outro workspace; `engine_id` inexistente ou de outro workspace | — |
+| [`idempotency_conflict`](/problems/idempotency_conflict) | 409 | Mesma `Idempotency-Key` com requisição ainda em andamento, ou mesma key com conteúdo diferente (o hash cobre o SHA-256 dos bytes dos arquivos + `engine_id` + `legal_basis`) | — |
+| [`no_engine`](/problems/no_engine) | 422 | Engine arquivada, incompatível, sem nenhum bloco ativo, ou nenhuma engine de borderô disponível | — |
 | [`http_error`](/problems/http_error) | varia | Fallback genérico para HTTP não mapeado em um código mais específico | — |
 | [`server_error`](/problems/server_error) | 500 | Erro inesperado no servidor; use o `instance` (request_id) ao acionar o suporte | — |
 
@@ -221,7 +221,7 @@ async function handleSherlockerError(res) {
       throw new Error("Feature nao habilitada para este workspace");
 
     case "forbidden":
-      throw new Error("Engine de outro workspace ou acesso negado");
+      throw new Error("Acesso negado");
 
     case "not_found":
       throw new Error("Operacao (ou engine) nao encontrada");

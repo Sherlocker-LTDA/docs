@@ -79,7 +79,10 @@ Todos os erros seguem o formato RFC 7807 (`Content-Type: application/problem+jso
 | Chave inválida | 401 | `unauthorized` | Confira se copiou a chave completa, com o prefixo `slhk_` |
 | Chave revogada | 401 | `unauthorized` | Crie uma nova chave em Settings → API Keys |
 | Feature `analysis_engine` desabilitada no workspace | 403 | `feature_not_enabled` | Solicite acesso pela `request_access_url` do body |
-| `engine_id` de uma engine de outro workspace | 403 | `forbidden` | Use uma engine do seu workspace (ou omita `engine_id`) |
+
+<Note>
+  `engine_id` inexistente ou de outro workspace retorna `404 not_found` — a API não revela a existência de engines de outros workspaces. Veja [Engines](/credito/engines).
+</Note>
 
 O acesso à API é liberado por workspace: a feature `analysis_engine` cobre qualquer chamada `/v1` — tanto do Motor de Crédito quanto do Motor de Análise.
 

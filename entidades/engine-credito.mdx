@@ -15,8 +15,8 @@ O campo `engine_id` do `POST /v1/operations` é **opcional**:
 
 | Situação | Resposta |
 |----------|----------|
-| `engine_id` de outro workspace | `403` [`forbidden`](/problems/forbidden) |
-| `engine_id` inexistente | `404` [`not_found`](/problems/not_found) |
+| `engine_id` inexistente ou de outro workspace | `404` [`not_found`](/problems/not_found) |
+| Engine arquivada, incompatível ou sem nenhum bloco ativo | `422` [`no_engine`](/problems/no_engine) |
 | Nenhuma engine de borderô disponível | `422` [`no_engine`](/problems/no_engine) |
 
 ## Onde as engines são geridas

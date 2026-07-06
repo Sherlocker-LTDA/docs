@@ -38,12 +38,12 @@
           "nfe_zip_base64": {
             "type": "string",
             "format": "byte",
-            "description": "ZIP com XMLs de NFe para validação cruzada dos títulos, codificado em base64. Opcional. Máximo de 32 MB decodificado."
+            "description": "ZIP com XMLs de NFe para validação cruzada dos títulos, codificado em base64. Opcional, sujeito à disponibilidade do recurso no beta: se o recurso de XML estiver desabilitado no ambiente, o campo é aceito e ignorado. Máximo de 32 MB decodificado."
           },
           "engine_id": {
             "type": "string",
             "format": "uuid",
-            "description": "UUID da engine de borderô a usar. Omitido: usa a engine template de borderô do sistema. Engine de outro workspace retorna 403 forbidden."
+            "description": "UUID da engine de borderô a usar. Omitido: usa a engine template de borderô do sistema. Engine inexistente ou de outro workspace retorna 404 not_found; engine arquivada, incompatível ou sem nenhum bloco ativo retorna 422 no_engine."
           },
           "file_name": {
             "type": "string",
@@ -89,7 +89,7 @@
           },
           "balance": {
             "type": "number",
-            "description": "Saldo de tokens do workspace após o débito."
+            "description": "Saldo de tokens do workspace após o débito, quando disponível (melhor esforço)."
           },
           "poll_after_seconds": {
             "type": "number",
@@ -97,7 +97,7 @@
           },
           "request_id": {
             "type": "string",
-            "description": "Identificador da requisição para rastreio e suporte. Igual ao header x-request-id da resposta."
+            "description": "Identificador da requisição para rastreio e suporte, quando disponível. Igual ao header x-request-id da resposta. Em replay idempotente, é o request_id original da 202."
           }
         }
       },
@@ -132,7 +132,8 @@
           "cedente_verdict": {
             "type": "string",
             "enum": ["aprovado", "alerta", "reprovado", "incompleto"],
-            "description": "Veredito da análise do cedente (mesma semântica de verdict do Motor de Análise)."
+            "nullable": true,
+            "description": "Veredito da análise do cedente (mesma semântica de verdict do Motor de Análise). Pode ser null se o veredito não estiver disponível — campo preenchido em melhor esforço."
           },
           "entities_count": {
             "type": "number",
@@ -163,23 +164,25 @@
           },
           "verdict": {
             "type": "string",
-            "enum": ["aprovado", "alerta", "reprovado"],
-            "description": "Veredito consolidado do título (análise do cedente + análise do sacado + validações de título/NFe)."
+            "enum": ["aprovado", "alerta", "reprovado", "incompleto"],
+            "description": "Veredito consolidado do título (análise do cedente + análise do sacado + validações de título/NFe). incompleto = alguma verificação ficou indisponível, sem nenhum bloqueio."
           },
           "nfe_status": {
             "type": "string",
-            "enum": ["validada", "nao_encontrada", "divergente", "nao_aplicavel"],
-            "description": "Resultado do cruzamento com a NFe: validada (XML encontrado e dados conferem), divergente (XML encontrado, dados divergem), nao_encontrada (ZIP enviado sem XML correspondente), nao_aplicavel (validação de NFe não se aplica, ex.: operação sem nfe_zip_base64)."
+            "enum": ["no_key", "not_checked", "pass", "alert", "blocked", "unavailable"],
+            "description": "Resultado consolidado dos blocos de NFe do título: no_key (título sem chave de NFe no CNAB), not_checked (engine sem bloco de NFe ativo), pass/alert/blocked/unavailable (pior status entre os blocos de NFe executados)."
           },
           "cedente_analysis_id": {
             "type": "string",
             "format": "uuid",
-            "description": "Análise do cedente no Motor de Análise. Consulte o detalhamento (verdict, blocks, coverage) via GET /v1/analyses/{id}."
+            "nullable": true,
+            "description": "Análise do cedente no Motor de Análise; null se a análise da entidade não estiver disponível. Consulte o detalhamento (verdict, blocks, coverage) via GET /v1/analyses/{id}."
           },
           "sacado_analysis_id": {
             "type": "string",
             "format": "uuid",
-            "description": "Análise do sacado no Motor de Análise. Compartilhada entre títulos do mesmo sacado. Consulte via GET /v1/analyses/{id}."
+            "nullable": true,
+            "description": "Análise do sacado no Motor de Análise; null se a análise da entidade não estiver disponível. Compartilhada entre títulos do mesmo sacado. Consulte via GET /v1/analyses/{id}."
           }
         }
       },
@@ -206,22 +209,28 @@
             "type": "string",
             "description": "Nome de exibição do arquivo CNAB enviado."
           },
+          "titulos_count": {
+            "type": "number",
+            "description": "Total de títulos do arquivo CNAB, quando disponível."
+          },
+          "entities_count": {
+            "type": "number",
+            "description": "Total de entidades únicas do borderô (cedente + sacados únicos), quando disponível."
+          },
           "summary": {
             "allOf": [
               {
                 "$ref": "#/components/schemas/OperationSummary"
               }
             ],
-            "nullable": true,
-            "description": "Resumo consolidado da operação; null até completed (permanece null em failed)."
+            "description": "Resumo consolidado da operação. Presente apenas quando status é completed (ausente em pending/running/failed)."
           },
           "titulos": {
             "type": "array",
-            "nullable": true,
             "items": {
               "$ref": "#/components/schemas/OperationTitulo"
             },
-            "description": "Resultado por título; null até completed (permanece null em failed)."
+            "description": "Resultado por título. Presente apenas quando status é completed (ausente em pending/running/failed)."
           },
           "tokens_charged": {
             "type": "number",
@@ -235,8 +244,7 @@
           "finished_at": {
             "type": "string",
             "format": "date-time",
-            "nullable": true,
-            "description": "Timestamp ISO 8601 de término (completed ou failed); null enquanto em andamento."
+            "description": "Timestamp ISO 8601 de término. Presente apenas em estados terminais (completed/failed)."
           },
           "poll_after_seconds": {
             "type": "number",
@@ -312,7 +320,7 @@
     "/v1/operations": {
       "post": {
         "summary": "Criar operação de borderô",
-        "description": "Cria uma operação assíncrona de análise de borderô a partir de um arquivo CNAB 400 remessa em base64 (máx. 16 MB decodificado), com ZIP de XMLs de NFe opcional (máx. 32 MB decodificado) para validação cruzada. Os tokens são debitados na criação, após o parse do CNAB: uma cobrança por entidade única do borderô (cedente + sacados únicos) ao preço unitário de análise. Operações que terminam em failed são estornadas automaticamente. Retorna 202 na primeira submissão e 200 no replay idempotente (mesma Idempotency-Key + mesmo conteúdo em até 24h, sem nova cobrança; o hash canônico cobre o SHA-256 dos arquivos + engine_id).",
+        "description": "Cria uma operação assíncrona de análise de borderô a partir de um arquivo CNAB 400 remessa em base64 (máx. 16 MB decodificado), com ZIP de XMLs de NFe opcional (máx. 32 MB decodificado, sujeito à disponibilidade do recurso no beta) para validação cruzada. Os tokens são debitados na criação, após o parse do CNAB: uma cobrança por entidade única do borderô (cedente + sacados únicos) ao preço unitário de análise. Operações que terminam em failed são estornadas automaticamente. Retorna 202 na primeira submissão e 200 no replay idempotente (mesma Idempotency-Key + mesmo conteúdo em até 24h, sem nova cobrança e com o request_id original; o hash canônico cobre o SHA-256 dos bytes decodificados dos arquivos + engine_id + legal_basis).",
         "operationId": "createOperation",
         "tags": ["Operações"],
         "parameters": [
@@ -323,7 +331,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Chave única por borderô (UUID recomendado). Obrigatória. Reenviar a mesma chave com o mesmo conteúdo em até 24h devolve a resposta original (HTTP 200) sem nova cobrança; mesma chave com conteúdo diferente (arquivo, ZIP ou engine_id) devolve 409."
+            "description": "Chave única por borderô (UUID recomendado). Obrigatória. Reenviar a mesma chave com o mesmo conteúdo em até 24h devolve a resposta original (HTTP 200) sem nova cobrança; mesma chave com conteúdo diferente (arquivo, ZIP, engine_id ou legal_basis) devolve 409. A comparação usa o SHA-256 dos bytes decodificados — recodificar o base64 não gera conflito."
           },
           {
             "name": "x-request-id",
@@ -393,7 +401,7 @@
             }
           },
           "200": {
-            "description": "Replay idempotente: mesma Idempotency-Key + mesmo conteúdo (SHA-256 dos arquivos + engine_id) dentro da janela de 24h. Corpo idêntico ao da resposta 202 original; nenhum token adicional é cobrado.",
+            "description": "Replay idempotente: mesma Idempotency-Key + mesmo conteúdo (SHA-256 dos bytes dos arquivos + engine_id + legal_basis) dentro da janela de 24h. Corpo idêntico ao da resposta 202 original, incluindo o request_id original; nenhum token adicional é cobrado.",
             "content": {
               "application/json": {
                 "schema": {
@@ -465,7 +473,7 @@
             }
           },
           "403": {
-            "description": "Feature analysis_engine não habilitada no workspace (feature_not_enabled, com request_access_url) ou engine_id de uma engine de outro workspace (forbidden).",
+            "description": "Feature analysis_engine não habilitada no workspace (feature_not_enabled, com request_access_url) ou acesso negado genérico (forbidden).",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -484,7 +492,7 @@
             }
           },
           "404": {
-            "description": "Recurso não encontrado: engine_id inexistente.",
+            "description": "Recurso não encontrado: engine_id inexistente ou de outro workspace (a API não revela a existência de engines de outros workspaces).",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -502,7 +510,7 @@
             }
           },
           "409": {
-            "description": "Conflito de idempotência: requisição concorrente com a mesma Idempotency-Key em andamento, ou mesma chave reutilizada com conteúdo diferente (o hash canônico cobre o SHA-256 dos arquivos + engine_id).",
+            "description": "Conflito de idempotência: requisição concorrente com a mesma Idempotency-Key em andamento, ou mesma chave reutilizada com conteúdo diferente (o hash canônico cobre o SHA-256 dos bytes decodificados dos arquivos + engine_id + legal_basis).",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -520,7 +528,7 @@
             }
           },
           "422": {
-            "description": "Nenhuma engine de borderô disponível para a operação (sem engine_id e sem template aplicável).",
+            "description": "Engine não utilizável: arquivada, incompatível com a operação, sem nenhum bloco ativo, ou nenhuma engine de borderô disponível (sem engine_id e sem template aplicável).",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -561,7 +569,7 @@
     "/v1/operations/{id}": {
       "get": {
         "summary": "Consultar operação",
-        "description": "Retorna o estado atual e o resultado de uma operação de borderô. Enquanto pending/running, a resposta inclui poll_after_seconds no body e o header Retry-After com o mesmo valor (2s): aguarde esse intervalo antes do próximo poll. Quando completed, traz summary e titulos — cada título com cedente_analysis_id e sacado_analysis_id, consultáveis no detalhe via GET /v1/analyses/{id} do Motor de Análise. Em failed, summary/titulos permanecem null e os tokens são estornados automaticamente.",
+        "description": "Retorna o estado atual e o resultado de uma operação de borderô. Enquanto pending/running, a resposta inclui poll_after_seconds no body e o header Retry-After com o mesmo valor (2s): aguarde esse intervalo antes do próximo poll. Quando completed, adiciona finished_at, summary e titulos — cada título com cedente_analysis_id e sacado_analysis_id, consultáveis no detalhe via GET /v1/analyses/{id} do Motor de Análise. Em failed, adiciona apenas finished_at (sem summary/titulos) e os tokens são estornados automaticamente.",
         "operationId": "getOperation",
         "tags": ["Operações"],
         "parameters": [
@@ -615,10 +623,10 @@
                       "status": "running",
                       "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
                       "file_name": "remessa-0605.rem",
-                      "summary": null,
-                      "titulos": null,
+                      "titulos_count": 42,
+                      "entities_count": 12,
+                      "tokens_charged": 12,
                       "created_at": "2026-07-06T10:00:00Z",
-                      "finished_at": null,
                       "poll_after_seconds": 2,
                       "request_id": "3166fb9a-384c-44b7-ab77-90aca3146e0a"
                     }
@@ -630,6 +638,8 @@
                       "status": "completed",
                       "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
                       "file_name": "remessa-0605.rem",
+                      "titulos_count": 42,
+                      "entities_count": 12,
                       "created_at": "2026-07-06T10:00:00Z",
                       "finished_at": "2026-07-06T10:02:15Z",
                       "summary": {
@@ -649,7 +659,7 @@
                           "valor": 1234.56,
                           "vencimento": "2026-08-01",
                           "verdict": "aprovado",
-                          "nfe_status": "validada",
+                          "nfe_status": "pass",
                           "cedente_analysis_id": "a1b2c3d4-0000-0000-0000-000000000010",
                           "sacado_analysis_id": "a1b2c3d4-0000-0000-0000-000000000011"
                         }

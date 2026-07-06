@@ -32,7 +32,7 @@ Trate `failed` como possível a partir de qualquer estado não-terminal: uma ope
 | `pending` | Não | Operação aceita (202), CNAB parseado e aguardando processamento |
 | `running` | Não | Motor analisando cedente, sacados e títulos |
 | `completed` | Sim | Motor terminou; `summary` e `titulos` disponíveis |
-| `failed` | Sim | O motor não conseguiu concluir a operação; `summary` e `titulos` permanecem `null` e os tokens são estornados |
+| `failed` | Sim | O motor não conseguiu concluir a operação; a resposta não traz `summary` nem `titulos` e os tokens são estornados |
 
 Quando uma operação termina em `failed`, os tokens debitados na criação são **estornados automaticamente**. Veja [Cobrança](/credito/cobranca).
 
@@ -47,12 +47,13 @@ Cada item de `titulos[]` traz um `verdict` que consolida, para aquele título, o
 | `aprovado` | Nenhuma verificação do título resultou em alerta ou bloqueio |
 | `alerta` | Pelo menos uma verificação resultou em alerta, sem nenhum bloqueio |
 | `reprovado` | Pelo menos uma verificação resultou em bloqueio |
+| `incompleto` | Alguma verificação do título ficou indisponível (fonte de dados falhou), sem nenhum bloqueio — mesma semântica do `incompleto` do Motor de Análise |
 
-O `summary` agrega essas contagens em `aprovados`, `alertas` e `reprovados`, junto com `valor_total` e `valor_aprovado` para a decisão financeira da operação.
+O `summary` agrega as contagens em `aprovados`, `alertas` e `reprovados`, junto com `valor_total` e `valor_aprovado` para a decisão financeira da operação.
 
 ## Verdict do cedente
 
-O campo `summary.cedente_verdict` carrega o veredito da análise de risco do **cedente** — a mesma semântica de `verdict` do [Motor de Análise](/motor-analise/ciclo-de-vida) (`aprovado` | `alerta` | `reprovado` | `incompleto`). Como o cedente é a contraparte de todos os títulos, um `cedente_verdict` de `reprovado` compromete o borderô inteiro, independentemente dos sacados.
+O campo `summary.cedente_verdict` carrega o veredito da análise de risco do **cedente** — a mesma semântica de `verdict` do [Motor de Análise](/motor-analise/ciclo-de-vida) (`aprovado` | `alerta` | `reprovado` | `incompleto`), ou `null` se o veredito do cedente não estiver disponível (o campo é preenchido em melhor esforço). Como o cedente é a contraparte de todos os títulos, um `cedente_verdict` de `reprovado` compromete o borderô inteiro, independentemente dos sacados.
 
 ## Operação e análises-filhas
 
@@ -60,20 +61,18 @@ Ao processar o borderô, o motor cria **uma análise por entidade única**: uma 
 
 - O mesmo sacado em vários títulos aponta para a **mesma** análise (e é cobrado uma única vez — veja [Cobrança](/credito/cobranca)).
 - Todos os títulos compartilham o mesmo `cedente_analysis_id`.
+- `cedente_analysis_id` e `sacado_analysis_id` podem ser `null` quando a análise da entidade não está disponível — os campos são preenchidos em melhor esforço.
 - O detalhamento completo (verdict, `blocks`, `coverage`) de qualquer entidade está em `GET /v1/analyses/{id}`, com o formato documentado no [ciclo de vida da análise](/motor-analise/ciclo-de-vida).
 
 É assim que os dois produtos compõem: o Motor de Crédito responde "o que fazer com cada título"; o drill-down nas análises responde "por quê".
 
-## Quando os campos deixam de ser `null`
+## O que cada estado retorna
 
-Enquanto a operação está em `pending` ou `running`:
+Enquanto a operação está em `pending` ou `running`, o `GET` retorna o essencial: `id`, `status`, `engine_id`, `file_name`, `tokens_charged`, `created_at`, o `request_id` e a instrução de polling (`poll_after_seconds`) — `titulos_count` e `entities_count` aparecem quando disponíveis. A resposta **não traz** `summary`, `titulos` nem `finished_at`.
 
-- `summary` e `titulos` são `null`;
-- `finished_at` é `null`.
+Os campos de resultado chegam de uma vez quando a operação atinge `completed`: `finished_at`, `summary` e `titulos[]`. Não há resultado parcial: ou a operação está em andamento, ou está pronta.
 
-Os campos de resultado são preenchidos de uma vez quando a operação chega a `completed`. Não há resultado parcial: ou a operação está em andamento (campos `null`), ou está pronta (campos completos).
-
-Em `failed`, `summary` e `titulos` permanecem `null` — apenas `finished_at` é preenchido — e os tokens debitados na criação são estornados automaticamente.
+Em `failed`, a resposta ganha apenas `finished_at` — sem `summary` nem `titulos` — e os tokens debitados na criação são estornados automaticamente.
 
 ## Polling
 
@@ -114,7 +113,7 @@ if data["status"] == "completed":
     print("cedente:", data["summary"]["cedente_verdict"])
     print("aprovados:", data["summary"]["aprovados"])
 else:
-    # failed: summary/titulos sao null e os tokens sao estornados
+    # failed: sem summary/titulos; tokens estornados automaticamente
     print("operacao falhou")
 ```
 
@@ -141,7 +140,7 @@ if (data.status === "completed") {
   console.log("cedente:", data.summary.cedente_verdict);
   console.log("aprovados:", data.summary.aprovados);
 } else {
-  // failed: summary/titulos sao null e os tokens sao estornados
+  // failed: sem summary/titulos; tokens estornados automaticamente
   console.log("operacao falhou");
 }
 ```
@@ -168,10 +167,10 @@ if (data.status === "completed") {
   "status": "running",
   "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
   "file_name": "remessa-0605.rem",
-  "summary": null,
-  "titulos": null,
+  "titulos_count": 42,
+  "entities_count": 12,
+  "tokens_charged": 12,
   "created_at": "2026-07-06T10:00:00Z",
-  "finished_at": null,
   "poll_after_seconds": 2,
   "request_id": "req-uuid"
 }
@@ -187,6 +186,8 @@ Quando a operação termina, a resposta traz o resultado completo, sem `poll_aft
   "status": "completed",
   "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
   "file_name": "remessa-0605.rem",
+  "titulos_count": 42,
+  "entities_count": 12,
   "created_at": "2026-07-06T10:00:00Z",
   "finished_at": "2026-07-06T10:02:15Z",
   "summary": {
@@ -206,7 +207,7 @@ Quando a operação termina, a resposta traz o resultado completo, sem `poll_aft
       "valor": 1234.56,
       "vencimento": "2026-08-01",
       "verdict": "aprovado",
-      "nfe_status": "validada",
+      "nfe_status": "pass",
       "cedente_analysis_id": "a1b2c3d4-0000-0000-0000-000000000010",
       "sacado_analysis_id": "a1b2c3d4-0000-0000-0000-000000000011"
     }

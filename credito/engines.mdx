@@ -88,9 +88,15 @@ console.log(resp.status, await resp.json());
 
 | Situação | Resposta |
 |----------|----------|
-| `engine_id` de uma engine de outro workspace | `403` [`forbidden`](/problems/forbidden) |
-| `engine_id` inexistente | `404` [`not_found`](/problems/not_found) |
+| `engine_id` inexistente ou de outro workspace | `404` [`not_found`](/problems/not_found) |
+| `engine_id` de uma engine arquivada | `422` [`no_engine`](/problems/no_engine) |
+| Engine incompatível com a operação (ex.: `subject_type` errado) | `422` [`no_engine`](/problems/no_engine) |
+| Engine de borderô sem nenhum bloco ativo | `422` [`no_engine`](/problems/no_engine) |
 | Nenhuma engine de borderô disponível (sem `engine_id` e sem template aplicável) | `422` [`no_engine`](/problems/no_engine) |
+
+<Note>
+  `engine_id` inexistente ou de outro workspace retorna `404 not_found` — a API não revela a existência de engines de outros workspaces. É o mesmo comportamento do `POST /v1/analyses`.
+</Note>
 
 ## Onde as engines são geridas
 

@@ -64,7 +64,7 @@ Se a operação terminar com `status: "failed"` (falha interna do motor), os tok
 
 ## Replay idempotente não cobra
 
-Reenviar o `POST` com a mesma `Idempotency-Key` e o mesmo conteúdo (o hash cobre o SHA-256 dos arquivos + `engine_id`) dentro da janela de 24 horas retorna `200 OK` com o body original da `202` — **sem nova cobrança**. É por isso que, em retries de timeout ou erro de rede, você deve reusar a mesma key. Veja [Idempotência](/credito/idempotencia).
+Reenviar o `POST` com a mesma `Idempotency-Key` e o mesmo conteúdo (o hash cobre o SHA-256 dos bytes dos arquivos + `engine_id` + `legal_basis`) dentro da janela de 24 horas retorna `200 OK` com o body original da `202` — **sem nova cobrança**. É por isso que, em retries de timeout ou erro de rede, você deve reusar a mesma key. Veja [Idempotência](/credito/idempotencia).
 
 ## Resumo: cenário × cobrança
 

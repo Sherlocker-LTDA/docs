@@ -22,10 +22,11 @@ Operações que terminam em `failed` têm os tokens reembolsados automaticamente
 | `status` | enum | `pending`, `running`, `completed`, `failed` |
 | `engine_id` | UUID | Engine de borderô utilizada |
 | `file_name` | string | Nome de exibição do arquivo CNAB enviado |
-| `summary` | object | Resumo da operação; `null` até `completed` |
-| `titulos` | array | Veredito por título; `null` até `completed` |
+| `summary` | object | Resumo da operação; presente apenas quando `completed` |
+| `titulos` | array | Veredito por título; presente apenas quando `completed` |
+| `titulos_count` / `entities_count` | number | Contagens do borderô (títulos e entidades únicas), quando disponíveis |
 | `tokens_charged` | number | Tokens debitados (um por entidade única do borderô) |
-| `created_at` / `finished_at` | datetime | Criação e término (ISO 8601) |
+| `created_at` / `finished_at` | datetime | Criação e término (ISO 8601); `finished_at` presente apenas em estados terminais |
 
 ## Summary
 
@@ -34,9 +35,9 @@ Operações que terminam em `failed` têm os tokens reembolsados automaticamente
 | `titulos` | Total de títulos do borderô |
 | `aprovados` / `alertas` / `reprovados` | Contagem de títulos por veredito |
 | `valor_total` / `valor_aprovado` | Valores monetários do borderô e dos títulos aprovados |
-| `cedente_verdict` | Veredito da análise do cedente |
+| `cedente_verdict` | Veredito da análise do cedente (ou `null` se indisponível) |
 | `entities_count` | Entidades únicas analisadas e cobradas (cedente + sacados únicos) |
 
 ## Títulos
 
-Cada item de `titulos[]` traz `seu_numero`, `sacado_document`, `valor`, `vencimento`, o `verdict` (`aprovado` | `alerta` | `reprovado`), o `nfe_status` da validação cruzada com NFe e os campos `cedente_analysis_id` / `sacado_analysis_id` — IDs de análises normais do [Motor de Análise](/motor-analise/introducao), consultáveis via `GET /v1/analyses/{id}`. O shape completo está em [Títulos e NFe](/credito/titulos-e-nfe).
+Cada item de `titulos[]` traz `seu_numero`, `sacado_document`, `valor`, `vencimento`, o `verdict` (`aprovado` | `alerta` | `reprovado` | `incompleto`), o `nfe_status` consolidado dos blocos de NFe e os campos `cedente_analysis_id` / `sacado_analysis_id` — IDs de análises normais do [Motor de Análise](/motor-analise/introducao), consultáveis via `GET /v1/analyses/{id}` (podem ser `null` se a análise da entidade não estiver disponível). O shape completo está em [Títulos e NFe](/credito/titulos-e-nfe).

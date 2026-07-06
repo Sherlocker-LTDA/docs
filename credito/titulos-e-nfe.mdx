@@ -15,7 +15,7 @@ Quando a operação chega a `completed`, o campo `titulos[]` do `GET /v1/operati
   "valor": 1234.56,
   "vencimento": "2026-08-01",
   "verdict": "aprovado",
-  "nfe_status": "validada",
+  "nfe_status": "pass",
   "cedente_analysis_id": "a1b2c3d4-0000-0000-0000-000000000010",
   "sacado_analysis_id": "a1b2c3d4-0000-0000-0000-000000000011"
 }
@@ -27,16 +27,20 @@ Quando a operação chega a `completed`, o campo `titulos[]` do `GET /v1/operati
 | `sacado_document` | string | Documento do sacado (apenas dígitos), extraído do CNAB |
 | `valor` | number | Valor do título |
 | `vencimento` | string | Data de vencimento (`YYYY-MM-DD`) |
-| `verdict` | enum | `aprovado` \| `alerta` \| `reprovado` — veredito consolidado do título (veja [Ciclo de vida](/credito/ciclo-de-vida)) |
-| `nfe_status` | enum | Resultado do cruzamento com a NFe — tabela abaixo |
-| `cedente_analysis_id` | UUID | Análise do cedente no Motor de Análise (a mesma para todos os títulos da operação) |
-| `sacado_analysis_id` | UUID | Análise do sacado no Motor de Análise (compartilhada entre títulos do mesmo sacado) |
+| `verdict` | enum | `aprovado` \| `alerta` \| `reprovado` \| `incompleto` — veredito consolidado do título (veja [Ciclo de vida](/credito/ciclo-de-vida)) |
+| `nfe_status` | enum | Resultado consolidado dos blocos de NFe do título — tabela abaixo |
+| `cedente_analysis_id` | UUID \| null | Análise do cedente no Motor de Análise (a mesma para todos os títulos da operação); `null` se a análise da entidade não estiver disponível |
+| `sacado_analysis_id` | UUID \| null | Análise do sacado no Motor de Análise (compartilhada entre títulos do mesmo sacado); `null` se a análise da entidade não estiver disponível |
 
 `cedente_analysis_id` e `sacado_analysis_id` são análises **normais**: consulte `GET /v1/analyses/{id}` para o detalhamento completo (`verdict`, `blocks`, `coverage`) de cada entidade, no formato do [Motor de Análise](/motor-analise/ciclo-de-vida).
 
 ## Validação cruzada com NFe
 
 O campo opcional `nfe_zip_base64` do `POST /v1/operations` recebe um **ZIP com os XMLs de NFe** dos títulos, em base64 (máximo de 32 MB decodificado). Quando enviado, o motor procura o XML correspondente a cada título e cruza os dados do CNAB com os da nota — a duplicata bate com uma NFe real?
+
+<Note>
+  O envio de XMLs é **opcional e sujeito à disponibilidade do recurso no beta**: se o recurso de XML estiver desabilitado no ambiente, o campo é aceito e ignorado, sem erro — a validação dos títulos segue apenas com os dados do CNAB.
+</Note>
 
 <CodeGroup>
 ```bash cURL
@@ -110,17 +114,21 @@ console.log(resp.status, await resp.json());
 
 ## Estados de `nfe_status`
 
+O campo consolida os **blocos de NFe** do título. Dois estados indicam que a validação não rodou; os outros quatro refletem o **pior status** entre os blocos de NFe executados (a mesma escala de status de bloco do [Motor de Análise](/motor-analise/ciclo-de-vida)):
+
 | `nfe_status` | Significado |
 |--------------|-------------|
-| `validada` | XML correspondente encontrado no ZIP e os dados conferem com o título do CNAB |
-| `divergente` | XML correspondente encontrado, mas os dados divergem dos do CNAB — confira o título antes de aprovar |
-| `nao_encontrada` | ZIP enviado, mas nenhum XML do pacote corresponde a este título |
-| `nao_aplicavel` | A validação de NFe não se aplica a este título — por exemplo, a operação foi criada sem `nfe_zip_base64` |
+| `no_key` | O título não traz chave de NFe no CNAB — não há o que validar |
+| `not_checked` | A engine da operação não tem nenhum bloco de NFe ativo — validação não executada |
+| `pass` | Todos os blocos de NFe do título passaram sem ressalvas |
+| `alert` | Pior status entre os blocos de NFe: ponto de atenção (ex.: divergência tolerada pela engine) |
+| `blocked` | Pior status entre os blocos de NFe: impeditivo (ex.: divergência ou ausência de lastro tratada como bloqueio) |
+| `unavailable` | Pior status entre os blocos de NFe: alguma verificação não pôde ser executada (fonte ou dado indisponível) |
 
-Como esses estados afetam o `verdict` do título depende da configuração da [engine de borderô](/credito/engines): a engine define se uma divergência ou ausência de NFe gera alerta ou bloqueio.
+Como cada bloco de NFe reage — o que vira `alert`, o que vira `blocked` — depende da configuração da [engine de borderô](/credito/engines), e o resultado dos blocos entra no `verdict` consolidado do título.
 
 <Warning>
-  `nao_aplicavel` não é um problema — é a ausência de validação. Se a sua esteira exige lastro de NFe para todos os títulos, envie sempre o `nfe_zip_base64` e trate `nao_encontrada` e `divergente` na sua regra de aprovação.
+  `no_key` e `not_checked` não são problemas — são a **ausência de validação**. Se a sua esteira exige lastro de NFe para todos os títulos, envie sempre o `nfe_zip_base64`, use uma engine com blocos de NFe ativos e trate `alert`, `blocked` e `unavailable` na sua regra de aprovação.
 </Warning>
 
 ## Limites dos arquivos

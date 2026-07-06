@@ -12,10 +12,11 @@ O header é obrigatório por um motivo simples: rede falha — e uploads de bord
 
 Para decidir se duas requisições com a mesma key são "a mesma", a API calcula um hash canônico que inclui:
 
-- o **SHA-256 do conteúdo decodificado** do CNAB (`cnab_base64`) e, quando enviado, do ZIP de NFe (`nfe_zip_base64`);
-- o `engine_id` (explícito ou resolvido).
+- o **SHA-256 dos bytes decodificados** do CNAB (`cnab_base64`) e, quando enviado, do ZIP de NFe (`nfe_zip_base64`);
+- o `engine_id`;
+- o `legal_basis`.
 
-Isso significa que a comparação é pelo **conteúdo dos arquivos**, não pela string base64: reenviar o mesmo `remessa-0605.rem` é um replay, mesmo que o cliente recodifique o base64. Já trocar o arquivo, o ZIP de NFe ou o `engine_id` mantendo a mesma key resulta em `409 idempotency_conflict`.
+Isso significa que a comparação é pelo **conteúdo dos arquivos**, não pela string base64: reenviar o mesmo `remessa-0605.rem` é um replay, mesmo que o cliente recodifique o base64 de outra forma. Já trocar o arquivo, o ZIP de NFe, o `engine_id` ou o `legal_basis` mantendo a mesma key resulta em `409 idempotency_conflict`.
 
 ## Como funciona
 
@@ -25,7 +26,7 @@ A deduplicação vale por uma janela de **24 horas** a partir da primeira requis
 |---|---|
 | Primeira requisição com a key | `202 Accepted` — operação criada, tokens debitados |
 | Mesma key + mesmo conteúdo (dentro de 24h) | `200 OK` com o mesmo body da 202 original, **sem nova cobrança** |
-| Mesma key + conteúdo **diferente** (arquivo, ZIP ou `engine_id`) | `409` `idempotency_conflict` |
+| Mesma key + conteúdo **diferente** (arquivo, ZIP, `engine_id` ou `legal_basis`) | `409` `idempotency_conflict` |
 | Mesma key com a primeira requisição ainda em andamento | `409` `idempotency_conflict` — aguarde e consulte via `GET` |
 | Key ausente ou vazia | `400` `bad_request` |
 
@@ -185,7 +186,7 @@ curl -i -X POST "https://<API_HOST>/v1/operations" \
 
 Repita exatamente o mesmo comando do cenário 1 (mesma key, mesmo arquivo):
 
-**Resposta (200 OK):** o mesmo body JSON do cenário 1 — mesmo `id`, mesmos `tokens_charged` e `balance`. Nenhuma operação nova foi criada e nada foi cobrado de novo. É por isso que repetir o upload após timeout é seguro.
+**Resposta (200 OK):** o mesmo body JSON do cenário 1 — mesmo `id`, mesmos `tokens_charged` e `balance`, e inclusive o `request_id` **original** da 202. Nenhuma operação nova foi criada e nada foi cobrado de novo. É por isso que repetir o upload após timeout é seguro.
 
 ### 3. Mesma key, conteúdo diferente → 409
 
