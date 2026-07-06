@@ -1,0 +1,96 @@
+---
+title: "Cobrança"
+description: "Modelo de cobrança por entidade única do borderô, quando o débito acontece e quando há estorno"
+icon: "coins"
+---
+
+Cada operação do Motor de Crédito consome **tokens do workspace**: o mesmo pool usado pela interface web do Sherlocker e pelo Motor de Análise. A cobrança é por **entidade única** do borderô — não por título e não por arquivo. Esta página explica o modelo, quando o débito acontece e quando há estorno.
+
+<Warning>
+  **Preço em definição durante o beta.** Não fixe um custo em código: o valor efetivamente cobrado vem sempre no campo `tokens_charged` da resposta. Todos os valores de tokens nesta página são **ilustrativos**.
+</Warning>
+
+## O modelo: entidades únicas × preço unitário
+
+O custo de uma operação é:
+
+```
+tokens_charged = (cedente + sacados únicos) × preço unitário de análise
+```
+
+Cada entidade única do borderô gera uma análise do [Motor de Análise](/motor-analise/introducao) — e é essa análise que é cobrada, ao preço unitário vigente. Títulos não têm custo próprio: o mesmo sacado em 10 títulos conta **uma vez**.
+
+### Exemplo numérico
+
+Um borderô com **42 títulos**, do mesmo cedente, sacados contra 11 empresas distintas:
+
+| | Quantidade |
+|---|---|
+| Títulos no arquivo (`titulos_count`) | 42 |
+| Cedente | 1 |
+| Sacados únicos | 11 |
+| **Entidades cobradas (`entities_count`)** | **12** |
+
+Com um preço unitário ilustrativo de 1 token por análise, a operação debita **12 tokens** — não 42. A resposta do `POST` confirma as duas contagens:
+
+```json
+{
+  "id": "b2c3d4e5-0000-0000-0000-000000000001",
+  "status": "pending",
+  "titulos_count": 42,
+  "entities_count": 12,
+  "tokens_charged": 12,
+  "balance": 988,
+  "poll_after_seconds": 2,
+  "request_id": "req-uuid"
+}
+```
+
+Repare que borderôs concentrados (muitos títulos, poucos sacados) custam proporcionalmente menos por título do que borderôs pulverizados.
+
+## O débito acontece na criação, após o parse
+
+Os tokens são debitados no momento do `POST /v1/operations`, **depois do parse do CNAB** — é o parse que revela quantas entidades únicas o arquivo tem. A consequência prática:
+
+- Arquivo com base64 inválido ou CNAB que não parseia → `400 validation_error`, **nada é cobrado**.
+- Saldo insuficiente para as entidades do borderô → [`402 insufficient_tokens`](/problems/insufficient_tokens), **nada é cobrado** — o erro traz `required` e `balance` para você saber quanto falta.
+- Parse ok e saldo ok → `202 Accepted` com o débito confirmado em `tokens_charged` e o saldo restante em `balance`.
+
+`tokens_charged` e `balance` são informados em melhor esforço: se a consulta de saldo falhar no momento da resposta, os campos podem estar ausentes, o que não altera a cobrança em si.
+
+## Estorno automático em `failed`
+
+Se a operação terminar com `status: "failed"` (falha interna do motor), os tokens debitados na criação são **estornados automaticamente**. O estorno é assíncrono — ele não aparece no body do `GET /v1/operations/{id}`, mas fica registrado no extrato de tokens do workspace no app Sherlocker.
+
+## Replay idempotente não cobra
+
+Reenviar o `POST` com a mesma `Idempotency-Key` e o mesmo conteúdo (o hash cobre o SHA-256 dos arquivos + `engine_id`) dentro da janela de 24 horas retorna `200 OK` com o body original da `202` — **sem nova cobrança**. É por isso que, em retries de timeout ou erro de rede, você deve reusar a mesma key. Veja [Idempotência](/credito/idempotencia).
+
+## Resumo: cenário × cobrança
+
+| Cenário | HTTP | Cobra tokens? |
+|---|---|---|
+| Nova operação criada | `202` | Sim — `entities_count` × preço unitário, no POST após o parse |
+| Replay idempotente (mesma key + mesmo conteúdo) | `200` | Não |
+| CNAB que não parseia / base64 inválido | `400` | Não (o débito só acontece após o parse) |
+| Operação termina `failed` | — | Cobrada na criação e **estornada automaticamente** |
+| Operação termina `completed` | — | Sim (o trabalho foi executado) |
+| Requisição rejeitada com erro (`400`, `401`, `402`, `403`, `409`, `422`) | `4xx` | Não |
+
+## Saldo e recarga
+
+O saldo de tokens e a recarga (top-up) são gerenciados no **app Sherlocker**: a API `/v1` compartilha o mesmo pool de tokens do workspace. O extrato do workspace no app mostra os débitos por operação e os estornos de operações `failed`.
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Idempotência" icon="repeat" href="/credito/idempotencia">
+    Retry seguro de upload sem risco de cobrança dupla
+  </Card>
+  <Card title="Ciclo de vida" icon="arrows-rotate" href="/credito/ciclo-de-vida">
+    Status da operação e a relação com as análises-filhas
+  </Card>
+  <Card title="Erros" icon="triangle-exclamation" href="/credito/erros">
+    Formato RFC 7807 e o erro insufficient_tokens
+  </Card>
+</CardGroup>

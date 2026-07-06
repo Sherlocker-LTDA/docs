@@ -332,6 +332,67 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Motor de Crédito",
+        "icon": "file-invoice-dollar",
+        "groups": [
+          {
+            "group": "Começando",
+            "pages": [
+              "credito/introducao",
+              "credito/quickstart",
+              "credito/autenticacao"
+            ]
+          },
+          {
+            "group": "Conceitos",
+            "pages": [
+              "credito/ciclo-de-vida",
+              "credito/idempotencia",
+              "credito/cobranca",
+              "credito/engines"
+            ]
+          },
+          {
+            "group": "Referência",
+            "pages": [
+              "credito/titulos-e-nfe",
+              "credito/erros"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "openapi": "/openapi/motor-credito.json",
+            "pages": [
+              "POST /v1/operations",
+              "GET /v1/operations/{id}"
+            ]
+          },
+          {
+            "group": "Códigos de erro",
+            "pages": [
+              "problems/validation_error",
+              "problems/bad_request",
+              "problems/unauthorized",
+              "problems/insufficient_tokens",
+              "problems/feature_not_enabled",
+              "problems/forbidden",
+              "problems/not_found",
+              "problems/idempotency_conflict",
+              "problems/no_engine",
+              "problems/http_error",
+              "problems/server_error"
+            ]
+          },
+          {
+            "group": "Acesso e suporte",
+            "pages": [
+              "api/access",
+              "support"
+            ]
+          }
+        ]
       }
     ]
   }

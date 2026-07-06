@@ -1,0 +1,115 @@
+---
+title: "Engines"
+description: "Como a engine de borderô define as validações de título/NFe e a análise de cedente e sacados"
+icon: "gears"
+---
+
+Uma **engine de borderô** é a configuração de uma operação do Motor de Crédito. Ela reúne dois conjuntos de verificações:
+
+- **Blocos de título e de NFe** — validações aplicadas a cada título do arquivo: consistência dos dados do CNAB (valores, vencimentos) e cruzamento com o XML de NFe correspondente, quando o ZIP é enviado (veja [Títulos e NFe](/credito/titulos-e-nfe)).
+- **Blocos de cedente e de sacado** — a política de risco aplicada às análises de cada entidade única do borderô, com a mesma mecânica de blocos do [Motor de Análise](/motor-analise/engines) (bloqueio, alerta, ignorar).
+
+Toda operação criada via `POST /v1/operations` roda com exatamente uma engine de borderô, e é ela que determina os verdicts por título e o `cedente_verdict` do resultado.
+
+## O `engine_id` é opcional
+
+O campo `engine_id` do body resolve assim:
+
+1. **`engine_id` explícito** — a engine precisa existir e pertencer ao seu workspace (ou ser um template do sistema).
+2. **`engine_id` omitido** — a operação usa a **engine template de borderô do sistema**, a política padrão do Sherlocker para operações de desconto de duplicatas.
+
+Exemplo com `engine_id` explícito:
+
+<Note>
+  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+</Note>
+
+<CodeGroup>
+```bash cURL
+CNAB_B64=$(base64 -i remessa-0605.rem | tr -d '\n')
+
+curl -X POST "https://<API_HOST>/v1/operations" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Idempotency-Key: 7c9e6679-7425-40de-944b-e07fc1f90ae7" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"cnab_base64\": \"$CNAB_B64\",
+    \"engine_id\": \"0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f\"
+  }"
+```
+
+```python Python
+import base64
+import requests
+
+with open("remessa-0605.rem", "rb") as f:
+    cnab_b64 = base64.b64encode(f.read()).decode()
+
+resp = requests.post(
+    "https://<API_HOST>/v1/operations",
+    headers={
+        "Authorization": "Bearer slhk_sua_chave_aqui",
+        "Idempotency-Key": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    },
+    json={
+        "cnab_base64": cnab_b64,
+        "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+    },
+)
+print(resp.status_code, resp.json())
+```
+
+```javascript Node.js
+import { readFileSync } from "node:fs";
+
+const cnabB64 = readFileSync("remessa-0605.rem").toString("base64");
+
+const resp = await fetch("https://<API_HOST>/v1/operations", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer slhk_sua_chave_aqui",
+    "Idempotency-Key": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    cnab_base64: cnabB64,
+    engine_id: "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+  }),
+});
+console.log(resp.status, await resp.json());
+```
+</CodeGroup>
+
+<Warning>
+  O `engine_id` entra no hash canônico da idempotência: reenviar o mesmo arquivo com a mesma `Idempotency-Key` e um `engine_id` diferente resulta em `409 idempotency_conflict`. Veja [Idempotência](/credito/idempotencia).
+</Warning>
+
+### Erros de resolução
+
+| Situação | Resposta |
+|----------|----------|
+| `engine_id` de uma engine de outro workspace | `403` [`forbidden`](/problems/forbidden) |
+| `engine_id` inexistente | `404` [`not_found`](/problems/not_found) |
+| Nenhuma engine de borderô disponível (sem `engine_id` e sem template aplicável) | `422` [`no_engine`](/problems/no_engine) |
+
+## Onde as engines são geridas
+
+Engines de borderô são criadas, editadas e arquivadas **no app Sherlocker** (interface web). A API `/v1` não tem endpoints de CRUD de engines — ela só consome uma engine já existente via `engine_id` ou pela resolução automática. Para criar uma política própria (mudar ações dos blocos de cedente/sacado, ajustar as validações de título), use o app.
+
+<Tip>
+  A resposta do `GET /v1/operations/{id}` sempre traz o `engine_id` efetivamente usado — inclusive quando você omitiu o campo e a operação rodou com o template do sistema. Guarde-o se quiser reproduzir a mesma política em operações futuras.
+</Tip>
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Títulos e NFe" icon="file-invoice" href="/credito/titulos-e-nfe">
+    As validações de título e o cruzamento com XMLs de NFe
+  </Card>
+  <Card title="Ciclo de vida" icon="arrows-rotate" href="/credito/ciclo-de-vida">
+    Como a engine determina os verdicts do resultado
+  </Card>
+  <Card title="Engines do Motor de Análise" icon="gauge-high" href="/motor-analise/engines">
+    A mecânica de blocos aplicada a cedente e sacados
+  </Card>
+</CardGroup>
