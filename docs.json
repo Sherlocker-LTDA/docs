@@ -273,55 +273,76 @@
         ]
       },
       {
-        "tab": "Motor de Análise",
-        "icon": "gauge-high",
+        "tab": "Motores de Análise",
+        "icon": "radar",
         "groups": [
           {
             "group": "Começando",
             "pages": [
-              "motor-analise/introducao",
-              "motor-analise/quickstart",
+              "motores/introducao",
               "motor-analise/autenticacao"
             ]
           },
           {
-            "group": "Conceitos",
+            "group": "Motor de CPF/CNPJ",
             "pages": [
+              "motor-analise/introducao",
+              "motor-analise/quickstart",
               "motor-analise/ciclo-de-vida",
               "motor-analise/idempotencia",
               "motor-analise/cobranca",
-              "motor-analise/engines"
-            ]
-          },
-          {
-            "group": "Referência",
-            "pages": [
+              "motor-analise/engines",
               "motor-analise/blocos",
-              "motor-analise/erros"
+              {
+                "group": "Endpoints",
+                "openapi": "/openapi/motor-analise.json",
+                "pages": [
+                  "POST /v1/analyses",
+                  "GET /v1/analyses/{id}"
+                ]
+              }
             ]
           },
           {
-            "group": "Endpoints",
-            "openapi": "/openapi/motor-analise.json",
+            "group": "Motor de Borderô (títulos & NFe)",
             "pages": [
-              "POST /v1/analyses",
-              "GET /v1/analyses/{id}"
+              "credito/introducao",
+              "credito/quickstart",
+              "credito/ciclo-de-vida",
+              "credito/idempotencia",
+              "credito/cobranca",
+              "credito/engines",
+              "credito/titulos-e-nfe",
+              {
+                "group": "Endpoints",
+                "openapi": "/openapi/motor-credito.json",
+                "pages": [
+                  "POST /v1/operations",
+                  "GET /v1/operations/{id}"
+                ]
+              }
             ]
           },
           {
-            "group": "Códigos de erro",
+            "group": "Referência comum",
             "pages": [
-              "problems/validation_error",
-              "problems/bad_request",
-              "problems/unauthorized",
-              "problems/insufficient_tokens",
-              "problems/feature_not_enabled",
-              "problems/forbidden",
-              "problems/not_found",
-              "problems/idempotency_conflict",
-              "problems/no_engine",
-              "problems/http_error",
-              "problems/server_error"
+              "motor-analise/erros",
+              {
+                "group": "Códigos de erro",
+                "pages": [
+                  "problems/validation_error",
+                  "problems/bad_request",
+                  "problems/unauthorized",
+                  "problems/insufficient_tokens",
+                  "problems/feature_not_enabled",
+                  "problems/forbidden",
+                  "problems/not_found",
+                  "problems/idempotency_conflict",
+                  "problems/no_engine",
+                  "problems/http_error",
+                  "problems/server_error"
+                ]
+              }
             ]
           },
           {
@@ -329,67 +350,6 @@
             "pages": [
               "api/access",
               "support"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Motor de Crédito",
-        "icon": "file-invoice-dollar",
-        "groups": [
-          {
-            "group": "Começando",
-            "pages": [
-              "credito/introducao",
-              "credito/quickstart",
-              "credito/autenticacao"
-            ]
-          },
-          {
-            "group": "Conceitos",
-            "pages": [
-              "credito/ciclo-de-vida",
-              "credito/idempotencia",
-              "credito/cobranca",
-              "credito/engines"
-            ]
-          },
-          {
-            "group": "Referência",
-            "pages": [
-              "credito/titulos-e-nfe",
-              "credito/erros"
-            ]
-          },
-          {
-            "group": "Endpoints",
-            "openapi": "/openapi/motor-credito.json",
-            "pages": [
-              "POST /v1/operations",
-              "GET /v1/operations/{id}"
-            ]
-          },
-          {
-            "group": "Códigos de erro",
-            "pages": [
-              "credito/problems/validation_error",
-              "credito/problems/bad_request",
-              "credito/problems/unauthorized",
-              "credito/problems/insufficient_tokens",
-              "credito/problems/feature_not_enabled",
-              "credito/problems/forbidden",
-              "credito/problems/not_found",
-              "credito/problems/idempotency_conflict",
-              "credito/problems/no_engine",
-              "credito/problems/http_error",
-              "credito/problems/server_error"
-            ]
-          },
-          {
-            "group": "Acesso e suporte",
-            "pages": [
-              "credito/acesso",
-              "credito/suporte"
             ]
           }
         ]

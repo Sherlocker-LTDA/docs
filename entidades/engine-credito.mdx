@@ -1,10 +1,10 @@
 ---
 title: "Engine de Crédito"
-description: "Engine de borderô do Motor de Crédito — a política de análise da operação"
+description: "Engine de borderô do Motor de Borderô — a política de análise da operação"
 icon: "gears"
 ---
 
-Uma **engine de borderô** é a configuração de uma operação do [Motor de Crédito](/credito/introducao): ela define os **blocos de título e de NFe** aplicados a cada título do borderô (vencimento, valores, cruzamento com o XML de NFe) e os **blocos de cedente e de sacado** aplicados à análise de risco de cada entidade única.
+Uma **engine de borderô** é a configuração de uma operação do [Motor de Borderô](/credito/introducao): ela define os **blocos de título e de NFe** aplicados a cada título do borderô (vencimento, valores, cruzamento com o XML de NFe) e os **blocos de cedente e de sacado** aplicados à análise de risco de cada entidade única.
 
 ## Uso na API
 
@@ -15,9 +15,9 @@ O campo `engine_id` do `POST /v1/operations` é **opcional**:
 
 | Situação | Resposta |
 |----------|----------|
-| `engine_id` inexistente ou de outro workspace | `404` [`not_found`](/credito/problems/not_found) |
-| Engine arquivada, incompatível ou sem nenhum bloco ativo | `422` [`no_engine`](/credito/problems/no_engine) |
-| Nenhuma engine de borderô disponível | `422` [`no_engine`](/credito/problems/no_engine) |
+| `engine_id` inexistente ou de outro workspace | `404` [`not_found`](/problems/not_found) |
+| Engine arquivada, incompatível ou sem nenhum bloco ativo | `422` [`no_engine`](/problems/no_engine) |
+| Nenhuma engine de borderô disponível | `422` [`no_engine`](/problems/no_engine) |
 
 ## Onde as engines são geridas
 

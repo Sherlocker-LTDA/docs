@@ -1,18 +1,18 @@
 ---
 title: "Quickstart"
-description: "Analise seu primeiro borderô CNAB 400 com a API do Motor de Crédito"
+description: "Analise seu primeiro borderô CNAB 400 com a API do Motor de Borderô"
 icon: "rocket"
 ---
 
 Neste guia você envia um borderô CNAB 400, acompanha o processamento até o resultado consolidado e faz o drill-down na análise de risco de uma das entidades. É a mesma esteira de análise da interface web do Sherlocker, agora acessível por API.
 
 <Note>
-  Não confunda com o **Motor de Análise** ([documentado aqui](/motor-analise/introducao)), que avalia o risco de um CNPJ ou CPF individual. O Motor de Crédito analisa o borderô inteiro — e usa o Motor de Análise por baixo para cada entidade.
+  Não confunda com o **Motor de Análise** ([documentado aqui](/motor-analise/introducao)), que avalia o risco de um CNPJ ou CPF individual. O Motor de Borderô analisa o borderô inteiro — e usa o Motor de Análise por baixo para cada entidade.
 </Note>
 
 ## Pré-requisitos
 
-- **Acesso ao beta**: a feature `analysis_engine` precisa estar habilitada no seu workspace. Solicite em [Solicitar acesso](/credito/acesso).
+- **Acesso ao beta**: a feature `analysis_engine` precisa estar habilitada no seu workspace. Solicite em [Solicitar acesso](/api/access).
 - **Chave de API**: criada no app Sherlocker em **Settings → API Keys**. As chaves têm prefixo `slhk_` e são exibidas uma única vez — guarde em local seguro.
 - **Saldo de tokens**: a operação consome tokens do mesmo pool do workspace usado no app — um débito por entidade única do borderô (veja [Cobrança](/credito/cobranca)).
 - **Arquivo CNAB 400 remessa** (`.rem` ou `.txt`), com no máximo 16 MB decodificado.
@@ -322,7 +322,7 @@ Todos os erros seguem RFC 7807 (`Content-Type: application/problem+json`). Use o
 }
 ```
 
-Como nada foi parseado, **nada é cobrado** — o débito só acontece após o parse bem-sucedido do CNAB. O registro completo dos códigos de erro está em [Erros](/credito/erros).
+Como nada foi parseado, **nada é cobrado** — o débito só acontece após o parse bem-sucedido do CNAB. O registro completo dos códigos de erro está em [Erros](/motor-analise/erros).
 
 ## O que você construiu
 

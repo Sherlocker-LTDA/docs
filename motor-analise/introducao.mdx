@@ -1,10 +1,10 @@
 ---
-title: "Motor de Análise"
+title: "Motor de CPF/CNPJ"
 description: "Análise de risco automatizada de CNPJ e CPF via API"
-icon: "radar"
+icon: "user-check"
 ---
 
-O **Motor de Análise** é a API pública para rodar análises de risco automatizadas de **CNPJ** e **CPF** — o mesmo motor usado na interface web do Sherlocker. Você envia um documento, o motor consulta as fontes de dados configuradas na sua engine e devolve um veredito consolidado com o detalhamento de cada verificação.
+O **Motor de CPF/CNPJ** (Motor de Análise) é a API pública para rodar análises de risco automatizadas de **CNPJ** e **CPF** — o mesmo motor usado na interface web do Sherlocker. Você envia um documento, o motor consulta as fontes de dados configuradas na sua engine e devolve um veredito consolidado com o detalhamento de cada verificação.
 
 Foi feito para quem precisa de análise cadastral e de risco dentro do próprio fluxo:
 
@@ -46,18 +46,9 @@ Todos os endpoints usam a base `https://<API_HOST>/v1` e autenticação pelo hea
 
 Análises que terminam em `failed` têm os tokens reembolsados automaticamente. A API é polling-only por enquanto: não há webhooks nem listagem de análises.
 
-## Motor de Análise vs Motor de Crédito
+## E o Motor de Borderô?
 
-Não confunda com o **[Motor de Crédito](/credito/introducao)**, também documentado neste site. São produtos complementares que compartilham a mesma base `/v1`, a mesma chave `slhk_` e a mesma feature `analysis_engine`:
-
-| | Motor de Análise | Motor de Crédito |
-|---|---|---|
-| O que analisa | Um CNPJ ou CPF individual (cadastro, sanções, risco) | Um borderô completo em CNAB 400 (cedente, sacados, títulos e NFe) |
-| Endpoints | `POST /v1/analyses` e `GET /v1/analyses/{id}` | `POST /v1/operations` e `GET /v1/operations/{id}` |
-| Cobrança | Por análise | Por entidade única do borderô (cedente + sacados únicos) |
-| Resultado | `verdict` + `blocks` + `coverage` | `summary` + veredito por título, com `cedente_analysis_id`/`sacado_analysis_id` apontando para análises completas |
-
-Se o seu caso é analisar uma operação de desconto de duplicatas a partir de um arquivo CNAB 400, use o Motor de Crédito. Se é avaliar o risco de um CNPJ ou CPF específico, esta é a API certa. Os dois compõem: cada título do resultado do Motor de Crédito referencia análises normais desta API, consultáveis via `GET /v1/analyses/{id}`.
+Este é o motor de **documento individual**. Se o seu caso é analisar uma operação de desconto de duplicatas a partir de um arquivo CNAB 400 — cedente, sacados e títulos de uma vez —, use o **[Motor de Borderô](/credito/introducao)**: mesma base `/v1`, mesma chave `slhk_`, mesma feature. Os dois compõem: cada título do resultado do borderô referencia análises normais desta API, consultáveis via `GET /v1/analyses/{id}`. A comparação completa está em [Motores de Análise](/motores/introducao).
 
 ## Próximos passos
 

@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Sherlocker Motor de Crédito - API v1",
-    "description": "API pública do Motor de Crédito: cria operações assíncronas de análise de borderô CNAB 400 (cedente, sacados, títulos e validação cruzada com NFe) e consulta o resultado por polling. Cada entidade única do borderô gera uma análise do Motor de Análise, consultável via GET /v1/analyses/{id}. Autenticação por chave de API (Bearer slhk_) no header. Erros em RFC 7807 (application/problem+json). Em beta: requer a feature analysis_engine habilitada no workspace.",
+    "title": "Sherlocker Motor de Borderô - API v1",
+    "description": "API pública do Motor de Borderô: cria operações assíncronas de análise de borderô CNAB 400 (cedente, sacados, títulos e validação cruzada com NFe) e consulta o resultado por polling. Cada entidade única do borderô gera uma análise do Motor de Análise, consultável via GET /v1/analyses/{id}. Autenticação por chave de API (Bearer slhk_) no header. Erros em RFC 7807 (application/problem+json). Em beta: requer a feature analysis_engine habilitada no workspace.",
     "version": "1.0"
   },
   "servers": [

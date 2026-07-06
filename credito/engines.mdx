@@ -4,7 +4,7 @@ description: "Como a engine de borderô define as validações de título/NFe e 
 icon: "gears"
 ---
 
-Uma **engine de borderô** é a configuração de uma operação do Motor de Crédito. Ela reúne dois conjuntos de verificações:
+Uma **engine de borderô** é a configuração de uma operação do Motor de Borderô. Ela reúne dois conjuntos de verificações:
 
 - **Blocos de título e de NFe** — validações aplicadas a cada título do arquivo: consistência dos dados do CNAB (valores, vencimentos) e cruzamento com o XML de NFe correspondente, quando o ZIP é enviado (veja [Títulos e NFe](/credito/titulos-e-nfe)).
 - **Blocos de cedente e de sacado** — a política de risco aplicada às análises de cada entidade única do borderô, com a mesma mecânica de blocos do [Motor de Análise](/motor-analise/engines) (bloqueio, alerta, ignorar).
@@ -88,11 +88,11 @@ console.log(resp.status, await resp.json());
 
 | Situação | Resposta |
 |----------|----------|
-| `engine_id` inexistente ou de outro workspace | `404` [`not_found`](/credito/problems/not_found) |
-| `engine_id` de uma engine arquivada | `422` [`no_engine`](/credito/problems/no_engine) |
-| Engine incompatível com a operação (ex.: `subject_type` errado) | `422` [`no_engine`](/credito/problems/no_engine) |
-| Engine de borderô sem nenhum bloco ativo | `422` [`no_engine`](/credito/problems/no_engine) |
-| Nenhuma engine de borderô disponível (sem `engine_id` e sem template aplicável) | `422` [`no_engine`](/credito/problems/no_engine) |
+| `engine_id` inexistente ou de outro workspace | `404` [`not_found`](/problems/not_found) |
+| `engine_id` de uma engine arquivada | `422` [`no_engine`](/problems/no_engine) |
+| Engine incompatível com a operação (ex.: `subject_type` errado) | `422` [`no_engine`](/problems/no_engine) |
+| Engine de borderô sem nenhum bloco ativo | `422` [`no_engine`](/problems/no_engine) |
+| Nenhuma engine de borderô disponível (sem `engine_id` e sem template aplicável) | `422` [`no_engine`](/problems/no_engine) |
 
 <Note>
   `engine_id` inexistente ou de outro workspace retorna `404 not_found` — a API não revela a existência de engines de outros workspaces. É o mesmo comportamento do `POST /v1/analyses`.

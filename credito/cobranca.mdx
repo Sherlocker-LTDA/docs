@@ -4,7 +4,7 @@ description: "Modelo de cobrança por entidade única do borderô, quando o déb
 icon: "coins"
 ---
 
-Cada operação do Motor de Crédito consome **tokens do workspace**: o mesmo pool usado pela interface web do Sherlocker e pelo Motor de Análise. A cobrança é por **entidade única** do borderô — não por título e não por arquivo. Esta página explica o modelo, quando o débito acontece e quando há estorno.
+Cada operação do Motor de Borderô consome **tokens do workspace**: o mesmo pool usado pela interface web do Sherlocker e pelo Motor de Análise. A cobrança é por **entidade única** do borderô — não por título e não por arquivo. Esta página explica o modelo, quando o débito acontece e quando há estorno.
 
 <Warning>
   **Preço em definição durante o beta.** Não fixe um custo em código: o valor efetivamente cobrado vem sempre no campo `tokens_charged` da resposta. Todos os valores de tokens nesta página são **ilustrativos**.
@@ -53,7 +53,7 @@ Repare que borderôs concentrados (muitos títulos, poucos sacados) custam propo
 Os tokens são debitados no momento do `POST /v1/operations`, **depois do parse do CNAB** — é o parse que revela quantas entidades únicas o arquivo tem. A consequência prática:
 
 - Arquivo com base64 inválido ou CNAB que não parseia → `400 validation_error`, **nada é cobrado**.
-- Saldo insuficiente para as entidades do borderô → [`402 insufficient_tokens`](/credito/problems/insufficient_tokens), **nada é cobrado** — o erro traz `required` e `balance` para você saber quanto falta.
+- Saldo insuficiente para as entidades do borderô → [`402 insufficient_tokens`](/problems/insufficient_tokens), **nada é cobrado** — o erro traz `required` e `balance` para você saber quanto falta.
 - Parse ok e saldo ok → `202 Accepted` com o débito confirmado em `tokens_charged` e o saldo restante em `balance`.
 
 `tokens_charged` e `balance` são informados em melhor esforço: se a consulta de saldo falhar no momento da resposta, os campos podem estar ausentes, o que não altera a cobrança em si.
@@ -90,7 +90,7 @@ O saldo de tokens e a recarga (top-up) são gerenciados no **app Sherlocker**: a
   <Card title="Ciclo de vida" icon="arrows-rotate" href="/credito/ciclo-de-vida">
     Status da operação e a relação com as análises-filhas
   </Card>
-  <Card title="Erros" icon="triangle-exclamation" href="/credito/erros">
+  <Card title="Erros" icon="triangle-exclamation" href="/motor-analise/erros">
     Formato RFC 7807 e o erro insufficient_tokens
   </Card>
 </CardGroup>

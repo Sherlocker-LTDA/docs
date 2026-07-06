@@ -215,7 +215,7 @@ curl -i -X POST "https://<API_HOST>/v1/operations" \
 }
 ```
 
-O mesmo `code` (`idempotency_conflict`) também é retornado no caso de concorrência — uma requisição com a mesma key ainda em andamento. Faça branching pelo `code`, não pelo texto de `detail`, que pode variar. Detalhes do formato em [Erros](/credito/erros) e [idempotency_conflict](/credito/problems/idempotency_conflict).
+O mesmo `code` (`idempotency_conflict`) também é retornado no caso de concorrência — uma requisição com a mesma key ainda em andamento. Faça branching pelo `code`, não pelo texto de `detail`, que pode variar. Detalhes do formato em [Erros](/motor-analise/erros) e [idempotency_conflict](/problems/idempotency_conflict).
 
 ## Próximos passos
 
@@ -226,7 +226,7 @@ O mesmo `code` (`idempotency_conflict`) também é retornado no caso de concorr�
   <Card title="Cobrança" icon="coins" href="/credito/cobranca">
     Modelo por entidade única e o estorno em `failed`
   </Card>
-  <Card title="Erros" icon="triangle-exclamation" href="/credito/erros">
+  <Card title="Erros" icon="triangle-exclamation" href="/motor-analise/erros">
     Formato RFC 7807 e todos os códigos de erro
   </Card>
 </CardGroup>

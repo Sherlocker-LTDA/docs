@@ -64,7 +64,7 @@ Ao processar o borderô, o motor cria **uma análise por entidade única**: uma 
 - `cedente_analysis_id` e `sacado_analysis_id` podem ser `null` quando a análise da entidade não está disponível — os campos são preenchidos em melhor esforço.
 - O detalhamento completo (verdict, `blocks`, `coverage`) de qualquer entidade está em `GET /v1/analyses/{id}`, com o formato documentado no [ciclo de vida da análise](/motor-analise/ciclo-de-vida).
 
-É assim que os dois produtos compõem: o Motor de Crédito responde "o que fazer com cada título"; o drill-down nas análises responde "por quê".
+É assim que os dois produtos compõem: o Motor de Borderô responde "o que fazer com cada título"; o drill-down nas análises responde "por quê".
 
 ## O que cada estado retorna
 
@@ -155,7 +155,7 @@ if (data.status === "completed") {
 - **Respeite o rate limit**: 100 requisições por minuto por IP. Exceder retorna `429`.
 - **Use o intervalo indicado** (2 segundos) entre consultas, em vez de um valor fixo próprio.
 - **Pare no estado terminal**: `completed` e `failed` são finais; não há transição depois deles.
-- Consultar uma operação inexistente ou de outro workspace retorna `404 not_found` — veja [Erros](/credito/erros).
+- Consultar uma operação inexistente ou de outro workspace retorna `404 not_found` — veja [Erros](/motor-analise/erros).
 
 ## Exemplo: resposta em andamento
 
