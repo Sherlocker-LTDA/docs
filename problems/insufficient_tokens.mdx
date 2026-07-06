@@ -1,0 +1,56 @@
+---
+title: "insufficient_tokens"
+description: "Erro 402: saldo de tokens do workspace insuficiente para a análise"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `402`
+
+## O que significa
+
+O workspace não tem saldo de tokens suficiente para cobrir o custo da requisição. Nada foi cobrado e nada será executado (a resposta 402 não retorna um id). A resposta inclui os campos extras `required` (tokens necessários) e `balance` (saldo atual).
+
+Tokens são debitados na criação (`POST /v1/analyses` ou `POST /v1/operations`). No Motor de CPF/CNPJ, `required` é o custo da análise; no Motor de Borderô, as **entidades únicas** do arquivo (cedente + sacados únicos) vezes o preço unitário. O valor efetivamente cobrado vem sempre no campo `tokens_charged` da resposta de sucesso; o preço está em definição durante o beta.
+
+## Causas comuns
+
+- Saldo do workspace esgotado ou abaixo do custo da requisição.
+- Volume de análises maior que o previsto no consumo de tokens do workspace.
+- Borderô com mais sacados únicos (e portanto mais entidades cobradas) do que o previsto.
+
+## Como corrigir
+
+- Compare `required` e `balance` no body do erro para saber quanto falta.
+- Recarregue o saldo no app Sherlocker. A API `/v1` usa o mesmo pool de tokens do workspace no app.
+- Depois da recarga, reenvie a requisição com uma **nova** `Idempotency-Key`. A tentativa que recebeu 402 não criou nada nem cobrou tokens; reutilizar a mesma key pode retornar [`409 idempotency_conflict`](/problems/idempotency_conflict).
+
+## Exemplo
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/insufficient_tokens",
+  "title": "Payment Required",
+  "status": 402,
+  "code": "insufficient_tokens",
+  "detail": "Insufficient tokens: 50 available, 100 required",
+  "required": 100,
+  "balance": 50,
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+<Note>
+  Os valores de tokens acima são ilustrativos. O custo real por análise é retornado em `tokens_charged` na resposta de criação.
+</Note>
+
+## Campos extras
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `required` | number | Tokens necessários para executar a análise. |
+| `balance` | number | Saldo atual de tokens do workspace. |
+
+## Relacionado
+
+- [Erros da API](/motor-analise/erros)
+- [Cobrança](/motores/cobranca)

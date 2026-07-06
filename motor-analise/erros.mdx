@@ -1,0 +1,262 @@
+---
+title: "Erros"
+description: "Referência comum de erros dos Motores de Análise: formato RFC 7807, códigos e tratamento"
+icon: "triangle-exclamation"
+---
+
+Toda resposta de erro da API `/v1` segue o [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) e é retornada com `Content-Type: application/problem+json`. Isso vale para os **dois motores** — Motor de CPF/CNPJ (`POST /v1/analyses`, `GET /v1/analyses/{id}`) e Motor de Borderô (`POST /v1/operations`, `GET /v1/operations/{id}`): mesmo formato, mesmos códigos.
+
+<Note>
+  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+</Note>
+
+## Formato base
+
+Exemplo: uma requisição sem o header `Authorization` retorna `401`:
+
+```bash
+curl -i "https://<API_HOST>/v1/analyses/a1b2c3d4-0000-0000-0000-000000000001"
+```
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/unauthorized",
+  "title": "Unauthorized",
+  "status": 401,
+  "code": "unauthorized",
+  "detail": "Authentication is required to access this resource.",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+Todo body de erro contém, no mínimo:
+
+| Campo | Descrição |
+|---|---|
+| `type` | URI que identifica o tipo do problema (`https://docs.sherlocker.com.br/problems/<code>`) |
+| `title` | Descrição curta do tipo do problema |
+| `status` | Status HTTP da resposta |
+| `code` | Slug estável do erro. Use este campo para branching no seu código |
+| `detail` | Explicação legível do que deu errado nesta requisição |
+| `instance` | `/v1?request_id=<request_id>` — identifica a requisição; inclua ao acionar o suporte |
+
+<Warning>
+  `type` é um **identificador**, não um endpoint: não faça dereferência dele em código de produção. Para decidir o que fazer programaticamente, use sempre o campo `code`.
+</Warning>
+
+O `request_id` em `instance` é o mesmo que você enviou no header opcional `x-request-id` (ou um UUID gerado pelo servidor, se você não enviou). Ele também é ecoado no header da resposta e no campo `request_id` dos bodies de sucesso.
+
+## Registro de códigos
+
+Cada código tem uma página própria em `/problems/<code>`, válida para os dois motores. A coluna "quando acontece" indica os gatilhos em cada um:
+
+| `code` | HTTP | Quando acontece | Campos extras |
+|---|---|---|---|
+| [`validation_error`](/problems/validation_error) | 400 | **CPF/CNPJ:** campo do body com tipo/enum inválido. **Borderô:** `cnab_base64` ausente, base64 inválido, CNAB que não parseia, arquivo acima do limite | `errors[]` |
+| [`bad_request`](/problems/bad_request) | 400 | **Ambos:** `Idempotency-Key` ausente. **CPF/CNPJ:** `document` sem dígitos, tamanho errado ou dígito verificador inválido | — |
+| [`unauthorized`](/problems/unauthorized) | 401 | **Ambos:** header `Authorization` ausente/malformado; chave inválida ou revogada | — |
+| [`insufficient_tokens`](/problems/insufficient_tokens) | 402 | **Ambos:** saldo do workspace insuficiente — no borderô, o custo é por entidade única (cedente + sacados únicos) | `required`, `balance` |
+| [`feature_not_enabled`](/problems/feature_not_enabled) | 403 | **Ambos:** feature `analysis_engine` desabilitada. **CPF/CNPJ:** `analysis_engine_pf` para análises de CPF | `request_access_url` |
+| [`forbidden`](/problems/forbidden) | 403 | **Ambos:** 403 genérico, não relacionado a feature | — |
+| [`not_found`](/problems/not_found) | 404 | **Ambos:** análise/operação inexistente ou de outro workspace; `engine_id` inexistente ou de outro workspace | — |
+| [`idempotency_conflict`](/problems/idempotency_conflict) | 409 | **Ambos:** mesma `Idempotency-Key` em andamento, ou reutilizada com conteúdo diferente — no CPF/CNPJ o hash cobre o body; no borderô, o SHA-256 dos bytes dos arquivos + `engine_id` + `legal_basis` | — |
+| [`no_engine`](/problems/no_engine) | 422 | **Ambos:** engine arquivada ou incompatível; nenhuma engine disponível. **Borderô:** engine sem nenhum bloco ativo | — |
+| [`http_error`](/problems/http_error) | varia | **Ambos:** fallback genérico para HTTP não mapeado em um código mais específico | — |
+| [`server_error`](/problems/server_error) | 500 | **Ambos:** erro inesperado no servidor; use o `instance` (request_id) ao acionar o suporte | — |
+
+<Note>
+  O limite global da API é de 100 requisições por minuto por IP. Exceder o limite retorna `429` — honre o header `Retry-After` antes de tentar de novo.
+</Note>
+
+## Campos extras por tipo
+
+Alguns códigos carregam campos adicionais legíveis por máquina além do shape base.
+
+### `validation_error` — `errors[]`
+
+Lista cada campo que falhou e a mensagem da restrição:
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/validation_error",
+  "title": "Validation Error",
+  "status": 400,
+  "code": "validation_error",
+  "detail": "One or more fields failed validation.",
+  "errors": [
+    { "field": "document", "message": "document should not be empty" },
+    { "field": "subject_type", "message": "subject_type must be one of the following values: pj, pf" }
+  ],
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+No Motor de Borderô, os mesmos `errors[]` reportam problemas com os arquivos (ex.: `{ "field": "cnab_base64", "message": "file is not a valid CNAB 400 remessa" }`). Nesse caso nada é cobrado — no borderô, o débito só acontece após o parse bem-sucedido do CNAB.
+
+### `insufficient_tokens` — `required` e `balance`
+
+Informa quantos tokens a requisição exigia (`required`) e o saldo atual do workspace (`balance`). No Motor de CPF/CNPJ, `required` é o custo da análise; no Motor de Borderô, as entidades únicas do arquivo vezes o preço unitário. Os valores abaixo são **ilustrativos** — o preço está em definição durante o beta:
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/insufficient_tokens",
+  "title": "Payment Required",
+  "status": 402,
+  "code": "insufficient_tokens",
+  "detail": "Insufficient tokens: 5 available, 12 required",
+  "required": 12,
+  "balance": 5,
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+O saldo é gerenciado no app Sherlocker — veja [Cobrança](/motores/cobranca).
+
+### `feature_not_enabled` — `request_access_url`
+
+Aponta para a página de solicitação de acesso ao beta:
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/feature_not_enabled",
+  "title": "Feature Not Enabled",
+  "status": 403,
+  "code": "feature_not_enabled",
+  "detail": "The analysis_engine feature is not enabled for this workspace. To request access visit https://docs.sherlocker.com.br/api/access or contact support at https://docs.sherlocker.com.br/support.",
+  "request_access_url": "https://docs.sherlocker.com.br/api/access",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+## Tratando erros no código
+
+Faça o branching pelo campo `code` — o tratamento é o mesmo nos dois motores. Regras práticas:
+
+- `validation_error` / `bad_request`: corrija a requisição. Se for reenviar um POST com conteúdo diferente, use uma `Idempotency-Key` **nova** (a mesma key com conteúdo diferente retorna `409`).
+- `idempotency_conflict` com requisição em andamento: não reenvie o POST — consulte via `GET` (`/v1/analyses/{id}` ou `/v1/operations/{id}`) com o `id` da resposta 202 original.
+- `server_error` (e timeouts de rede): reenvie **com a mesma** `Idempotency-Key`, com back-off. Detalhes em [Idempotência](/motores/idempotencia).
+
+<CodeGroup>
+```python Python
+import requests
+
+
+class SherlockerApiError(Exception):
+    def __init__(self, problem: dict):
+        self.code = problem.get("code")
+        self.status = problem.get("status")
+        self.detail = problem.get("detail")
+        self.instance = problem.get("instance")
+        self.problem = problem
+        super().__init__(f"{self.code}: {self.detail}")
+
+
+def handle_sherlocker_error(resp: requests.Response) -> None:
+    """Tratamento unico para /v1/analyses e /v1/operations."""
+    problem = resp.json()
+    code = problem.get("code")
+
+    if code == "validation_error":
+        # Corrija a requisicao: veja problem["errors"]; key NOVA no reenvio
+        msgs = ", ".join(e["message"] for e in problem.get("errors", []))
+        raise SherlockerApiError({**problem, "detail": f"Validacao falhou: {msgs}"})
+
+    if code == "bad_request":
+        # Provavelmente header ausente (ex.: Idempotency-Key)
+        raise SherlockerApiError(problem)
+
+    if code == "unauthorized":
+        # Verifique ou rotacione a chave de API
+        raise SherlockerApiError(problem)
+
+    if code == "insufficient_tokens":
+        # problem["required"] e problem["balance"] estao disponiveis
+        raise SherlockerApiError(problem)
+
+    if code == "feature_not_enabled":
+        # Direcione o usuario para solicitar acesso
+        print(f"Solicite acesso em: {problem.get('request_access_url')}")
+        raise SherlockerApiError(problem)
+
+    if code == "idempotency_conflict":
+        # Consulte o run/operacao existente em vez de repetir o POST
+        raise SherlockerApiError(problem)
+
+    if code in ("forbidden", "not_found", "no_engine"):
+        raise SherlockerApiError(problem)
+
+    # server_error / http_error / desconhecido:
+    # retry com a MESMA key e back-off; inclua problem["instance"] no suporte
+    raise SherlockerApiError(problem)
+```
+
+```javascript Node.js
+/**
+ * Body de erro RFC 7807 (application/problem+json):
+ * { type, title, status, code, detail, instance }
+ * Campos extras conforme o code:
+ *   errors: [{ field, message }]        (validation_error)
+ *   required, balance                   (insufficient_tokens)
+ *   request_access_url                  (feature_not_enabled)
+ * Tratamento unico para /v1/analyses e /v1/operations.
+ */
+async function handleSherlockerError(res) {
+  const problem = await res.json();
+
+  switch (problem.code) {
+    case "validation_error":
+      // Corrija a requisicao: veja problem.errors[]; key NOVA no reenvio
+      throw new Error(`Validacao falhou: ${problem.errors?.map((e) => e.message).join(", ")}`);
+
+    case "bad_request":
+      // Provavelmente header ausente (ex.: Idempotency-Key)
+      throw new Error(`Requisicao invalida: ${problem.detail}`);
+
+    case "unauthorized":
+      // Verifique ou rotacione a chave de API
+      throw new Error("Chave de API invalida");
+
+    case "insufficient_tokens":
+      // problem.required e problem.balance estao disponiveis
+      throw new Error(`Tokens insuficientes (precisa de ${problem.required}, saldo ${problem.balance})`);
+
+    case "feature_not_enabled":
+      // Direcione o usuario para solicitar acesso
+      console.error(`Solicite acesso em: ${problem.request_access_url}`);
+      throw new Error("Feature nao habilitada para este workspace");
+
+    case "forbidden":
+      throw new Error("Acesso negado");
+
+    case "not_found":
+      throw new Error("Analise ou operacao nao encontrada");
+
+    case "idempotency_conflict":
+      // Consulte o run/operacao existente em vez de repetir o POST
+      throw new Error("Requisicao concorrente em andamento: faca polling da original");
+
+    case "no_engine":
+      throw new Error("Nenhuma engine disponivel para esta requisicao");
+
+    case "server_error":
+    default:
+      // Retry com a MESMA key e back-off; inclua problem.instance no suporte
+      throw new Error(`Erro no servidor (instance: ${problem.instance})`);
+  }
+}
+```
+</CodeGroup>
+
+## Relacionado
+
+<CardGroup cols={3}>
+  <Card title="Idempotência" icon="rotate" href="/motores/idempotencia">
+    Como tratar 409, retries seguros e a janela de 24h
+  </Card>
+  <Card title="Autenticação" icon="key" href="/motor-analise/autenticacao">
+    Chaves `slhk_`, header Bearer e as causas de 401/403
+  </Card>
+  <Card title="Cobrança" icon="coins" href="/motores/cobranca">
+    Débito de tokens, reembolso em `failed` e saldo
+  </Card>
+</CardGroup>

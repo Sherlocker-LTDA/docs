@@ -1,0 +1,293 @@
+---
+title: "Engines"
+description: "Como cada motor decide o que verificar: resolução do engine_id, ações, templates do sistema e blocos"
+icon: "gears"
+---
+
+Uma **engine** é a configuração de uma análise: ela define quais blocos de verificação rodam e a **ação** aplicada quando um bloco é acionado — bloqueio, alerta ou ignorar. Todo `POST /v1/analyses` e todo `POST /v1/operations` roda com exatamente uma engine, e é ela que determina os verdicts do resultado.
+
+## Ações e efeito no verdict (os dois motores)
+
+| Ação | Efeito no bloco | Efeito no verdict |
+|------|-----------------|---------------------|
+| **Bloqueio** (`block`) | Bloco acionado sai com status `blocked` | Qualquer bloco `blocked` → `reprovado` |
+| **Alerta** (`alert`) | Bloco acionado sai com status `alert` | Um ou mais blocos `alert` (sem nenhum `blocked`) → `alerta` |
+| **Ignorar** (`ignore`) | Bloco não é avaliado | Nenhum |
+
+Se nenhum bloco sai em `alert` ou `blocked`, o verdict é `aprovado`. Se o motor termina mas uma ou mais verificações ficam `unavailable` (a fonte de dados falhou), o verdict é `incompleto`. Veja [Ciclo de vida](/motores/ciclo-de-vida).
+
+Blocos marcados como **ignorar** nos templates são opt-in: vêm desligados por padrão e passam a contar quando você muda a ação para alerta ou bloqueio em uma engine própria.
+
+## Como o `engine_id` é resolvido
+
+O campo `engine_id` do body é **opcional** nos dois motores, com a mesma mecânica:
+
+1. **`engine_id` explícito** — a engine precisa existir e pertencer ao seu workspace (ou ser um template do sistema).
+2. **`engine_id` omitido** — no Motor de CPF/CNPJ, a API usa a engine padrão do workspace para o `subject_type` e, na falta dela, o template do sistema (PJ ou PF). No Motor de Borderô, usa a engine template de borderô do sistema.
+
+### Erros de resolução (os dois motores)
+
+| Situação | Resposta |
+|----------|----------|
+| `engine_id` inexistente ou de outro workspace | `404` [`not_found`](/problems/not_found) |
+| `engine_id` de uma engine arquivada | `422` [`no_engine`](/problems/no_engine) |
+| Engine incompatível com a requisição (ex.: engine PJ para um CPF) | `422` [`no_engine`](/problems/no_engine) |
+| Engine de borderô sem nenhum bloco ativo | `422` [`no_engine`](/problems/no_engine) |
+| Nenhuma engine resolvida (sem `engine_id`, sem padrão, sem template aplicável) | `422` [`no_engine`](/problems/no_engine) |
+
+<Note>
+  `engine_id` inexistente ou de outro workspace retorna `404 not_found` — a API não revela a existência de engines de outros workspaces.
+</Note>
+
+### Exemplo com `engine_id` explícito
+
+<Note>
+  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+</Note>
+
+<Tabs>
+<Tab title="CPF/CNPJ">
+
+<CodeGroup>
+```bash cURL
+curl -X POST "https://<API_HOST>/v1/analyses" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Idempotency-Key: 7c9e6679-7425-40de-944b-e07fc1f90ae7" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "document": "12345678000195",
+    "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f"
+  }'
+```
+
+```python Python
+import requests
+
+resp = requests.post(
+    "https://<API_HOST>/v1/analyses",
+    headers={
+        "Authorization": "Bearer slhk_sua_chave_aqui",
+        "Idempotency-Key": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    },
+    json={
+        "document": "12345678000195",
+        "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+    },
+)
+print(resp.status_code, resp.json())
+```
+
+```javascript Node.js
+const resp = await fetch("https://<API_HOST>/v1/analyses", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer slhk_sua_chave_aqui",
+    "Idempotency-Key": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    document: "12345678000195",
+    engine_id: "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+  }),
+});
+console.log(resp.status, await resp.json());
+```
+</CodeGroup>
+
+</Tab>
+<Tab title="Borderô">
+
+<CodeGroup>
+```bash cURL
+CNAB_B64=$(base64 -i remessa-0605.rem | tr -d '\n')
+
+curl -X POST "https://<API_HOST>/v1/operations" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Idempotency-Key: 7c9e6679-7425-40de-944b-e07fc1f90ae7" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"cnab_base64\": \"$CNAB_B64\",
+    \"engine_id\": \"0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f\"
+  }"
+```
+
+```python Python
+import base64
+import requests
+
+with open("remessa-0605.rem", "rb") as f:
+    cnab_b64 = base64.b64encode(f.read()).decode()
+
+resp = requests.post(
+    "https://<API_HOST>/v1/operations",
+    headers={
+        "Authorization": "Bearer slhk_sua_chave_aqui",
+        "Idempotency-Key": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    },
+    json={
+        "cnab_base64": cnab_b64,
+        "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+    },
+)
+print(resp.status_code, resp.json())
+```
+
+```javascript Node.js
+import { readFileSync } from "node:fs";
+
+const cnabB64 = readFileSync("remessa-0605.rem").toString("base64");
+
+const resp = await fetch("https://<API_HOST>/v1/operations", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer slhk_sua_chave_aqui",
+    "Idempotency-Key": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    cnab_base64: cnabB64,
+    engine_id: "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+  }),
+});
+console.log(resp.status, await resp.json());
+```
+</CodeGroup>
+
+<Warning>
+  O `engine_id` entra no hash canônico da idempotência do borderô: reenviar o mesmo arquivo com a mesma `Idempotency-Key` e um `engine_id` diferente resulta em `409 idempotency_conflict`. Veja [Idempotência](/motores/idempotencia).
+</Warning>
+
+</Tab>
+</Tabs>
+
+## Onde as engines são geridas
+
+Engines são criadas, editadas, definidas como padrão e arquivadas **no app Sherlocker** (interface web). A API `/v1` não tem endpoints de CRUD de engines — ela só consome uma engine já existente via `engine_id` ou pela resolução automática. Para criar uma política própria (mudar ações, ajustar parâmetros, ativar blocos opt-in), use o app.
+
+<Tip>
+  No borderô, a resposta do `GET /v1/operations/{id}` sempre traz o `engine_id` efetivamente usado — inclusive quando você omitiu o campo e a operação rodou com o template do sistema. Guarde-o se quiser reproduzir a mesma política em operações futuras.
+</Tip>
+
+## O que cada motor verifica
+
+<Tabs>
+<Tab title="CPF/CNPJ">
+
+Quando o workspace não tem engine padrão e o `engine_id` é omitido, a análise roda com o template global do Sherlocker para o `subject_type`. São políticas conservadoras: irregularidade cadastral, óbito, sanção nacional, trabalho escravo e eventos de falência/recuperação judicial bloqueiam; sinais financeiros (Serasa, dívida ativa) e processos judiciais relevantes geram alerta.
+
+Os parâmetros listados abaixo são os valores padrão do template. Cada bloco aceita parâmetros configuráveis por engine no app — o catálogo completo está em [Blocos](/motor-analise/blocos).
+
+### Sherlocker PJ (template) — 23 blocos
+
+Usado em análises de CNPJ (`subject_type: "pj"`).
+
+**Bloqueio**
+
+| Bloco | Parâmetros padrão |
+|-------|-------------------|
+| `SITUACAO_CADASTRAL_CNPJ` | — |
+| `FALENCIA_DECRETADA` | — |
+| `FALENCIA_REQUERIDA` | `janela_meses: 6`, `janela_alerta_meses: 12` |
+| `RECUPERACAO_JUDICIAL` | `janela_meses: 6`, `janela_alerta_meses: 12` |
+| `CONSULTA_OBITO` | — |
+| `LISTA_TRABALHO_ESCRAVO` | — |
+| `SANCAO_NACIONAL` | — |
+
+**Alerta**
+
+| Bloco | Parâmetros padrão |
+|-------|-------------------|
+| `IDADE_EMPRESA` | `meses_minimos: 12` |
+| `CAPITAL_SOCIAL_MINIMO` | `capital_minimo: 10000` |
+| `CNAE_RISCO` | `cnaes_risco`: lista com 13 CNAEs de risco |
+| `DIVIDA_ATIVA` | `valor_minimo: 100000` |
+| `PROCESSOS_RELEVANTES` | `minimo_como_reu: 10`, `termos_classe: []` |
+| `ACORDOS_LENIENCIA` | — |
+| `IBAMA` | — |
+| `SERASA_PROTESTOS` | `quantidade_minima: 1`, `valor_minimo: 0` |
+| `SERASA_PEFIN` | `quantidade_minima: 1`, `valor_minimo: 0` |
+| `SERASA_REFIN` | `quantidade_minima: 1`, `valor_minimo: 0` |
+| `SERASA_CHEQUES` | `quantidade_minima: 1` |
+| `SERASA_PONTUALIDADE_PAGAMENTO` | `pontualidade_minima_pct: 85` |
+| `SERASA_EVOLUCAO_CONSULTAS` | `crescimento_minimo_pct: 85`, `media_minima_3m: 14` |
+
+**Ignorado (opt-in)**
+
+| Bloco | Parâmetros padrão |
+|-------|-------------------|
+| `EMPRESA_PUBLICA` | — |
+| `SANCAO_INTERNACIONAL` | — |
+| `DEBARMENT_MULTILATERAL` | — |
+
+### Sherlocker PF (template) — 18 blocos
+
+Usado em análises de CPF (`subject_type: "pf"`). Lembre que análises de CPF exigem a feature `analysis_engine_pf` no workspace, além de `analysis_engine`.
+
+**Bloqueio**
+
+| Bloco | Parâmetros padrão |
+|-------|-------------------|
+| `CONSULTA_OBITO` | — |
+| `SANCAO_NACIONAL` | — |
+| `SERASA_SITUACAO_CPF` | — |
+
+**Alerta**
+
+| Bloco | Parâmetros padrão |
+|-------|-------------------|
+| `PROCESSOS_RELEVANTES` | `minimo_como_reu: 10`, `termos_classe: []` |
+| `PEP` | — |
+| `BANCO_CENTRAL` | — |
+| `IBAMA` | — |
+| `SERASA_PROTESTOS` | `quantidade_minima: 1`, `valor_minimo: 0` |
+| `SERASA_PEFIN` | `quantidade_minima: 1`, `valor_minimo: 0` |
+| `SERASA_REFIN` | `quantidade_minima: 1`, `valor_minimo: 0` |
+| `SERASA_CHEQUES` | `quantidade_minima: 1` |
+| `SERASA_DIVIDAS_VENCIDAS` | `quantidade_minima: 1`, `valor_minimo: 0` |
+| `SERASA_ACOES_JUDICIAIS_PF` | `quantidade_minima: 1`, `valor_minimo: 0` |
+| `SERASA_DOCUMENTOS_ROUBADOS_PF` | — |
+| `SERASA_ARQUIVO_FINO_PF` | — |
+
+**Ignorado (opt-in)**
+
+| Bloco | Parâmetros padrão |
+|-------|-------------------|
+| `DIVIDA_ATIVA` | `valor_minimo: 100000` |
+| `SANCAO_INTERNACIONAL` | — |
+| `DEBARMENT_MULTILATERAL` | — |
+
+<Warning>
+  Os blocos `SERASA_*` dependem da integração Serasa habilitada no workspace. Sem ela, esses blocos saem com status `unavailable` e o `verdict` fica `incompleto` — nunca um bloqueio falso. Confira o campo `coverage` da resposta para ver qual fonte ficou indisponível.
+</Warning>
+
+</Tab>
+<Tab title="Borderô">
+
+Uma **engine de borderô** reúne dois conjuntos de verificações, organizados por papel:
+
+- **Blocos de título e de NFe** — validações aplicadas a cada título do arquivo: consistência dos dados do CNAB (valores, vencimentos) e cruzamento com o XML de NFe correspondente, quando o ZIP é enviado (veja [Títulos e NFe](/credito/titulos-e-nfe)).
+- **Blocos de cedente e de sacado** — a política de risco aplicada às análises de cada entidade única do borderô, com a mesma mecânica de blocos da aba CPF/CNPJ (bloqueio, alerta, ignorar).
+
+É essa engine que determina os verdicts por título e o `cedente_verdict` do resultado. Sem `engine_id`, a operação roda com a **engine template de borderô do sistema** — a política padrão do Sherlocker para operações de desconto de duplicatas.
+
+Como cada bloco de NFe reage — o que vira `alert`, o que vira `blocked` — depende da configuração da engine, e o resultado dos blocos entra no `verdict` consolidado do título. Uma engine de borderô com todos os blocos desativados não é utilizável: `422 no_engine`.
+
+</Tab>
+</Tabs>
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Blocos (CPF/CNPJ)" icon="cubes" href="/motor-analise/blocos">
+    Catálogo completo de blocos de verificação, com escopo, grupo e descrição
+  </Card>
+  <Card title="Títulos e NFe (Borderô)" icon="file-invoice" href="/credito/titulos-e-nfe">
+    As validações de título e o cruzamento com XMLs de NFe
+  </Card>
+  <Card title="Ciclo de vida" icon="arrows-rotate" href="/motores/ciclo-de-vida">
+    Como a engine determina os verdicts do resultado
+  </Card>
+  <Card title="Erros" icon="triangle-exclamation" href="/motor-analise/erros">
+    Formato RFC 7807, incluindo not_found e no_engine
+  </Card>
+</CardGroup>

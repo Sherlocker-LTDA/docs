@@ -1,0 +1,49 @@
+---
+title: "unauthorized"
+description: "Erro 401: chave de API ausente, malformada, inválida ou revogada"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `401`
+
+## O que significa
+
+A requisição não foi autenticada. O header `Authorization` está ausente ou malformado, ou a chave de API é inválida ou foi revogada.
+
+## Causas comuns
+
+- Header `Authorization` ausente.
+- Formato errado: a API `/v1` usa `Authorization: Bearer slhk_...`, e não o query param `?token=` usado nas outras APIs documentadas neste site.
+- Chave sem o prefixo `slhk_` ou copiada de forma incompleta.
+- Chave revogada no app Sherlocker.
+
+## Como corrigir
+
+- Envie o header no formato exato:
+
+```
+Authorization: Bearer slhk_sua_chave_aqui
+```
+
+- Confirme que a chave está ativa. Chaves são criadas no app Sherlocker (Settings → API Keys) e são exibidas uma única vez; se a chave foi perdida ou revogada, crie uma nova.
+- Não use `?token=` na URL. Esse formato pertence a outras APIs do Sherlocker, não à API `/v1` dos Motores de Análise.
+
+## Exemplo
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/unauthorized",
+  "title": "Unauthorized",
+  "status": 401,
+  "code": "unauthorized",
+  "detail": "Invalid or missing API key.",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+O texto de `detail` varia conforme a causa.
+
+## Relacionado
+
+- [Erros da API](/motor-analise/erros)
+- [Autenticação](/motor-analise/autenticacao)

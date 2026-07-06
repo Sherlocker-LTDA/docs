@@ -1,0 +1,122 @@
+---
+title: "Catálogo de blocos"
+description: "Referência dos blocos de análise de CNPJ (PJ) e CPF (PF) do Motor de Análise"
+icon: "cubes"
+---
+
+Cada análise executa um conjunto de **blocos** definidos pela engine. Um bloco verifica um aspecto específico do CNPJ ou CPF (situação cadastral, processos, sanções, sinais de bureau) e aparece no array `blocks[]` da resposta de `GET /v1/analyses/{id}`:
+
+```json
+{ "id": "SITUACAO_CADASTRAL_CNPJ", "status": "pass", "detail": "CNPJ ativo na Receita Federal.", "evidence": [] }
+```
+
+O campo `evidence[]` traz, quando aplicável, os dados que sustentam o resultado: `field`, `value`, `expected` e `result` (ex.: `match`, `divergent`).
+
+<Note>
+  Este catálogo cobre os blocos com escopo PJ e/ou PF — os únicos disponíveis pela API `/v1`. A análise de borderô/CNAB (blocos de título e NFe) não está disponível pela API pública.
+</Note>
+
+## Status de um bloco
+
+| Status | Significado |
+|--------|-------------|
+| `pass` | O bloco rodou e não encontrou o que procura. |
+| `alert` | O bloco encontrou um achado de severidade de alerta. |
+| `blocked` | O bloco encontrou um achado que reprova a análise. |
+| `unavailable` | A fonte de dados do bloco falhou — o bloco não pôde ser avaliado. |
+
+O status dos blocos determina o `verdict` da análise: `aprovado` (nenhum bloco em alerta ou bloqueio), `alerta` (ao menos um bloco `alert`), `reprovado` (ao menos um bloco `blocked`) e `incompleto` (ao menos um bloco `unavailable` — confira o campo `coverage` para ver qual fonte falhou). Veja [Ciclo de vida](/motores/ciclo-de-vida).
+
+## Ação configurável por engine
+
+Cada engine define, bloco a bloco, qual ação tomar quando o bloco dispara:
+
+| Ação | Efeito |
+|------|--------|
+| Bloqueio (`block`) | Um achado do bloco pode reprovar a análise (`blocked`). Alguns blocos também emitem alerta para achados menos severos (ex.: janelas temporais). |
+| Alerta (`alert`) | Achados do bloco geram no máximo `alert`. |
+| Ignorar (`ignore`) | O bloco não é executado: não exige fonte de dados e não afeta o veredito. |
+
+A coluna **Ação padrão** abaixo é a do catálogo. Cada engine pode sobrescrever a ação de qualquer bloco no app Sherlocker; os templates do sistema, por exemplo, mantêm alguns blocos de conformidade desligados por padrão (opt-in). Veja [Engines e templates](/motores/engines).
+
+## Parâmetros configuráveis
+
+Alguns blocos aceitam parâmetros — por exemplo, capital social mínimo, idade mínima da empresa em meses, limiares de quantidade e valor, listas de CNAEs de risco. Os parâmetros são configurados por engine no app Sherlocker; quando não configurados, valem os padrões do catálogo. Não há configuração de engines pela API `/v1`.
+
+<Warning>
+  Os blocos `SERASA_*` dependem da integração Serasa habilitada no workspace. Sem ela, esses blocos retornam `unavailable` e o veredito fica `incompleto` — nunca um bloqueio falso.
+</Warning>
+
+## Validação cadastral
+
+| ID | Escopo | Ação padrão | Descrição |
+|----|--------|-------------|-----------|
+| `SITUACAO_CADASTRAL_CNPJ` | PJ | Bloqueio | Bloqueia CNPJ com situação nula, suspensa, inapta ou baixada; situação irregular gera alerta. |
+| `IDADE_EMPRESA` | PJ | Alerta | Dispara quando a empresa tem menos tempo de abertura que o mínimo configurado. |
+| `CAPITAL_SOCIAL_MINIMO` | PJ | Alerta | Dispara quando o capital social informado é menor que o mínimo configurado. |
+| `CNAE_RISCO` | PJ | Alerta | Dispara quando o CNAE principal ou algum secundário consta na lista de atividades de risco. |
+| `EMPRESA_PUBLICA` | PJ | Ignorar (opt-in) | Dispara quando a natureza jurídica indica entidade pública (administração pública, empresa pública, economia mista). |
+
+## Contrapartes
+
+| ID | Escopo | Ação padrão | Descrição |
+|----|--------|-------------|-----------|
+| `DIVIDA_ATIVA` | PJ e PF | Alerta | Dispara quando a soma das inscrições em dívida ativa (União, FGTS, previdenciária) excede o valor mínimo. |
+
+## Riscos legais
+
+| ID | Escopo | Ação padrão | Descrição |
+|----|--------|-------------|-----------|
+| `FALENCIA_DECRETADA` | PJ | Bloqueio | Bloqueia quando existe processo de classe falimentar com o CNPJ no polo passivo, em qualquer data e independente do desfecho — detectado pela classe processual. |
+| `FALENCIA_REQUERIDA` | PJ | Bloqueio | Dispara para pedidos de falência recentes contra o CNPJ, com severidade por janela temporal sobre a data de ajuizamento. |
+| `RECUPERACAO_JUDICIAL` | PJ | Bloqueio | Bloqueia recuperação judicial concedida/deferida em qualquer data; requerimentos recentes disparam por janela. Subtipos (concedida/deferida/requerida/indeferida) são inferidos do nome da classe processual. |
+| `PROCESSOS_RELEVANTES` | PJ e PF | Alerta | Dispara quando o volume de processos com o documento no polo passivo excede o limiar (opcionalmente filtrado por termos de classe). |
+
+## Prevenção a fraude
+
+| ID | Escopo | Ação padrão | Descrição |
+|----|--------|-------------|-----------|
+| `CONSULTA_OBITO` | PJ e PF | Bloqueio | Bloqueia quando o sujeito consta no registro de óbitos: o próprio titular (CPF) ou algum sócio pessoa física (CNPJ). |
+
+## Conformidade e sanções
+
+| ID | Escopo | Ação padrão | Descrição |
+|----|--------|-------------|-----------|
+| `LISTA_TRABALHO_ESCRAVO` | PJ | Bloqueio | Bloqueia quando o CNPJ consta no cadastro de empregadores flagrados com trabalho escravo (lista suja). |
+| `SANCAO_NACIONAL` | PJ e PF | Bloqueio | Bloqueia quando o documento consta em cadastros nacionais de inidôneas/sancionadas (CEIS, CNEP, CEPIM, CEAF, TCU). |
+| `ACORDOS_LENIENCIA` | PJ | Alerta | Dispara quando o CNPJ consta como signatário de acordo de leniência (admissão de irregularidade com cooperação). |
+| `IBAMA` | PJ e PF | Alerta | Dispara quando o documento consta em embargos ou autos de infração ambiental do IBAMA. |
+| `SANCAO_INTERNACIONAL` | PJ e PF | Bloqueio | Bloqueia quando o documento consta em listas de sanções internacionais (OFAC, ONU, União Europeia, Reino Unido, CSL). Exige nome resolvido — sem nome, a fonte retorna indisponível para esta lista. |
+| `BANCO_CENTRAL` | PF | Alerta | Dispara quando o CPF consta na lista de penalizados do Banco Central. Exige nome resolvido. |
+| `PEP` | PF | Alerta | Alerta quando o CPF consta no cadastro de Pessoas Politicamente Expostas (PEP). Sinal de risco reforçado, não bloqueio. |
+| `DEBARMENT_MULTILATERAL` | PJ e PF | Alerta | Dispara quando o documento consta em listas de debarment de bancos multilaterais (Banco Mundial, BID). Exige nome resolvido. |
+
+## Risco de crédito
+
+| ID | Escopo | Ação padrão | Descrição |
+|----|--------|-------------|-----------|
+| `SERASA_PROTESTOS` | PJ e PF | Alerta | Dispara quando há protestos registrados no Serasa acima dos limiares de quantidade e valor. |
+| `SERASA_PEFIN` | PJ e PF | Alerta | Dispara com pendências financeiras (PEFIN) no Serasa. No PJ, o limiar é proporcional ao capital social (tiers); no PF (sem capital), usa limiares de quantidade e valor. |
+| `SERASA_REFIN` | PJ e PF | Alerta | Dispara com dívidas bancárias (REFIN) no Serasa. No PJ, o limiar é proporcional ao capital social (tiers); no PF (sem capital), usa limiares de quantidade e valor. |
+| `SERASA_CHEQUES` | PJ e PF | Alerta | Dispara quando há cheques sem fundo registrados no Serasa acima do limiar de quantidade. |
+| `SERASA_PONTUALIDADE_PAGAMENTO` | PJ | Alerta | Dispara quando o percentual de pagamentos pontuais está abaixo do mínimo. Sem histórico no relatório, o bloco passa (sinal informativo). |
+| `SERASA_EVOLUCAO_CONSULTAS` | PJ | Alerta | Dispara quando o crescimento de consultas (últimos 6 meses vs anteriores) e a média recente excedem os limiares — sinal de busca intensa por crédito. |
+| `SERASA_DIVIDAS_VENCIDAS` | PF | Alerta | Dispara com registros de cobrança/dívidas vencidas no Serasa acima dos limiares de quantidade e valor. |
+| `SERASA_SITUACAO_CPF` | PF | Alerta | Dispara quando a situação cadastral do CPF na Receita não está REGULAR (pendente, suspensa, cancelada ou titular falecido). Fonte distinta do bloco Consulta de óbito — corroboração cruzada. |
+| `SERASA_ACOES_JUDICIAIS_PF` | PF | Alerta | Dispara com ações judiciais cíveis registradas no relatório Serasa acima dos limiares de quantidade e valor. |
+| `SERASA_DOCUMENTOS_ROUBADOS_PF` | PF | Alerta | Dispara quando o CPF consta com documento roubado ou extraviado no Serasa (sinal de fraude). |
+| `SERASA_ARQUIVO_FINO_PF` | PF | Alerta | Alerta quando o relatório Serasa PF veio sem nenhum sinal (sem negativos, sem consultas, sem ações). Ausência de dados não significa baixo risco — impede o veredito de ler um arquivo fino como aprovado. |
+
+## Relacionado
+
+<CardGroup cols={3}>
+  <Card title="Engines e templates" icon="gears" href="/motores/engines">
+    Como o motor escolhe a engine e o que os templates do sistema ligam por padrão
+  </Card>
+  <Card title="Ciclo de vida" icon="arrows-rotate" href="/motores/ciclo-de-vida">
+    Status da análise, veredito e como interpretar coverage
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/motor-analise/quickstart">
+    Crie sua primeira análise em minutos
+  </Card>
+</CardGroup>

@@ -1,0 +1,130 @@
+---
+title: "Cobrança"
+description: "Quando os tokens são debitados nos dois motores, quando há estorno e como acompanhar o saldo"
+icon: "coins"
+---
+
+Os dois motores consomem **tokens do workspace**: o mesmo pool usado pela interface web do Sherlocker. Os princípios são idênticos — o que muda é a unidade de preço: o Motor de CPF/CNPJ cobra **por análise**; o Motor de Borderô cobra **por entidade única do arquivo**.
+
+<Warning>
+  **Preço em definição durante o beta.** Não fixe um custo em código: o valor efetivamente cobrado vem sempre no campo `tokens_charged` da resposta. Todos os valores de tokens nesta página são **ilustrativos**.
+</Warning>
+
+## O débito acontece na criação — e é fail-closed
+
+Os tokens são debitados no momento do `POST`, antes de o motor rodar. A resposta `202 Accepted` confirma o débito com dois campos:
+
+- `tokens_charged`: quanto foi debitado por esta requisição
+- `balance`: saldo do workspace após o débito
+
+`tokens_charged` e `balance` são informados em melhor esforço: se a consulta de saldo falhar no momento da resposta, os campos podem estar ausentes, o que não altera a cobrança em si.
+
+Se o saldo do workspace for insuficiente, o `POST` falha com [`402 insufficient_tokens`](/problems/insufficient_tokens) e **nada é cobrado nem executado** — o erro traz os campos `required` e `balance` para você saber quanto falta. Requisições rejeitadas com qualquer erro (`400`, `401`, `402`, `403`, `409`, `422`) nunca cobram.
+
+## Quanto custa em cada motor
+
+<Tabs>
+<Tab title="CPF/CNPJ">
+
+Cada `POST /v1/analyses` debita o preço de **uma análise**:
+
+```json
+{
+  "id": "a1b2c3d4-0000-0000-0000-000000000001",
+  "status": "pending",
+  "tokens_charged": 10,
+  "balance": 990,
+  "poll_after_seconds": 2,
+  "request_id": "req-uuid"
+}
+```
+
+### `completed` cobra sempre, inclusive verdict `incompleto`
+
+Uma análise que termina `completed` é cobrada **sempre**, mesmo quando o `verdict` é `incompleto`. O motivo: o motor executou o trabalho (rodou todos os blocos da engine) e `incompleto` significa apenas que uma ou mais fontes de dados externas ficaram indisponíveis durante a execução.
+
+Nesse caso, use o campo `coverage` da resposta do `GET /v1/analyses/{id}` para ver exatamente quais fontes falharam (`coverage[].status: "failed"`) e quais foram consultadas. Veja [Ciclo de vida](/motores/ciclo-de-vida).
+
+</Tab>
+<Tab title="Borderô">
+
+O custo de uma operação é por **entidade única** do borderô — não por título e não por arquivo:
+
+```
+tokens_charged = (cedente + sacados únicos) × preço unitário de análise
+```
+
+Cada entidade única gera uma análise do Motor de CPF/CNPJ — e é essa análise que é cobrada. Títulos não têm custo próprio: o mesmo sacado em 10 títulos conta **uma vez**.
+
+### Exemplo numérico
+
+Um borderô com **42 títulos**, do mesmo cedente, sacados contra 11 empresas distintas:
+
+| | Quantidade |
+|---|---|
+| Títulos no arquivo (`titulos_count`) | 42 |
+| Cedente | 1 |
+| Sacados únicos | 11 |
+| **Entidades cobradas (`entities_count`)** | **12** |
+
+Com um preço unitário ilustrativo de 1 token por análise, a operação debita **12 tokens** — não 42:
+
+```json
+{
+  "id": "b2c3d4e5-0000-0000-0000-000000000001",
+  "status": "pending",
+  "titulos_count": 42,
+  "entities_count": 12,
+  "tokens_charged": 12,
+  "balance": 988,
+  "poll_after_seconds": 2,
+  "request_id": "req-uuid"
+}
+```
+
+Borderôs concentrados (muitos títulos, poucos sacados) custam proporcionalmente menos por título do que borderôs pulverizados.
+
+### O débito é após o parse
+
+No borderô, o débito acontece **depois do parse do CNAB** — é o parse que revela quantas entidades únicas o arquivo tem. Arquivo com base64 inválido ou CNAB que não parseia retorna `400 validation_error` e **nada é cobrado**.
+
+</Tab>
+</Tabs>
+
+## Estorno automático em `failed`
+
+Nos dois motores: se o processamento terminar com `status: "failed"` (falha interna do motor), os tokens debitados na criação são **estornados automaticamente**. O estorno é assíncrono — ele não aparece no body do `GET`, mas fica registrado no extrato de tokens do workspace no app Sherlocker.
+
+## Replay idempotente não cobra
+
+Reenviar o `POST` com a mesma `Idempotency-Key` e o mesmo conteúdo dentro da janela de 24 horas retorna `200 OK` com o body original da `202` — **sem nova cobrança**. É por isso que, em retries de timeout ou erro de rede, você deve reusar a mesma key. Veja [Idempotência](/motores/idempotencia).
+
+## Resumo: cenário × cobrança
+
+| Cenário | HTTP | Cobra tokens? |
+|---|---|---|
+| Nova análise criada (`POST /v1/analyses`) | `202` | Sim — preço de uma análise |
+| Nova operação criada (`POST /v1/operations`) | `202` | Sim — `entities_count` × preço unitário, após o parse |
+| Replay idempotente (mesma key + mesmo conteúdo) | `200` | Não |
+| Borderô: CNAB que não parseia / base64 inválido | `400` | Não (o débito só acontece após o parse) |
+| Run termina `failed` | — | Cobrado na criação e **estornado automaticamente** |
+| Análise termina `completed` com verdict `incompleto` | — | Sim (o trabalho foi executado) |
+| Requisição rejeitada com erro (`400`, `401`, `402`, `403`, `409`, `422`) | `4xx` | Não |
+
+## Saldo e recarga
+
+O saldo de tokens e a recarga (top-up) são gerenciados no **app Sherlocker**: a API `/v1` compartilha o mesmo pool de tokens do workspace. O extrato do workspace no app mostra os débitos por análise/operação e os estornos de runs `failed`.
+
+## Próximos passos
+
+<CardGroup cols={3}>
+  <Card title="Idempotência" icon="repeat" href="/motores/idempotencia">
+    Retry seguro sem risco de cobrança dupla
+  </Card>
+  <Card title="Ciclo de vida" icon="arrows-rotate" href="/motores/ciclo-de-vida">
+    Status, verdicts e o campo coverage
+  </Card>
+  <Card title="Erros" icon="triangle-exclamation" href="/motor-analise/erros">
+    Formato RFC 7807 e o erro insufficient_tokens
+  </Card>
+</CardGroup>

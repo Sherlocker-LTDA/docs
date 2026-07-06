@@ -1,0 +1,309 @@
+---
+title: "Quickstart"
+description: "Rode sua primeira análise de risco de CNPJ e CPF com a API do Motor de Análise"
+icon: "rocket"
+---
+
+Neste guia você cria uma análise de risco de CNPJ, acompanha o processamento até o veredito final e repete o fluxo para um CPF. É o mesmo motor que roda na interface web do Sherlocker, agora acessível por API.
+
+<Note>
+  Não confunda com o **[Motor de Borderô](/credito/introducao)** (análise de borderô CNAB 400). O Motor de Análise avalia o risco cadastral de um CNPJ ou CPF individual.
+</Note>
+
+## Pré-requisitos
+
+- **Acesso ao beta**: a feature `analysis_engine` precisa estar habilitada no seu workspace. Solicite em [/api/access](/api/access).
+- **Chave de API**: criada no app Sherlocker em **Settings → API Keys**. As chaves têm prefixo `slhk_` e são exibidas uma única vez — guarde em local seguro.
+- **Saldo de tokens**: as análises consomem tokens do mesmo pool do workspace usado no app.
+
+A base URL de todos os exemplos é `https://<API_HOST>/v1`.
+
+<Note>
+  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+</Note>
+
+<Warning>
+  Diferente das demais APIs documentadas neste site, o Motor de Análise **não** usa `?token=` na URL. A autenticação é sempre pelo header `Authorization: Bearer slhk_sua_chave_aqui`. Veja [Autenticação](/motor-analise/autenticacao).
+</Warning>
+
+<Steps>
+<Step title="Crie uma análise de CNPJ">
+
+Envie um `POST /v1/analyses` com o documento. O header `Idempotency-Key` é **obrigatório** — use um UUID novo por análise:
+
+<CodeGroup>
+```bash cURL
+curl -X POST "https://<API_HOST>/v1/analyses" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  -d '{"document": "12.345.678/0001-95"}'
+```
+
+```python Python
+import uuid
+import requests
+
+resp = requests.post(
+    "https://<API_HOST>/v1/analyses",
+    headers={
+        "Authorization": "Bearer slhk_sua_chave_aqui",
+        "Idempotency-Key": str(uuid.uuid4()),
+    },
+    json={"document": "12.345.678/0001-95"},
+)
+print(resp.status_code)  # 202
+analysis = resp.json()
+analysis_id = analysis["id"]
+```
+
+```javascript Node.js
+const resp = await fetch("https://<API_HOST>/v1/analyses", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer slhk_sua_chave_aqui",
+    "Content-Type": "application/json",
+    "Idempotency-Key": crypto.randomUUID(),
+  },
+  body: JSON.stringify({ document: "12.345.678/0001-95" }),
+});
+console.log(resp.status); // 202
+const analysis = await resp.json();
+const analysisId = analysis.id;
+```
+</CodeGroup>
+
+O documento pode ir com ou sem máscara — a API remove os não-dígitos e detecta o `subject_type` pelo tamanho (14 dígitos → `pj`, 11 → `pf`). Sem `engine_id`, a análise usa a engine padrão do workspace ou o template do sistema (veja [Engines](/motores/engines)).
+
+**Resposta (202 Accepted):**
+
+```json
+{
+  "id": "a1b2c3d4-0000-0000-0000-000000000001",
+  "status": "pending",
+  "tokens_charged": 10,
+  "balance": 990,
+  "poll_after_seconds": 2,
+  "request_id": "req-uuid"
+}
+```
+
+Os tokens são debitados na criação e confirmados em `tokens_charged` e `balance`, quando disponíveis (valores acima são **ilustrativos** — o preço por análise está em definição durante o beta; veja [Cobrança](/motores/cobranca)). Guarde o `id`: é com ele que você consulta o resultado.
+
+<Tip>
+  Em timeout ou erro 5xx, reenvie o POST com a **mesma** `Idempotency-Key` — se a requisição original tiver sido processada, você recebe `200` com a resposta original, sem nova cobrança (janela de 24 horas); se ela ainda estiver em andamento, você recebe `409` e deve consultar via `GET` com o `id` da 202 original. Detalhes em [Idempotência](/motores/idempotencia).
+</Tip>
+
+</Step>
+<Step title="Acompanhe até o veredito">
+
+Consulte `GET /v1/analyses/{id}` até o status ficar terminal (`completed` ou `failed`). Enquanto a análise está `pending` ou `running`, a resposta traz `poll_after_seconds` no body e `Retry-After` no header — honre esse intervalo (consultar mais rápido não acelera o resultado, e o limite global é de 100 requisições por minuto por IP):
+
+<CodeGroup>
+```bash cURL
+ANALYSIS_ID="a1b2c3d4-0000-0000-0000-000000000001"
+
+while true; do
+  RESP=$(curl -s "https://<API_HOST>/v1/analyses/$ANALYSIS_ID" \
+    -H "Authorization: Bearer slhk_sua_chave_aqui")
+  STATUS=$(echo "$RESP" | jq -r '.status')
+  echo "status: $STATUS"
+
+  if [ "$STATUS" = "completed" ] || [ "$STATUS" = "failed" ]; then
+    echo "$RESP" | jq .
+    break
+  fi
+
+  sleep "$(echo "$RESP" | jq -r '.poll_after_seconds // 2')"
+done
+```
+
+```python Python
+import time
+
+while True:
+    resp = requests.get(
+        f"https://<API_HOST>/v1/analyses/{analysis_id}",
+        headers={"Authorization": "Bearer slhk_sua_chave_aqui"},
+    )
+    run = resp.json()
+    print(f"status: {run['status']}")
+
+    if run["status"] in ("completed", "failed"):
+        break
+
+    # Intervalo sugerido pela API (tambem enviado no header Retry-After)
+    time.sleep(run.get("poll_after_seconds") or 2)
+
+print(f"verdict: {run['verdict']}")
+```
+
+```javascript Node.js
+let run;
+while (true) {
+  const resp = await fetch(`https://<API_HOST>/v1/analyses/${analysisId}`, {
+    headers: { Authorization: "Bearer slhk_sua_chave_aqui" },
+  });
+  run = await resp.json();
+  console.log(`status: ${run.status}`);
+
+  if (run.status === "completed" || run.status === "failed") break;
+
+  // Intervalo sugerido pela API (tambem enviado no header Retry-After)
+  const waitSeconds = run.poll_after_seconds ?? 2;
+  await new Promise((r) => setTimeout(r, waitSeconds * 1000));
+}
+console.log(`verdict: ${run.verdict}`);
+```
+</CodeGroup>
+
+**Fluxo de status:** `pending` → `running` → `completed` | `failed`. Por ora a API é polling-only (sem webhooks).
+
+**Resposta (200, análise concluída):**
+
+```json
+{
+  "id": "a1b2c3d4-0000-0000-0000-000000000001",
+  "status": "completed",
+  "subject_type": "pj",
+  "document": "12345678000195",
+  "verdict": "aprovado",
+  "blocks": [
+    { "id": "SITUACAO_CADASTRAL_CNPJ", "status": "pass", "detail": "CNPJ ativo na Receita Federal.", "evidence": [] },
+    { "id": "SANCAO_NACIONAL", "status": "pass", "detail": "Não encontrado em listas de sanções nacionais.", "evidence": [] }
+  ],
+  "coverage": [
+    { "source": "company", "status": "fetched", "fetched_at": "2026-06-30T10:00:00Z" },
+    { "source": "serasa", "status": "fetched", "fetched_at": "2026-06-30T10:00:05Z" }
+  ],
+  "created_at": "2026-06-30T10:00:00Z",
+  "finished_at": "2026-06-30T10:00:30Z",
+  "request_id": "req-uuid"
+}
+```
+
+Os três campos que importam para a sua decisão:
+
+| Campo | Valores | Significado |
+|---|---|---|
+| `verdict` | `aprovado` \| `alerta` \| `reprovado` \| `incompleto` | Veredito consolidado. `incompleto` = o motor terminou, mas ≥1 bloco ficou `unavailable` (fonte de dado falhou) — confira `coverage`. |
+| `blocks[].status` | `pass` \| `alert` \| `blocked` \| `unavailable` | Resultado de cada verificação, com `detail` e `evidence`. |
+| `coverage[].status` | `fetched` \| `cached` \| `failed` | O que cada fonte de dado entregou. |
+
+`verdict`, `blocks` e `coverage` são `null` enquanto a análise está `pending` ou `running`. O detalhe de cada verificação está no [catálogo de blocos](/motor-analise/blocos).
+
+</Step>
+<Step title="Analise um CPF (PF)">
+
+O mesmo endpoint aceita CPF. Para análises de pessoa física, você pode informar também a base legal LGPD (`legal_basis`) e a finalidade (`purpose`) — ambos os campos são **opcionais** e, quando enviados, ficam gravados no log de auditoria PF do workspace:
+
+<CodeGroup>
+```bash cURL
+curl -X POST "https://<API_HOST>/v1/analyses" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: $(uuidgen)" \
+  -d '{
+    "document": "111.444.777-35",
+    "legal_basis": "protecao_credito",
+    "purpose": "onboarding KYC"
+  }'
+```
+
+```python Python
+resp = requests.post(
+    "https://<API_HOST>/v1/analyses",
+    headers={
+        "Authorization": "Bearer slhk_sua_chave_aqui",
+        "Idempotency-Key": str(uuid.uuid4()),
+    },
+    json={
+        "document": "111.444.777-35",
+        "legal_basis": "protecao_credito",
+        "purpose": "onboarding KYC",
+    },
+)
+```
+
+```javascript Node.js
+const resp = await fetch("https://<API_HOST>/v1/analyses", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer slhk_sua_chave_aqui",
+    "Content-Type": "application/json",
+    "Idempotency-Key": crypto.randomUUID(),
+  },
+  body: JSON.stringify({
+    document: "111.444.777-35",
+    legal_basis: "protecao_credito",
+    purpose: "onboarding KYC",
+  }),
+});
+```
+</CodeGroup>
+
+Valores aceitos em `legal_basis`: `consentimento`, `legitimo_interesse`, `cumprimento_obrigacao_legal`, `protecao_credito`. O acompanhamento é idêntico ao Passo 2 — a resposta virá com `subject_type: "pf"` e os blocos do template PF.
+
+<Note>
+  Análises de CPF exigem a feature `analysis_engine_pf` habilitada no workspace, além da `analysis_engine`. Sem ela, a API responde `403 feature_not_enabled` com o campo `request_access_url` apontando para a página de solicitação de acesso.
+</Note>
+
+</Step>
+</Steps>
+
+## Tratamento de erros
+
+Todos os erros seguem RFC 7807 (`Content-Type: application/problem+json`). Use o campo `code` para decidir o que fazer — o campo `type` é apenas um identificador. Exemplo de saldo insuficiente (valores ilustrativos):
+
+**Resposta (402):**
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/insufficient_tokens",
+  "title": "Payment Required",
+  "status": 402,
+  "code": "insufficient_tokens",
+  "detail": "Insufficient tokens: 50 available, 100 required",
+  "required": 100,
+  "balance": 50,
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+```python Python
+if resp.status_code >= 400:
+    problem = resp.json()
+    code = problem["code"]
+
+    if code == "insufficient_tokens":
+        print(f"Faltam tokens: precisa de {problem['required']}, saldo {problem['balance']}")
+    elif code == "feature_not_enabled":
+        print(f"Solicite acesso em: {problem['request_access_url']}")
+    elif code == "idempotency_conflict":
+        print("Requisicao com a mesma key em andamento: consulte via GET")
+    else:
+        raise Exception(f"{code}: {problem.get('detail')}")
+```
+
+O registro completo dos 11 códigos de erro, com os campos extras de cada um, está em [Erros](/motor-analise/erros).
+
+## O que você construiu
+
+- Um fluxo completo de análise: `POST /v1/analyses` (202) → polling em `GET /v1/analyses/{id}` → veredito em `verdict`, detalhe por verificação em `blocks` e rastreabilidade das fontes em `coverage`.
+- Submissão segura contra duplicidade com `Idempotency-Key` — retries não geram cobrança dupla.
+- Polling que respeita `poll_after_seconds` / `Retry-After`.
+- O mesmo fluxo para CNPJ (`pj`) e CPF (`pf`), com base legal e finalidade auditadas no caso PF.
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Ciclo de vida" icon="arrows-spin" href="/motores/ciclo-de-vida">
+    Estados da análise, polling e o que muda em cada transição
+  </Card>
+  <Card title="Idempotência" icon="rotate" href="/motores/idempotencia">
+    Retries seguros, janela de 24h e resolução de conflitos 409
+  </Card>
+  <Card title="Cobrança" icon="coins" href="/motores/cobranca">
+    Quando os tokens são debitados e quando há reembolso automático
+  </Card>
+</CardGroup>

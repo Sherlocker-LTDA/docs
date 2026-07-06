@@ -1,39 +1,24 @@
 ---
 title: "Engine de Crédito"
-description: "Motor de regras para análise de crédito"
+description: "Engine de borderô do Motor de Borderô — a política de análise da operação"
 icon: "gears"
 ---
 
-Um **Engine** é um motor de regras configurável que define quais validações são aplicadas durante a análise de crédito.
+Uma **engine de borderô** é a configuração de uma operação do [Motor de Borderô](/credito/introducao): ela define os **blocos de título e de NFe** aplicados a cada título do borderô (vencimento, valores, cruzamento com o XML de NFe) e os **blocos de cedente e de sacado** aplicados à análise de risco de cada entidade única.
 
-## Campos principais
+## Uso na API
 
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| `id` | UUID | Identificador único |
-| `name` | string | Nome do engine (max 100 caracteres) |
-| `description` | string | Descrição (max 500 caracteres) |
-| `isTemplate` | boolean | Se é um engine template (não pode ser deletado) |
-| `ruleCount` | number | Quantidade de regras configuradas |
+O campo `engine_id` do `POST /v1/operations` é **opcional**:
 
-## Regras
+- **Omitido** — a operação usa a engine template de borderô do sistema.
+- **Informado** — a engine precisa existir e pertencer ao seu workspace (ou ser um template do sistema).
 
-Cada engine possui um conjunto de regras. Cada regra tem:
+| Situação | Resposta |
+|----------|----------|
+| `engine_id` inexistente ou de outro workspace | `404` [`not_found`](/problems/not_found) |
+| Engine arquivada, incompatível ou sem nenhum bloco ativo | `422` [`no_engine`](/problems/no_engine) |
+| Nenhuma engine de borderô disponível | `422` [`no_engine`](/problems/no_engine) |
 
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| `id` | string | Identificador da regra |
-| `name` | string | Nome descritivo |
-| `severity` | enum | `blocking` (impede aprovação) ou `alert` (apenas alerta) |
-| `enabled` | boolean | Se a regra está ativa |
+## Onde as engines são geridas
 
-## Criação
-
-Você pode criar um engine de duas formas:
-
-1. **Com regras customizadas** — Defina o objeto `rules` com suas configurações.
-2. **Clonando um existente** — Use `cloneFrom` com o UUID de um engine existente.
-
-<Warning>
-  Engines template e engines referenciados por operações não podem ser deletados.
-</Warning>
+Engines de borderô são criadas e configuradas **no app Sherlocker** — a API `/v1` não tem endpoints de CRUD de engines. Detalhes e exemplos em [Engines](/motores/engines).

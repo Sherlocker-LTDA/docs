@@ -1,29 +1,29 @@
 ---
-title: "Motor de Crédito"
-description: "Análise de crédito transparente para FIDCs brasileiros"
-icon: "credit-card"
+title: "Motor de Borderô"
+description: "Análise de borderôs CNAB 400 para FIDCs via API"
+icon: "file-invoice-dollar"
 ---
 
-O **Motor de Crédito** integra a API Mycroft para análise automatizada de borderôs CNAB 400, com motores de regras configuráveis e transparência total sobre cada regra aplicada.
+O **Motor de Borderô** analisa borderôs CNAB 400 de operações de desconto de duplicatas: parse dos títulos, análise de risco do cedente e de cada sacado único no [Motor de Análise](/motor-analise/introducao), validação cruzada opcional com XMLs de NFe e veredito consolidado por título.
 
 ## Entidades
 
 <CardGroup cols={2}>
   <Card title="Operação" icon="file-circle-check" href="/entidades/operacao-credito">
-    Operação de análise de crédito — upload de CNAB 400, status e resultado
+    Operação de análise de borderô — status, summary e títulos
   </Card>
   <Card title="Engine" icon="gears" href="/entidades/engine-credito">
-    Motor de regras configurável para análise de crédito
+    Engine de borderô — blocos de título/NFe e de cedente/sacado
   </Card>
 </CardGroup>
 
 ## O que você consegue fazer
 
-- **Criar operações de análise** — Upload de arquivos CNAB 400 com XMLs opcionais de NFe
-- **Acompanhar status** — Monitorar filas de processamento em tempo real
-- **Consultar resultados** — Árvore hierárquica de cedente, sacados e títulos com issues detalhadas
-- **Gerenciar engines** — Criar, clonar e personalizar motores de regras (blocking/alert)
+- **Criar operações** — `POST /v1/operations` com o CNAB 400 em base64 e, opcionalmente, um ZIP de XMLs de NFe
+- **Acompanhar o processamento** — polling em `GET /v1/operations/{id}` com `poll_after_seconds`/`Retry-After`
+- **Consultar o resultado** — `summary` da operação e veredito por título, com validação de NFe
+- **Fazer drill-down** — cada título aponta para as análises do cedente e do sacado, consultáveis via `GET /v1/analyses/{id}`
 
 <Tip>
-  Acesse a tab **Crédito** para ver todos os endpoints disponíveis.
+  Acesse a aba **Motor de Borderô** para a documentação completa, começando pela [Introdução](/credito/introducao) e pelo [Quickstart](/credito/quickstart).
 </Tip>

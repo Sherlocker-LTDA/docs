@@ -1,65 +1,43 @@
 ---
 title: "Operação de Crédito"
-description: "Operação de análise de crédito via Mycroft API"
+description: "Operação de análise de borderô CNAB 400 no Motor de Borderô"
 icon: "file-circle-check"
 ---
 
-Uma **Operação** representa uma análise de crédito de um borderô CNAB 400. Cada operação passa por filas de processamento e produz um resultado hierárquico com regras aplicadas.
+Uma **Operação** representa a análise de um borderô CNAB 400 no [Motor de Borderô](/credito/introducao). É criada via `POST /v1/operations`, processada de forma assíncrona e consultada por polling em `GET /v1/operations/{id}`.
 
 ## Ciclo de vida
 
 ```
-criada → queued → processing → completed / failed
+pending → running → completed | failed
 ```
+
+Operações que terminam em `failed` têm os tokens reembolsados automaticamente. Detalhes em [Ciclo de vida](/motores/ciclo-de-vida).
 
 ## Campos principais
 
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `operationId` | UUID | Identificador único da operação |
-| `status` | enum | `queued`, `processing`, `completed`, `failed` |
-| `engineId` | UUID | Motor de regras utilizado |
-| `fileName` | string | Nome do arquivo CNAB enviado |
-| `tituloCount` | number | Total de títulos processados |
-| `approvedCount` | number | Títulos aprovados |
-| `blockedCount` | number | Títulos bloqueados |
-| `alertCount` | number | Títulos com alerta |
+| `id` | UUID | Identificador único da operação |
+| `status` | enum | `pending`, `running`, `completed`, `failed` |
+| `engine_id` | UUID | Engine de borderô utilizada |
+| `file_name` | string | Nome de exibição do arquivo CNAB enviado |
+| `summary` | object | Resumo da operação; presente apenas quando `completed` |
+| `titulos` | array | Veredito por título; presente apenas quando `completed` |
+| `titulos_count` / `entities_count` | number | Contagens do borderô (títulos e entidades únicas), quando disponíveis |
+| `tokens_charged` | number | Tokens debitados (um por entidade única do borderô) |
+| `created_at` / `finished_at` | datetime | Criação e término (ISO 8601); `finished_at` presente apenas em estados terminais |
 
-## Resultado da análise
-
-O resultado segue uma árvore hierárquica:
-
-```
-Cedente (empresa que cede os títulos)
-  └── Sacados (devedores)
-       └── Títulos (duplicatas/boletos)
-            └── Issues (regras violadas)
-```
-
-### Status de cada entidade
-
-- **approved** — Sem violações
-- **blocked** — Regra bloqueante violada
-- **alerted** — Regra de alerta violada
-
-### Issues (violações)
-
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| `ruleId` | string | ID da regra |
-| `ruleName` | string | Nome da regra |
-| `category` | enum | `blocking` ou `alert` |
-| `message` | string | Mensagem descritiva |
-| `detail.field` | string | Campo avaliado |
-| `detail.actual` | any | Valor encontrado |
-| `detail.expected` | any | Valor esperado |
-| `dataSource` | string | Fonte dos dados (ex: "XML NFe", "Sherlocker NFe") |
-
-### Summary
+## Summary
 
 | Campo | Descrição |
 |-------|-----------|
-| `totalTitulos` | Total de títulos |
-| `approved` / `blocked` / `alerted` | Contagem por status |
-| `totalValue` / `approvedValue` / `blockedValue` / `alertedValue` | Valores monetários |
-| `sacados.total` / `sacados.withIssues` | Contagem de sacados |
+| `titulos` | Total de títulos do borderô |
+| `aprovados` / `alertas` / `reprovados` | Contagem de títulos por veredito |
+| `valor_total` / `valor_aprovado` | Valores monetários do borderô e dos títulos aprovados |
+| `cedente_verdict` | Veredito da análise do cedente (ou `null` se indisponível) |
+| `entities_count` | Entidades únicas analisadas e cobradas (cedente + sacados únicos) |
+
+## Títulos
+
+Cada item de `titulos[]` traz `seu_numero`, `sacado_document`, `valor`, `vencimento`, o `verdict` (`aprovado` | `alerta` | `reprovado` | `incompleto`), o `nfe_status` consolidado dos blocos de NFe e os campos `cedente_analysis_id` / `sacado_analysis_id` — IDs de análises normais do [Motor de Análise](/motor-analise/introducao), consultáveis via `GET /v1/analyses/{id}` (podem ser `null` se a análise da entidade não estiver disponível). O shape completo está em [Títulos e NFe](/credito/titulos-e-nfe).

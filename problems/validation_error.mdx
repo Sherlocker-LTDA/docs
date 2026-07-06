@@ -1,0 +1,55 @@
+---
+title: "validation_error"
+description: "Erro 400: um ou mais campos do body falharam na validação"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `400`
+
+## O que significa
+
+Um ou mais campos do body da requisição falharam na validação de tipo ou de enum. A resposta segue o formato RFC 7807 (`Content-Type: application/problem+json`) e inclui o campo extra `errors[]`, que lista cada campo reprovado e a mensagem da restrição violada.
+
+Use o campo `code` para tratamento programático. O `type` é um identificador, não deve ser dereferenciado em código de produção.
+
+## Causas comuns
+
+- `subject_type` com valor fora do enum (`pj` | `pf`).
+- `legal_basis` com valor fora do enum (`consentimento` | `legitimo_interesse` | `cumprimento_obrigacao_legal` | `protecao_credito`).
+- Campo enviado com o tipo errado (por exemplo, `document` como número em vez de string).
+- Campo obrigatório vazio (por exemplo, `document` vazio no `POST /v1/analyses`).
+- **Motor de Borderô** (`POST /v1/operations`): `cnab_base64` ausente ou vazio, base64 inválido, arquivo que não parseia como CNAB 400 remessa, ou arquivo acima do limite (16 MB decodificado para o CNAB; 32 MB para o ZIP de NFe). Nada é cobrado — o débito só acontece após o parse bem-sucedido do CNAB.
+
+## Como corrigir
+
+- Leia o array `errors[]`: cada item traz `field` e `message` indicando exatamente o que corrigir.
+- Corrija cada campo conforme a mensagem e reenvie a requisição.
+- Ao reenviar com o body corrigido, gere uma **nova** `Idempotency-Key`. A mesma key com body diferente retorna [`409 idempotency_conflict`](/problems/idempotency_conflict).
+
+## Exemplo
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/validation_error",
+  "title": "Validation Error",
+  "status": 400,
+  "code": "validation_error",
+  "detail": "One or more fields failed validation.",
+  "errors": [
+    { "field": "document", "message": "document should not be empty" },
+    { "field": "subject_type", "message": "subject_type must be one of the following values: pj, pf" }
+  ],
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+## Campos extras
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `errors` | array | Lista de objetos `{field, message}`, um por campo reprovado. |
+
+## Relacionado
+
+- [Erros da API](/motor-analise/erros)
+- [Idempotência](/motores/idempotencia)

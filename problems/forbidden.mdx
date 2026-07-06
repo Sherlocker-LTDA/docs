@@ -1,0 +1,47 @@
+---
+title: "forbidden"
+description: "Erro 403: acesso negado ao recurso (não relacionado a feature)"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `403`
+
+## O que significa
+
+O workspace ou usuário autenticado não tem permissão para acessar o recurso solicitado. É o 403 genérico da API, usado quando a negação **não** é causada por feature desabilitada. Quando o motivo for uma feature do beta, a API retorna [`feature_not_enabled`](/problems/feature_not_enabled), que traz o campo `request_access_url`.
+
+<Note>
+  `engine_id` de uma engine de outro workspace **não** retorna `forbidden`: retorna [`404 not_found`](/problems/not_found), para não revelar a existência de engines de outros workspaces.
+</Note>
+
+## Causas comuns
+
+- Chave de API de um workspace sem permissão sobre o recurso solicitado.
+- Uso da chave errada em ambientes ou workspaces diferentes.
+
+## Como corrigir
+
+- Confirme que a chave de API pertence ao workspace correto para a operação.
+- Verifique o campo `detail` para o motivo específico da negação.
+- Se o acesso deveria estar liberado, acione o suporte em [/support](/support) informando o `instance` (contém o `request_id`).
+
+## Exemplo
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/forbidden",
+  "title": "Forbidden",
+  "status": 403,
+  "code": "forbidden",
+  "detail": "Access denied.",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+O texto de `detail` varia conforme a causa.
+
+## Relacionado
+
+- [Erros da API](/motor-analise/erros)
+- [Autenticação](/motor-analise/autenticacao)
+- [feature_not_enabled](/problems/feature_not_enabled)

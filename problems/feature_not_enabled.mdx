@@ -1,0 +1,59 @@
+---
+title: "feature_not_enabled"
+description: "Erro 403: a feature exigida não está habilitada para o workspace"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `403`
+
+## O que significa
+
+Uma feature obrigatória não está habilitada para o workspace. A API `/v1` dos Motores de Análise está em beta e o acesso é liberado por workspace, por duas features distintas:
+
+| Feature | Quando é exigida |
+|---|---|
+| `analysis_engine` | Qualquer chamada à API `/v1` — os dois motores, incluindo `POST /v1/operations` (borderô). |
+| `analysis_engine_pf` | Análises de CPF (`subject_type: "pf"`), exigida em conjunto com `analysis_engine`. |
+
+Ou seja: um workspace pode ter acesso a análises de CNPJ (PJ) e ainda assim receber `feature_not_enabled` ao enviar um CPF, se `analysis_engine_pf` não estiver habilitada.
+
+A resposta inclui o campo extra `request_access_url`, apontando para a página de solicitação de acesso.
+
+## Causas comuns
+
+- Workspace ainda sem acesso ao beta da API (`analysis_engine` desabilitada).
+- Workspace com acesso PJ tentando analisar um CPF sem a feature `analysis_engine_pf`.
+- Chave de API de um workspace diferente do que teve o acesso liberado.
+
+## Como corrigir
+
+- Acesse a URL em `request_access_url` ([/api/access](/api/access)) e solicite o acesso à feature citada no `detail`.
+- Para análises de CPF, solicite explicitamente a feature `analysis_engine_pf`, além da `analysis_engine`.
+- Confirme que a chave de API pertence ao workspace que recebeu a liberação.
+- Em caso de dúvida, acione o suporte em [/support](/support).
+
+## Exemplo
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/feature_not_enabled",
+  "title": "Feature Not Enabled",
+  "status": 403,
+  "code": "feature_not_enabled",
+  "detail": "The analysis_engine feature is not enabled for this workspace. To request access visit https://docs.sherlocker.com.br/api/access or contact support at https://docs.sherlocker.com.br/support.",
+  "request_access_url": "https://docs.sherlocker.com.br/api/access",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+## Campos extras
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `request_access_url` | string | URL da página de solicitação de acesso ao beta (`https://docs.sherlocker.com.br/api/access`). |
+
+## Relacionado
+
+- [Erros da API](/motor-analise/erros)
+- [Solicitar acesso](/api/access)
+- [Motores de Análise](/motores/introducao)

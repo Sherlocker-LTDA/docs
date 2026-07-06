@@ -1,0 +1,57 @@
+---
+title: "no_engine"
+description: "Erro 422: nenhuma engine disponível para executar a análise"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `422`
+
+## O que significa
+
+A API não conseguiu resolver uma engine utilizável para a requisição. No **Motor de CPF/CNPJ**, a resolução segue esta ordem:
+
+1. `engine_id` informado no body: precisa existir, pertencer ao workspace (ou ser template do sistema) e ser compatível com o `subject_type` da análise.
+2. `engine_id` omitido: usa a engine padrão do workspace.
+3. Sem engine padrão: usa o template do sistema do `subject_type` (PJ ou PF).
+
+No **Motor de Borderô**, a resolução é: `engine_id` explícito (engine de borderô do workspace ou template do sistema) ou, omitido, a engine template de borderô do sistema.
+
+Quando a engine encontrada não pode ser usada — arquivada, incompatível com a requisição ou, no caso de engines de borderô, **sem nenhum bloco ativo** — ou quando nenhuma etapa resolve uma engine, a API retorna `422 no_engine`.
+
+<Note>
+  `engine_id` inexistente ou de outro workspace retorna [`404 not_found`](/problems/not_found), não `422 no_engine`.
+</Note>
+
+## Causas comuns
+
+- `engine_id` de uma engine **arquivada**.
+- `engine_id` de uma engine PJ usada em análise de CPF (ou vice-versa): o `subject_type` da engine precisa bater com o do documento.
+- Engine de borderô com todos os blocos desativados (nada para avaliar).
+- Workspace sem engine configurada e sem template do sistema aplicável.
+
+## Como corrigir
+
+- Confira o `engine_id` enviado: ele deve ser o UUID de uma engine ativa do seu workspace, compatível com a requisição (e, no borderô, com ao menos um bloco ativo).
+- Se não precisa de uma engine específica, omita `engine_id`: a API usa a engine padrão do workspace ou o template do sistema.
+- Engines são criadas e configuradas no app Sherlocker (não há CRUD de engines pela API `/v1`). Verifique a configuração no app.
+- Se a configuração parece correta e o erro persiste, acione o suporte em [/support](/support).
+
+## Exemplo
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/no_engine",
+  "title": "Unprocessable Entity",
+  "status": 422,
+  "code": "no_engine",
+  "detail": "No analysis engine is configured for this workspace.",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+O texto de `detail` varia conforme a causa.
+
+## Relacionado
+
+- [Erros da API](/motor-analise/erros)
+- [Engines](/motores/engines)

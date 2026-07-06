@@ -271,6 +271,74 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Motores de Análise",
+        "icon": "radar",
+        "groups": [
+          {
+            "group": "Começando",
+            "pages": [
+              "motores/introducao",
+              "motor-analise/autenticacao"
+            ]
+          },
+          {
+            "group": "Conceitos",
+            "pages": [
+              "motores/ciclo-de-vida",
+              "motores/idempotencia",
+              "motores/cobranca",
+              "motores/engines"
+            ]
+          },
+          {
+            "group": "Motor de CPF/CNPJ",
+            "openapi": "/openapi/motor-analise.json",
+            "pages": [
+              "motor-analise/introducao",
+              "motor-analise/quickstart",
+              "motor-analise/blocos",
+              "POST /v1/analyses",
+              "GET /v1/analyses/{id}"
+            ]
+          },
+          {
+            "group": "Motor de Borderô (títulos & NFe)",
+            "openapi": "/openapi/motor-credito.json",
+            "pages": [
+              "credito/introducao",
+              "credito/quickstart",
+              "credito/titulos-e-nfe",
+              "POST /v1/operations",
+              "GET /v1/operations/{id}"
+            ]
+          },
+          {
+            "group": "Referência comum",
+            "pages": [
+              "motor-analise/erros",
+              "problems/validation_error",
+              "problems/bad_request",
+              "problems/unauthorized",
+              "problems/insufficient_tokens",
+              "problems/feature_not_enabled",
+              "problems/forbidden",
+              "problems/not_found",
+              "problems/idempotency_conflict",
+              "problems/no_engine",
+              "problems/http_error",
+              "problems/server_error"
+            ]
+          },
+          {
+            "group": "Acesso e suporte",
+            "pages": [
+              "api/access",
+              "support"
+            ]
+          }
+        ]
       }
     ]
   }
