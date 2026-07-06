@@ -4,7 +4,7 @@ description: "Índice de erros da API do Motor de Crédito: formato RFC 7807, c�
 icon: "triangle-exclamation"
 ---
 
-Toda resposta de erro da API `/v1` segue o [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) e é retornada com `Content-Type: application/problem+json`. Isso vale para os dois endpoints (`POST /v1/operations` e `GET /v1/operations/{id}`) — e é o mesmo formato do [Motor de Análise](/motor-analise/erros), incluindo as mesmas páginas de referência em `/problems/*`.
+Toda resposta de erro da API `/v1` segue o [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) e é retornada com `Content-Type: application/problem+json`. Isso vale para os dois endpoints (`POST /v1/operations` e `GET /v1/operations/{id}`) — e é o mesmo formato e os mesmos códigos do [Motor de Análise](/motor-analise/erros). As páginas de referência desta aba, em `/credito/problems/*`, descrevem cada código no contexto do Motor de Crédito.
 
 <Note>
   Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
@@ -48,21 +48,21 @@ O `request_id` em `instance` é o mesmo que você enviou no header opcional `x-r
 
 ## Registro de códigos
 
-Cada código tem uma página própria em `/problems/<code>`. A coluna "quando acontece" abaixo é específica do Motor de Crédito:
+Cada código tem uma página própria em `/credito/problems/<code>`. A coluna "quando acontece" abaixo é específica do Motor de Crédito (o campo `type` dos erros continua apontando para o identificador canônico `https://docs.sherlocker.com.br/problems/<code>`):
 
 | `code` | HTTP | Quando acontece | Campos extras |
 |---|---|---|---|
-| [`validation_error`](/problems/validation_error) | 400 | `cnab_base64` ausente, base64 inválido, CNAB que não parseia, arquivo acima do limite ou campo com tipo/enum inválido | `errors[]` |
-| [`bad_request`](/problems/bad_request) | 400 | Header `Idempotency-Key` ausente ou vazio | — |
-| [`unauthorized`](/problems/unauthorized) | 401 | Header `Authorization` ausente/malformado; chave de API inválida ou revogada | — |
-| [`insufficient_tokens`](/problems/insufficient_tokens) | 402 | Saldo insuficiente para as entidades únicas do borderô | `required`, `balance` |
-| [`feature_not_enabled`](/problems/feature_not_enabled) | 403 | Feature `analysis_engine` desabilitada no workspace | `request_access_url` |
-| [`forbidden`](/problems/forbidden) | 403 | 403 genérico, não relacionado a feature | — |
-| [`not_found`](/problems/not_found) | 404 | Operação inexistente ou de outro workspace; `engine_id` inexistente ou de outro workspace | — |
-| [`idempotency_conflict`](/problems/idempotency_conflict) | 409 | Mesma `Idempotency-Key` com requisição ainda em andamento, ou mesma key com conteúdo diferente (o hash cobre o SHA-256 dos bytes dos arquivos + `engine_id` + `legal_basis`) | — |
-| [`no_engine`](/problems/no_engine) | 422 | Engine arquivada, incompatível, sem nenhum bloco ativo, ou nenhuma engine de borderô disponível | — |
-| [`http_error`](/problems/http_error) | varia | Fallback genérico para HTTP não mapeado em um código mais específico | — |
-| [`server_error`](/problems/server_error) | 500 | Erro inesperado no servidor; use o `instance` (request_id) ao acionar o suporte | — |
+| [`validation_error`](/credito/problems/validation_error) | 400 | `cnab_base64` ausente, base64 inválido, CNAB que não parseia, arquivo acima do limite ou campo com tipo/enum inválido | `errors[]` |
+| [`bad_request`](/credito/problems/bad_request) | 400 | Header `Idempotency-Key` ausente ou vazio | — |
+| [`unauthorized`](/credito/problems/unauthorized) | 401 | Header `Authorization` ausente/malformado; chave de API inválida ou revogada | — |
+| [`insufficient_tokens`](/credito/problems/insufficient_tokens) | 402 | Saldo insuficiente para as entidades únicas do borderô | `required`, `balance` |
+| [`feature_not_enabled`](/credito/problems/feature_not_enabled) | 403 | Feature `analysis_engine` desabilitada no workspace | `request_access_url` |
+| [`forbidden`](/credito/problems/forbidden) | 403 | 403 genérico, não relacionado a feature | — |
+| [`not_found`](/credito/problems/not_found) | 404 | Operação inexistente ou de outro workspace; `engine_id` inexistente ou de outro workspace | — |
+| [`idempotency_conflict`](/credito/problems/idempotency_conflict) | 409 | Mesma `Idempotency-Key` com requisição ainda em andamento, ou mesma key com conteúdo diferente (o hash cobre o SHA-256 dos bytes dos arquivos + `engine_id` + `legal_basis`) | — |
+| [`no_engine`](/credito/problems/no_engine) | 422 | Engine arquivada, incompatível, sem nenhum bloco ativo, ou nenhuma engine de borderô disponível | — |
+| [`http_error`](/credito/problems/http_error) | varia | Fallback genérico para HTTP não mapeado em um código mais específico | — |
+| [`server_error`](/credito/problems/server_error) | 500 | Erro inesperado no servidor; use o `instance` (request_id) ao acionar o suporte | — |
 
 <Note>
   O limite global da API é de 100 requisições por minuto por IP. Exceder o limite retorna `429` — honre o header `Retry-After` antes de tentar de novo.

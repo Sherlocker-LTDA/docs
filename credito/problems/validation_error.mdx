@@ -1,0 +1,58 @@
+---
+title: "validation_error"
+description: "Erro 400: um ou mais campos do body falharam na validação"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `400`
+
+## O que significa
+
+Um ou mais campos do body da requisição falharam na validação. A resposta segue o formato RFC 7807 (`Content-Type: application/problem+json`) e inclui o campo extra `errors[]`, que lista cada campo reprovado e a mensagem da restrição violada.
+
+Use o campo `code` para tratamento programático. O `type` é um identificador, não deve ser dereferenciado em código de produção.
+
+Como o débito de tokens só acontece após o parse bem-sucedido do CNAB, uma requisição que falha na validação **não cobra nada**.
+
+## Causas comuns
+
+- `cnab_base64` ausente ou vazio.
+- Base64 inválido em `cnab_base64` ou `nfe_zip_base64`.
+- Arquivo que não parseia como CNAB 400 remessa.
+- Arquivo acima do limite (16 MB decodificado para o CNAB; 32 MB para o ZIP de NFe).
+- `legal_basis` com valor fora do enum (`consentimento` | `legitimo_interesse` | `cumprimento_obrigacao_legal` | `protecao_credito`).
+- Campo enviado com o tipo errado.
+
+## Como corrigir
+
+- Leia o array `errors[]`: cada item traz `field` e `message` indicando exatamente o que corrigir.
+- Confira o arquivo na origem: ele precisa ser um CNAB 400 **remessa** válido, e o base64 deve ser gerado sobre o arquivo bruto (veja o [Quickstart](/credito/quickstart)).
+- Ao reenviar com o conteúdo corrigido, gere uma **nova** `Idempotency-Key`. A mesma key com conteúdo diferente retorna [`409 idempotency_conflict`](/credito/problems/idempotency_conflict).
+
+## Exemplo
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/validation_error",
+  "title": "Validation Error",
+  "status": 400,
+  "code": "validation_error",
+  "detail": "One or more fields failed validation.",
+  "errors": [
+    { "field": "cnab_base64", "message": "file is not a valid CNAB 400 remessa" }
+  ],
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+## Campos extras
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `errors` | array | Lista de objetos `{field, message}`, um por campo reprovado. |
+
+## Relacionado
+
+- [Erros da API](/credito/erros)
+- [Títulos e NFe](/credito/titulos-e-nfe)
+- [Idempotência](/credito/idempotencia)

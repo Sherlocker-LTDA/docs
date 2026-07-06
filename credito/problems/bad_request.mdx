@@ -1,0 +1,41 @@
+---
+title: "bad_request"
+description: "Erro 400: requisição malformada ou elemento obrigatório ausente"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `400`
+
+## O que significa
+
+A requisição está malformada ou falta um elemento obrigatório que é verificado antes da validação de campos. O motivo exato vem no campo `detail`.
+
+## Causas comuns
+
+- Header `Idempotency-Key` ausente ou vazio no `POST /v1/operations` (detail: `Idempotency-Key header required`).
+
+## Como corrigir
+
+- Envie o header `Idempotency-Key` em todo `POST /v1/operations`. Recomendamos um UUID, amarrado ao ID interno do borderô no seu sistema.
+- Depois de corrigir a requisição, se o conteúdo mudou (outro arquivo, `engine_id` ou `legal_basis`), use uma **nova** `Idempotency-Key`. A mesma key com conteúdo diferente retorna [`409 idempotency_conflict`](/credito/problems/idempotency_conflict).
+
+## Exemplo
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/bad_request",
+  "title": "Bad Request",
+  "status": 400,
+  "code": "bad_request",
+  "detail": "Idempotency-Key header required",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+O texto de `detail` varia conforme a causa. Problemas com o conteúdo do body (base64 inválido, CNAB que não parseia, campo faltando) retornam [`400 validation_error`](/credito/problems/validation_error), com o detalhe por campo em `errors[]`.
+
+## Relacionado
+
+- [Erros da API](/credito/erros)
+- [Idempotência](/credito/idempotencia)
+- [Quickstart](/credito/quickstart)

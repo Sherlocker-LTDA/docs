@@ -372,24 +372,24 @@
           {
             "group": "Códigos de erro",
             "pages": [
-              "problems/validation_error",
-              "problems/bad_request",
-              "problems/unauthorized",
-              "problems/insufficient_tokens",
-              "problems/feature_not_enabled",
-              "problems/forbidden",
-              "problems/not_found",
-              "problems/idempotency_conflict",
-              "problems/no_engine",
-              "problems/http_error",
-              "problems/server_error"
+              "credito/problems/validation_error",
+              "credito/problems/bad_request",
+              "credito/problems/unauthorized",
+              "credito/problems/insufficient_tokens",
+              "credito/problems/feature_not_enabled",
+              "credito/problems/forbidden",
+              "credito/problems/not_found",
+              "credito/problems/idempotency_conflict",
+              "credito/problems/no_engine",
+              "credito/problems/http_error",
+              "credito/problems/server_error"
             ]
           },
           {
             "group": "Acesso e suporte",
             "pages": [
-              "api/access",
-              "support"
+              "credito/acesso",
+              "credito/suporte"
             ]
           }
         ]

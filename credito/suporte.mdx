@@ -1,0 +1,48 @@
+---
+title: "Suporte"
+description: "Como acionar o time Sherlocker e o que incluir num report de API"
+icon: "headset"
+---
+
+Durante o beta, o suporte da API do Motor de Crédito é feito diretamente com o time Sherlocker, pelo **canal combinado no onboarding do beta**.
+
+## O que incluir num report de API
+
+Para que o time localize sua requisição nos logs, inclua sempre:
+
+| Item | Onde encontrar |
+|------|----------------|
+| `request_id` | Header de resposta `x-request-id`, campo `instance` do erro (`/v1?request_id=<id>`) ou campo `request_id` do body |
+| Timestamp | Data e hora da requisição (com fuso horário) |
+| Endpoint | Método e rota chamados (ex.: `POST /v1/operations`) |
+| `code` do erro | Campo `code` do body de erro (ex.: `server_error`) |
+| Body do erro | O JSON completo da resposta, se possível |
+| `id` da operação | Quando o problema é em uma operação específica (resultado inesperado, `failed`) |
+
+Todo erro da API segue o formato RFC 7807 e traz esses campos:
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/server_error",
+  "title": "Internal Server Error",
+  "status": 500,
+  "code": "server_error",
+  "detail": "...",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+<Tip>
+  Você pode enviar seu próprio `x-request-id` no header da requisição. Se não enviar, o servidor gera um UUID. Em ambos os casos o valor é ecoado no header de resposta `x-request-id` — registre-o nos seus logs para facilitar o suporte.
+</Tip>
+
+## Relacionado
+
+<CardGroup cols={2}>
+  <Card title="Erros da API" icon="triangle-exclamation" href="/credito/erros">
+    Todos os códigos de erro e como tratá-los
+  </Card>
+  <Card title="Solicitar acesso à API" icon="unlock" href="/credito/acesso">
+    Peça acesso ao beta do Motor de Crédito
+  </Card>
+</CardGroup>
