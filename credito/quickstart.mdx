@@ -216,11 +216,13 @@ console.log(op.summary);
   "finished_at": "2026-07-06T10:02:15Z",
   "summary": {
     "titulos": 42,
-    "aprovados": 30,
+    "aprovados": 29,
     "alertas": 8,
     "reprovados": 4,
+    "incompletos": 1,
     "valor_total": 123456.78,
     "valor_aprovado": 100000.00,
+    "valor_incompleto": 3456.78,
     "cedente_verdict": "aprovado",
     "entities_count": 12
   },
@@ -246,7 +248,8 @@ Os campos que importam para a sua decisão:
 | Campo | Significado |
 |---|---|
 | `summary.cedente_verdict` | Veredito da análise do cedente (ou `null` se indisponível) — se o cedente reprova, a operação inteira merece atenção |
-| `summary.aprovados` / `alertas` / `reprovados` | Contagem de títulos por veredito; `valor_total` e `valor_aprovado` trazem os valores monetários |
+| `summary.aprovados` / `alertas` / `reprovados` / `incompletos` | Contagem de títulos por veredito. Os quatro buckets somam `titulos` — `incompletos` são títulos que o motor não conseguiu avaliar por completo (alguma fonte ficou indisponível), **não** reprovações |
+| `summary.valor_total` / `valor_aprovado` / `valor_incompleto` | Valores monetários agregados: total da operação, soma dos títulos aprovados e soma dos títulos incompletos |
 | `titulos[].verdict` | `aprovado` \| `alerta` \| `reprovado` \| `incompleto` — veredito individual do título |
 | `titulos[].nfe_status` | `no_key` \| `not_checked` \| `pass` \| `alert` \| `blocked` \| `unavailable` — resultado consolidado dos blocos de NFe do título (veja [Títulos e NFe](/credito/titulos-e-nfe)) |
 

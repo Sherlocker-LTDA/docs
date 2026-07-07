@@ -209,7 +209,7 @@ Cada item de `titulos[]` traz um `verdict` que consolida, para aquele título, o
 | `reprovado` | Pelo menos uma verificação resultou em bloqueio |
 | `incompleto` | Alguma verificação do título ficou indisponível (fonte de dados falhou), sem nenhum bloqueio |
 
-O `summary` agrega as contagens em `aprovados`, `alertas` e `reprovados`, junto com `valor_total` e `valor_aprovado` para a decisão financeira da operação.
+O `summary` agrega as contagens em `aprovados`, `alertas`, `reprovados` e `incompletos` (os quatro somam `titulos`), junto com `valor_total`, `valor_aprovado` e `valor_incompleto` para a decisão financeira da operação. `incompletos` são títulos que o motor não conseguiu avaliar por completo porque alguma fonte de dados ficou indisponível — não são reprovações.
 
 ### Verdict do cedente
 
@@ -263,11 +263,13 @@ Os campos de resultado chegam de uma vez quando a operação atinge `completed`:
   "finished_at": "2026-07-06T10:02:15Z",
   "summary": {
     "titulos": 42,
-    "aprovados": 30,
+    "aprovados": 29,
     "alertas": 8,
     "reprovados": 4,
+    "incompletos": 1,
     "valor_total": 123456.78,
     "valor_aprovado": 100000.00,
+    "valor_incompleto": 3456.78,
     "cedente_verdict": "aprovado",
     "entities_count": 12
   },
