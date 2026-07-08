@@ -4,46 +4,44 @@ description: "Estados de uma análise ou operação, semântica dos verdicts e c
 icon: "arrows-rotate"
 ---
 
-Tudo que os motores criam — uma análise (`POST /v1/analyses`) ou uma operação de borderô (`POST /v1/operations`) — é processado de forma assíncrona e passa pela **mesma máquina de estados**. Esta página explica os estados, o polling e, por motor, o que cada campo do resultado significa.
+Tudo que os motores criam — uma análise (`POST /v1/analyses`) ou uma operação de borderô (`POST /v1/operations`) — é processado de forma assíncrona e passa pela **mesma forma de máquina de estados**: aguardando → executando → terminal. O que muda é o vocabulário público de cada motor. Esta página explica os estados, o polling e, por motor, o que cada campo do resultado significa.
 
 <Note>
   Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
 </Note>
 
-## Máquina de estados (os dois motores)
+## Máquina de estados
 
-O campo `status` passa por estes estados:
+O campo `status` passa por dois estados não-terminais e um terminal, com nomes diferentes em cada motor:
+
+| Fase | CPF/CNPJ (`/v1/analyses`) | Borderô (`/v1/operations`) | Terminal? | Significado |
+|------|---------------------------|----------------------------|-----------|-------------|
+| Aguardando | `pending` | `queued` | Não | Aceito (202) e aguardando processamento |
+| Executando | `running` | `processing` | Não | Motor executando as verificações |
+| Concluído | `completed` | `completed` | Sim | Motor terminou; resultado disponível |
+| Falhou | `failed` | `failed` | Sim | O motor não conseguiu concluir; sem resultado e **tokens estornados automaticamente** |
 
 ```mermaid
 stateDiagram-v2
-    [*] --> pending
-    pending --> running
-    pending --> failed
-    running --> completed
-    running --> failed
+    [*] --> aguardando
+    aguardando --> executando
+    aguardando --> failed
+    executando --> completed
+    executando --> failed
     completed --> [*]
     failed --> [*]
 ```
 
-Trate `failed` como possível a partir de qualquer estado não-terminal: um run que expira ainda em `pending` (sem chegar a `running`) também termina em `failed`.
-
-| Status | Terminal? | Significado |
-|--------|-----------|-------------|
-| `pending` | Não | Aceito (202) e aguardando processamento |
-| `running` | Não | Motor executando as verificações |
-| `completed` | Sim | Motor terminou; campos de resultado disponíveis |
-| `failed` | Sim | O motor não conseguiu concluir; sem resultado e **tokens estornados automaticamente** |
+Trate `failed` como possível a partir de qualquer estado não-terminal: um run que expira ainda aguardando (sem chegar a executar) também termina em `failed`.
 
 Respostas terminais (`completed`/`failed`) são estáveis — o resultado não muda depois de pronto. O estorno em `failed` é automático nos dois motores (veja [Cobrança](/motores/cobranca)).
 
-## Polling (os dois motores)
+## Polling
 
-Consulte o resultado com `GET /v1/analyses/{id}` ou `GET /v1/operations/{id}`. Enquanto o run não é terminal, a resposta traz duas indicações equivalentes de quando consultar de novo:
+Consulte o resultado com `GET /v1/analyses/{id}` ou `GET /v1/operations/{id}`. A indicação de intervalo difere por motor:
 
-- o campo `poll_after_seconds: 2` no body;
-- o header `Retry-After: 2` na resposta.
-
-Quando o status é terminal, esse campo e esse header deixam de aparecer — é o sinal de que não há mais o que aguardar.
+- **CPF/CNPJ**: enquanto o run não é terminal, a resposta traz o campo `poll_after_seconds: 2` no body e o header `Retry-After: 2`. Quando o status é terminal, campo e header deixam de aparecer.
+- **Borderô**: não há campo de intervalo nem header `Retry-After` — consulte a cada **~2 segundos** até `completed` ou `failed`.
 
 <CodeGroup>
 ```python Python
@@ -54,6 +52,7 @@ API_HOST = "<API_HOST>"
 HEADERS = {"Authorization": "Bearer slhk_sua_chave_aqui"}
 
 # Para o Motor de Bordero, troque "analyses" por "operations"
+# (la nao ha poll_after_seconds: use um sleep fixo de 2s)
 run_id = "a1b2c3d4-0000-0000-0000-000000000001"
 
 while True:
@@ -74,6 +73,7 @@ const API_HOST = "<API_HOST>";
 const headers = { Authorization: "Bearer slhk_sua_chave_aqui" };
 
 // Para o Motor de Bordero, troque "analyses" por "operations"
+// (la nao ha poll_after_seconds: use um sleep fixo de 2s)
 const runId = "a1b2c3d4-0000-0000-0000-000000000001";
 
 let data;
@@ -93,7 +93,7 @@ while (true) {
 </CodeGroup>
 
 <Tip>
-  Consultar mais rápido que o intervalo indicado não acelera o resultado. Sempre honre `Retry-After`/`poll_after_seconds`.
+  Consultar mais rápido que o intervalo indicado não acelera o resultado. No CPF/CNPJ, honre `Retry-After`/`poll_after_seconds`; no borderô, mantenha o intervalo de ~2 segundos.
 </Tip>
 
 ### Boas práticas
@@ -198,54 +198,59 @@ Os campos `tokens_charged` e `balance` aparecem na resposta quando disponíveis.
 </Tab>
 <Tab title="Borderô">
 
-### Verdicts por título
+### Envelope de status × resultado
 
-Cada item de `titulos[]` traz um `verdict` que consolida, para aquele título, o resultado da análise do cedente, da análise do sacado e das validações do próprio título (dados do CNAB e cruzamento com NFe):
+No borderô, status e resultado moram em endpoints diferentes:
 
-| `titulos[].verdict` | Significado |
-|---------------------|-------------|
-| `aprovado` | Nenhuma verificação do título resultou em alerta ou bloqueio |
-| `alerta` | Pelo menos uma verificação resultou em alerta, sem nenhum bloqueio |
-| `reprovado` | Pelo menos uma verificação resultou em bloqueio |
-| `incompleto` | Alguma verificação do título ficou indisponível (fonte de dados falhou), sem nenhum bloqueio |
+- `GET /v1/operations/{id}` — o **envelope de status** (camelCase), sempre com todos os campos.
+- `GET /v1/operations/{id}/result` — o **resultado hierárquico** (árvore cedente → sacados → títulos), disponível apenas quando `completed`. Antes disso, retorna [`409 conflict`](/problems/conflict).
 
-O `summary` agrega as contagens em `aprovados`, `alertas` e `reprovados`, junto com `valor_total` e `valor_aprovado` para a decisão financeira da operação.
+### Status de entidade
 
-### Verdict do cedente
+Cada nó da árvore do `/result` (cedente, sacado, título) tem um `status` público em inglês:
 
-O campo `summary.cedente_verdict` carrega o veredito da análise de risco do **cedente** — a mesma semântica de `verdict` do Motor de CPF/CNPJ (`aprovado` | `alerta` | `reprovado` | `incompleto`), ou `null` se o veredito não estiver disponível (campo preenchido em melhor esforço). Como o cedente é a contraparte de todos os títulos, um `cedente_verdict` de `reprovado` compromete o borderô inteiro, independentemente dos sacados.
+| `status` | Significado |
+|----------|-------------|
+| `approved` | Nenhuma issue no nó (nem abaixo dele) |
+| `alerted` | Pelo menos uma issue de alerta, sem nenhum bloqueio — inclui análise incompleta por fonte indisponível |
+| `blocked` | Pelo menos uma issue bloqueante |
 
-### Operação e análises-filhas
+O rollup é **worst-of**: o status do título deriva das issues do título; o do sacado é o pior entre as issues próprias e os títulos; o do cedente é o pior entre as issues próprias e os sacados. Como o cedente é a contraparte de todos os títulos, um cedente `blocked` compromete o borderô inteiro, independentemente dos sacados.
 
-Ao processar o borderô, o motor cria **uma análise por entidade única**: uma para o cedente e uma para cada sacado distinto. São análises normais do Motor de CPF/CNPJ, e é isso que os campos `cedente_analysis_id` e `sacado_analysis_id` de cada título referenciam:
+### Issues, coverage e degradedRules
 
-- O mesmo sacado em vários títulos aponta para a **mesma** análise (e é cobrado uma única vez — veja [Cobrança](/motores/cobranca)).
-- Todos os títulos compartilham o mesmo `cedente_analysis_id`.
-- Os campos podem ser `null` quando a análise da entidade não está disponível — preenchidos em melhor esforço.
-- O detalhamento completo (verdict, `blocks`, `coverage`) de qualquer entidade está em `GET /v1/analyses/{id}`, no formato da aba CPF/CNPJ.
+Cada violação de regra vira uma **issue** no nó correspondente: `{ruleId, ruleName, category, status, message, detail, dataSources}` — `category` é `blocking` ou `alert`. Quando uma fonte de dados fica indisponível, a regra afetada **não vira issue**: ela aparece em `degradedRules[]` (`ruleId`, `provider`, `titulosAffected`) e a cobertura por provider em `coverage[]` (`requested`, `succeeded`, `failedKeys`). No `summary`, os títulos afetados contam como `alerted`.
+
+O `summary` do `/result` sempre reflete o **dataset completo** (não muda com `?filter`): `totalTitulos`, `approved`/`blocked`/`alerted`, `totalValue`/`approvedValue`/`blockedValue`/`alertedValue`, `sacados.total`/`sacados.withIssues` e `cedente.status`.
 
 ### O que cada estado retorna
 
-Enquanto a operação está em `pending` ou `running`, o `GET` retorna o essencial: `id`, `status`, `engine_id`, `file_name`, `tokens_charged`, `created_at`, o `request_id` e a instrução de polling (`poll_after_seconds`) — `titulos_count` e `entities_count` aparecem quando disponíveis. A resposta **não traz** `summary`, `titulos` nem `finished_at`.
+O envelope de status traz **sempre todos os campos**; o que muda é o preenchimento:
 
-Os campos de resultado chegam de uma vez quando a operação atinge `completed`: `finished_at`, `summary` e `titulos[]`. Em `failed`, a resposta ganha apenas `finished_at` — sem `summary` nem `titulos` — e os tokens são estornados.
+- `tituloCount`, `approvedCount`, `blockedCount` e `alertCount` são `null` até `completed`. Quando preenchidos, `approvedCount + blockedCount + alertCount = tituloCount` — `alertCount` inclui os títulos com análise incompleta.
+- `completedAt` só é preenchido em `completed`; `error` (string) só em `failed`, com os tokens estornados automaticamente.
+- `processingAt` é `null` enquanto `queued`; `fileSize` pode ser `null` em operações antigas.
 
-### Exemplo: em andamento
+### Exemplo: em processamento
 
-`GET /v1/operations/{id}` com a operação ainda em `running` retorna `200` com header `Retry-After: 2`:
+`GET /v1/operations/{id}` com a operação ainda em `processing` (sem header `Retry-After` — consulte a cada ~2s):
 
 ```json
 {
   "id": "b2c3d4e5-0000-0000-0000-000000000001",
-  "status": "running",
-  "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
-  "file_name": "remessa-0605.rem",
-  "titulos_count": 42,
-  "entities_count": 12,
-  "tokens_charged": 12,
-  "created_at": "2026-07-06T10:00:00Z",
-  "poll_after_seconds": 2,
-  "request_id": "req-uuid"
+  "status": "processing",
+  "fileName": "bordero.rem",
+  "fileSize": 4440,
+  "engineId": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+  "tituloCount": null,
+  "approvedCount": null,
+  "blockedCount": null,
+  "alertCount": null,
+  "createdAt": "2026-07-09T12:00:00.000Z",
+  "queuedAt": "2026-07-09T12:00:00.000Z",
+  "processingAt": "2026-07-09T12:00:02.000Z",
+  "completedAt": null,
+  "error": null
 }
 ```
 
@@ -255,40 +260,22 @@ Os campos de resultado chegam de uma vez quando a operação atinge `completed`:
 {
   "id": "b2c3d4e5-0000-0000-0000-000000000001",
   "status": "completed",
-  "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
-  "file_name": "remessa-0605.rem",
-  "titulos_count": 42,
-  "entities_count": 12,
-  "created_at": "2026-07-06T10:00:00Z",
-  "finished_at": "2026-07-06T10:02:15Z",
-  "summary": {
-    "titulos": 42,
-    "aprovados": 30,
-    "alertas": 8,
-    "reprovados": 4,
-    "valor_total": 123456.78,
-    "valor_aprovado": 100000.00,
-    "cedente_verdict": "aprovado",
-    "entities_count": 12
-  },
-  "titulos": [
-    {
-      "seu_numero": "DUP-0001",
-      "sacado_document": "12345678000190",
-      "valor": 1234.56,
-      "vencimento": "2026-08-01",
-      "verdict": "aprovado",
-      "nfe_status": "pass",
-      "cedente_analysis_id": "a1b2c3d4-0000-0000-0000-000000000010",
-      "sacado_analysis_id": "a1b2c3d4-0000-0000-0000-000000000011"
-    }
-  ],
-  "tokens_charged": 12,
-  "request_id": "req-uuid"
+  "fileName": "bordero.rem",
+  "fileSize": 4440,
+  "engineId": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+  "tituloCount": 12,
+  "approvedCount": 9,
+  "blockedCount": 2,
+  "alertCount": 1,
+  "createdAt": "2026-07-09T12:00:00.000Z",
+  "queuedAt": "2026-07-09T12:00:00.000Z",
+  "processingAt": "2026-07-09T12:00:02.000Z",
+  "completedAt": "2026-07-09T12:02:15.000Z",
+  "error": null
 }
 ```
 
-O shape completo de cada título, incluindo os estados de `nfe_status`, está em [Títulos e NFe](/credito/titulos-e-nfe).
+A partir daí, busque a árvore completa em `GET /v1/operations/{id}/result` — por padrão só os nós com problemas (`?filter=issues`); com `?filter=all`, todos. O shape de cada título, incluindo `nfeChave` e as issues de NFe, está em [Títulos e NFe](/credito/titulos-e-nfe); o fluxo completo, no [Quickstart](/credito/quickstart).
 
 </Tab>
 </Tabs>
@@ -306,6 +293,6 @@ O shape completo de cada título, incluindo os estados de `nfe_status`, está em
     Catálogo dos blocos de verificação e seus grupos
   </Card>
   <Card title="Títulos e NFe (Borderô)" icon="file-invoice" href="/credito/titulos-e-nfe">
-    O shape de cada título e os estados de nfe_status
+    O shape do título na árvore do resultado e o campo nfeChave
   </Card>
 </CardGroup>

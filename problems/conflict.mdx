@@ -1,0 +1,44 @@
+---
+title: "conflict"
+description: "Erro 409: o recurso não está no estado necessário para a requisição (ex.: resultado antes de completed)"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `409`
+
+## O que significa
+
+A requisição é válida, mas o recurso não está no estado necessário para atendê-la. No Motor de Borderô, é o erro retornado pelo `GET /v1/operations/{id}/result` quando a operação **ainda não chegou a `completed`** — o resultado hierárquico só existe depois que o processamento termina.
+
+Não confunda com [`idempotency_conflict`](/problems/idempotency_conflict), que também é `409` mas trata de conflitos de `Idempotency-Key` no POST. Use o campo `code` para distinguir os dois.
+
+## Causas comuns
+
+- Chamar o `GET /v1/operations/{id}/result` logo após o POST, com a operação ainda em `queued` ou `processing`.
+- Pular o polling do `GET /v1/operations/{id}` e ir direto ao `/result`.
+
+## Como corrigir
+
+- Faça polling do `GET /v1/operations/{id}` a cada ~2 segundos até o `status` chegar a `completed` e só então chame o `/result`.
+- O `detail` informa o status atual da operação — se for `failed`, não haverá resultado: consulte o campo `error` do envelope de status.
+
+## Exemplo
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/conflict",
+  "title": "Conflict",
+  "status": 409,
+  "code": "conflict",
+  "detail": "Operation has not completed yet. Current status: processing",
+  "instance": "/v1?request_id=req-uuid-here"
+}
+```
+
+O status atual da operação aparece no final do `detail`.
+
+## Relacionado
+
+- [Erros da API](/motor-analise/erros)
+- [Ciclo de vida](/motores/ciclo-de-vida)
+- [Quickstart do Motor de Borderô](/credito/quickstart)

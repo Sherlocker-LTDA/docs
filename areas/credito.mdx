@@ -4,13 +4,13 @@ description: "Análise de borderôs CNAB 400 para FIDCs via API"
 icon: "file-invoice-dollar"
 ---
 
-O **Motor de Borderô** analisa borderôs CNAB 400 de operações de desconto de duplicatas: parse dos títulos, análise de risco do cedente e de cada sacado único no [Motor de Análise](/motor-analise/introducao), validação cruzada opcional com XMLs de NFe e veredito consolidado por título.
+O **Motor de Borderô** analisa borderôs CNAB 400 de operações de desconto de duplicatas: parse dos títulos, análise de risco do cedente e de cada sacado único no [Motor de Análise](/motor-analise/introducao), validação cruzada opcional com XMLs de NFe e resultado hierárquico com status consolidado por título.
 
 ## Entidades
 
 <CardGroup cols={2}>
   <Card title="Operação" icon="file-circle-check" href="/entidades/operacao-credito">
-    Operação de análise de borderô — status, summary e títulos
+    Operação de análise de borderô — status e resultado hierárquico com issues
   </Card>
   <Card title="Engine" icon="gears" href="/entidades/engine-credito">
     Engine de borderô — blocos de título/NFe e de cedente/sacado
@@ -19,10 +19,10 @@ O **Motor de Borderô** analisa borderôs CNAB 400 de operações de desconto de
 
 ## O que você consegue fazer
 
-- **Criar operações** — `POST /v1/operations` com o CNAB 400 em base64 e, opcionalmente, um ZIP de XMLs de NFe
-- **Acompanhar o processamento** — polling em `GET /v1/operations/{id}` com `poll_after_seconds`/`Retry-After`
-- **Consultar o resultado** — `summary` da operação e veredito por título, com validação de NFe
-- **Fazer drill-down** — cada título aponta para as análises do cedente e do sacado, consultáveis via `GET /v1/analyses/{id}`
+- **Criar operações** — `POST /v1/operations` em `multipart/form-data`, com o arquivo CNAB 400, o CNPJ do cedente e, opcionalmente, um ZIP de XMLs de NFe
+- **Acompanhar o processamento** — polling em `GET /v1/operations/{id}` a cada ~2s (`queued` → `processing` → `completed` | `failed`)
+- **Consultar o resultado** — `GET /v1/operations/{id}/result`: árvore cedente → sacados → títulos com issues por nó, `summary`, `coverage` e `degradedRules`
+- **Filtrar o que importa** — por padrão o resultado traz só os nós com problemas (`?filter=issues`); `?filter=all` devolve a árvore completa
 
 <Tip>
   Acesse a aba **Motor de Borderô** para a documentação completa, começando pela [Introdução](/credito/introducao) e pelo [Quickstart](/credito/quickstart).

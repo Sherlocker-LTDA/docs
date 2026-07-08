@@ -4,7 +4,7 @@ description: "Analise seu primeiro borderô CNAB 400 com a API do Motor de Borde
 icon: "rocket"
 ---
 
-Neste guia você envia um borderô CNAB 400, acompanha o processamento até o resultado consolidado e faz o drill-down na análise de risco de uma das entidades. É a mesma esteira de análise da interface web do Sherlocker, agora acessível por API.
+Neste guia você envia um borderô CNAB 400, acompanha o processamento até a conclusão e busca o resultado hierárquico da análise — cedente, sacados, títulos e as violações de regra (issues) de cada nó. É a mesma esteira de análise da interface web do Sherlocker, agora acessível por API.
 
 <Note>
   Não confunda com o **Motor de Análise** ([documentado aqui](/motor-analise/introducao)), que avalia o risco de um CNPJ ou CPF individual. O Motor de Borderô analisa o borderô inteiro — e usa o Motor de Análise por baixo para cada entidade.
@@ -15,7 +15,8 @@ Neste guia você envia um borderô CNAB 400, acompanha o processamento até o re
 - **Acesso ao beta**: a feature `analysis_engine` precisa estar habilitada no seu workspace. Solicite em [Solicitar acesso](/api/access).
 - **Chave de API**: criada no app Sherlocker em **Settings → API Keys**. As chaves têm prefixo `slhk_` e são exibidas uma única vez — guarde em local seguro.
 - **Saldo de tokens**: a operação consome tokens do mesmo pool do workspace usado no app — um débito por entidade única do borderô (veja [Cobrança](/motores/cobranca)).
-- **Arquivo CNAB 400 remessa** (`.rem` ou `.txt`), com no máximo 16 MB decodificado.
+- **Arquivo CNAB 400 remessa** (`.rem`) — Banco Paulista 611, 444 colunas, Windows-1252 — com no máximo 16 MB.
+- **CNPJ do cedente** da operação (14 dígitos, com ou sem formatação).
 
 A base URL de todos os exemplos é `https://<API_HOST>/v1`.
 
@@ -24,120 +25,84 @@ A base URL de todos os exemplos é `https://<API_HOST>/v1`.
 </Note>
 
 <Steps>
-<Step title="Gere o base64 do arquivo CNAB">
-
-O arquivo vai no body JSON, codificado em base64, no campo `cnab_base64`:
-
-<CodeGroup>
-```bash cURL
-# macOS
-CNAB_B64=$(base64 -i remessa-0605.rem | tr -d '\n')
-
-# Linux
-CNAB_B64=$(base64 -w0 remessa-0605.rem)
-```
-
-```python Python
-import base64
-
-with open("remessa-0605.rem", "rb") as f:
-    cnab_b64 = base64.b64encode(f.read()).decode()
-```
-
-```javascript Node.js
-import { readFileSync } from "node:fs";
-
-const cnabB64 = readFileSync("remessa-0605.rem").toString("base64");
-```
-</CodeGroup>
-
-<Tip>
-  Tem os XMLs de NFe dos títulos? Compacte-os em um ZIP (máx. 32 MB decodificado), gere o base64 do mesmo jeito e envie no campo opcional `nfe_zip_base64` — o motor cruza cada título com o XML correspondente e reporta o resultado em `nfe_status`. O recurso é opcional e sujeito à disponibilidade no beta (se desabilitado no ambiente, o campo é aceito e ignorado). Veja [Títulos e NFe](/credito/titulos-e-nfe).
-</Tip>
-
-</Step>
 <Step title="Crie a operação">
 
-Envie um `POST /v1/operations`. O header `Idempotency-Key` é **obrigatório** — use um UUID novo por borderô:
+Envie um `POST /v1/operations` como **`multipart/form-data`** — o arquivo vai direto no form, sem base64:
+
+| Parte | Tipo | Obrigatória | Descrição |
+|---|---|---|---|
+| `file` | arquivo | **Sim** | CNAB 400 remessa (`.rem`). Máx. 16 MB |
+| `xmls` | arquivo | Não | ZIP com os XMLs de NFe (`nfeProc`) dos títulos. Máx. 32 MB |
+| `cedenteCnpj` | texto | **Sim** | CNPJ do cedente, 14 dígitos ou formatado (dígito verificador validado) |
+| `engineId` | texto | Não | ID da engine; omitido ou `template-padrao` → template do sistema |
+| `purpose` | texto | Não | Finalidade da análise (auditoria LGPD) |
+| `legalBasis` | texto | Não | Base legal LGPD para os sacados PF |
 
 <CodeGroup>
 ```bash cURL
 curl -X POST "https://<API_HOST>/v1/operations" \
   -H "Authorization: Bearer slhk_sua_chave_aqui" \
-  -H "Content-Type: application/json" \
-  -H "Idempotency-Key: $(uuidgen)" \
-  -d "{
-    \"cnab_base64\": \"$CNAB_B64\",
-    \"file_name\": \"remessa-0605.rem\"
-  }"
+  -F "file=@bordero.rem" \
+  -F "xmls=@nfes.zip" \
+  -F "cedenteCnpj=12345678000195" \
+  -F "engineId=template-padrao"
 ```
 
 ```python Python
-import uuid
 import requests
 
-resp = requests.post(
-    "https://<API_HOST>/v1/operations",
-    headers={
-        "Authorization": "Bearer slhk_sua_chave_aqui",
-        "Idempotency-Key": str(uuid.uuid4()),
-    },
-    json={
-        "cnab_base64": cnab_b64,
-        "file_name": "remessa-0605.rem",
-    },
-)
+with open("bordero.rem", "rb") as cnab, open("nfes.zip", "rb") as xmls:
+    resp = requests.post(
+        "https://<API_HOST>/v1/operations",
+        headers={"Authorization": "Bearer slhk_sua_chave_aqui"},
+        files={"file": cnab, "xmls": xmls},
+        data={"cedenteCnpj": "12345678000195", "engineId": "template-padrao"},
+    )
 print(resp.status_code)  # 202
 operation = resp.json()
-operation_id = operation["id"]
+operation_id = operation["operationId"]
 ```
 
 ```javascript Node.js
+import { openAsBlob } from "node:fs";
+
+const form = new FormData();
+form.append("file", await openAsBlob("bordero.rem"), "bordero.rem");
+form.append("xmls", await openAsBlob("nfes.zip"), "nfes.zip");
+form.append("cedenteCnpj", "12345678000195");
+form.append("engineId", "template-padrao");
+
 const resp = await fetch("https://<API_HOST>/v1/operations", {
   method: "POST",
-  headers: {
-    Authorization: "Bearer slhk_sua_chave_aqui",
-    "Content-Type": "application/json",
-    "Idempotency-Key": crypto.randomUUID(),
-  },
-  body: JSON.stringify({
-    cnab_base64: cnabB64,
-    file_name: "remessa-0605.rem",
-  }),
+  headers: { Authorization: "Bearer slhk_sua_chave_aqui" },
+  body: form,
 });
 console.log(resp.status); // 202
 const operation = await resp.json();
-const operationId = operation.id;
+const operationId = operation.operationId;
 ```
 </CodeGroup>
-
-Sem `engine_id`, a operação usa a engine template de borderô do sistema (veja [Engines](/motores/engines)). `file_name` é apenas para exibição; `purpose` e `legal_basis` são opcionais, com os mesmos valores aceitos em `POST /v1/analyses`.
 
 **Resposta (202 Accepted):**
 
 ```json
 {
-  "id": "b2c3d4e5-0000-0000-0000-000000000001",
-  "status": "pending",
-  "titulos_count": 42,
-  "entities_count": 12,
-  "tokens_charged": 12,
-  "balance": 988,
-  "poll_after_seconds": 2,
-  "request_id": "req-uuid"
+  "operationId": "b2c3d4e5-0000-0000-0000-000000000001",
+  "status": "queued",
+  "createdAt": "2026-07-09T12:00:00.000Z"
 }
 ```
 
-A resposta já conta o borderô: `titulos_count` é o total de títulos do arquivo e `entities_count` é o total de **entidades únicas** cobradas (1 cedente + 11 sacados únicos = 12, neste exemplo). Os tokens são debitados na criação, logo após o parse do CNAB — os valores acima são **ilustrativos**; o preço unitário está em definição durante o beta (veja [Cobrança](/motores/cobranca)). Guarde o `id`: é com ele que você consulta o resultado.
+Guarde o `operationId`: é com ele que você consulta o status e o resultado. A cobrança (uma por entidade única do borderô — cedente + sacados únicos) acontece normalmente na criação, mas **não aparece no payload**: acompanhe débitos e estornos no extrato de tokens do workspace, no app Sherlocker.
 
 <Tip>
-  Em timeout ou erro 5xx, reenvie o POST com a **mesma** `Idempotency-Key` — a deduplicação usa o hash do **conteúdo** dos arquivos (SHA-256 dos bytes decodificados) + `engine_id` + `legal_basis`, então reenviar o mesmo borderô é sempre seguro: você recebe `200` com a resposta original, sem nova cobrança. Detalhes em [Idempotência](/motores/idempotencia).
+  O header `Idempotency-Key` é **opcional**. Se você enviá-lo, reenviar o mesmo payload com a mesma key devolve `200` com o body original (sem nova operação nem nova cobrança); a mesma key com payload diferente devolve `409 idempotency_conflict`. Sem o header, cada POST cria uma operação nova. Veja [Idempotência](/motores/idempotencia).
 </Tip>
 
 </Step>
-<Step title="Acompanhe até o resultado">
+<Step title="Acompanhe até a conclusão">
 
-Consulte `GET /v1/operations/{id}` até o status ficar terminal (`completed` ou `failed`). Enquanto a operação está `pending` ou `running`, a resposta traz `poll_after_seconds` no body e `Retry-After` no header — honre esse intervalo (consultar mais rápido não acelera o resultado, e o limite global é de 100 requisições por minuto por IP):
+Consulte `GET /v1/operations/{id}` até o status ficar terminal (`completed` ou `failed`). O vocabulário de status é `queued` → `processing` → `completed` | `failed`. Não há header `Retry-After` nem campo de intervalo no body — consulte a cada **~2 segundos** (consultar mais rápido não acelera o resultado, e o limite global é de 100 requisições por minuto por IP):
 
 <CodeGroup>
 ```bash cURL
@@ -154,7 +119,7 @@ while true; do
     break
   fi
 
-  sleep "$(echo "$RESP" | jq -r '.poll_after_seconds // 2')"
+  sleep 2
 done
 ```
 
@@ -172,10 +137,7 @@ while True:
     if op["status"] in ("completed", "failed"):
         break
 
-    # Intervalo sugerido pela API (tambem enviado no header Retry-After)
-    time.sleep(op.get("poll_after_seconds") or 2)
-
-print(op["summary"])
+    time.sleep(2)
 ```
 
 ```javascript Node.js
@@ -189,122 +151,178 @@ while (true) {
 
   if (op.status === "completed" || op.status === "failed") break;
 
-  // Intervalo sugerido pela API (tambem enviado no header Retry-After)
-  const waitSeconds = op.poll_after_seconds ?? 2;
-  await new Promise((r) => setTimeout(r, waitSeconds * 1000));
+  await new Promise((r) => setTimeout(r, 2000));
 }
-console.log(op.summary);
 ```
 </CodeGroup>
 
-**Fluxo de status:** `pending` → `running` → `completed` | `failed`. Por ora a API é polling-only (sem webhooks). Operações que terminam em `failed` são reembolsadas automaticamente.
-
-</Step>
-<Step title="Interprete summary e titulos">
-
-**Resposta (200, operação concluída):**
+**Resposta (200) — o envelope de status traz sempre todos os campos:**
 
 ```json
 {
   "id": "b2c3d4e5-0000-0000-0000-000000000001",
   "status": "completed",
-  "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
-  "file_name": "remessa-0605.rem",
-  "titulos_count": 42,
-  "entities_count": 12,
-  "created_at": "2026-07-06T10:00:00Z",
-  "finished_at": "2026-07-06T10:02:15Z",
-  "summary": {
-    "titulos": 42,
-    "aprovados": 30,
-    "alertas": 8,
-    "reprovados": 4,
-    "valor_total": 123456.78,
-    "valor_aprovado": 100000.00,
-    "cedente_verdict": "aprovado",
-    "entities_count": 12
-  },
-  "titulos": [
-    {
-      "seu_numero": "DUP-0001",
-      "sacado_document": "12345678000190",
-      "valor": 1234.56,
-      "vencimento": "2026-08-01",
-      "verdict": "aprovado",
-      "nfe_status": "pass",
-      "cedente_analysis_id": "a1b2c3d4-0000-0000-0000-000000000010",
-      "sacado_analysis_id": "a1b2c3d4-0000-0000-0000-000000000011"
-    }
-  ],
-  "tokens_charged": 12,
-  "request_id": "req-uuid"
+  "fileName": "bordero.rem",
+  "fileSize": 4440,
+  "engineId": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+  "tituloCount": 12,
+  "approvedCount": 9,
+  "blockedCount": 2,
+  "alertCount": 1,
+  "createdAt": "2026-07-09T12:00:00.000Z",
+  "queuedAt": "2026-07-09T12:00:00.000Z",
+  "processingAt": "2026-07-09T12:00:02.000Z",
+  "completedAt": "2026-07-09T12:02:15.000Z",
+  "error": null
 }
 ```
 
-Os campos que importam para a sua decisão:
-
-| Campo | Significado |
-|---|---|
-| `summary.cedente_verdict` | Veredito da análise do cedente (ou `null` se indisponível) — se o cedente reprova, a operação inteira merece atenção |
-| `summary.aprovados` / `alertas` / `reprovados` | Contagem de títulos por veredito; `valor_total` e `valor_aprovado` trazem os valores monetários |
-| `titulos[].verdict` | `aprovado` \| `alerta` \| `reprovado` \| `incompleto` — veredito individual do título |
-| `titulos[].nfe_status` | `no_key` \| `not_checked` \| `pass` \| `alert` \| `blocked` \| `unavailable` — resultado consolidado dos blocos de NFe do título (veja [Títulos e NFe](/credito/titulos-e-nfe)) |
-
-Um filtro típico — separar os títulos que precisam de revisão manual:
-
-```python Python
-para_revisar = [t for t in op["titulos"] if t["verdict"] != "aprovado"]
-for t in para_revisar:
-    print(f"{t['seu_numero']}  sacado={t['sacado_document']}  "
-          f"verdict={t['verdict']}  nfe={t['nfe_status']}")
-```
+- `tituloCount`, `approvedCount`, `blockedCount` e `alertCount` são `null` até `completed`. A soma `approvedCount + blockedCount + alertCount` sempre fecha com `tituloCount` — `alertCount` inclui os títulos com análise incompleta (fonte de dados indisponível).
+- `completedAt` só aparece preenchido em `completed`; `error` (string) só em `failed`.
+- Operações que terminam em `failed` são estornadas automaticamente. Por ora a API é polling-only (sem webhooks).
 
 </Step>
-<Step title="Faça o drill-down em uma análise">
+<Step title="Busque o resultado hierárquico">
 
-`cedente_analysis_id` e `sacado_analysis_id` são análises **normais** do Motor de Análise. Para entender *por que* um título reprovou, consulte a análise da entidade e leia `verdict`, `blocks` e `coverage`:
+Com a operação `completed`, chame o `GET /v1/operations/{id}/result`. Por padrão (`?filter=issues`) a resposta poda os títulos aprovados e os sacados sem problemas — você recebe **só o que precisa de atenção**:
 
-<CodeGroup>
 ```bash cURL
-curl "https://<API_HOST>/v1/analyses/a1b2c3d4-0000-0000-0000-000000000011" \
+curl "https://<API_HOST>/v1/operations/$OPERATION_ID/result" \
   -H "Authorization: Bearer slhk_sua_chave_aqui"
 ```
 
-```python Python
-titulo = para_revisar[0]
-resp = requests.get(
-    f"https://<API_HOST>/v1/analyses/{titulo['sacado_analysis_id']}",
-    headers={"Authorization": "Bearer slhk_sua_chave_aqui"},
-)
-analysis = resp.json()
-for block in analysis["blocks"]:
-    if block["status"] in ("alert", "blocked"):
-        print(f"[{block['status']}] {block['id']}: {block['detail']}")
-```
+**Resposta (200):**
 
-```javascript Node.js
-const titulo = op.titulos.find((t) => t.verdict !== "aprovado");
-const resp = await fetch(
-  `https://<API_HOST>/v1/analyses/${titulo.sacado_analysis_id}`,
-  { headers: { Authorization: "Bearer slhk_sua_chave_aqui" } }
-);
-const analysis = await resp.json();
-for (const block of analysis.blocks) {
-  if (block.status === "alert" || block.status === "blocked") {
-    console.log(`[${block.status}] ${block.id}: ${block.detail}`);
-  }
+```json
+{
+  "operationId": "b2c3d4e5-0000-0000-0000-000000000001",
+  "cedente": {
+    "id": "c0a80001-0000-0000-0000-000000000001",
+    "cnpj": "12345678000195",
+    "razaoSocial": "CEDENTE LTDA",
+    "status": "blocked",
+    "issues": [
+      {
+        "ruleId": "CEDENTE_PROTESTOS",
+        "ruleName": "Protestos",
+        "category": "blocking",
+        "status": "blocked",
+        "message": "Cedente: Protestos encontrados",
+        "detail": { "field": "protestos", "actual": "3", "expected": "0" },
+        "dataSources": [
+          { "name": "cenprot", "fetchedAt": "2026-07-06T09:00:00.000Z", "ageDays": 3 }
+        ]
+      }
+    ],
+    "sacados": [
+      {
+        "id": "c0a80001-0000-0000-0000-000000000002",
+        "cnpjCpf": "98765432000188",
+        "razaoSocial": "SACADO SA",
+        "tipo": "PJ",
+        "status": "alerted",
+        "issues": [],
+        "titulos": [
+          {
+            "id": "c0a80001-0000-0000-0000-000000000003",
+            "numero": "DOC-001",
+            "valor": 1234.56,
+            "dataVencimento": "2026-08-01",
+            "nfeChave": "35230612345678000195550010000000011000000011",
+            "status": "alerted",
+            "issues": [
+              {
+                "ruleId": "TITULO_NFE_DIVERGENCIA",
+                "ruleName": "Divergência com NFe",
+                "category": "alert",
+                "status": "alerted",
+                "message": "Título: valor diverge da NFe",
+                "detail": { "field": "valor", "actual": "1234.56", "expected": "1230.00" },
+                "dataSources": [
+                  { "name": "nfe", "fetchedAt": "2026-07-09T12:01:00.000Z", "ageDays": 0 }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "summary": {
+    "totalTitulos": 12,
+    "approved": 9,
+    "blocked": 2,
+    "alerted": 1,
+    "totalValue": 100000,
+    "approvedValue": 80000,
+    "blockedValue": 15000,
+    "alertedValue": 5000,
+    "sacados": { "total": 5, "withIssues": 2 },
+    "cedente": { "status": "blocked" }
+  },
+  "engineId": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+  "engineName": "Motor Borderô",
+  "timestamp": "2026-07-09T12:02:15.000Z",
+  "coverage": [
+    { "provider": "rfb", "requested": 6, "succeeded": 5, "failedKeys": ["98765432000188"] }
+  ],
+  "degradedRules": [
+    { "ruleId": "SACADO_SERASA", "provider": "serasa", "titulosAffected": 2 }
+  ]
 }
 ```
-</CodeGroup>
 
-O formato da resposta é o do Motor de Análise — [ciclo de vida](/motores/ciclo-de-vida) e [catálogo de blocos](/motor-analise/blocos). Entidades repetidas no borderô (o mesmo sacado em vários títulos) apontam para a **mesma** análise.
+Variações do endpoint:
+
+- **`?filter=all`** — devolve a árvore completa, incluindo títulos aprovados e sacados sem problemas. Qualquer outro valor retorna `400` com a mensagem `Invalid filter value. Use "issues" or "all".`.
+- **`?include=executionPlan`** — lista separada por vírgulas de blocos extras; adiciona o campo `executionPlan` à resposta (hoje sempre `[]`).
+- Chamar o `/result` antes de a operação chegar a `completed` retorna [`409 conflict`](/problems/conflict) com detail no formato `Operation has not completed yet. Current status: processing`.
+
+<Note>
+  O `summary` **sempre** reflete o dataset completo — ele não muda com `?filter`.
+</Note>
+
+</Step>
+<Step title="Interprete o resultado">
+
+O resultado é uma árvore: **cedente → sacados → títulos**, cada nó com um `status` e uma lista de `issues` (violações de regra).
+
+| Conceito | Como ler |
+|---|---|
+| `status` de qualquer nó | `approved` \| `blocked` \| `alerted` |
+| Rollup (worst-of) | O status do título deriva das issues do título; o do sacado é o pior entre as issues próprias e os títulos; o do cedente é o pior entre as issues próprias e os sacados |
+| `issues[]` | Cada issue traz `ruleId`, `ruleName`, `category` (`blocking` \| `alert`), `status` (`blocked` \| `alerted`), `message`, `detail` (`{field, actual, expected}`) e `dataSources` (`{name, fetchedAt, ageDays}`) |
+| `summary` | Contagens e valores do dataset **completo**: `totalTitulos`, `approved`/`blocked`/`alerted`, `totalValue`/`approvedValue`/`blockedValue`/`alertedValue`, `sacados.total`/`sacados.withIssues` e `cedente.status` |
+| `coverage[]` | Por provider consultado: `requested`, `succeeded` e `failedKeys` (documentos que falharam) |
+| `degradedRules[]` | Regras que não puderam ser avaliadas por fonte indisponível: `ruleId`, `provider`, `titulosAffected` |
+| `titulo.nfeChave` | Chave da NFe vinculada ao título (`null` se não houver); problemas de NFe aparecem como issues do título |
+
+<Warning>
+  Fonte de dados indisponível **não vira issue** — vira `degradedRules` (e aparece em `coverage`). No `summary`, os títulos afetados contam como `alerted`. Se a sua esteira exige cobertura total, trate `degradedRules` não-vazio na sua regra de aprovação.
+</Warning>
+
+Um filtro típico — listar as issues bloqueantes da operação:
+
+```python Python
+result = requests.get(
+    f"https://<API_HOST>/v1/operations/{operation_id}/result",
+    headers={"Authorization": "Bearer slhk_sua_chave_aqui"},
+).json()
+
+for sacado in result["cedente"]["sacados"]:
+    for titulo in sacado["titulos"]:
+        for issue in titulo["issues"]:
+            if issue["category"] == "blocking":
+                print(f"{titulo['numero']}  sacado={sacado['cnpjCpf']}  "
+                      f"[{issue['ruleId']}] {issue['message']}")
+```
 
 </Step>
 </Steps>
 
 ## Tratamento de erros
 
-Todos os erros seguem RFC 7807 (`Content-Type: application/problem+json`). Use o campo `code` para decidir o que fazer — o campo `type` é apenas um identificador. Exemplo de CNAB que não parseia:
+Todos os erros seguem RFC 7807 (`Content-Type: application/problem+json`). Use o campo `code` para decidir o que fazer — o campo `type` é apenas um identificador. Os erros de validação do multipart chegam field-level em `errors[]`, com os campos `file`, `xmls` e `cedenteCnpj`:
 
 **Resposta (400):**
 
@@ -316,34 +334,34 @@ Todos os erros seguem RFC 7807 (`Content-Type: application/problem+json`). Use o
   "code": "validation_error",
   "detail": "One or more fields failed validation.",
   "errors": [
-    { "field": "cnab_base64", "message": "file is not a valid CNAB 400 remessa" }
+    { "field": "file", "message": "No file provided" },
+    { "field": "cedenteCnpj", "message": "cedenteCnpj is required" }
   ],
   "instance": "/v1?request_id=req-uuid-here"
 }
 ```
 
-Como nada foi parseado, **nada é cobrado** — o débito só acontece após o parse bem-sucedido do CNAB. O registro completo dos códigos de erro está em [Erros](/motor-analise/erros).
+Outras mensagens comuns: `Invalid CNPJ format` (dígito verificador do `cedenteCnpj`), falha de parse do CNAB e arquivos acima do teto (16 MB para `file`, 32 MB para `xmls`). Como nada foi parseado, **nada é cobrado**. Os demais códigos: `401 unauthorized`, `402 insufficient_tokens`, `403 feature_not_enabled`, `409 idempotency_conflict` e `422 no_engine` — registro completo em [Erros](/motor-analise/erros).
 
 ## O que você construiu
 
-- Um fluxo completo de análise de borderô: `POST /v1/operations` (202) → polling em `GET /v1/operations/{id}` → resumo em `summary` e veredito por título em `titulos[]`.
-- Upload seguro contra duplicidade com `Idempotency-Key` — retries do mesmo arquivo não geram cobrança dupla.
-- Polling que respeita `poll_after_seconds` / `Retry-After`.
-- Drill-down do veredito de qualquer título até a análise de risco completa da entidade via `GET /v1/analyses/{id}`.
+- Um fluxo completo de análise de borderô: `POST /v1/operations` multipart (202) → polling em `GET /v1/operations/{id}` (`queued`/`processing` → `completed`) → resultado hierárquico em `GET /v1/operations/{id}/result`.
+- Um consumo enxuto do resultado: `?filter=issues` (padrão) entrega só os nós com problemas; `?filter=all` entrega a árvore completa.
+- Interpretação de `issues`, `summary`, `coverage` e `degradedRules` — incluindo a validação de NFe via issues do título e `nfeChave`.
 
 ## Próximos passos
 
 <CardGroup cols={2}>
   <Card title="Ciclo de vida" icon="arrows-rotate" href="/motores/ciclo-de-vida">
-    Estados da operação, verdicts e a relação com as análises-filhas
+    Estados da operação, envelope de status e o endpoint /result
   </Card>
   <Card title="Idempotência" icon="repeat" href="/motores/idempotencia">
-    Retry seguro de upload — o hash cobre o conteúdo dos arquivos
+    Idempotency-Key opcional no borderô — replay e conflitos
   </Card>
   <Card title="Cobrança" icon="coins" href="/motores/cobranca">
     Modelo por entidade única, com exemplo numérico e estorno
   </Card>
   <Card title="Títulos e NFe" icon="file-invoice" href="/credito/titulos-e-nfe">
-    O shape de cada título e os estados de nfe_status
+    O shape do título na árvore do resultado e a validação de NFe
   </Card>
 </CardGroup>

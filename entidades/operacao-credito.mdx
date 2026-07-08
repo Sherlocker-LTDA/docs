@@ -4,40 +4,41 @@ description: "Operação de análise de borderô CNAB 400 no Motor de Borderô"
 icon: "file-circle-check"
 ---
 
-Uma **Operação** representa a análise de um borderô CNAB 400 no [Motor de Borderô](/credito/introducao). É criada via `POST /v1/operations`, processada de forma assíncrona e consultada por polling em `GET /v1/operations/{id}`.
+Uma **Operação** representa a análise de um borderô CNAB 400 no [Motor de Borderô](/credito/introducao). É criada via `POST /v1/operations` (`multipart/form-data`), processada de forma assíncrona, consultada por polling em `GET /v1/operations/{id}` e tem o resultado hierárquico em `GET /v1/operations/{id}/result`.
 
 ## Ciclo de vida
 
 ```
-pending → running → completed | failed
+queued → processing → completed | failed
 ```
 
 Operações que terminam em `failed` têm os tokens reembolsados automaticamente. Detalhes em [Ciclo de vida](/motores/ciclo-de-vida).
 
-## Campos principais
+## Envelope de status (`GET /v1/operations/{id}`)
+
+Todos os campos estão sempre presentes:
 
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `id` | UUID | Identificador único da operação |
-| `status` | enum | `pending`, `running`, `completed`, `failed` |
-| `engine_id` | UUID | Engine de borderô utilizada |
-| `file_name` | string | Nome de exibição do arquivo CNAB enviado |
-| `summary` | object | Resumo da operação; presente apenas quando `completed` |
-| `titulos` | array | Veredito por título; presente apenas quando `completed` |
-| `titulos_count` / `entities_count` | number | Contagens do borderô (títulos e entidades únicas), quando disponíveis |
-| `tokens_charged` | number | Tokens debitados (um por entidade única do borderô) |
-| `created_at` / `finished_at` | datetime | Criação e término (ISO 8601); `finished_at` presente apenas em estados terminais |
+| `status` | enum | `queued`, `processing`, `completed`, `failed` |
+| `fileName` | string | Nome do arquivo CNAB enviado |
+| `fileSize` | number \| null | Tamanho do arquivo em bytes (`null` em operações antigas) |
+| `engineId` | string | Engine de borderô efetivamente usada |
+| `tituloCount` | number \| null | Total de títulos do borderô; `null` até `completed` |
+| `approvedCount` / `blockedCount` / `alertCount` | number \| null | Contagem de títulos por status; `null` até `completed`. A soma fecha com `tituloCount` — `alertCount` inclui os títulos com análise incompleta (fonte indisponível) |
+| `createdAt` / `queuedAt` / `processingAt` / `completedAt` | datetime | Timestamps ISO 8601; `processingAt` é `null` enquanto `queued`, `completedAt` só é preenchido em `completed` |
+| `error` | string \| null | Mensagem de erro; preenchida apenas em `failed` |
 
-## Summary
+## Resultado (`GET /v1/operations/{id}/result`)
+
+Disponível apenas quando `completed` (antes disso, [`409 conflict`](/problems/conflict)). Devolve a árvore **cedente → sacados → títulos** — cada nó com `status` (`approved` | `blocked` | `alerted`, rollup worst-of) e `issues[]` (violações de regra) — junto com:
 
 | Campo | Descrição |
 |-------|-----------|
-| `titulos` | Total de títulos do borderô |
-| `aprovados` / `alertas` / `reprovados` | Contagem de títulos por veredito |
-| `valor_total` / `valor_aprovado` | Valores monetários do borderô e dos títulos aprovados |
-| `cedente_verdict` | Veredito da análise do cedente (ou `null` se indisponível) |
-| `entities_count` | Entidades únicas analisadas e cobradas (cedente + sacados únicos) |
+| `summary` | Contagens e valores do dataset completo: `totalTitulos`, `approved`/`blocked`/`alerted`, `totalValue`/`approvedValue`/`blockedValue`/`alertedValue`, `sacados.total`/`sacados.withIssues`, `cedente.status`. Não muda com `?filter` |
+| `coverage[]` | Por provider consultado: `requested`, `succeeded`, `failedKeys` |
+| `degradedRules[]` | Regras não avaliadas por fonte indisponível: `ruleId`, `provider`, `titulosAffected` |
+| `engineId` / `engineName` / `timestamp` | Engine usada e momento do resultado |
 
-## Títulos
-
-Cada item de `titulos[]` traz `seu_numero`, `sacado_document`, `valor`, `vencimento`, o `verdict` (`aprovado` | `alerta` | `reprovado` | `incompleto`), o `nfe_status` consolidado dos blocos de NFe e os campos `cedente_analysis_id` / `sacado_analysis_id` — IDs de análises normais do [Motor de Análise](/motor-analise/introducao), consultáveis via `GET /v1/analyses/{id}` (podem ser `null` se a análise da entidade não estiver disponível). O shape completo está em [Títulos e NFe](/credito/titulos-e-nfe).
+Por padrão (`?filter=issues`), títulos aprovados e sacados sem problemas são podados; `?filter=all` devolve a árvore completa. Cada título traz `numero`, `valor`, `dataVencimento`, `nfeChave` e as suas issues — o shape completo está em [Títulos e NFe](/credito/titulos-e-nfe).

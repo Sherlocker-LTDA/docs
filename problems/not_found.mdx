@@ -12,11 +12,11 @@ O recurso solicitado não existe ou pertence a um workspace diferente do da chav
 
 1. **Análise**: o `id` informado em `GET /v1/analyses/{id}` não existe ou é de outro workspace.
 2. **Operação**: o `id` informado em `GET /v1/operations/{id}` não existe ou é de outro workspace.
-3. **Engine**: o `engine_id` informado no POST não existe, ou a engine pertence a outro workspace — a API não revela a existência de engines de outros workspaces.
+3. **Engine (Motor de CPF/CNPJ)**: o `engine_id` informado no `POST /v1/analyses` não existe, ou a engine pertence a outro workspace — a API não revela a existência de engines de outros workspaces. (No Motor de Borderô, problemas de engine retornam [`422 no_engine`](/problems/no_engine).)
 
 ## Causas comuns
 
-- `id` incorreto, truncado ou com caractere a mais (o `id` é o UUID retornado na resposta `202` do POST de criação).
+- `id` incorreto, truncado ou com caractere a mais (é o UUID retornado na resposta `202` do POST de criação — campo `id` nos analyses, `operationId` nas operations).
 - Chave de API de um workspace diferente do que criou a análise/operação.
 - Consulta a um `id` gerado no seu sistema em vez do `id` retornado pela API.
 - `engine_id` de uma engine de outro workspace.

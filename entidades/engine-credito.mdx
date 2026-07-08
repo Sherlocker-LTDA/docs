@@ -8,15 +8,14 @@ Uma **engine de borderô** é a configuração de uma operação do [Motor de Bo
 
 ## Uso na API
 
-O campo `engine_id` do `POST /v1/operations` é **opcional**:
+O campo `engineId` (parte de texto do multipart do `POST /v1/operations`) é **opcional**:
 
-- **Omitido** — a operação usa a engine template de borderô do sistema.
+- **Omitido ou `template-padrao`** — a operação usa a engine template de borderô do sistema.
 - **Informado** — a engine precisa existir e pertencer ao seu workspace (ou ser um template do sistema).
 
 | Situação | Resposta |
 |----------|----------|
-| `engine_id` inexistente ou de outro workspace | `404` [`not_found`](/problems/not_found) |
-| Engine arquivada, incompatível ou sem nenhum bloco ativo | `422` [`no_engine`](/problems/no_engine) |
+| Engine não utilizável (arquivada, incompatível, indisponível) | `422` [`no_engine`](/problems/no_engine) |
 | Nenhuma engine de borderô disponível | `422` [`no_engine`](/problems/no_engine) |
 
 ## Onde as engines são geridas

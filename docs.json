@@ -311,7 +311,8 @@
               "credito/quickstart",
               "credito/titulos-e-nfe",
               "POST /v1/operations",
-              "GET /v1/operations/{id}"
+              "GET /v1/operations/{id}",
+              "GET /v1/operations/{id}/result"
             ]
           },
           {
@@ -326,6 +327,7 @@
               "problems/forbidden",
               "problems/not_found",
               "problems/idempotency_conflict",
+              "problems/conflict",
               "problems/no_engine",
               "problems/http_error",
               "problems/server_error"

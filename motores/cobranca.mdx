@@ -7,17 +7,15 @@ icon: "coins"
 Os dois motores consomem **tokens do workspace**: o mesmo pool usado pela interface web do Sherlocker. Os princípios são idênticos — o que muda é a unidade de preço: o Motor de CPF/CNPJ cobra **por análise**; o Motor de Borderô cobra **por entidade única do arquivo**.
 
 <Warning>
-  **Preço em definição durante o beta.** Não fixe um custo em código: o valor efetivamente cobrado vem sempre no campo `tokens_charged` da resposta. Todos os valores de tokens nesta página são **ilustrativos**.
+  **Preço em definição durante o beta.** Não fixe um custo em código. Todos os valores de tokens nesta página são **ilustrativos**.
 </Warning>
 
 ## O débito acontece na criação — e é fail-closed
 
-Os tokens são debitados no momento do `POST`, antes de o motor rodar. A resposta `202 Accepted` confirma o débito com dois campos:
+Os tokens são debitados no momento do `POST`, antes de o motor rodar. A confirmação varia por motor:
 
-- `tokens_charged`: quanto foi debitado por esta requisição
-- `balance`: saldo do workspace após o débito
-
-`tokens_charged` e `balance` são informados em melhor esforço: se a consulta de saldo falhar no momento da resposta, os campos podem estar ausentes, o que não altera a cobrança em si.
+- **CPF/CNPJ** (`POST /v1/analyses`): a resposta `202 Accepted` confirma o débito com os campos `tokens_charged` (quanto foi debitado) e `balance` (saldo após o débito), informados em melhor esforço — se a consulta de saldo falhar no momento da resposta, os campos podem estar ausentes, o que não altera a cobrança em si.
+- **Borderô** (`POST /v1/operations`): a cobrança acontece normalmente na criação, mas **não aparece no payload** — a resposta 202 traz apenas `operationId`, `status` e `createdAt`. Acompanhe débitos e estornos no extrato de tokens do workspace, no app Sherlocker.
 
 Se o saldo do workspace for insuficiente, o `POST` falha com [`402 insufficient_tokens`](/problems/insufficient_tokens) e **nada é cobrado nem executado** — o erro traz os campos `required` e `balance` para você saber quanto falta. Requisições rejeitadas com qualquer erro (`400`, `401`, `402`, `403`, `409`, `422`) nunca cobram.
 
@@ -51,7 +49,7 @@ Nesse caso, use o campo `coverage` da resposta do `GET /v1/analyses/{id}` para v
 O custo de uma operação é por **entidade única** do borderô — não por título e não por arquivo:
 
 ```
-tokens_charged = (cedente + sacados únicos) × preço unitário de análise
+custo = (cedente + sacados únicos) × preço unitário de análise
 ```
 
 Cada entidade única gera uma análise do Motor de CPF/CNPJ — e é essa análise que é cobrada. Títulos não têm custo próprio: o mesmo sacado em 10 títulos conta **uma vez**.
@@ -62,31 +60,20 @@ Um borderô com **42 títulos**, do mesmo cedente, sacados contra 11 empresas di
 
 | | Quantidade |
 |---|---|
-| Títulos no arquivo (`titulos_count`) | 42 |
+| Títulos no arquivo | 42 |
 | Cedente | 1 |
 | Sacados únicos | 11 |
-| **Entidades cobradas (`entities_count`)** | **12** |
+| **Entidades cobradas** | **12** |
 
-Com um preço unitário ilustrativo de 1 token por análise, a operação debita **12 tokens** — não 42:
+Com um preço unitário ilustrativo de 1 token por análise, a operação debita **12 tokens** — não 42. Borderôs concentrados (muitos títulos, poucos sacados) custam proporcionalmente menos por título do que borderôs pulverizados.
 
-```json
-{
-  "id": "b2c3d4e5-0000-0000-0000-000000000001",
-  "status": "pending",
-  "titulos_count": 42,
-  "entities_count": 12,
-  "tokens_charged": 12,
-  "balance": 988,
-  "poll_after_seconds": 2,
-  "request_id": "req-uuid"
-}
-```
-
-Borderôs concentrados (muitos títulos, poucos sacados) custam proporcionalmente menos por título do que borderôs pulverizados.
+<Note>
+  A cobrança **não aparece no payload** da API de borderô — nem na resposta do POST, nem no `GET /v1/operations/{id}`. O débito por operação (e o estorno em `failed`) fica registrado no extrato de tokens do workspace, no app Sherlocker.
+</Note>
 
 ### O débito é após o parse
 
-No borderô, o débito acontece **depois do parse do CNAB** — é o parse que revela quantas entidades únicas o arquivo tem. Arquivo com base64 inválido ou CNAB que não parseia retorna `400 validation_error` e **nada é cobrado**.
+No borderô, o débito acontece **depois do parse do CNAB** — é o parse que revela quantas entidades únicas o arquivo tem. Arquivo ausente, `cedenteCnpj` inválido ou CNAB que não parseia retorna `400 validation_error` e **nada é cobrado**.
 
 </Tab>
 </Tabs>
@@ -104,9 +91,9 @@ Reenviar o `POST` com a mesma `Idempotency-Key` e o mesmo conteúdo dentro da ja
 | Cenário | HTTP | Cobra tokens? |
 |---|---|---|
 | Nova análise criada (`POST /v1/analyses`) | `202` | Sim — preço de uma análise |
-| Nova operação criada (`POST /v1/operations`) | `202` | Sim — `entities_count` × preço unitário, após o parse |
+| Nova operação criada (`POST /v1/operations`) | `202` | Sim — entidades únicas × preço unitário, após o parse (não aparece no payload) |
 | Replay idempotente (mesma key + mesmo conteúdo) | `200` | Não |
-| Borderô: CNAB que não parseia / base64 inválido | `400` | Não (o débito só acontece após o parse) |
+| Borderô: arquivo ausente / CNAB que não parseia / `cedenteCnpj` inválido | `400` | Não (o débito só acontece após o parse) |
 | Run termina `failed` | — | Cobrado na criação e **estornado automaticamente** |
 | Análise termina `completed` com verdict `incompleto` | — | Sim (o trabalho foi executado) |
 | Requisição rejeitada com erro (`400`, `401`, `402`, `403`, `409`, `422`) | `4xx` | Não |
