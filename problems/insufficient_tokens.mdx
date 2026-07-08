@@ -10,7 +10,7 @@ icon: "circle-exclamation"
 
 O workspace não tem saldo de tokens suficiente para cobrir o custo da requisição. Nada foi cobrado e nada será executado (a resposta 402 não retorna um id). A resposta inclui os campos extras `required` (tokens necessários) e `balance` (saldo atual).
 
-Tokens são debitados na criação (`POST /v1/analyses` ou `POST /v1/operations`). No Motor de CPF/CNPJ, `required` é o custo da análise; no Motor de Borderô, as **entidades únicas** do arquivo (cedente + sacados únicos) vezes o preço unitário. O valor efetivamente cobrado vem sempre no campo `tokens_charged` da resposta de sucesso; o preço está em definição durante o beta.
+Tokens são debitados na criação (`POST /v1/analyses` ou `POST /v1/operations`). No Motor de CPF/CNPJ, `required` é o custo da análise; no Motor de Borderô, as **entidades únicas** do arquivo (cedente + sacados únicos) vezes o preço unitário. No CPF/CNPJ, o valor efetivamente cobrado vem no campo `tokens_charged` da resposta de sucesso; no borderô, a cobrança não aparece no payload — acompanhe pelo extrato de tokens do workspace no app. O preço está em definição durante o beta.
 
 ## Causas comuns
 
@@ -40,7 +40,7 @@ Tokens são debitados na criação (`POST /v1/analyses` ou `POST /v1/operations`
 ```
 
 <Note>
-  Os valores de tokens acima são ilustrativos. O custo real por análise é retornado em `tokens_charged` na resposta de criação.
+  Os valores de tokens acima são ilustrativos. No Motor de CPF/CNPJ, o custo real por análise é retornado em `tokens_charged` na resposta de criação; no Motor de Borderô, consulte o extrato de tokens do workspace no app.
 </Note>
 
 ## Campos extras

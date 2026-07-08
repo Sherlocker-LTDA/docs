@@ -18,31 +18,31 @@ O Sherlocker expõe **dois motores de análise** pela mesma API `/v1` — mesma 
 | | Motor de CPF/CNPJ | Motor de Borderô |
 |---|---|---|
 | O que analisa | Um CNPJ ou CPF individual (cadastro, sanções, risco) | Um borderô completo em CNAB 400 (cedente, sacados, títulos e NFe) |
-| Entrada | `document` (CNPJ ou CPF) | `cnab_base64` (arquivo remessa) + ZIP de NFe opcional |
-| Endpoints | `POST /v1/analyses` e `GET /v1/analyses/{id}` | `POST /v1/operations` e `GET /v1/operations/{id}` |
+| Entrada | Body JSON com `document` (CNPJ ou CPF) | `multipart/form-data` com o arquivo remessa (`file`), `cedenteCnpj` e ZIP de NFe opcional (`xmls`) |
+| Endpoints | `POST /v1/analyses` e `GET /v1/analyses/{id}` | `POST /v1/operations`, `GET /v1/operations/{id}` e `GET /v1/operations/{id}/result` |
 | Cobrança | Por análise | Por entidade única do borderô (cedente + sacados únicos) |
-| Resultado | `verdict` + `blocks` + `coverage` | `summary` + veredito por título, com links para as análises de cedente e sacados |
+| Resultado | `verdict` + `blocks` + `coverage` | Árvore cedente → sacados → títulos com `issues` por nó, `summary`, `coverage` e `degradedRules` |
 | Caso típico | Onboarding/KYC, due diligence de uma contraparte | Esteira de FIDC, securitizadora ou factoring analisando uma remessa |
 
 Regra prática: se a pergunta é "**posso operar com esta empresa/pessoa?**", use o Motor de CPF/CNPJ. Se é "**o que fazer com cada título deste borderô?**", use o Motor de Borderô.
 
 ## Como os dois compõem
 
-O Motor de Borderô usa o Motor de CPF/CNPJ por baixo: cada entidade única do arquivo (o cedente e cada sacado distinto) gera uma **análise normal**, e cada título do resultado traz `cedente_analysis_id` e `sacado_analysis_id`. O drill-down do veredito de um título até o detalhamento completo da entidade é um `GET /v1/analyses/{id}` de distância:
+O Motor de Borderô usa o Motor de CPF/CNPJ por baixo: cada entidade única do arquivo (o cedente e cada sacado distinto) é analisada uma vez — e o detalhamento de cada entidade chega nas `issues` dos próprios nós `cedente` e `sacados[]` da árvore do `GET /v1/operations/{id}/result`:
 
 ```mermaid
 sequenceDiagram
     participant C as Seu sistema
     participant B as Motor de Bordero
     participant A as Motor de CPF/CNPJ
-    C->>B: POST /v1/operations (cnab_base64)
+    C->>B: POST /v1/operations (multipart: file + cedenteCnpj)
     B->>A: 1 analise por entidade unica
-    B-->>C: summary + titulos[] (com *_analysis_id)
-    C->>A: GET /v1/analyses/{sacado_analysis_id}
-    A-->>C: verdict, blocks, coverage
+    B-->>C: 202 (operationId, status: queued)
+    C->>B: GET /v1/operations/{id}/result
+    B-->>C: cedente, sacados, titulos, issues, summary
 ```
 
-Ambos são assíncronos (polling com `poll_after_seconds`/`Retry-After`), exigem `Idempotency-Key` no POST, cobram tokens do mesmo pool do workspace (com estorno automático em `failed`) e retornam erros no mesmo formato RFC 7807 — veja a [referência comum de erros](/motor-analise/erros).
+Ambos são assíncronos (polling — no CPF/CNPJ com `poll_after_seconds`/`Retry-After`, no borderô a cada ~2s), cobram tokens do mesmo pool do workspace (com estorno automático em `failed`) e retornam erros no mesmo formato RFC 7807 — veja a [referência comum de erros](/motor-analise/erros). O header `Idempotency-Key` é obrigatório no `POST /v1/analyses` e opcional no `POST /v1/operations` — veja [Idempotência](/motores/idempotencia).
 
 <Note>
   Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado quando a API for promovida a produção.

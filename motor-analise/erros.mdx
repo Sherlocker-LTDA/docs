@@ -4,7 +4,7 @@ description: "Referência comum de erros dos Motores de Análise: formato RFC 78
 icon: "triangle-exclamation"
 ---
 
-Toda resposta de erro da API `/v1` segue o [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) e é retornada com `Content-Type: application/problem+json`. Isso vale para os **dois motores** — Motor de CPF/CNPJ (`POST /v1/analyses`, `GET /v1/analyses/{id}`) e Motor de Borderô (`POST /v1/operations`, `GET /v1/operations/{id}`): mesmo formato, mesmos códigos.
+Toda resposta de erro da API `/v1` segue o [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) e é retornada com `Content-Type: application/problem+json`. Isso vale para os **dois motores** — Motor de CPF/CNPJ (`POST /v1/analyses`, `GET /v1/analyses/{id}`) e Motor de Borderô (`POST /v1/operations`, `GET /v1/operations/{id}`, `GET /v1/operations/{id}/result`): mesmo formato, mesmos códigos.
 
 <Note>
   Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
@@ -52,15 +52,16 @@ Cada código tem uma página própria em `/problems/<code>`, válida para os doi
 
 | `code` | HTTP | Quando acontece | Campos extras |
 |---|---|---|---|
-| [`validation_error`](/problems/validation_error) | 400 | **CPF/CNPJ:** campo do body com tipo/enum inválido. **Borderô:** `cnab_base64` ausente, base64 inválido, CNAB que não parseia, arquivo acima do limite | `errors[]` |
-| [`bad_request`](/problems/bad_request) | 400 | **Ambos:** `Idempotency-Key` ausente. **CPF/CNPJ:** `document` sem dígitos, tamanho errado ou dígito verificador inválido | — |
+| [`validation_error`](/problems/validation_error) | 400 | **CPF/CNPJ:** campo do body com tipo/enum inválido. **Borderô:** parte `file` ausente, `cedenteCnpj` ausente ou inválido, CNAB que não parseia, arquivo acima do teto; `filter` inválido no `GET /result` | `errors[]` |
+| [`bad_request`](/problems/bad_request) | 400 | **CPF/CNPJ:** `Idempotency-Key` ausente (no borderô a key é opcional); `document` sem dígitos, tamanho errado ou dígito verificador inválido | — |
 | [`unauthorized`](/problems/unauthorized) | 401 | **Ambos:** header `Authorization` ausente/malformado; chave inválida ou revogada | — |
 | [`insufficient_tokens`](/problems/insufficient_tokens) | 402 | **Ambos:** saldo do workspace insuficiente — no borderô, o custo é por entidade única (cedente + sacados únicos) | `required`, `balance` |
 | [`feature_not_enabled`](/problems/feature_not_enabled) | 403 | **Ambos:** feature `analysis_engine` desabilitada. **CPF/CNPJ:** `analysis_engine_pf` para análises de CPF | `request_access_url` |
 | [`forbidden`](/problems/forbidden) | 403 | **Ambos:** 403 genérico, não relacionado a feature | — |
 | [`not_found`](/problems/not_found) | 404 | **Ambos:** análise/operação inexistente ou de outro workspace; `engine_id` inexistente ou de outro workspace | — |
-| [`idempotency_conflict`](/problems/idempotency_conflict) | 409 | **Ambos:** mesma `Idempotency-Key` em andamento, ou reutilizada com conteúdo diferente — no CPF/CNPJ o hash cobre o body; no borderô, o SHA-256 dos bytes dos arquivos + `engine_id` + `legal_basis` | — |
-| [`no_engine`](/problems/no_engine) | 422 | **Ambos:** engine arquivada ou incompatível; nenhuma engine disponível. **Borderô:** engine sem nenhum bloco ativo | — |
+| [`idempotency_conflict`](/problems/idempotency_conflict) | 409 | **Ambos:** mesma `Idempotency-Key` em andamento, ou reutilizada com conteúdo diferente — no CPF/CNPJ a comparação cobre o body; no borderô, o payload multipart (arquivos + campos). No borderô a key é opcional: sem ela, não há deduplicação | — |
+| [`conflict`](/problems/conflict) | 409 | **Borderô:** `GET /v1/operations/{id}/result` antes de a operação chegar a `completed` | — |
+| [`no_engine`](/problems/no_engine) | 422 | **Ambos:** engine arquivada, incompatível ou não utilizável; nenhuma engine disponível | — |
 | [`http_error`](/problems/http_error) | varia | **Ambos:** fallback genérico para HTTP não mapeado em um código mais específico | — |
 | [`server_error`](/problems/server_error) | 500 | **Ambos:** erro inesperado no servidor; use o `instance` (request_id) ao acionar o suporte | — |
 
@@ -91,7 +92,7 @@ Lista cada campo que falhou e a mensagem da restrição:
 }
 ```
 
-No Motor de Borderô, os mesmos `errors[]` reportam problemas com os arquivos (ex.: `{ "field": "cnab_base64", "message": "file is not a valid CNAB 400 remessa" }`). Nesse caso nada é cobrado — no borderô, o débito só acontece após o parse bem-sucedido do CNAB.
+No Motor de Borderô, os mesmos `errors[]` reportam problemas field-level com as partes do multipart — `file`, `xmls` e `cedenteCnpj` (ex.: `{ "field": "file", "message": "No file provided" }`, `{ "field": "cedenteCnpj", "message": "Invalid CNPJ format" }`). Nesse caso nada é cobrado — no borderô, o débito só acontece após o parse bem-sucedido do CNAB.
 
 ### `insufficient_tokens` — `required` e `balance`
 
@@ -182,6 +183,10 @@ def handle_sherlocker_error(resp: requests.Response) -> None:
         # Consulte o run/operacao existente em vez de repetir o POST
         raise SherlockerApiError(problem)
 
+    if code == "conflict":
+        # Bordero: /result antes de completed — continue o polling do GET /v1/operations/{id}
+        raise SherlockerApiError(problem)
+
     if code in ("forbidden", "not_found", "no_engine"):
         raise SherlockerApiError(problem)
 
@@ -234,6 +239,10 @@ async function handleSherlockerError(res) {
     case "idempotency_conflict":
       // Consulte o run/operacao existente em vez de repetir o POST
       throw new Error("Requisicao concorrente em andamento: faca polling da original");
+
+    case "conflict":
+      // Bordero: /result antes de completed — continue o polling do GET /v1/operations/{id}
+      throw new Error("Operacao ainda nao concluida: aguarde status completed");
 
     case "no_engine":
       throw new Error("Nenhuma engine disponivel para esta requisicao");

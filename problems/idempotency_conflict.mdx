@@ -16,9 +16,13 @@ A `Idempotency-Key` enviada conflita com uma requisição anterior. Há dois cen
 O que conta como "mesmo conteúdo" depende do motor:
 
 - **`POST /v1/analyses`**: o body da requisição.
-- **`POST /v1/operations`**: o hash canônico — **SHA-256 dos bytes decodificados** dos arquivos (`cnab_base64` e `nfe_zip_base64`) + `engine_id` + `legal_basis`. Recodificar o base64 do mesmo arquivo **não** gera conflito; trocar o arquivo, o ZIP, a engine ou a base legal gera.
+- **`POST /v1/operations`**: o payload multipart — o conteúdo dos arquivos (`file` e `xmls`) e os campos (`cedenteCnpj`, `engineId`, `purpose`, `legalBasis`). Trocar o arquivo, o ZIP ou qualquer campo com a mesma key gera conflito.
 
-Para referência: mesma key + **mesmo** conteúdo dentro de 24 horas não é erro, retorna `200` com o body original da `202` (incluindo o `request_id` original), sem nova cobrança.
+Para referência: mesma key + **mesmo** conteúdo dentro de 24 horas não é erro, retorna `200` com o body original da `202`, sem nova cobrança.
+
+<Note>
+  No `POST /v1/operations` (Motor de Borderô), o header `Idempotency-Key` é **opcional**: este erro só pode ocorrer quando você envia a key. Sem ela, cada POST cria uma operação nova — sem deduplicação e sem conflito. No `POST /v1/analyses`, a key continua obrigatória.
+</Note>
 
 ## Causas comuns
 
