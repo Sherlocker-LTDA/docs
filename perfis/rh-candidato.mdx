@@ -78,7 +78,8 @@ Antecedentes criminais de parentes costumam voltar `indisponivel` com `motivo: "
 
 <CodeGroup>
 ```bash cURL
-curl -X POST "https://221b-api.sherlocker.com.br/api/v1/perfis?token=SEU_TOKEN" \
+curl -X POST "https://221b-api.sherlocker.com.br/api/v1/perfis" \
+  -H "Authorization: Bearer SEU_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "documento": "123.456.789-00",
@@ -101,7 +102,8 @@ curl -X POST "https://221b-api.sherlocker.com.br/api/v1/perfis?token=SEU_TOKEN" 
 `GET /perfis/jobs/{job_id}` — faça polling até o `status` do job ser terminal.
 
 ```bash
-curl "https://221b-api.sherlocker.com.br/api/v1/perfis/jobs/9f1c2b3a-...?token=SEU_TOKEN"
+curl "https://221b-api.sherlocker.com.br/api/v1/perfis/jobs/9f1c2b3a-..." \
+  -H "Authorization: Bearer SEU_TOKEN"
 ```
 
 ### Status do job
