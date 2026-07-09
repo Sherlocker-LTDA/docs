@@ -47,10 +47,6 @@ Os **dados básicos** (nome, nascimento / razão social) vêm no campo `dados` d
 | **Empresas** | `linha_do_tempo`, `listas_restritivas` |
 | **Sócios** | — (só os dados básicos no nó) |
 
-<Note>
-Antecedentes criminais de parentes costumam voltar `indisponivel` com `motivo: "dados_insuficientes"` — a emissão exige dados que nem sempre estão disponíveis para terceiros (nome da mãe, data de nascimento).
-</Note>
-
 ## Como usar
 
 <Steps>
@@ -122,51 +118,116 @@ curl "https://221b-api.sherlocker.com.br/api/v1/perfis/jobs/9f1c2b3a-..." \
 {
   "job_id": "9f1c2b3a-4d5e-6f70-8a9b-0c1d2e3f4a5b",
   "status": "concluida",
-  "perfil": { "perfil_id": "8f6b2e10-...", "label": "rh-candidato" },
+  "perfil": {
+    "perfil_id": "8f6b2e10-1c3a-4d5e-9a7b-2c4d6e8f0a1b",
+    "label": "rh-candidato"
+  },
   "criado_em": "2026-07-09T14:00:00Z",
   "concluido_em": "2026-07-09T14:03:42Z",
   "entidade": {
     "tipo": "pessoa",
     "documento": { "tipo": "cpf", "numero": "123.456.789-00" },
-    "dados": { "nome_completo": "FULANO DA SILVA", "data_nascimento": "1990-05-10", "genero": "M" },
+    "dados": {
+      "nome_completo": "FULANO DA SILVA",
+      "data_nascimento": "1990-05-10",
+      "genero": "M"
+    },
     "modulos": {
-      "telefones": { "status": "ok", "consultado_em": "...", "motivo": null,
-        "telefones": [ { "numero_completo": "..." } ] },
-      "enderecos": { "status": "ok", "consultado_em": "...", "motivo": null,
-        "enderecos": [ { "logradouro": "...", "cidade": "...", "uf": "SP" } ] },
-      "emails": { "status": "nada_consta", "consultado_em": "...", "motivo": null, "emails": [] },
-      "processos": { "status": "ok", "consultado_em": "...", "motivo": null,
-        "total": 2, "itens": [ /* ... */ ] },
-      "antecedentes_criminais": { "status": "ok", "consultado_em": "...", "motivo": null,
-        "resultado": null, "pdf_url": "https://.../certidao.pdf", "nr_protocolo": "2026..." },
-      "listas_restritivas": { "status": "nada_consta", "consultado_em": "...", "motivo": null,
-        "resumo": { "tem_ocorrencia": false, "total_ocorrencias": 0 } },
-      "historico_profissional": { "status": "ok", "consultado_em": "...", "motivo": null,
-        "empregos": [ { "nome_empregador": "ACME LTDA", "cargo": "Analista" } ] }
+      "telefones": {
+        "status": "ok",
+        "consultado_em": "2026-07-09T14:01:02Z",
+        "motivo": null,
+        "telefones": [
+          { "ddd": "11", "numero": "999998888", "numero_completo": "11999998888" }
+        ]
+      },
+      "enderecos": {
+        "status": "ok",
+        "consultado_em": "2026-07-09T14:01:02Z",
+        "motivo": null,
+        "enderecos": [
+          { "logradouro": "Rua A", "numero": "100", "bairro": "Centro", "cidade": "São Paulo", "uf": "SP", "cep": "01000-000" }
+        ]
+      },
+      "emails": {
+        "status": "nada_consta",
+        "consultado_em": "2026-07-09T14:01:02Z",
+        "motivo": null,
+        "emails": []
+      },
+      "processos": {
+        "status": "ok",
+        "consultado_em": "2026-07-09T14:01:10Z",
+        "motivo": null,
+        "total": 1,
+        "itens": [
+          {
+            "numero_formatado": "0001234-56.2024.8.26.0100",
+            "tribunal": "TJSP",
+            "classe_nome": "Execução Fiscal",
+            "data_ajuizamento": "2024-03-01",
+            "polo_do_investigado": "passivo"
+          }
+        ]
+      },
+      "antecedentes_criminais": {
+        "status": "ok",
+        "consultado_em": "2026-07-09T14:02:30Z",
+        "motivo": null,
+        "resultado": null,
+        "pdf_url": "https://.../certidao.pdf",
+        "nr_protocolo": "2026123456"
+      },
+      "listas_restritivas": {
+        "status": "nada_consta",
+        "consultado_em": "2026-07-09T14:01:05Z",
+        "motivo": null,
+        "resumo": { "tem_ocorrencia": false, "total_ocorrencias": 0 }
+      },
+      "historico_profissional": {
+        "status": "ok",
+        "consultado_em": "2026-07-09T14:01:02Z",
+        "motivo": null,
+        "empregos": [
+          { "nome_empregador": "ACME LTDA", "cargo": "Analista" }
+        ]
+      }
     },
     "relacionados": {
       "parentes": [
-        { "vinculo": { "codigo": "02", "nome": "MÃE" }, "tipo": "pessoa",
+        {
+          "tipo": "pessoa",
           "documento": { "tipo": "cpf", "numero": "111.222.333-44" },
+          "vinculo": { "codigo": "02", "nome": "MÃE" },
           "dados": { "nome_completo": "MARIA DA SILVA" },
-          "modulos": { "processos": { "status": "nada_consta", "...": "..." }, "...": "..." },
-          "relacionados": {} }
+          "modulos": {
+            "processos": { "status": "nada_consta", "consultado_em": "...", "motivo": null, "total": 0, "itens": [] }
+          },
+          "relacionados": {}
+        }
       ],
       "empresas": [
-        { "vinculo": { "razao_social": "ACME LTDA" }, "tipo": "empresa",
+        {
+          "tipo": "empresa",
           "documento": { "tipo": "cnpj", "numero": "12.345.678/0001-90" },
+          "vinculo": { "razao_social": "ACME LTDA" },
           "dados": { "razao_social": "ACME LTDA", "nome_fantasia": "ACME" },
-          "modulos": { "linha_do_tempo": { "status": "ok", "eventos": [ /* ... */ ] },
-            "listas_restritivas": { "status": "nada_consta", "...": "..." } },
+          "modulos": {
+            "linha_do_tempo": { "status": "ok", "consultado_em": "...", "motivo": null, "eventos": [] }
+          },
           "relacionados": {
             "socios": [
-              { "vinculo": { "qualificacao": "Sócio" }, "tipo": "pessoa",
+              {
+                "tipo": "pessoa",
                 "documento": { "tipo": "cpf", "numero": "987.654.321-00" },
+                "vinculo": { "qualificacao": "Sócio" },
                 "dados": { "nome_completo": "CICLANO DE SOUZA", "faixa_etaria": "31-40" },
                 "modulos": {},
-                "relacionados": {} }
+                "relacionados": {}
+              }
             ]
-          } }
+          }
+        }
       ]
     }
   }
@@ -306,13 +367,18 @@ interface LinhaDoTempo {   // módulo de empresa
 ```
 </CodeGroup>
 
-## Cobrança e erros
+## Cobrança
 
-<CardGroup cols={2}>
-  <Card title="16 tokens por execução" icon="coins">
-    Cobrado no `POST /perfis`, independente do resultado (`concluida`, `parcial` ou `falha`). `Idempotency-Key` evita cobrança dupla em retry.
-  </Card>
-  <Card title="Erros" icon="triangle-exclamation">
-    `400` documento/perfil_id inválido · `402` saldo insuficiente · `404` job inexistente · `429` rate limit · `503` indisponível. Corpo: `{ "erro": "..." }`.
-  </Card>
-</CardGroup>
+Cada execução custa **16 tokens**, cobrados no `POST /perfis` — independente do resultado (`concluida`, `parcial` ou `falha`). Use `Idempotency-Key` para evitar cobrança dupla em retry.
+
+## Erros
+
+Erros de validação retornam o status HTTP apropriado (não 202), com corpo `{ "erro": "...", "detalhes": [...] }`:
+
+| Status | Quando |
+|:------:|--------|
+| `400` | `documento` ou `perfil_id` inválido. |
+| `402` | Saldo insuficiente. |
+| `404` | `job_id` inexistente. |
+| `429` | Rate limit atingido. |
+| `503` | Serviço temporariamente indisponível. |
