@@ -94,11 +94,16 @@ O dossiê é uma árvore genérica: **entidade → módulos → relacionados** (
   "entidade": {
     "tipo": "pessoa",
     "documento": { "tipo": "cpf", "numero": "123.456.789-00" },
+    "dados": { /* dados básicos: nome, nascimento / razão social... */ },
     "modulos": { "<modulo>": { /* envelope + dados */ } },
     "relacionados": { "<relacao>": [ /* mesma estrutura, recursiva */ ] }
   }
 }
 ```
+
+<Info>
+Os **dados básicos** da entidade (nome, nascimento / razão social, situação...) vêm no campo `dados` do próprio nó — não são um módulo. Contatos (telefones, endereços, e-mails) são módulos, para você incluir ou não conforme o perfil.
+</Info>
 
 ### Envelope de cada módulo
 

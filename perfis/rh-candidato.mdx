@@ -14,31 +14,35 @@ O perfil **Candidato RH** monta, numa única execução, o dossiê de um candida
 |---|---|
 | **`perfil_id`** | `8f6b2e10-1c3a-4d5e-9a7b-2c4d6e8f0a1b` |
 | **Entidade** | Pessoa (CPF) |
-| **Custo** | 15 tokens por execução |
+| **Custo** | 16 tokens por execução |
 | **Execução** | Assíncrona (job) |
 
 ## O que ele investiga
 
 ```
-Candidato (CPF)
-├── Dados básicos · Processos · Antecedentes criminais · Listas restritivas · Histórico profissional
+Candidato (CPF)  [dados básicos no nó]
+├── Telefones · Endereços · E-mails · Processos · Antecedentes criminais · Listas restritivas · Histórico profissional
 │
-├── Parentes identificados  (cada um)
-│     └── Dados básicos · Processos · Antecedentes criminais · Listas restritivas
+├── Parentes identificados  (cada um, com dados básicos no nó)
+│     └── Processos · Antecedentes criminais · Listas restritivas
 │
-└── Empresas vinculadas  (cada uma)
-      ├── Dados básicos · Linha do tempo societária · Listas restritivas
-      └── Sócios  →  Dados básicos
+└── Empresas vinculadas  (cada uma, com dados básicos no nó)
+      ├── Linha do tempo societária · Listas restritivas
+      └── Sócios  (dados básicos no nó)
 ```
+
+<Info>
+Os **dados básicos** de cada entidade (nome, nascimento / razão social, situação...) vêm no campo `dados` do próprio nó — **não** são um módulo. Telefones, endereços e e-mails são módulos separados.
+</Info>
 
 ### Módulos por entidade
 
 | Entidade | Módulos |
 |----------|---------|
-| **Candidato** | `dados_basicos`, `processos`, `antecedentes_criminais`, `listas_restritivas`, `historico_profissional` |
-| **Parentes** | `dados_basicos`, `processos`, `antecedentes_criminais`, `listas_restritivas` |
-| **Empresas** | `dados_basicos`, `linha_do_tempo`, `listas_restritivas` |
-| **Sócios** | `dados_basicos` |
+| **Candidato** | `telefones`, `enderecos`, `emails`, `processos`, `antecedentes_criminais`, `listas_restritivas`, `historico_profissional` |
+| **Parentes** | `processos`, `antecedentes_criminais`, `listas_restritivas` |
+| **Empresas** | `linha_do_tempo`, `listas_restritivas` |
+| **Sócios** | — (só os dados básicos no nó) |
 
 <Note>
 Antecedentes criminais de parentes costumam voltar `indisponivel` com `motivo: "dados_insuficientes"` — a emissão exige dados que nem sempre estão disponíveis para terceiros (nome da mãe, data de nascimento).
@@ -84,9 +88,13 @@ Exemplo de resposta (resumida) quando `concluida`:
   "entidade": {
     "tipo": "pessoa",
     "documento": { "tipo": "cpf", "numero": "123.456.789-00" },
+    "dados": { "nome_completo": "FULANO DA SILVA", "data_nascimento": "1990-05-10", "genero": "M" },
     "modulos": {
-      "dados_basicos": { "status": "ok", "consultado_em": "...", "motivo": null,
-        "nome_completo": "FULANO DA SILVA", "data_nascimento": "1990-05-10" },
+      "telefones": { "status": "ok", "consultado_em": "...", "motivo": null,
+        "telefones": [ { "numero_completo": "..." } ] },
+      "enderecos": { "status": "ok", "consultado_em": "...", "motivo": null,
+        "enderecos": [ { "logradouro": "...", "cidade": "...", "uf": "SP" } ] },
+      "emails": { "status": "nada_consta", "consultado_em": "...", "motivo": null, "emails": [] },
       "processos": { "status": "ok", "consultado_em": "...", "motivo": null,
         "total": 2, "itens": [ /* ... */ ] },
       "antecedentes_criminais": { "status": "ok", "consultado_em": "...", "motivo": null,
@@ -100,19 +108,22 @@ Exemplo de resposta (resumida) quando `concluida`:
       "parentes": [
         { "vinculo": { "codigo": "02", "nome": "MÃE" }, "tipo": "pessoa",
           "documento": { "tipo": "cpf", "numero": "111.222.333-44" },
-          "modulos": { "dados_basicos": { "status": "ok", "...": "..." }, "...": "..." },
+          "dados": { "nome_completo": "MARIA DA SILVA" },
+          "modulos": { "processos": { "status": "nada_consta", "...": "..." }, "...": "..." },
           "relacionados": {} }
       ],
       "empresas": [
         { "vinculo": { "razao_social": "ACME LTDA" }, "tipo": "empresa",
           "documento": { "tipo": "cnpj", "numero": "12.345.678/0001-90" },
-          "modulos": { "dados_basicos": { "status": "ok", "...": "..." },
-            "linha_do_tempo": { "status": "ok", "eventos": [ /* ... */ ] } },
+          "dados": { "razao_social": "ACME LTDA", "nome_fantasia": "ACME" },
+          "modulos": { "linha_do_tempo": { "status": "ok", "eventos": [ /* ... */ ] },
+            "listas_restritivas": { "status": "nada_consta", "...": "..." } },
           "relacionados": {
             "socios": [
               { "vinculo": { "qualificacao": "Sócio" }, "tipo": "pessoa",
                 "documento": { "tipo": "cpf", "numero": "987.654.321-00" },
-                "modulos": { "dados_basicos": { "status": "ok", "nome_completo": "CICLANO DE SOUZA" } },
+                "dados": { "nome_completo": "CICLANO DE SOUZA", "faixa_etaria": "31-40" },
+                "modulos": {},
                 "relacionados": {} }
             ]
           } }
