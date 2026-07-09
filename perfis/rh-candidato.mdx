@@ -8,7 +8,7 @@ icon: "id-card"
 Esta é uma página **exclusiva** do seu contrato. O perfil abaixo não é listado publicamente — use o `perfil_id` apenas nas suas integrações.
 </Info>
 
-O perfil **Candidato RH** monta, numa única execução, o dossiê de um candidato para análise de contratação: o próprio candidato, seus parentes identificados, as empresas em que ele figura como sócio e os sócios dessas empresas.
+O perfil **Candidato RH** investiga, numa única execução, um candidato para análise de contratação: o próprio candidato, seus parentes identificados, as empresas em que ele figura como sócio e os sócios dessas empresas.
 
 | | |
 |---|---|
@@ -30,10 +30,6 @@ Candidato (CPF)  [dados básicos no nó]
       ├── Linha do tempo societária · Listas restritivas
       └── Sócios  (dados básicos no nó)
 ```
-
-<Info>
-Os **dados básicos** de cada entidade (nome, nascimento / razão social, situação...) vêm no campo `dados` do próprio nó — **não** são um módulo. Telefones, endereços e e-mails são módulos separados.
-</Info>
 
 ### Módulos por entidade
 
@@ -70,7 +66,7 @@ curl -X POST "https://221b-api.sherlocker.com.br/api/v1/perfis?token=SEU_TOKEN" 
 }
 ```
 
-## Consultar o dossiê
+## Consultar o perfil de investigação
 
 ```bash
 curl "https://221b-api.sherlocker.com.br/api/v1/perfis/jobs/9f1c2b3a-...?token=SEU_TOKEN"

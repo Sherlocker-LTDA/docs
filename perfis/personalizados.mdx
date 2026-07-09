@@ -4,7 +4,7 @@ description: "Investigações compostas sob medida, executadas de forma assíncr
 icon: "user-magnifying-glass"
 ---
 
-Um **perfil personalizado** é uma investigação composta, montada sob medida para o seu caso de uso, que cruza várias fontes num único dossiê. Ao lado dos perfis fixos (cadastral, patrimonial), o perfil personalizado é **assíncrono** — ele faz scraping e consultas em paralelo, então você dispara a execução e consulta o resultado quando fica pronto.
+Um **perfil personalizado** é uma investigação composta, montada sob medida para o seu caso de uso, que cruza várias fontes num único perfil de investigação. Ao lado dos perfis fixos (cadastral, patrimonial), o perfil personalizado é **assíncrono** — ele faz scraping e consultas em paralelo, então você dispara a execução e consulta o resultado quando fica pronto.
 
 <Info>
 Perfis personalizados **não são listados publicamente**. Cada perfil tem um `perfil_id` (um identificador opaco) que a Sherlocker entrega a você por contrato. Você usa esse `perfil_id` para executar o perfil.
@@ -14,10 +14,10 @@ Perfis personalizados **não são listados publicamente**. Cada perfil tem um `p
 
 ```
 1. POST /perfis            → dispara a execução (retorna um job_id)
-2. GET  /perfis/jobs/{id}  → consulta o dossiê (polling até concluir)
+2. GET  /perfis/jobs/{id}  → consulta o perfil de investigação (polling até concluir)
 ```
 
-Cada execução de um perfil contra um documento é um **job**. O job monta a árvore do dossiê (a entidade consultada, seus relacionados e os dados de cada um) e você acompanha o progresso por polling.
+Cada execução de um perfil contra um documento é um **job**. O job monta a árvore do perfil de investigação (a entidade consultada, seus relacionados e os dados de cada um) e você acompanha o progresso por polling.
 
 ## Autenticação
 
@@ -59,13 +59,13 @@ Resposta `202 Accepted` (a cobrança acontece aqui):
 }
 ```
 
-## 2. Consultar o dossiê (polling)
+## 2. Consultar o perfil de investigação (polling)
 
 ```bash
 curl "https://221b-api.sherlocker.com.br/api/v1/perfis/jobs/9f1c2b3a-...?token=SEU_TOKEN"
 ```
 
-Enquanto o job roda, o dossiê vem **crescendo** — os dados básicos aparecem em segundos e o resto vai preenchendo. Módulos ainda não resolvidos vêm com `status: "pendente"`. Faça polling até o `status` do job ser terminal.
+Enquanto o job roda, o perfil de investigação vem **crescendo** — os dados básicos aparecem em segundos e o resto vai preenchendo. Módulos ainda não resolvidos vêm com `status: "pendente"`. Faça polling até o `status` do job ser terminal.
 
 ### Status do job
 
@@ -80,9 +80,9 @@ Enquanto o job roda, o dossiê vem **crescendo** — os dados básicos aparecem 
 `parcial` só aparece no fim. Durante a execução o status é sempre `processando`.
 </Note>
 
-## Estrutura do dossiê
+## Estrutura do perfil de investigação
 
-O dossiê é uma árvore genérica: **entidade → módulos → relacionados** (recursivo). A forma é a mesma para qualquer perfil — só mudam quais módulos e relações aparecem.
+O perfil de investigação é uma árvore genérica: **entidade → módulos → relacionados** (recursivo). A forma é a mesma para qualquer perfil — só mudam quais módulos e relações aparecem.
 
 ```json
 {
