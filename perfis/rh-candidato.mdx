@@ -214,7 +214,17 @@ Resposta quando `concluida`:
           "vinculo": { "razao_social": "ACME LTDA" },
           "dados": { "razao_social": "ACME LTDA", "nome_fantasia": "ACME" },
           "modulos": {
-            "linha_do_tempo": { "status": "ok", "consultado_em": "...", "motivo": null, "eventos": [] }
+            "linha_do_tempo": {
+              "status": "ok",
+              "consultado_em": "...",
+              "motivo": null,
+              "eventos": [
+                { "data": "2022-05-10", "categoria": "cadastro", "origem": "alteracao",
+                  "titulo": "Alteração de nome fantasia", "descricao": "ACME → ACME BR",
+                  "campo": "nome_fantasia", "de": { "descricao": "ACME" }, "para": { "descricao": "ACME BR" } }
+              ],
+              "cobertura": { "dados_a_partir_de": "2019-01", "meses_disponiveis": ["2019-01", "..."] }
+            }
           },
           "relacionados": {
             "socios": [
@@ -361,8 +371,19 @@ interface HistoricoProfissional {
   empregos: { nome_empregador: string; cargo: string | null; data_admissao: string | null; data_desligamento: string | null }[];
 }
 
-interface LinhaDoTempo {   // módulo de empresa
-  eventos: { data: string; evento: "entrada_socio" | "saida_socio"; pessoa: { nome: string; documento: string; qualificacao: string } }[];
+interface LinhaDoTempo {   // módulo de empresa — cadastral + societária
+  eventos: {
+    data: string;
+    categoria: "socios" | "cadastro" | "atividade" | "situacao" | "tributario";
+    origem: "alteracao" | "estado_inicial";
+    titulo: string;
+    descricao: string;
+    campo?: string;
+    de?: { codigo?: string; descricao: string } | null;
+    para?: { codigo?: string; descricao: string } | null;
+    pessoa?: { nome: string; documento: string | null; qualificacao: string } | null;
+  }[];
+  cobertura: { dados_a_partir_de: string | null; meses_disponiveis: string[] };
 }
 ```
 </CodeGroup>
