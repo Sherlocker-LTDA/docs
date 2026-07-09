@@ -19,16 +19,21 @@ O perfil **Candidato RH** investiga, numa única execução, um candidato para a
 
 ## O que ele investiga
 
-```
-Candidato (CPF)  [dados básicos no nó]
-├── Telefones · Endereços · E-mails · Processos · Antecedentes criminais · Listas restritivas · Histórico profissional
-│
-├── Parentes identificados  (cada um, com dados básicos no nó)
-│     └── Processos · Antecedentes criminais · Listas restritivas
-│
-└── Empresas vinculadas  (cada uma, com dados básicos no nó)
-      ├── Linha do tempo societária · Listas restritivas
-      └── Sócios  (dados básicos no nó)
+```mermaid
+flowchart LR
+  C["<b>Candidato (CPF)</b><br/><i>dados básicos no nó</i><br/>• Telefones<br/>• Endereços<br/>• E-mails<br/>• Processos<br/>• Antecedentes criminais<br/>• Listas restritivas<br/>• Histórico profissional"]
+  P["<b>Parentes identificados</b><br/><i>dados básicos no nó</i><br/>• Processos<br/>• Antecedentes criminais<br/>• Listas restritivas"]
+  E["<b>Empresas vinculadas</b><br/><i>dados básicos no nó</i><br/>• Linha do tempo societária<br/>• Listas restritivas"]
+  S["<b>Sócios</b><br/><i>dados básicos no nó</i>"]
+
+  C --> P
+  C --> E
+  E --> S
+
+  style C fill:#DCE9FB,stroke:#3B82F6,color:#1E3A8A
+  style P fill:#FBEBD3,stroke:#D97706,color:#92400E
+  style E fill:#EBE6FB,stroke:#7C3AED,color:#5B21B6
+  style S fill:#D9F2E1,stroke:#16A34A,color:#166534
 ```
 
 ### Módulos por entidade
@@ -189,6 +194,115 @@ O resultado é uma árvore **entidade → módulos → relacionados** (recursiva
 <ResponseField name="relacionados" type="object">
   Parentes, empresas e sócios. Uma entidade que já apareceu vem como referência (`ref: true`, com `ref_caminho`), não repetida.
 </ResponseField>
+
+## Tipagem da resposta
+
+<CodeGroup>
+```typescript Estrutura
+type StatusJob = "processando" | "parcial" | "concluida" | "falha";
+
+type StatusModulo =
+  | "ok" | "nada_consta" | "indisponivel" | "pendente" | "nao_aplicavel";
+
+type Motivo =
+  | "timeout" | "fonte_indisponivel" | "dados_insuficientes"
+  | "modulo_nao_disponivel_para_tipo" | "nao_localizado";
+
+interface Resposta {          // GET /perfis/jobs/{job_id}
+  job_id: string;
+  status: StatusJob;
+  perfil: { perfil_id: string | null; label: string | null };
+  criado_em: string;          // ISO 8601
+  concluido_em: string | null;
+  entidade: Entidade;
+}
+
+interface CriarResposta {     // POST /perfis → 202
+  job_id: string;
+  status: "processando";
+  perfil: { perfil_id: string | null; label: string | null };
+  criado_em: string;
+}
+
+interface Entidade {
+  tipo: "pessoa" | "empresa";
+  documento: { tipo: "cpf" | "cnpj"; numero: string };
+  dados?: Record<string, unknown>;                 // dados básicos (no nó)
+  vinculo?: Record<string, unknown>;               // só em relacionados
+  modulos?: Record<string, ModuloEnvelope>;
+  relacionados?: Record<string, Entidade[]>;       // recursivo
+  relacionados_truncados?: Record<string, number>; // relação → total real
+  ref?: true;                                       // nó-referência (já expandido)
+  ref_caminho?: string;
+}
+
+interface ModuloEnvelope {
+  status: StatusModulo;
+  consultado_em: string | null;
+  motivo: Motivo | null;
+  [campo: string]: unknown;   // payload específico do módulo (abaixo)
+}
+```
+
+```typescript Módulos (payload)
+// entidade.dados quando tipo = "pessoa"
+interface DadosPessoa {
+  nome_completo: string;
+  genero: string;
+  data_nascimento: string;
+  falecido: boolean;
+  obito: { data_obito: string; cartorio: string } | null;
+  publicamente_exposta: boolean;
+  cargos_publicos: unknown[];
+}
+
+// entidade.dados quando tipo = "empresa"
+interface DadosEmpresa {
+  razao_social: string;
+  nome_fantasia: string | null;
+  situacao: string;
+  data_abertura: string;
+  capital_social: number;
+  natureza_juridica: { codigo: string; descricao: string };
+  atividade_principal: { codigo: string; descricao: string } | null;
+}
+
+interface Telefones { telefones: { ddd: string; numero: string; numero_completo: string; operadora: string }[] }
+interface Enderecos { enderecos: { logradouro: string; numero: string; bairro: string; cidade: string; uf: string; cep: string }[] }
+interface Emails    { emails: { email: string; dominio: string; corporativo: boolean }[] }
+
+interface Processos {
+  total: number;
+  itens: {
+    numero_processo: string; numero_formatado: string; tribunal: string;
+    classe_nome: string; data_ajuizamento: string; assuntos: string;
+    valor_acao: number | null; polo_do_investigado: "ativo" | "passivo" | "ambos" | "indeterminado";
+    partes: unknown[]; advogados: unknown[]; movimentacoes: unknown[];
+  }[];
+}
+
+interface AntecedentesCriminais {
+  resultado: "consta" | "nada_consta" | null;   // reservado (hoje null)
+  pdf_url: string | null;
+  nr_protocolo: string | null;
+  emitido_em: string | null;
+}
+
+interface ListasRestritivas {
+  resumo: { tem_ocorrencia: boolean; total_ocorrencias: number; confiabilidade: string };
+  ocorrencias: unknown[];
+  cobertura: unknown[];
+}
+
+interface HistoricoProfissional {
+  empregos: { nome_empregador: string; cargo: string | null; data_admissao: string | null; data_desligamento: string | null }[];
+}
+
+interface LinhaDoTempo {   // módulo de empresa
+  eventos: { data: string; evento: "entrada_socio" | "saida_socio"; pessoa: { nome: string; documento: string; qualificacao: string } }[];
+}
+```
+</CodeGroup>
 
 ## Cobrança e erros
 
