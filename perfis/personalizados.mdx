@@ -1,0 +1,152 @@
+---
+title: "Perfis Personalizados"
+description: "Investigações compostas sob medida, executadas de forma assíncrona"
+icon: "user-magnifying-glass"
+---
+
+Um **perfil personalizado** é uma investigação composta, montada sob medida para o seu caso de uso, que cruza várias fontes num único dossiê. Ao lado dos perfis fixos (cadastral, patrimonial), o perfil personalizado é **assíncrono** — ele faz scraping e consultas em paralelo, então você dispara a execução e consulta o resultado quando fica pronto.
+
+<Info>
+Perfis personalizados **não são listados publicamente**. Cada perfil tem um `perfil_id` (um identificador opaco) que a Sherlocker entrega a você por contrato. Você usa esse `perfil_id` para executar o perfil.
+</Info>
+
+## Como funciona
+
+```
+1. POST /perfis            → dispara a execução (retorna um job_id)
+2. GET  /perfis/jobs/{id}  → consulta o dossiê (polling até concluir)
+```
+
+Cada execução de um perfil contra um documento é um **job**. O job monta a árvore do dossiê (a entidade consultada, seus relacionados e os dados de cada um) e você acompanha o progresso por polling.
+
+## Autenticação
+
+Todas as chamadas exigem seu token de API (mesma credencial das demais rotas):
+
+```
+POST /perfis?token=SEU_TOKEN
+```
+
+## 1. Executar um perfil
+
+<ParamField body="documento" type="string" required>
+  CPF (11 dígitos) ou CNPJ (14 dígitos), com ou sem máscara.
+</ParamField>
+
+<ParamField body="perfil_id" type="string" required>
+  O identificador do perfil que você recebeu por contrato.
+</ParamField>
+
+<ParamField header="Idempotency-Key" type="string">
+  Opcional. Reenviar a mesma chave em até 24h retorna o **mesmo** job, sem executar nem cobrar de novo. Use para tornar retries seguros.
+</ParamField>
+
+```bash
+curl -X POST "https://221b-api.sherlocker.com.br/api/v1/perfis?token=SEU_TOKEN" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: 7f3a9c1e-0b2d-4e6f-8a1b-3c5d7e9f0a2b" \
+  -d '{ "documento": "123.456.789-00", "perfil_id": "SEU_PERFIL_ID" }'
+```
+
+Resposta `202 Accepted` (a cobrança acontece aqui):
+
+```json
+{
+  "job_id": "job_9f1c2b3a-4d5e-6f70-8a9b-0c1d2e3f4a5b",
+  "status": "processando",
+  "perfil": { "perfil_id": "SEU_PERFIL_ID", "label": "rh-candidato" },
+  "criado_em": "2026-07-09T14:00:00Z"
+}
+```
+
+## 2. Consultar o dossiê (polling)
+
+```bash
+curl "https://221b-api.sherlocker.com.br/api/v1/perfis/jobs/job_9f1c2b3a-...?token=SEU_TOKEN"
+```
+
+Enquanto o job roda, o dossiê vem **crescendo** — os dados básicos aparecem em segundos e o resto vai preenchendo. Módulos ainda não resolvidos vêm com `status: "pendente"`. Faça polling até o `status` do job ser terminal.
+
+### Status do job
+
+| Status | Significado |
+|--------|-------------|
+| `processando` | Em execução — continue fazendo polling. |
+| `concluida` | Terminou; todos os dados resolveram. |
+| `parcial` | Terminou, mas alguma fonte ficou indisponível (ou estourou o tempo). |
+| `falha` | Não foi possível resolver nem os dados básicos da entidade (ex.: documento inexistente). |
+
+<Note>
+`parcial` só aparece no fim. Durante a execução o status é sempre `processando`.
+</Note>
+
+## Estrutura do dossiê
+
+O dossiê é uma árvore genérica: **entidade → módulos → relacionados** (recursivo). A forma é a mesma para qualquer perfil — só mudam quais módulos e relações aparecem.
+
+```json
+{
+  "job_id": "job_...",
+  "status": "concluida",
+  "perfil": { "perfil_id": "...", "label": "rh-candidato" },
+  "criado_em": "...",
+  "concluido_em": "...",
+  "entidade": {
+    "tipo": "pessoa",
+    "documento": { "tipo": "cpf", "numero": "123.456.789-00" },
+    "modulos": { "<modulo>": { /* envelope + dados */ } },
+    "relacionados": { "<relacao>": [ /* mesma estrutura, recursiva */ ] }
+  }
+}
+```
+
+### Envelope de cada módulo
+
+Todo módulo carrega um envelope padrão + os campos daquele dado:
+
+```json
+{
+  "status": "ok",
+  "consultado_em": "2026-07-09T14:01:10Z",
+  "motivo": null,
+  "...": "campos específicos do módulo"
+}
+```
+
+| `status` | Significado |
+|----------|-------------|
+| `ok` | Consultado com dados. |
+| `nada_consta` | Consultado, sem ocorrências (diferente de indisponível). |
+| `indisponivel` | A fonte falhou ou não retornou — veja `motivo`. |
+| `pendente` | Ainda resolvendo (só durante `processando`). |
+| `nao_aplicavel` | O módulo não existe para o tipo daquela entidade. |
+
+Quando `status` é `indisponivel` ou `nao_aplicavel`, o campo `motivo` traz o porquê (`timeout`, `fonte_indisponivel`, `dados_insuficientes`, `modulo_nao_disponivel_para_tipo`, `nao_localizado`).
+
+### Relacionados e referências
+
+Relações (ex.: `parentes`, `empresas`, `socios`) expandem outras entidades, cada uma com a mesma estrutura. Uma entidade que já apareceu na árvore (ex.: o próprio investigado como sócio da empresa dele) vem como **referência**, não repetida:
+
+```json
+{ "documento": { "tipo": "cpf", "numero": "123.456.789-00" }, "tipo": "pessoa", "ref": true, "ref_caminho": "entidade" }
+```
+
+Se uma relação tiver muitos itens (ex.: uma empresa com milhares de sócios), ela é truncada por segurança e o total real é sinalizado no nó pai em `relacionados_truncados`.
+
+## Cobrança
+
+- Cada perfil tem um **custo fixo em tokens**, cobrado no momento da execução (`POST /perfis`), independente do resultado.
+- A cobrança é a mesma para `concluida`, `parcial` ou `falha` — o preço não varia com o retorno.
+- Use `Idempotency-Key` para garantir que um retry não cobre duas vezes.
+
+## Erros
+
+Erros de validação retornam o status HTTP apropriado (não 202), com corpo `{ "erro": "...", "detalhes": [...] }`:
+
+| Status | Quando |
+|--------|--------|
+| `400` | `documento` ou `perfil_id` inválido. |
+| `402` | Saldo insuficiente. |
+| `404` | `job_id` inexistente. |
+| `429` | Rate limit atingido. |
+| `503` | Serviço temporariamente indisponível. |

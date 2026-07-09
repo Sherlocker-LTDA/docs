@@ -1,0 +1,127 @@
+---
+title: "Perfil: Candidato RH"
+description: "Investigação de candidato para análise de RH — página exclusiva do seu contrato"
+icon: "id-card"
+---
+
+<Info>
+Esta é uma página **exclusiva** do seu contrato. O perfil abaixo não é listado publicamente — use o `perfil_id` apenas nas suas integrações.
+</Info>
+
+O perfil **Candidato RH** monta, numa única execução, o dossiê de um candidato para análise de contratação: o próprio candidato, seus parentes identificados, as empresas em que ele figura como sócio e os sócios dessas empresas.
+
+| | |
+|---|---|
+| **`perfil_id`** | `8f6b2e10-1c3a-4d5e-9a7b-2c4d6e8f0a1b` |
+| **Entidade** | Pessoa (CPF) |
+| **Custo** | 15 tokens por execução |
+| **Execução** | Assíncrona (job) |
+
+## O que ele investiga
+
+```
+Candidato (CPF)
+├── Dados básicos · Processos · Antecedentes criminais · Listas restritivas · Histórico profissional
+│
+├── Parentes identificados  (cada um)
+│     └── Dados básicos · Processos · Antecedentes criminais · Listas restritivas
+│
+└── Empresas vinculadas  (cada uma)
+      ├── Dados básicos · Linha do tempo societária · Listas restritivas
+      └── Sócios  →  Dados básicos
+```
+
+### Módulos por entidade
+
+| Entidade | Módulos |
+|----------|---------|
+| **Candidato** | `dados_basicos`, `processos`, `antecedentes_criminais`, `listas_restritivas`, `historico_profissional` |
+| **Parentes** | `dados_basicos`, `processos`, `antecedentes_criminais`, `listas_restritivas` |
+| **Empresas** | `dados_basicos`, `linha_do_tempo`, `listas_restritivas` |
+| **Sócios** | `dados_basicos` |
+
+<Note>
+Antecedentes criminais de parentes costumam voltar `indisponivel` com `motivo: "dados_insuficientes"` — a emissão exige dados que nem sempre estão disponíveis para terceiros (nome da mãe, data de nascimento).
+</Note>
+
+## Executar
+
+```bash
+curl -X POST "https://221b-api.sherlocker.com.br/api/v1/perfis?token=SEU_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "documento": "123.456.789-00",
+    "perfil_id": "8f6b2e10-1c3a-4d5e-9a7b-2c4d6e8f0a1b"
+  }'
+```
+
+`202 Accepted`:
+
+```json
+{
+  "job_id": "job_9f1c2b3a-4d5e-6f70-8a9b-0c1d2e3f4a5b",
+  "status": "processando",
+  "perfil": { "perfil_id": "8f6b2e10-1c3a-4d5e-9a7b-2c4d6e8f0a1b", "label": "rh-candidato" },
+  "criado_em": "2026-07-09T14:00:00Z"
+}
+```
+
+## Consultar o dossiê
+
+```bash
+curl "https://221b-api.sherlocker.com.br/api/v1/perfis/jobs/job_9f1c2b3a-...?token=SEU_TOKEN"
+```
+
+Exemplo de resposta (resumida) quando `concluida`:
+
+```json
+{
+  "job_id": "job_9f1c2b3a-...",
+  "status": "concluida",
+  "perfil": { "perfil_id": "8f6b2e10-...", "label": "rh-candidato" },
+  "criado_em": "2026-07-09T14:00:00Z",
+  "concluido_em": "2026-07-09T14:03:42Z",
+  "entidade": {
+    "tipo": "pessoa",
+    "documento": { "tipo": "cpf", "numero": "123.456.789-00" },
+    "modulos": {
+      "dados_basicos": { "status": "ok", "consultado_em": "...", "motivo": null,
+        "nome_completo": "FULANO DA SILVA", "data_nascimento": "1990-05-10" },
+      "processos": { "status": "ok", "consultado_em": "...", "motivo": null,
+        "total": 2, "itens": [ /* ... */ ] },
+      "antecedentes_criminais": { "status": "ok", "consultado_em": "...", "motivo": null,
+        "resultado": null, "pdf_url": "https://.../certidao.pdf", "nr_protocolo": "2026..." },
+      "listas_restritivas": { "status": "nada_consta", "consultado_em": "...", "motivo": null,
+        "resumo": { "tem_ocorrencia": false, "total_ocorrencias": 0 } },
+      "historico_profissional": { "status": "ok", "consultado_em": "...", "motivo": null,
+        "empregos": [ { "nome_empregador": "ACME LTDA", "cargo": "Analista" } ] }
+    },
+    "relacionados": {
+      "parentes": [
+        { "vinculo": { "codigo": "02", "nome": "MÃE" }, "tipo": "pessoa",
+          "documento": { "tipo": "cpf", "numero": "111.222.333-44" },
+          "modulos": { "dados_basicos": { "status": "ok", "...": "..." }, "...": "..." },
+          "relacionados": {} }
+      ],
+      "empresas": [
+        { "vinculo": { "razao_social": "ACME LTDA" }, "tipo": "empresa",
+          "documento": { "tipo": "cnpj", "numero": "12.345.678/0001-90" },
+          "modulos": { "dados_basicos": { "status": "ok", "...": "..." },
+            "linha_do_tempo": { "status": "ok", "eventos": [ /* ... */ ] } },
+          "relacionados": {
+            "socios": [
+              { "vinculo": { "qualificacao": "Sócio" }, "tipo": "pessoa",
+                "documento": { "tipo": "cpf", "numero": "987.654.321-00" },
+                "modulos": { "dados_basicos": { "status": "ok", "nome_completo": "CICLANO DE SOUZA" } },
+                "relacionados": {} }
+            ]
+          } }
+      ]
+    }
+  }
+}
+```
+
+<Tip>
+A estrutura completa do envelope de módulos, os status de job, a semântica de referências (`ref`) e a cobrança estão em [Perfis Personalizados](/perfis/personalizados).
+</Tip>
