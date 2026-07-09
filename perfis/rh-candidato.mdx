@@ -107,9 +107,8 @@ curl "https://221b-api.sherlocker.com.br/api/v1/perfis/jobs/9f1c2b3a-..." \
 | Status | Terminal? | Significado |
 |--------|:---------:|-------------|
 | `processando` | não | Em execução — continue fazendo polling. |
-| `concluida` | sim | Terminou; todos os dados resolveram. |
-| `parcial` | sim | Terminou, mas alguma fonte ficou indisponível (ou estourou o tempo). |
-| `falha` | sim | O CPF do candidato não resolveu (ex.: inexistente). |
+| `concluida` | sim | Terminou. Cada módulo carrega o próprio status; fontes que ficaram indisponíveis (ou estouraram o tempo) vêm sinalizadas no envelope do módulo, não no status do job. |
+| `falha` | sim | O CPF do candidato não resolveu (ex.: inexistente). Nesse caso a execução é **reembolsada**. |
 
 ### Exemplo de resultado
 
@@ -211,8 +210,16 @@ Resposta quando `concluida`:
         {
           "tipo": "empresa",
           "documento": { "tipo": "cnpj", "numero": "12.345.678/0001-90" },
-          "vinculo": { "razao_social": "ACME LTDA" },
-          "dados": { "razao_social": "ACME LTDA", "nome_fantasia": "ACME" },
+          "vinculo": { "qualificacao": "Sócio-Administrador", "data_entrada": "2019-08-01" },
+          "dados": {
+            "razao_social": "ACME LTDA",
+            "nome_fantasia": "ACME",
+            "situacao": "Ativa",
+            "data_abertura": "2019-08-01",
+            "capital_social": 100000,
+            "natureza_juridica": { "codigo": "2062", "descricao": "Sociedade Empresária Limitada" },
+            "atividade_principal": { "codigo": "6201-5/01", "descricao": "Desenvolvimento de programas de computador sob encomenda" }
+          },
           "modulos": {
             "linha_do_tempo": {
               "status": "ok",
@@ -272,7 +279,7 @@ O resultado é uma árvore **entidade → módulos → relacionados** (recursiva
 
 <CodeGroup>
 ```typescript Estrutura
-type StatusJob = "processando" | "parcial" | "concluida" | "falha";
+type StatusJob = "processando" | "concluida" | "falha";
 
 type StatusModulo =
   | "ok" | "nada_consta" | "indisponivel" | "pendente" | "nao_aplicavel";
@@ -390,7 +397,7 @@ interface LinhaDoTempo {   // módulo de empresa — cadastral + societária
 
 ## Cobrança
 
-Cada execução custa **16 tokens**, cobrados no `POST /perfis` — independente do resultado (`concluida`, `parcial` ou `falha`). Use `Idempotency-Key` para evitar cobrança dupla em retry.
+Cada execução custa **16 tokens**, cobrados no `POST /perfis`. Se o job terminar em `falha` (o CPF do candidato não resolveu), a execução é **reembolsada**. Use `Idempotency-Key` para evitar cobrança dupla em retry.
 
 ## Erros
 
