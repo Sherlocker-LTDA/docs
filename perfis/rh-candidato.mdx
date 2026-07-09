@@ -212,13 +212,30 @@ Resposta quando `concluida`:
           "documento": { "tipo": "cnpj", "numero": "12.345.678/0001-90" },
           "vinculo": { "qualificacao": "Sócio-Administrador", "data_entrada": "2019-08-01" },
           "dados": {
+            "cnpj_basico": "12345678",
             "razao_social": "ACME LTDA",
             "nome_fantasia": "ACME",
             "situacao": "Ativa",
+            "data_situacao": "2019-08-01",
+            "motivo_situacao": "Sem Motivo",
             "data_abertura": "2019-08-01",
             "capital_social": 100000,
+            "porte": "Médio ou Grande porte",
+            "matriz_filial": "Matriz",
             "natureza_juridica": { "codigo": "2062", "descricao": "Sociedade Empresária Limitada" },
-            "atividade_principal": { "codigo": "6201-5/01", "descricao": "Desenvolvimento de programas de computador sob encomenda" }
+            "atividade_principal": { "codigo": "6201-5/01", "descricao": "Desenvolvimento de programas de computador sob encomenda" },
+            "atividades_secundarias": [
+              { "codigo": "6202-3/00", "descricao": "Desenvolvimento e licenciamento de programas de computador customizáveis" }
+            ],
+            "endereco": { "logradouro": "Av Paulista", "numero": "1000", "complemento": null, "bairro": "Bela Vista", "cidade": "São Paulo", "uf": "SP", "cep": "01310-100" },
+            "telefones": [
+              { "ddi": "55", "ddd": "11", "numero": "33330000", "numero_completo": "551133330000", "estado": "SP", "operadora": "Fixo" }
+            ],
+            "emails": [
+              { "email": "contato@acme.com.br", "dominio": "acme.com.br", "corporativo": true }
+            ],
+            "situacao_especial": null,
+            "data_situacao_especial": null
           },
           "modulos": {
             "linha_do_tempo": {
@@ -337,14 +354,27 @@ interface DadosPessoa {
 }
 
 // entidade.dados quando tipo = "empresa"
+// Mesmos dados da rota /empresas/cnpj (sem `documento`/`tipo_documento` — já no nó —
+// nem `socios` — expandido na relação `socios`).
 interface DadosEmpresa {
+  cnpj_basico: string;
   razao_social: string;
   nome_fantasia: string | null;
   situacao: string;
+  data_situacao: string;
+  motivo_situacao: string | null;
   data_abertura: string;
   capital_social: number;
+  porte: string | null;
+  matriz_filial: string | null;
   natureza_juridica: { codigo: string; descricao: string };
   atividade_principal: { codigo: string; descricao: string } | null;
+  atividades_secundarias: { codigo: string; descricao: string }[];
+  endereco: { logradouro: string; numero: string; complemento: string | null; bairro: string; cidade: string; uf: string; cep: string };
+  telefones: { ddi: string; ddd: string; numero: string; numero_completo: string; estado: string; operadora: string }[];
+  emails: { email: string; dominio: string; corporativo: boolean }[];
+  situacao_especial: string | null;
+  data_situacao_especial: string | null;
 }
 
 interface Telefones { telefones: { ddd: string; numero: string; numero_completo: string; operadora: string }[] }
