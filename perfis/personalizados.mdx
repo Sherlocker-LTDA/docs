@@ -52,7 +52,7 @@ Resposta `202 Accepted` (a cobrança acontece aqui):
 
 ```json
 {
-  "job_id": "job_9f1c2b3a-4d5e-6f70-8a9b-0c1d2e3f4a5b",
+  "job_id": "9f1c2b3a-4d5e-6f70-8a9b-0c1d2e3f4a5b",
   "status": "processando",
   "perfil": { "perfil_id": "SEU_PERFIL_ID", "label": "rh-candidato" },
   "criado_em": "2026-07-09T14:00:00Z"
@@ -62,7 +62,7 @@ Resposta `202 Accepted` (a cobrança acontece aqui):
 ## 2. Consultar o dossiê (polling)
 
 ```bash
-curl "https://221b-api.sherlocker.com.br/api/v1/perfis/jobs/job_9f1c2b3a-...?token=SEU_TOKEN"
+curl "https://221b-api.sherlocker.com.br/api/v1/perfis/jobs/9f1c2b3a-...?token=SEU_TOKEN"
 ```
 
 Enquanto o job roda, o dossiê vem **crescendo** — os dados básicos aparecem em segundos e o resto vai preenchendo. Módulos ainda não resolvidos vêm com `status: "pendente"`. Faça polling até o `status` do job ser terminal.
@@ -86,7 +86,7 @@ O dossiê é uma árvore genérica: **entidade → módulos → relacionados** (
 
 ```json
 {
-  "job_id": "job_...",
+  "job_id": "9f1c2b3a-...",
   "status": "concluida",
   "perfil": { "perfil_id": "...", "label": "rh-candidato" },
   "criado_em": "...",

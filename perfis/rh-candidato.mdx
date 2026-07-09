@@ -63,7 +63,7 @@ curl -X POST "https://221b-api.sherlocker.com.br/api/v1/perfis?token=SEU_TOKEN" 
 
 ```json
 {
-  "job_id": "job_9f1c2b3a-4d5e-6f70-8a9b-0c1d2e3f4a5b",
+  "job_id": "9f1c2b3a-4d5e-6f70-8a9b-0c1d2e3f4a5b",
   "status": "processando",
   "perfil": { "perfil_id": "8f6b2e10-1c3a-4d5e-9a7b-2c4d6e8f0a1b", "label": "rh-candidato" },
   "criado_em": "2026-07-09T14:00:00Z"
@@ -73,14 +73,14 @@ curl -X POST "https://221b-api.sherlocker.com.br/api/v1/perfis?token=SEU_TOKEN" 
 ## Consultar o dossiê
 
 ```bash
-curl "https://221b-api.sherlocker.com.br/api/v1/perfis/jobs/job_9f1c2b3a-...?token=SEU_TOKEN"
+curl "https://221b-api.sherlocker.com.br/api/v1/perfis/jobs/9f1c2b3a-...?token=SEU_TOKEN"
 ```
 
 Exemplo de resposta (resumida) quando `concluida`:
 
 ```json
 {
-  "job_id": "job_9f1c2b3a-...",
+  "job_id": "9f1c2b3a-...",
   "status": "concluida",
   "perfil": { "perfil_id": "8f6b2e10-...", "label": "rh-candidato" },
   "criado_em": "2026-07-09T14:00:00Z",
