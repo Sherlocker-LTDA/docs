@@ -129,8 +129,12 @@ Resposta quando `concluida`:
     "documento": { "tipo": "cpf", "numero": "123.456.789-00" },
     "dados": {
       "nome_completo": "FULANO DA SILVA",
+      "genero": "Masculino",
       "data_nascimento": "1990-05-10",
-      "genero": "M"
+      "falecido": false,
+      "obito": null,
+      "publicamente_exposta": false,
+      "cargos_publicos": []
     },
     "modulos": {
       "telefones": {
@@ -138,7 +142,7 @@ Resposta quando `concluida`:
         "consultado_em": "2026-07-09T14:01:02Z",
         "motivo": null,
         "telefones": [
-          { "ddd": "11", "numero": "999998888", "numero_completo": "11999998888" }
+          { "ddi": "55", "ddd": "11", "numero": "999998888", "numero_completo": "5511999998888", "estado": "SP", "operadora": "Vivo", "data": "2024-01-01" }
         ]
       },
       "enderecos": {
@@ -146,7 +150,7 @@ Resposta quando `concluida`:
         "consultado_em": "2026-07-09T14:01:02Z",
         "motivo": null,
         "enderecos": [
-          { "logradouro": "Rua A", "numero": "100", "bairro": "Centro", "cidade": "São Paulo", "uf": "SP", "cep": "01000-000" }
+          { "logradouro": "Rua A", "numero": "100", "complemento": null, "bairro": "Centro", "cidade": "São Paulo", "uf": "SP", "cep": "01000-000" }
         ]
       },
       "emails": {
@@ -162,11 +166,19 @@ Resposta quando `concluida`:
         "total": 1,
         "itens": [
           {
+            "numero_processo": "00012345620248260100",
             "numero_formatado": "0001234-56.2024.8.26.0100",
-            "tribunal": "TJSP",
+            "tribunal": "tjsp",
+            "classe_codigo": 1116,
             "classe_nome": "Execução Fiscal",
+            "grau": "1",
             "data_ajuizamento": "2024-03-01",
-            "polo_do_investigado": "passivo"
+            "orgao_julgador": "1ª Vara da Fazenda Pública",
+            "assuntos": "Dívida Ativa",
+            "valor_acao": null,
+            "partes": [],
+            "advogados": [],
+            "movimentacoes": []
           }
         ]
       },
@@ -182,7 +194,20 @@ Resposta quando `concluida`:
         "status": "nada_consta",
         "consultado_em": "2026-07-09T14:01:05Z",
         "motivo": null,
-        "resumo": { "tem_ocorrencia": false, "total_ocorrencias": 0 }
+        "resumo": {
+          "tem_ocorrencia": false, "tem_sancao": false, "tem_alerta": false,
+          "total_ocorrencias": 0,
+          "por_grupo": { "sancoes": 0, "restritivas": 0, "alertas": 0 },
+          "fontes_aplicaveis": 10, "fontes_consultadas": 10,
+          "com_ocorrencia": 0, "indisponiveis": 1, "nao_aplicaveis": 3,
+          "confiabilidade": "parcial"
+        },
+        "ocorrencias": [],
+        "cobertura": [
+          { "lista_id": "ceis", "nome": "CEIS — Empresas Inidôneas e Suspensas", "grupo": "sancoes",
+            "fonte_oficial": "https://portaldatransparencia.gov.br", "resultado": "nada_consta",
+            "ocorrencias": 0, "saude": "OK", "ultima_atualizacao": "2026-07-09 09:33:14" }
+        ]
       },
       "historico_profissional": {
         "status": "ok",
@@ -377,17 +402,20 @@ interface DadosEmpresa {
   data_situacao_especial: string | null;
 }
 
-interface Telefones { telefones: { ddd: string; numero: string; numero_completo: string; operadora: string }[] }
-interface Enderecos { enderecos: { logradouro: string; numero: string; bairro: string; cidade: string; uf: string; cep: string }[] }
+interface Telefones { telefones: { ddi: string; ddd: string; numero: string; numero_completo: string; estado: string; operadora: string; data: string }[] }
+interface Enderecos { enderecos: { logradouro: string; numero: string; complemento: string | null; bairro: string; cidade: string; uf: string; cep: string }[] }
 interface Emails    { emails: { email: string; dominio: string; corporativo: boolean }[] }
 
 interface Processos {
   total: number;
   itens: {
     numero_processo: string; numero_formatado: string; tribunal: string;
-    classe_nome: string; data_ajuizamento: string; assuntos: string;
-    valor_acao: number | null; polo_do_investigado: "ativo" | "passivo" | "ambos" | "indeterminado";
-    partes: unknown[]; advogados: unknown[]; movimentacoes: unknown[];
+    classe_codigo: number; classe_nome: string; grau: string;
+    data_ajuizamento: string; orgao_julgador: string; assuntos: string;
+    valor_acao: number | null;
+    partes: { nome: string; documento: string; polo: string; tipo: string }[];
+    advogados: { nome: string; oab: string; polo: string; documento: string }[];
+    movimentacoes: { data: string; descricao: string; complemento: string }[];
   }[];
 }
 
@@ -399,9 +427,20 @@ interface AntecedentesCriminais {
 }
 
 interface ListasRestritivas {
-  resumo: { tem_ocorrencia: boolean; total_ocorrencias: number; confiabilidade: string };
+  resumo: {
+    tem_ocorrencia: boolean; tem_sancao: boolean; tem_alerta: boolean;
+    total_ocorrencias: number;
+    por_grupo: { sancoes: number; restritivas: number; alertas: number };
+    fontes_aplicaveis: number; fontes_consultadas: number;
+    com_ocorrencia: number; indisponiveis: number; nao_aplicaveis: number;
+    confiabilidade: "completa" | "parcial" | "indisponivel";
+  };
   ocorrencias: unknown[];
-  cobertura: unknown[];
+  cobertura: {
+    lista_id: string; nome: string; grupo: "sancoes" | "restritivas" | "alertas";
+    fonte_oficial: string; resultado: string; ocorrencias: number;
+    saude: string | null; ultima_atualizacao: string | null; motivo?: string;
+  }[];
 }
 
 interface HistoricoProfissional {
