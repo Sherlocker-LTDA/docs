@@ -12,7 +12,7 @@ O perfil **Candidato RH** investiga, numa única execução, um candidato para a
 
 | | |
 |---|---|
-| **`perfil_id`** | `8f6b2e10-1c3a-4d5e-9a7b-2c4d6e8f0a1b` |
+| **ID do Perfil** | `8f6b2e10-1c3a-4d5e-9a7b-2c4d6e8f0a1b` |
 | **Entidade** | Pessoa (CPF) |
 | **Custo** | 16 tokens por execução |
 | **Execução** | Assíncrona (job) |
@@ -21,10 +21,10 @@ O perfil **Candidato RH** investiga, numa única execução, um candidato para a
 
 ```mermaid
 flowchart LR
-  C["<b>Candidato (CPF)</b><br/><i>dados básicos no nó</i><br/>• Telefones<br/>• Endereços<br/>• E-mails<br/>• Processos<br/>• Antecedentes criminais<br/>• Listas restritivas<br/>• Histórico profissional"]
-  P["<b>Parentes identificados</b><br/><i>dados básicos no nó</i><br/>• Processos<br/>• Antecedentes criminais<br/>• Listas restritivas"]
-  E["<b>Empresas vinculadas</b><br/><i>dados básicos no nó</i><br/>• Linha do tempo societária<br/>• Listas restritivas"]
-  S["<b>Sócios</b><br/><i>dados básicos no nó</i>"]
+  C["<div style='text-align:left'><b>👤 Candidato (CPF)</b><br/>📞 Telefones<br/>📍 Endereços<br/>✉️ E-mails<br/>⚖️ Processos<br/>🚔 Antecedentes criminais<br/>🚫 Listas restritivas<br/>💼 Histórico profissional</div>"]
+  P["<div style='text-align:left'><b>👪 Parentes identificados</b><br/>⚖️ Processos<br/>🚔 Antecedentes criminais<br/>🚫 Listas restritivas</div>"]
+  E["<div style='text-align:left'><b>🏢 Empresas vinculadas</b><br/>📅 Linha do tempo societária<br/>🚫 Listas restritivas</div>"]
+  S["<div style='text-align:left'><b>🤝 Sócios</b></div>"]
 
   C --> P
   C --> E
@@ -113,7 +113,8 @@ curl "https://221b-api.sherlocker.com.br/api/v1/perfis/jobs/9f1c2b3a-..." \
 
 ### Exemplo de resultado
 
-<Accordion title="Resposta completa (concluida)" icon="file-lines">
+Resposta quando `concluida`:
+
 ```json
 {
   "job_id": "9f1c2b3a-4d5e-6f70-8a9b-0c1d2e3f4a5b",
@@ -233,7 +234,6 @@ curl "https://221b-api.sherlocker.com.br/api/v1/perfis/jobs/9f1c2b3a-..." \
   }
 }
 ```
-</Accordion>
 
 ## Como ler o resultado
 
