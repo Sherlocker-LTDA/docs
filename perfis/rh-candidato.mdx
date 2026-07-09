@@ -5,10 +5,10 @@ icon: "id-card"
 ---
 
 <Info>
-Esta é uma página **exclusiva** do seu contrato. O perfil abaixo não é listado publicamente — use o `perfil_id` apenas nas suas integrações.
+Página **exclusiva** do seu contrato. Este perfil não é listado publicamente — use o `perfil_id` apenas nas suas integrações.
 </Info>
 
-O perfil **Candidato RH** investiga, numa única execução, um candidato para análise de contratação: o próprio candidato, seus parentes identificados, as empresas em que ele figura como sócio e os sócios dessas empresas.
+O perfil **Candidato RH** investiga, numa única execução, um candidato para análise de contratação: o próprio candidato, seus parentes identificados, as empresas em que ele figura como sócio e os sócios dessas empresas. A execução é **assíncrona** — você dispara e busca o resultado quando fica pronto.
 
 | | |
 |---|---|
@@ -33,6 +33,8 @@ Candidato (CPF)  [dados básicos no nó]
 
 ### Módulos por entidade
 
+Os **dados básicos** (nome, nascimento / razão social) vêm no campo `dados` do próprio nó de cada entidade. Os itens abaixo são os módulos de enriquecimento.
+
 | Entidade | Módulos |
 |----------|---------|
 | **Candidato** | `telefones`, `enderecos`, `emails`, `processos`, `antecedentes_criminais`, `listas_restritivas`, `historico_profissional` |
@@ -44,9 +46,33 @@ Candidato (CPF)  [dados básicos no nó]
 Antecedentes criminais de parentes costumam voltar `indisponivel` com `motivo: "dados_insuficientes"` — a emissão exige dados que nem sempre estão disponíveis para terceiros (nome da mãe, data de nascimento).
 </Note>
 
+## Como usar
+
+<Steps>
+  <Step title="Execute o perfil">
+    `POST /perfis` com o `documento` do candidato e o `perfil_id`. A resposta é `202` com um `job_id` (a cobrança de 16 tokens acontece aqui).
+  </Step>
+  <Step title="Consulte o resultado">
+    `GET /perfis/jobs/{job_id}` — faça polling até o `status` do job ser terminal. O resultado vem crescendo enquanto processa.
+  </Step>
+</Steps>
+
 ## Executar
 
-```bash
+<ParamField body="documento" type="string" required>
+  CPF do candidato (com ou sem máscara).
+</ParamField>
+
+<ParamField body="perfil_id" type="string" required>
+  `8f6b2e10-1c3a-4d5e-9a7b-2c4d6e8f0a1b`
+</ParamField>
+
+<ParamField header="Idempotency-Key" type="string">
+  Opcional. A mesma chave em até 24h retorna o **mesmo** job, sem executar nem cobrar de novo.
+</ParamField>
+
+<CodeGroup>
+```bash cURL
 curl -X POST "https://221b-api.sherlocker.com.br/api/v1/perfis?token=SEU_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -55,9 +81,7 @@ curl -X POST "https://221b-api.sherlocker.com.br/api/v1/perfis?token=SEU_TOKEN" 
   }'
 ```
 
-`202 Accepted`:
-
-```json
+```json Resposta 202
 {
   "job_id": "9f1c2b3a-4d5e-6f70-8a9b-0c1d2e3f4a5b",
   "status": "processando",
@@ -65,18 +89,31 @@ curl -X POST "https://221b-api.sherlocker.com.br/api/v1/perfis?token=SEU_TOKEN" 
   "criado_em": "2026-07-09T14:00:00Z"
 }
 ```
+</CodeGroup>
 
-## Consultar o perfil de investigação
+## Consultar
+
+`GET /perfis/jobs/{job_id}` — faça polling até o `status` do job ser terminal.
 
 ```bash
 curl "https://221b-api.sherlocker.com.br/api/v1/perfis/jobs/9f1c2b3a-...?token=SEU_TOKEN"
 ```
 
-Exemplo de resposta (resumida) quando `concluida`:
+### Status do job
 
+| Status | Terminal? | Significado |
+|--------|:---------:|-------------|
+| `processando` | não | Em execução — continue fazendo polling. |
+| `concluida` | sim | Terminou; todos os dados resolveram. |
+| `parcial` | sim | Terminou, mas alguma fonte ficou indisponível (ou estourou o tempo). |
+| `falha` | sim | O CPF do candidato não resolveu (ex.: inexistente). |
+
+### Exemplo de resultado
+
+<Accordion title="Resposta completa (concluida)" icon="file-lines">
 ```json
 {
-  "job_id": "9f1c2b3a-...",
+  "job_id": "9f1c2b3a-4d5e-6f70-8a9b-0c1d2e3f4a5b",
   "status": "concluida",
   "perfil": { "perfil_id": "8f6b2e10-...", "label": "rh-candidato" },
   "criado_em": "2026-07-09T14:00:00Z",
@@ -128,7 +165,38 @@ Exemplo de resposta (resumida) quando `concluida`:
   }
 }
 ```
+</Accordion>
 
-<Tip>
-A estrutura completa do envelope de módulos, os status de job, a semântica de referências (`ref`) e a cobrança estão em [Perfis Personalizados](/perfis/personalizados).
-</Tip>
+## Como ler o resultado
+
+O resultado é uma árvore **entidade → módulos → relacionados** (recursiva).
+
+<ResponseField name="dados" type="object">
+  Dados básicos da entidade (nome, nascimento / razão social) — no próprio nó, não é módulo.
+</ResponseField>
+
+<ResponseField name="modulos" type="object">
+  Cada módulo tem um envelope `{ status, consultado_em, motivo, ...campos }`.
+  <Expandable title="valores de status">
+    <ResponseField name="ok">Consultado, com dados.</ResponseField>
+    <ResponseField name="nada_consta">Consultado, sem ocorrências (≠ indisponível).</ResponseField>
+    <ResponseField name="indisponivel">A fonte falhou — veja `motivo` (`timeout`, `fonte_indisponivel`, `dados_insuficientes`...).</ResponseField>
+    <ResponseField name="pendente">Ainda resolvendo (só durante `processando`).</ResponseField>
+    <ResponseField name="nao_aplicavel">O módulo não existe para o tipo daquela entidade.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="relacionados" type="object">
+  Parentes, empresas e sócios. Uma entidade que já apareceu vem como referência (`ref: true`, com `ref_caminho`), não repetida.
+</ResponseField>
+
+## Cobrança e erros
+
+<CardGroup cols={2}>
+  <Card title="16 tokens por execução" icon="coins">
+    Cobrado no `POST /perfis`, independente do resultado (`concluida`, `parcial` ou `falha`). `Idempotency-Key` evita cobrança dupla em retry.
+  </Card>
+  <Card title="Erros" icon="triangle-exclamation">
+    `400` documento/perfil_id inválido · `402` saldo insuficiente · `404` job inexistente · `429` rate limit · `503` indisponível. Corpo: `{ "erro": "..." }`.
+  </Card>
+</CardGroup>

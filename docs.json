@@ -54,12 +54,6 @@
             ]
           },
           {
-            "group": "Perfis Personalizados",
-            "pages": [
-              "perfis/personalizados"
-            ]
-          },
-          {
             "group": "Casos de Uso",
             "pages": [
               "casos-de-uso/background-check",
