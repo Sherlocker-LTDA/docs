@@ -16,7 +16,7 @@ A `Idempotency-Key` enviada conflita com uma requisição anterior. Há dois cen
 O que conta como "mesmo conteúdo" depende do motor:
 
 - **`POST /v1/analyses`**: o body da requisição.
-- **`POST /v1/operations`**: o payload multipart — o conteúdo dos arquivos (`file` e `xmls`) e os campos (`cedenteCnpj`, `engineId`, `purpose`, `legalBasis`). Trocar o arquivo, o ZIP ou qualquer campo com a mesma key gera conflito.
+- **`POST /v1/operations`**: o payload multipart — o conteúdo dos arquivos (`file` e `xmls`) e os campos (`cedente_cnpj`, `engine_id`, `purpose`, `legal_basis`). Trocar o arquivo, o ZIP ou qualquer campo com a mesma key gera conflito.
 
 Para referência: mesma key + **mesmo** conteúdo dentro de 24 horas não é erro, retorna `200` com o body original da `202`, sem nova cobrança.
 

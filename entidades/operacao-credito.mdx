@@ -22,12 +22,12 @@ Todos os campos estão sempre presentes:
 |-------|------|-----------|
 | `id` | UUID | Identificador único da operação |
 | `status` | enum | `queued`, `processing`, `completed`, `failed` |
-| `fileName` | string | Nome do arquivo CNAB enviado |
-| `fileSize` | number \| null | Tamanho do arquivo em bytes (`null` em operações antigas) |
-| `engineId` | string | Engine de borderô efetivamente usada |
-| `tituloCount` | number \| null | Total de títulos do borderô; `null` até `completed` |
-| `approvedCount` / `blockedCount` / `alertCount` | number \| null | Contagem de títulos por status; `null` até `completed`. A soma fecha com `tituloCount` — `alertCount` inclui os títulos com análise incompleta (fonte indisponível) |
-| `createdAt` / `queuedAt` / `processingAt` / `completedAt` | datetime | Timestamps ISO 8601; `processingAt` é `null` enquanto `queued`, `completedAt` só é preenchido em `completed` |
+| `file_name` | string | Nome do arquivo CNAB enviado |
+| `file_size` | number \| null | Tamanho do arquivo em bytes (`null` em operações antigas) |
+| `engine_id` | string | Engine de borderô efetivamente usada |
+| `titulo_count` | number \| null | Total de títulos do borderô; `null` até `completed` |
+| `approved_count` / `blocked_count` / `alert_count` | number \| null | Contagem de títulos por status; `null` até `completed`. A soma fecha com `titulo_count` — `alert_count` inclui os títulos com análise incompleta (fonte indisponível) |
+| `created_at` / `queued_at` / `processing_at` / `completed_at` | datetime | Timestamps ISO 8601; `processing_at` é `null` enquanto `queued`, `completed_at` só é preenchido em `completed` |
 | `error` | string \| null | Mensagem de erro; preenchida apenas em `failed` |
 
 ## Resultado (`GET /v1/operations/{id}/result`)
@@ -36,9 +36,9 @@ Disponível apenas quando `completed` (antes disso, [`409 conflict`](/problems/c
 
 | Campo | Descrição |
 |-------|-----------|
-| `summary` | Contagens e valores do dataset completo: `totalTitulos`, `approved`/`blocked`/`alerted`, `totalValue`/`approvedValue`/`blockedValue`/`alertedValue`, `sacados.total`/`sacados.withIssues`, `cedente.status`. Não muda com `?filter` |
-| `coverage[]` | Por provider consultado: `requested`, `succeeded`, `failedKeys` |
-| `degradedRules[]` | Regras não avaliadas por fonte indisponível: `ruleId`, `provider`, `titulosAffected` |
-| `engineId` / `engineName` / `timestamp` | Engine usada e momento do resultado |
+| `summary` | Contagens e valores do dataset completo: `total_titulos`, `approved`/`blocked`/`alerted`, `total_value`/`approved_value`/`blocked_value`/`alerted_value`, `sacados.total`/`sacados.with_issues`, `cedente.status`. Não muda com `?filter` |
+| `coverage[]` | Por provider consultado: `requested`, `succeeded`, `failed_keys` |
+| `degraded_rules[]` | Regras não avaliadas por fonte indisponível: `rule_id`, `provider`, `titulos_affected` |
+| `engine_id` / `engine_name` / `timestamp` | Engine usada e momento do resultado |
 
-Por padrão (`?filter=issues`), títulos aprovados e sacados sem problemas são podados; `?filter=all` devolve a árvore completa. Cada título traz `numero`, `valor`, `dataVencimento`, `nfeChave` e as suas issues — o shape completo está em [Títulos e NFe](/credito/titulos-e-nfe).
+Por padrão (`?filter=issues`), títulos aprovados e sacados sem problemas são podados; `?filter=all` devolve a árvore completa. Cada título traz `numero`, `valor`, `data_vencimento`, `nfe_chave` e as suas issues — o shape completo está em [Títulos e NFe](/credito/titulos-e-nfe).

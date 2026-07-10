@@ -21,7 +21,7 @@ O **Motor de Borderô** analisa borderôs CNAB 400 de operações de desconto de
 
 - **Criar operações** — `POST /v1/operations` em `multipart/form-data`, com o arquivo CNAB 400, o CNPJ do cedente e, opcionalmente, um ZIP de XMLs de NFe
 - **Acompanhar o processamento** — polling em `GET /v1/operations/{id}` a cada ~2s (`queued` → `processing` → `completed` | `failed`)
-- **Consultar o resultado** — `GET /v1/operations/{id}/result`: árvore cedente → sacados → títulos com issues por nó, `summary`, `coverage` e `degradedRules`
+- **Consultar o resultado** — `GET /v1/operations/{id}/result`: árvore cedente → sacados → títulos com issues por nó, `summary`, `coverage` e `degraded_rules`
 - **Filtrar o que importa** — por padrão o resultado traz só os nós com problemas (`?filter=issues`); `?filter=all` devolve a árvore completa
 
 <Tip>

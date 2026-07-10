@@ -18,7 +18,7 @@ Use o campo `code` para tratamento programático. O `type` é um identificador, 
 - `legal_basis` com valor fora do enum (`consentimento` | `legitimo_interesse` | `cumprimento_obrigacao_legal` | `protecao_credito`).
 - Campo enviado com o tipo errado (por exemplo, `document` como número em vez de string).
 - Campo obrigatório vazio (por exemplo, `document` vazio no `POST /v1/analyses`).
-- **Motor de Borderô** (`POST /v1/operations`, `multipart/form-data`): os `errors[]` são field-level sobre as partes do multipart — `file`, `xmls` e `cedenteCnpj`. Exemplos de mensagens: `No file provided` (parte `file` ausente), `cedenteCnpj is required`, `Invalid CNPJ format` (dígito verificador), arquivo que não parseia como CNAB 400 remessa, ou arquivo acima do teto (16 MB para `file`; 32 MB para o ZIP `xmls`). Nada é cobrado — o débito só acontece após o parse bem-sucedido do CNAB.
+- **Motor de Borderô** (`POST /v1/operations`, `multipart/form-data`): os `errors[]` são field-level sobre as partes do multipart — `file`, `xmls` e `cedente_cnpj`. Exemplos de mensagens: `No file provided` (parte `file` ausente), `cedente_cnpj is required`, `Invalid CNPJ format` (dígito verificador), arquivo que não parseia como CNAB 400 remessa, ou arquivo acima do teto (16 MB para `file`; 32 MB para o ZIP `xmls`). Nada é cobrado — o débito só acontece após o parse bem-sucedido do CNAB.
 - **Motor de Borderô** (`GET /v1/operations/{id}/result`): parâmetro `filter` com valor fora do enum (detail: `Invalid filter value. Use "issues" or "all".`).
 
 ## Como corrigir
@@ -57,7 +57,7 @@ Use o campo `code` para tratamento programático. O `type` é um identificador, 
   "detail": "One or more fields failed validation.",
   "errors": [
     { "field": "file", "message": "No file provided" },
-    { "field": "cedenteCnpj", "message": "cedenteCnpj is required" }
+    { "field": "cedente_cnpj", "message": "cedente_cnpj is required" }
   ],
   "instance": "/v1?request_id=req-uuid-here"
 }

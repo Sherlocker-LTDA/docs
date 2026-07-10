@@ -16,7 +16,7 @@ O recurso solicitado não existe ou pertence a um workspace diferente do da chav
 
 ## Causas comuns
 
-- `id` incorreto, truncado ou com caractere a mais (é o UUID retornado na resposta `202` do POST de criação — campo `id` nos analyses, `operationId` nas operations).
+- `id` incorreto, truncado ou com caractere a mais (é o UUID retornado na resposta `202` do POST de criação — campo `id` nos analyses, `operation_id` nas operations).
 - Chave de API de um workspace diferente do que criou a análise/operação.
 - Consulta a um `id` gerado no seu sistema em vez do `id` retornado pela API.
 - `engine_id` de uma engine de outro workspace.
