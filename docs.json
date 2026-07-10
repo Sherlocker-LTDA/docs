@@ -299,8 +299,8 @@
               "motor-analise/introducao",
               "motor-analise/quickstart",
               "motor-analise/blocos",
-              "POST /v1/analyses",
-              "GET /v1/analyses/{id}"
+              "POST /analyses",
+              "GET /analyses/{id}"
             ]
           },
           {
@@ -310,9 +310,9 @@
               "credito/introducao",
               "credito/quickstart",
               "credito/titulos-e-nfe",
-              "POST /v1/operations",
-              "GET /v1/operations/{id}",
-              "GET /v1/operations/{id}/result"
+              "POST /operations",
+              "GET /operations/{id}",
+              "GET /operations/{id}/result"
             ]
           },
           {

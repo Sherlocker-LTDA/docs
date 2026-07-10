@@ -16,10 +16,10 @@ Neste guia você cria uma análise de risco de CNPJ, acompanha o processamento a
 - **Chave de API**: criada no app Sherlocker em **Settings → API Keys**. As chaves têm prefixo `slhk_` e são exibidas uma única vez — guarde em local seguro.
 - **Saldo de tokens**: as análises consomem tokens do mesmo pool do workspace usado no app.
 
-A base URL de todos os exemplos é `https://<API_HOST>/v1`.
+A base URL de todos os exemplos é `https://221b-api.sherlocker.com.br/api/v1`.
 
 <Note>
-  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
 </Note>
 
 <Warning>
@@ -29,11 +29,11 @@ A base URL de todos os exemplos é `https://<API_HOST>/v1`.
 <Steps>
 <Step title="Crie uma análise de CNPJ">
 
-Envie um `POST /v1/analyses` com o documento. O header `Idempotency-Key` é **obrigatório** — use um UUID novo por análise:
+Envie um `POST /analyses` com o documento. O header `Idempotency-Key` é **obrigatório** — use um UUID novo por análise:
 
 <CodeGroup>
 ```bash cURL
-curl -X POST "https://<API_HOST>/v1/analyses" \
+curl -X POST "https://221b-api.sherlocker.com.br/api/v1/analyses" \
   -H "Authorization: Bearer slhk_sua_chave_aqui" \
   -H "Content-Type: application/json" \
   -H "Idempotency-Key: $(uuidgen)" \
@@ -45,7 +45,7 @@ import uuid
 import requests
 
 resp = requests.post(
-    "https://<API_HOST>/v1/analyses",
+    "https://221b-api.sherlocker.com.br/api/v1/analyses",
     headers={
         "Authorization": "Bearer slhk_sua_chave_aqui",
         "Idempotency-Key": str(uuid.uuid4()),
@@ -58,7 +58,7 @@ analysis_id = analysis["id"]
 ```
 
 ```javascript Node.js
-const resp = await fetch("https://<API_HOST>/v1/analyses", {
+const resp = await fetch("https://221b-api.sherlocker.com.br/api/v1/analyses", {
   method: "POST",
   headers: {
     Authorization: "Bearer slhk_sua_chave_aqui",
@@ -97,14 +97,14 @@ Os tokens são debitados na criação e confirmados em `tokens_charged` e `balan
 </Step>
 <Step title="Acompanhe até o veredito">
 
-Consulte `GET /v1/analyses/{id}` até o status ficar terminal (`completed` ou `failed`). Enquanto a análise está `pending` ou `running`, a resposta traz `poll_after_seconds` no body e `Retry-After` no header — honre esse intervalo (consultar mais rápido não acelera o resultado, e o limite global é de 100 requisições por minuto por IP):
+Consulte `GET /analyses/{id}` até o status ficar terminal (`completed` ou `failed`). Enquanto a análise está `pending` ou `running`, a resposta traz `poll_after_seconds` no body e `Retry-After` no header — honre esse intervalo (consultar mais rápido não acelera o resultado, e o limite global é de 100 requisições por minuto por IP):
 
 <CodeGroup>
 ```bash cURL
 ANALYSIS_ID="a1b2c3d4-0000-0000-0000-000000000001"
 
 while true; do
-  RESP=$(curl -s "https://<API_HOST>/v1/analyses/$ANALYSIS_ID" \
+  RESP=$(curl -s "https://221b-api.sherlocker.com.br/api/v1/analyses/$ANALYSIS_ID" \
     -H "Authorization: Bearer slhk_sua_chave_aqui")
   STATUS=$(echo "$RESP" | jq -r '.status')
   echo "status: $STATUS"
@@ -123,7 +123,7 @@ import time
 
 while True:
     resp = requests.get(
-        f"https://<API_HOST>/v1/analyses/{analysis_id}",
+        f"https://221b-api.sherlocker.com.br/api/v1/analyses/{analysis_id}",
         headers={"Authorization": "Bearer slhk_sua_chave_aqui"},
     )
     run = resp.json()
@@ -141,7 +141,7 @@ print(f"verdict: {run['verdict']}")
 ```javascript Node.js
 let run;
 while (true) {
-  const resp = await fetch(`https://<API_HOST>/v1/analyses/${analysisId}`, {
+  const resp = await fetch(`https://221b-api.sherlocker.com.br/api/v1/analyses/${analysisId}`, {
     headers: { Authorization: "Bearer slhk_sua_chave_aqui" },
   });
   run = await resp.json();
@@ -199,7 +199,7 @@ O mesmo endpoint aceita CPF. Para análises de pessoa física, você pode inform
 
 <CodeGroup>
 ```bash cURL
-curl -X POST "https://<API_HOST>/v1/analyses" \
+curl -X POST "https://221b-api.sherlocker.com.br/api/v1/analyses" \
   -H "Authorization: Bearer slhk_sua_chave_aqui" \
   -H "Content-Type: application/json" \
   -H "Idempotency-Key: $(uuidgen)" \
@@ -212,7 +212,7 @@ curl -X POST "https://<API_HOST>/v1/analyses" \
 
 ```python Python
 resp = requests.post(
-    "https://<API_HOST>/v1/analyses",
+    "https://221b-api.sherlocker.com.br/api/v1/analyses",
     headers={
         "Authorization": "Bearer slhk_sua_chave_aqui",
         "Idempotency-Key": str(uuid.uuid4()),
@@ -226,7 +226,7 @@ resp = requests.post(
 ```
 
 ```javascript Node.js
-const resp = await fetch("https://<API_HOST>/v1/analyses", {
+const resp = await fetch("https://221b-api.sherlocker.com.br/api/v1/analyses", {
   method: "POST",
   headers: {
     Authorization: "Bearer slhk_sua_chave_aqui",
@@ -289,7 +289,7 @@ O registro completo dos 11 códigos de erro, com os campos extras de cada um, es
 
 ## O que você construiu
 
-- Um fluxo completo de análise: `POST /v1/analyses` (202) → polling em `GET /v1/analyses/{id}` → veredito em `verdict`, detalhe por verificação em `blocks` e rastreabilidade das fontes em `coverage`.
+- Um fluxo completo de análise: `POST /analyses` (202) → polling em `GET /analyses/{id}` → veredito em `verdict`, detalhe por verificação em `blocks` e rastreabilidade das fontes em `coverage`.
 - Submissão segura contra duplicidade com `Idempotency-Key` — retries não geram cobrança dupla.
 - Polling que respeita `poll_after_seconds` / `Retry-After`.
 - O mesmo fluxo para CNPJ (`pj`) e CPF (`pf`), com base legal e finalidade auditadas no caso PF.

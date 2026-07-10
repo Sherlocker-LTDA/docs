@@ -4,7 +4,7 @@ description: "Operação de análise de borderô CNAB 400 no Motor de Borderô"
 icon: "file-circle-check"
 ---
 
-Uma **Operação** representa a análise de um borderô CNAB 400 no [Motor de Borderô](/credito/introducao). É criada via `POST /v1/operations` (`multipart/form-data`), processada de forma assíncrona, consultada por polling em `GET /v1/operations/{id}` e tem o resultado hierárquico em `GET /v1/operations/{id}/result`.
+Uma **Operação** representa a análise de um borderô CNAB 400 no [Motor de Borderô](/credito/introducao). É criada via `POST /operations` (`multipart/form-data`), processada de forma assíncrona, consultada por polling em `GET /operations/{id}` e tem o resultado hierárquico em `GET /operations/{id}/result`.
 
 ## Ciclo de vida
 
@@ -14,7 +14,7 @@ queued → processing → completed | failed
 
 Operações que terminam em `failed` têm os tokens reembolsados automaticamente. Detalhes em [Ciclo de vida](/motores/ciclo-de-vida).
 
-## Envelope de status (`GET /v1/operations/{id}`)
+## Envelope de status (`GET /operations/{id}`)
 
 Todos os campos estão sempre presentes:
 
@@ -30,7 +30,7 @@ Todos os campos estão sempre presentes:
 | `created_at` / `queued_at` / `processing_at` / `completed_at` | datetime | Timestamps ISO 8601; `processing_at` é `null` enquanto `queued`, `completed_at` só é preenchido em `completed` |
 | `error` | string \| null | Mensagem de erro; preenchida apenas em `failed` |
 
-## Resultado (`GET /v1/operations/{id}/result`)
+## Resultado (`GET /operations/{id}/result`)
 
 Disponível apenas quando `completed` (antes disso, [`409 conflict`](/problems/conflict)). Devolve a árvore **cedente → sacados → títulos** — cada nó com `status` (`approved` | `blocked` | `alerted`, rollup worst-of) e `issues[]` (violações de regra) — junto com:
 

@@ -6,8 +6,8 @@ icon: "repeat"
 
 A obrigatoriedade do header `Idempotency-Key` varia por motor:
 
-- **Motor de CPF/CNPJ** (`POST /v1/analyses`): o header é **obrigatório**. Sem ele (ou com valor vazio), a API responde `400 bad_request` com a mensagem "Idempotency-Key header required".
-- **Motor de Borderô** (`POST /v1/operations`): o header é **opcional**. Presente, funciona como nos analyses (replay devolve `200` com o body original; key reusada com payload diferente devolve `409 idempotency_conflict`). Ausente, **cada POST cria uma operação nova** — e uma cobrança nova.
+- **Motor de CPF/CNPJ** (`POST /analyses`): o header é **obrigatório**. Sem ele (ou com valor vazio), a API responde `400 bad_request` com a mensagem "Idempotency-Key header required".
+- **Motor de Borderô** (`POST /operations`): o header é **opcional**. Presente, funciona como nos analyses (replay devolve `200` com o body original; key reusada com payload diferente devolve `409 idempotency_conflict`). Ausente, **cada POST cria uma operação nova** — e uma cobrança nova.
 
 O motivo para usar a key mesmo onde é opcional é simples: rede falha. Um timeout no seu lado não significa que a requisição não chegou — a análise ou operação pode ter sido criada e os tokens debitados sem que você tenha recebido a resposta. Sem idempotência, repetir a chamada criaria uma segunda cobrança. Com a `Idempotency-Key`, repetir é sempre seguro: a API reconhece a repetição e devolve a resposta original, sem cobrar de novo.
 
@@ -31,14 +31,14 @@ A comparação cobre o payload inteiro do POST, em cada motor:
 
 | Motor | O que é comparado |
 |---|---|
-| **CPF/CNPJ** (`POST /v1/analyses`) | O body da requisição: `document`, `subject_type`, `engine_id`, `legal_basis` e demais campos |
-| **Borderô** (`POST /v1/operations`) | O payload multipart: o conteúdo dos arquivos (`file` e `xmls`) e os campos (`cedente_cnpj`, `engine_id`, `purpose`, `legal_basis`) |
+| **CPF/CNPJ** (`POST /analyses`) | O body da requisição: `document`, `subject_type`, `engine_id`, `legal_basis` e demais campos |
+| **Borderô** (`POST /operations`) | O payload multipart: o conteúdo dos arquivos (`file` e `xmls`) e os campos (`cedente_cnpj`, `engine_id`, `purpose`, `legal_basis`) |
 
 No borderô, reenviar exatamente o mesmo multipart com a mesma key é um replay (`200`). Trocar o arquivo, o ZIP de NFe ou qualquer campo mantendo a mesma key resulta em `409 idempotency_conflict`.
 
 ### Concorrência
 
-Se duas requisições com a mesma key chegarem ao mesmo tempo, a primeira vence. A concorrente recebe `409` enquanto a primeira ainda está em andamento. Não gere uma key nova nesse caso: aguarde um instante e consulte o resultado via `GET` (`/v1/analyses/{id}` ou `/v1/operations/{id}`), usando o `id` da resposta 202 original. Se você ainda não tem o `id` (por exemplo, a primeira chamada deu timeout no seu lado), repita o POST com a **mesma** key até receber `200` (replay) ou `202` (se a primeira chamada nunca chegou ao servidor).
+Se duas requisições com a mesma key chegarem ao mesmo tempo, a primeira vence. A concorrente recebe `409` enquanto a primeira ainda está em andamento. Não gere uma key nova nesse caso: aguarde um instante e consulte o resultado via `GET` (`/analyses/{id}` ou `/operations/{id}`), usando o `id` da resposta 202 original. Se você ainda não tem o `id` (por exemplo, a primeira chamada deu timeout no seu lado), repita o POST com a **mesma** key até receber `200` (replay) ou `202` (se a primeira chamada nunca chegou ao servidor).
 
 ## Receita prática
 
@@ -51,7 +51,7 @@ Se duas requisições com a mesma key chegarem ao mesmo tempo, a primeira vence.
 </Warning>
 
 <Note>
-  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
 </Note>
 
 ## Retry na prática
@@ -65,7 +65,7 @@ import requests
 import time
 import uuid
 
-URL = "https://<API_HOST>/v1/analyses"
+URL = "https://221b-api.sherlocker.com.br/api/v1/analyses"
 API_KEY = "slhk_sua_chave_aqui"
 
 # 1 key por job interno; na pratica, gere na criacao do job e persista junto a ele
@@ -97,14 +97,14 @@ for attempt in range(5):
         continue  # retry com a MESMA key
 
     if resp.status_code == 409:
-        # concorrente em andamento: aguarde e consulte via GET /v1/analyses/{id}
+        # concorrente em andamento: aguarde e consulte via GET /analyses/{id}
         break
 
     resp.raise_for_status()  # 4xx: corrija o body e use uma key NOVA
 ```
 
 ```javascript Node.js
-const URL = "https://<API_HOST>/v1/analyses";
+const URL = "https://221b-api.sherlocker.com.br/api/v1/analyses";
 const API_KEY = "slhk_sua_chave_aqui";
 
 // 1 key por job interno; na pratica, gere na criacao do job e persista junto a ele
@@ -140,7 +140,7 @@ for (let attempt = 0; attempt < 5; attempt++) {
     continue; // retry com a MESMA key
   }
   if (resp.status === 409) {
-    // concorrente em andamento: aguarde e consulte via GET /v1/analyses/{id}
+    // concorrente em andamento: aguarde e consulte via GET /analyses/{id}
     break;
   }
   throw new Error(`HTTP ${resp.status}`); // 4xx: corrija o body e use uma key NOVA
@@ -155,7 +155,7 @@ for (let attempt = 0; attempt < 5; attempt++) {
 3. **Mesma key, body diferente → 409.** Por exemplo, a mesma key com um `purpose` adicionado:
 
 ```bash cURL
-curl -i -X POST "https://<API_HOST>/v1/analyses" \
+curl -i -X POST "https://221b-api.sherlocker.com.br/api/v1/analyses" \
   -H "Authorization: Bearer slhk_sua_chave_aqui" \
   -H "Idempotency-Key: 9f3c2d1e-7a54-4b0c-8e2f-1d6a5b4c3e2a" \
   -H "Content-Type: application/json" \
@@ -173,7 +173,7 @@ import requests
 import time
 import uuid
 
-URL = "https://<API_HOST>/v1/operations"
+URL = "https://221b-api.sherlocker.com.br/api/v1/operations"
 API_KEY = "slhk_sua_chave_aqui"
 
 # 1 key por bordero; na pratica, gere quando a remessa entra no seu sistema
@@ -205,7 +205,7 @@ for attempt in range(5):
         continue  # retry com a MESMA key
 
     if resp.status_code == 409:
-        # concorrente em andamento: aguarde e consulte via GET /v1/operations/{id}
+        # concorrente em andamento: aguarde e consulte via GET /operations/{id}
         break
 
     resp.raise_for_status()  # 4xx: corrija e use uma key NOVA
@@ -214,7 +214,7 @@ for attempt in range(5):
 ```javascript Node.js
 import { openAsBlob } from "node:fs";
 
-const URL = "https://<API_HOST>/v1/operations";
+const URL = "https://221b-api.sherlocker.com.br/api/v1/operations";
 const API_KEY = "slhk_sua_chave_aqui";
 
 // 1 key por bordero; na pratica, gere quando a remessa entra no seu sistema
@@ -251,7 +251,7 @@ for (let attempt = 0; attempt < 5; attempt++) {
     continue; // retry com a MESMA key
   }
   if (resp.status === 409) {
-    // concorrente em andamento: aguarde e consulte via GET /v1/operations/{id}
+    // concorrente em andamento: aguarde e consulte via GET /operations/{id}
     break;
   }
   throw new Error(`HTTP ${resp.status}`); // 4xx: corrija e use uma key NOVA
@@ -266,7 +266,7 @@ for (let attempt = 0; attempt < 5; attempt++) {
 3. **Mesma key, payload diferente → 409.** Outro arquivo, outro ZIP de NFe, outro `cedente_cnpj`, outro `engine_id` ou outro `legal_basis` com a mesma key:
 
 ```bash cURL
-curl -i -X POST "https://<API_HOST>/v1/operations" \
+curl -i -X POST "https://221b-api.sherlocker.com.br/api/v1/operations" \
   -H "Authorization: Bearer slhk_sua_chave_aqui" \
   -H "Idempotency-Key: 9f3c2d1e-7a54-4b0c-8e2f-1d6a5b4c3e2a" \
   -F "file=@outro-bordero.rem" \

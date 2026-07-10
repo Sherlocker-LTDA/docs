@@ -14,8 +14,8 @@ Os dois motores consomem **tokens do workspace**: o mesmo pool usado pela interf
 
 Os tokens são debitados no momento do `POST`, antes de o motor rodar. A confirmação varia por motor:
 
-- **CPF/CNPJ** (`POST /v1/analyses`): a resposta `202 Accepted` confirma o débito com os campos `tokens_charged` (quanto foi debitado) e `balance` (saldo após o débito), informados em melhor esforço — se a consulta de saldo falhar no momento da resposta, os campos podem estar ausentes, o que não altera a cobrança em si.
-- **Borderô** (`POST /v1/operations`): a cobrança acontece normalmente na criação, mas **não aparece no payload** — a resposta 202 traz apenas `operation_id`, `status` e `created_at`. Acompanhe débitos e estornos no extrato de tokens do workspace, no app Sherlocker.
+- **CPF/CNPJ** (`POST /analyses`): a resposta `202 Accepted` confirma o débito com os campos `tokens_charged` (quanto foi debitado) e `balance` (saldo após o débito), informados em melhor esforço — se a consulta de saldo falhar no momento da resposta, os campos podem estar ausentes, o que não altera a cobrança em si.
+- **Borderô** (`POST /operations`): a cobrança acontece normalmente na criação, mas **não aparece no payload** — a resposta 202 traz apenas `operation_id`, `status` e `created_at`. Acompanhe débitos e estornos no extrato de tokens do workspace, no app Sherlocker.
 
 Se o saldo do workspace for insuficiente, o `POST` falha com [`402 insufficient_tokens`](/problems/insufficient_tokens) e **nada é cobrado nem executado** — o erro traz os campos `required` e `balance` para você saber quanto falta. Requisições rejeitadas com qualquer erro (`400`, `401`, `402`, `403`, `409`, `422`) nunca cobram.
 
@@ -24,7 +24,7 @@ Se o saldo do workspace for insuficiente, o `POST` falha com [`402 insufficient_
 <Tabs>
 <Tab title="CPF/CNPJ">
 
-Cada `POST /v1/analyses` debita o preço de **uma análise**:
+Cada `POST /analyses` debita o preço de **uma análise**:
 
 ```json
 {
@@ -41,7 +41,7 @@ Cada `POST /v1/analyses` debita o preço de **uma análise**:
 
 Uma análise que termina `completed` é cobrada **sempre**, mesmo quando o `verdict` é `incompleto`. O motivo: o motor executou o trabalho (rodou todos os blocos da engine) e `incompleto` significa apenas que uma ou mais fontes de dados externas ficaram indisponíveis durante a execução.
 
-Nesse caso, use o campo `coverage` da resposta do `GET /v1/analyses/{id}` para ver exatamente quais fontes falharam (`coverage[].status: "failed"`) e quais foram consultadas. Veja [Ciclo de vida](/motores/ciclo-de-vida).
+Nesse caso, use o campo `coverage` da resposta do `GET /analyses/{id}` para ver exatamente quais fontes falharam (`coverage[].status: "failed"`) e quais foram consultadas. Veja [Ciclo de vida](/motores/ciclo-de-vida).
 
 </Tab>
 <Tab title="Borderô">
@@ -68,7 +68,7 @@ Um borderô com **42 títulos**, do mesmo cedente, sacados contra 11 empresas di
 Com um preço unitário ilustrativo de 1 token por análise, a operação debita **12 tokens** — não 42. Borderôs concentrados (muitos títulos, poucos sacados) custam proporcionalmente menos por título do que borderôs pulverizados.
 
 <Note>
-  A cobrança **não aparece no payload** da API de borderô — nem na resposta do POST, nem no `GET /v1/operations/{id}`. O débito por operação (e o estorno em `failed`) fica registrado no extrato de tokens do workspace, no app Sherlocker.
+  A cobrança **não aparece no payload** da API de borderô — nem na resposta do POST, nem no `GET /operations/{id}`. O débito por operação (e o estorno em `failed`) fica registrado no extrato de tokens do workspace, no app Sherlocker.
 </Note>
 
 ### O débito é após o parse
@@ -90,8 +90,8 @@ Reenviar o `POST` com a mesma `Idempotency-Key` e o mesmo conteúdo dentro da ja
 
 | Cenário | HTTP | Cobra tokens? |
 |---|---|---|
-| Nova análise criada (`POST /v1/analyses`) | `202` | Sim — preço de uma análise |
-| Nova operação criada (`POST /v1/operations`) | `202` | Sim — entidades únicas × preço unitário, após o parse (não aparece no payload) |
+| Nova análise criada (`POST /analyses`) | `202` | Sim — preço de uma análise |
+| Nova operação criada (`POST /operations`) | `202` | Sim — entidades únicas × preço unitário, após o parse (não aparece no payload) |
 | Replay idempotente (mesma key + mesmo conteúdo) | `200` | Não |
 | Borderô: arquivo ausente / CNAB que não parseia / `cedente_cnpj` inválido | `400` | Não (o débito só acontece após o parse) |
 | Run termina `failed` | — | Cobrado na criação e **estornado automaticamente** |

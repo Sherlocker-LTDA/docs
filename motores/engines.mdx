@@ -4,7 +4,7 @@ description: "Como cada motor decide o que verificar: resolução da engine (eng
 icon: "gears"
 ---
 
-Uma **engine** é a configuração de uma análise: ela define quais blocos de verificação rodam e a **ação** aplicada quando um bloco é acionado — bloqueio, alerta ou ignorar. Todo `POST /v1/analyses` e todo `POST /v1/operations` roda com exatamente uma engine, e é ela que determina o resultado — os verdicts no Motor de CPF/CNPJ, os `status` e as `issues` no Motor de Borderô.
+Uma **engine** é a configuração de uma análise: ela define quais blocos de verificação rodam e a **ação** aplicada quando um bloco é acionado — bloqueio, alerta ou ignorar. Todo `POST /analyses` e todo `POST /operations` roda com exatamente uma engine, e é ela que determina o resultado — os verdicts no Motor de CPF/CNPJ, os `status` e as `issues` no Motor de Borderô.
 
 ## Ações e efeito no resultado
 
@@ -42,7 +42,7 @@ O campo é **opcional** nos dois motores — `engine_id` no body JSON do Motor d
 ### Exemplo com engine explícita
 
 <Note>
-  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
 </Note>
 
 <Tabs>
@@ -50,7 +50,7 @@ O campo é **opcional** nos dois motores — `engine_id` no body JSON do Motor d
 
 <CodeGroup>
 ```bash cURL
-curl -X POST "https://<API_HOST>/v1/analyses" \
+curl -X POST "https://221b-api.sherlocker.com.br/api/v1/analyses" \
   -H "Authorization: Bearer slhk_sua_chave_aqui" \
   -H "Idempotency-Key: 7c9e6679-7425-40de-944b-e07fc1f90ae7" \
   -H "Content-Type: application/json" \
@@ -64,7 +64,7 @@ curl -X POST "https://<API_HOST>/v1/analyses" \
 import requests
 
 resp = requests.post(
-    "https://<API_HOST>/v1/analyses",
+    "https://221b-api.sherlocker.com.br/api/v1/analyses",
     headers={
         "Authorization": "Bearer slhk_sua_chave_aqui",
         "Idempotency-Key": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
@@ -78,7 +78,7 @@ print(resp.status_code, resp.json())
 ```
 
 ```javascript Node.js
-const resp = await fetch("https://<API_HOST>/v1/analyses", {
+const resp = await fetch("https://221b-api.sherlocker.com.br/api/v1/analyses", {
   method: "POST",
   headers: {
     "Authorization": "Bearer slhk_sua_chave_aqui",
@@ -99,7 +99,7 @@ console.log(resp.status, await resp.json());
 
 <CodeGroup>
 ```bash cURL
-curl -X POST "https://<API_HOST>/v1/operations" \
+curl -X POST "https://221b-api.sherlocker.com.br/api/v1/operations" \
   -H "Authorization: Bearer slhk_sua_chave_aqui" \
   -F "file=@bordero.rem" \
   -F "cedente_cnpj=12345678000195" \
@@ -111,7 +111,7 @@ import requests
 
 with open("bordero.rem", "rb") as cnab:
     resp = requests.post(
-        "https://<API_HOST>/v1/operations",
+        "https://221b-api.sherlocker.com.br/api/v1/operations",
         headers={"Authorization": "Bearer slhk_sua_chave_aqui"},
         files={"file": cnab},
         data={
@@ -130,7 +130,7 @@ form.append("file", await openAsBlob("bordero.rem"), "bordero.rem");
 form.append("cedente_cnpj", "12345678000195");
 form.append("engine_id", "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f");
 
-const resp = await fetch("https://<API_HOST>/v1/operations", {
+const resp = await fetch("https://221b-api.sherlocker.com.br/api/v1/operations", {
   method: "POST",
   headers: { Authorization: "Bearer slhk_sua_chave_aqui" },
   body: form,
@@ -151,7 +151,7 @@ console.log(resp.status, await resp.json());
 Engines são criadas, editadas, definidas como padrão e arquivadas **no app Sherlocker** (interface web). A API `/v1` não tem endpoints de CRUD de engines — ela só consome uma engine já existente via `engine_id` ou pela resolução automática. Para criar uma política própria (mudar ações, ajustar parâmetros, ativar blocos opt-in), use o app.
 
 <Tip>
-  No borderô, a resposta do `GET /v1/operations/{id}` sempre traz o `engine_id` efetivamente usado — inclusive quando você omitiu o campo (ou enviou `template-padrao`) e a operação rodou com o template do sistema. Guarde-o se quiser reproduzir a mesma política em operações futuras.
+  No borderô, a resposta do `GET /operations/{id}` sempre traz o `engine_id` efetivamente usado — inclusive quando você omitiu o campo (ou enviou `template-padrao`) e a operação rodou com o template do sistema. Guarde-o se quiser reproduzir a mesma política em operações futuras.
 </Tip>
 
 ## O que cada motor verifica
