@@ -217,19 +217,19 @@ Cada nó da árvore do `/result` (cedente, sacado, título) tem um `status` púb
 
 O rollup é **worst-of**: o status do título deriva das issues do título; o do sacado é o pior entre as issues próprias e os títulos; o do cedente é o pior entre as issues próprias e os sacados. Como o cedente é a contraparte de todos os títulos, um cedente `blocked` compromete o borderô inteiro, independentemente dos sacados.
 
-### Issues, coverage e degradedRules
+### Issues, coverage e degraded_rules
 
-Cada violação de regra vira uma **issue** no nó correspondente: `{ruleId, ruleName, category, status, message, detail, dataSources}` — `category` é `blocking` ou `alert`. Quando uma fonte de dados fica indisponível, a regra afetada **não vira issue**: ela aparece em `degradedRules[]` (`ruleId`, `provider`, `titulosAffected`) e a cobertura por provider em `coverage[]` (`requested`, `succeeded`, `failedKeys`). No `summary`, os títulos afetados contam como `alerted`.
+Cada violação de regra vira uma **issue** no nó correspondente: `{rule_id, rule_name, category, status, message, detail, data_sources}` — `category` é `blocking` ou `alert`. Quando uma fonte de dados fica indisponível, a regra afetada **não vira issue**: ela aparece em `degraded_rules[]` (`rule_id`, `provider`, `titulos_affected`) e a cobertura por provider em `coverage[]` (`requested`, `succeeded`, `failed_keys`). No `summary`, os títulos afetados contam como `alerted`.
 
-O `summary` do `/result` sempre reflete o **dataset completo** (não muda com `?filter`): `totalTitulos`, `approved`/`blocked`/`alerted`, `totalValue`/`approvedValue`/`blockedValue`/`alertedValue`, `sacados.total`/`sacados.withIssues` e `cedente.status`.
+O `summary` do `/result` sempre reflete o **dataset completo** (não muda com `?filter`): `total_titulos`, `approved`/`blocked`/`alerted`, `total_value`/`approved_value`/`blocked_value`/`alerted_value`, `sacados.total`/`sacados.with_issues` e `cedente.status`.
 
 ### O que cada estado retorna
 
 O envelope de status traz **sempre todos os campos**; o que muda é o preenchimento:
 
-- `tituloCount`, `approvedCount`, `blockedCount` e `alertCount` são `null` até `completed`. Quando preenchidos, `approvedCount + blockedCount + alertCount = tituloCount` — `alertCount` inclui os títulos com análise incompleta.
-- `completedAt` só é preenchido em `completed`; `error` (string) só em `failed`, com os tokens estornados automaticamente.
-- `processingAt` é `null` enquanto `queued`; `fileSize` pode ser `null` em operações antigas.
+- `titulo_count`, `approved_count`, `blocked_count` e `alert_count` são `null` até `completed`. Quando preenchidos, `approved_count + blocked_count + alert_count = titulo_count` — `alert_count` inclui os títulos com análise incompleta.
+- `completed_at` só é preenchido em `completed`; `error` (string) só em `failed`, com os tokens estornados automaticamente.
+- `processing_at` é `null` enquanto `queued`; `file_size` pode ser `null` em operações antigas.
 
 ### Exemplo: em processamento
 
@@ -239,17 +239,17 @@ O envelope de status traz **sempre todos os campos**; o que muda é o preenchime
 {
   "id": "b2c3d4e5-0000-0000-0000-000000000001",
   "status": "processing",
-  "fileName": "bordero.rem",
-  "fileSize": 4440,
-  "engineId": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
-  "tituloCount": null,
-  "approvedCount": null,
-  "blockedCount": null,
-  "alertCount": null,
-  "createdAt": "2026-07-09T12:00:00.000Z",
-  "queuedAt": "2026-07-09T12:00:00.000Z",
-  "processingAt": "2026-07-09T12:00:02.000Z",
-  "completedAt": null,
+  "file_name": "bordero.rem",
+  "file_size": 4440,
+  "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+  "titulo_count": null,
+  "approved_count": null,
+  "blocked_count": null,
+  "alert_count": null,
+  "created_at": "2026-07-09T12:00:00.000Z",
+  "queued_at": "2026-07-09T12:00:00.000Z",
+  "processing_at": "2026-07-09T12:00:02.000Z",
+  "completed_at": null,
   "error": null
 }
 ```
@@ -260,22 +260,22 @@ O envelope de status traz **sempre todos os campos**; o que muda é o preenchime
 {
   "id": "b2c3d4e5-0000-0000-0000-000000000001",
   "status": "completed",
-  "fileName": "bordero.rem",
-  "fileSize": 4440,
-  "engineId": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
-  "tituloCount": 12,
-  "approvedCount": 9,
-  "blockedCount": 2,
-  "alertCount": 1,
-  "createdAt": "2026-07-09T12:00:00.000Z",
-  "queuedAt": "2026-07-09T12:00:00.000Z",
-  "processingAt": "2026-07-09T12:00:02.000Z",
-  "completedAt": "2026-07-09T12:02:15.000Z",
+  "file_name": "bordero.rem",
+  "file_size": 4440,
+  "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+  "titulo_count": 12,
+  "approved_count": 9,
+  "blocked_count": 2,
+  "alert_count": 1,
+  "created_at": "2026-07-09T12:00:00.000Z",
+  "queued_at": "2026-07-09T12:00:00.000Z",
+  "processing_at": "2026-07-09T12:00:02.000Z",
+  "completed_at": "2026-07-09T12:02:15.000Z",
   "error": null
 }
 ```
 
-A partir daí, busque a árvore completa em `GET /v1/operations/{id}/result` — por padrão só os nós com problemas (`?filter=issues`); com `?filter=all`, todos. O shape de cada título, incluindo `nfeChave` e as issues de NFe, está em [Títulos e NFe](/credito/titulos-e-nfe); o fluxo completo, no [Quickstart](/credito/quickstart).
+A partir daí, busque a árvore completa em `GET /v1/operations/{id}/result` — por padrão só os nós com problemas (`?filter=issues`); com `?filter=all`, todos. O shape de cada título, incluindo `nfe_chave` e as issues de NFe, está em [Títulos e NFe](/credito/titulos-e-nfe); o fluxo completo, no [Quickstart](/credito/quickstart).
 
 </Tab>
 </Tabs>
@@ -293,6 +293,6 @@ A partir daí, busque a árvore completa em `GET /v1/operations/{id}/result` —
     Catálogo dos blocos de verificação e seus grupos
   </Card>
   <Card title="Títulos e NFe (Borderô)" icon="file-invoice" href="/credito/titulos-e-nfe">
-    O shape do título na árvore do resultado e o campo nfeChave
+    O shape do título na árvore do resultado e o campo nfe_chave
   </Card>
 </CardGroup>

@@ -33,10 +33,10 @@ Envie um `POST /v1/operations` como **`multipart/form-data`** — o arquivo vai 
 |---|---|---|---|
 | `file` | arquivo | **Sim** | CNAB 400 remessa (`.rem`). Máx. 16 MB |
 | `xmls` | arquivo | Não | ZIP com os XMLs de NFe (`nfeProc`) dos títulos. Máx. 32 MB |
-| `cedenteCnpj` | texto | **Sim** | CNPJ do cedente, 14 dígitos ou formatado (dígito verificador validado) |
-| `engineId` | texto | Não | ID da engine; omitido ou `template-padrao` → template do sistema |
+| `cedente_cnpj` | texto | **Sim** | CNPJ do cedente, 14 dígitos ou formatado (dígito verificador validado) |
+| `engine_id` | texto | Não | ID da engine; omitido ou `template-padrao` → template do sistema |
 | `purpose` | texto | Não | Finalidade da análise (auditoria LGPD) |
-| `legalBasis` | texto | Não | Base legal LGPD para os sacados PF |
+| `legal_basis` | texto | Não | Base legal LGPD para os sacados PF |
 
 <CodeGroup>
 ```bash cURL
@@ -44,8 +44,8 @@ curl -X POST "https://<API_HOST>/v1/operations" \
   -H "Authorization: Bearer slhk_sua_chave_aqui" \
   -F "file=@bordero.rem" \
   -F "xmls=@nfes.zip" \
-  -F "cedenteCnpj=12345678000195" \
-  -F "engineId=template-padrao"
+  -F "cedente_cnpj=12345678000195" \
+  -F "engine_id=template-padrao"
 ```
 
 ```python Python
@@ -56,11 +56,11 @@ with open("bordero.rem", "rb") as cnab, open("nfes.zip", "rb") as xmls:
         "https://<API_HOST>/v1/operations",
         headers={"Authorization": "Bearer slhk_sua_chave_aqui"},
         files={"file": cnab, "xmls": xmls},
-        data={"cedenteCnpj": "12345678000195", "engineId": "template-padrao"},
+        data={"cedente_cnpj": "12345678000195", "engine_id": "template-padrao"},
     )
 print(resp.status_code)  # 202
 operation = resp.json()
-operation_id = operation["operationId"]
+operation_id = operation["operation_id"]
 ```
 
 ```javascript Node.js
@@ -69,8 +69,8 @@ import { openAsBlob } from "node:fs";
 const form = new FormData();
 form.append("file", await openAsBlob("bordero.rem"), "bordero.rem");
 form.append("xmls", await openAsBlob("nfes.zip"), "nfes.zip");
-form.append("cedenteCnpj", "12345678000195");
-form.append("engineId", "template-padrao");
+form.append("cedente_cnpj", "12345678000195");
+form.append("engine_id", "template-padrao");
 
 const resp = await fetch("https://<API_HOST>/v1/operations", {
   method: "POST",
@@ -79,7 +79,7 @@ const resp = await fetch("https://<API_HOST>/v1/operations", {
 });
 console.log(resp.status); // 202
 const operation = await resp.json();
-const operationId = operation.operationId;
+const operation_id = operation.operation_id;
 ```
 </CodeGroup>
 
@@ -87,13 +87,13 @@ const operationId = operation.operationId;
 
 ```json
 {
-  "operationId": "b2c3d4e5-0000-0000-0000-000000000001",
+  "operation_id": "b2c3d4e5-0000-0000-0000-000000000001",
   "status": "queued",
-  "createdAt": "2026-07-09T12:00:00.000Z"
+  "created_at": "2026-07-09T12:00:00.000Z"
 }
 ```
 
-Guarde o `operationId`: é com ele que você consulta o status e o resultado. A cobrança (uma por entidade única do borderô — cedente + sacados únicos) acontece normalmente na criação, mas **não aparece no payload**: acompanhe débitos e estornos no extrato de tokens do workspace, no app Sherlocker.
+Guarde o `operation_id`: é com ele que você consulta o status e o resultado. A cobrança (uma por entidade única do borderô — cedente + sacados únicos) acontece normalmente na criação, mas **não aparece no payload**: acompanhe débitos e estornos no extrato de tokens do workspace, no app Sherlocker.
 
 <Tip>
   O header `Idempotency-Key` é **opcional**. Se você enviá-lo, reenviar o mesmo payload com a mesma key devolve `200` com o body original (sem nova operação nem nova cobrança); a mesma key com payload diferente devolve `409 idempotency_conflict`. Sem o header, cada POST cria uma operação nova. Veja [Idempotência](/motores/idempotencia).
@@ -143,7 +143,7 @@ while True:
 ```javascript Node.js
 let op;
 while (true) {
-  const resp = await fetch(`https://<API_HOST>/v1/operations/${operationId}`, {
+  const resp = await fetch(`https://<API_HOST>/v1/operations/${operation_id}`, {
     headers: { Authorization: "Bearer slhk_sua_chave_aqui" },
   });
   op = await resp.json();
@@ -162,23 +162,23 @@ while (true) {
 {
   "id": "b2c3d4e5-0000-0000-0000-000000000001",
   "status": "completed",
-  "fileName": "bordero.rem",
-  "fileSize": 4440,
-  "engineId": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
-  "tituloCount": 12,
-  "approvedCount": 9,
-  "blockedCount": 2,
-  "alertCount": 1,
-  "createdAt": "2026-07-09T12:00:00.000Z",
-  "queuedAt": "2026-07-09T12:00:00.000Z",
-  "processingAt": "2026-07-09T12:00:02.000Z",
-  "completedAt": "2026-07-09T12:02:15.000Z",
+  "file_name": "bordero.rem",
+  "file_size": 4440,
+  "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+  "titulo_count": 12,
+  "approved_count": 9,
+  "blocked_count": 2,
+  "alert_count": 1,
+  "created_at": "2026-07-09T12:00:00.000Z",
+  "queued_at": "2026-07-09T12:00:00.000Z",
+  "processing_at": "2026-07-09T12:00:02.000Z",
+  "completed_at": "2026-07-09T12:02:15.000Z",
   "error": null
 }
 ```
 
-- `tituloCount`, `approvedCount`, `blockedCount` e `alertCount` são `null` até `completed`. A soma `approvedCount + blockedCount + alertCount` sempre fecha com `tituloCount` — `alertCount` inclui os títulos com análise incompleta (fonte de dados indisponível).
-- `completedAt` só aparece preenchido em `completed`; `error` (string) só em `failed`.
+- `titulo_count`, `approved_count`, `blocked_count` e `alert_count` são `null` até `completed`. A soma `approved_count + blocked_count + alert_count` sempre fecha com `titulo_count` — `alert_count` inclui os títulos com análise incompleta (fonte de dados indisponível).
+- `completed_at` só aparece preenchido em `completed`; `error` (string) só em `failed`.
 - Operações que terminam em `failed` são estornadas automaticamente. Por ora a API é polling-only (sem webhooks).
 
 </Step>
@@ -195,30 +195,30 @@ curl "https://<API_HOST>/v1/operations/$OPERATION_ID/result" \
 
 ```json
 {
-  "operationId": "b2c3d4e5-0000-0000-0000-000000000001",
+  "operation_id": "b2c3d4e5-0000-0000-0000-000000000001",
   "cedente": {
     "id": "c0a80001-0000-0000-0000-000000000001",
     "cnpj": "12345678000195",
-    "razaoSocial": "CEDENTE LTDA",
+    "razao_social": "CEDENTE LTDA",
     "status": "blocked",
     "issues": [
       {
-        "ruleId": "CEDENTE_PROTESTOS",
-        "ruleName": "Protestos",
+        "rule_id": "CEDENTE_PROTESTOS",
+        "rule_name": "Protestos",
         "category": "blocking",
         "status": "blocked",
         "message": "Cedente: Protestos encontrados",
         "detail": { "field": "protestos", "actual": "3", "expected": "0" },
-        "dataSources": [
-          { "name": "cenprot", "fetchedAt": "2026-07-06T09:00:00.000Z", "ageDays": 3 }
+        "data_sources": [
+          { "name": "cenprot", "fetched_at": "2026-07-06T09:00:00.000Z", "age_days": 3 }
         ]
       }
     ],
     "sacados": [
       {
         "id": "c0a80001-0000-0000-0000-000000000002",
-        "cnpjCpf": "98765432000188",
-        "razaoSocial": "SACADO SA",
+        "cnpj_cpf": "98765432000188",
+        "razao_social": "SACADO SA",
         "tipo": "PJ",
         "status": "alerted",
         "issues": [],
@@ -227,19 +227,19 @@ curl "https://<API_HOST>/v1/operations/$OPERATION_ID/result" \
             "id": "c0a80001-0000-0000-0000-000000000003",
             "numero": "DOC-001",
             "valor": 1234.56,
-            "dataVencimento": "2026-08-01",
-            "nfeChave": "35230612345678000195550010000000011000000011",
+            "data_vencimento": "2026-08-01",
+            "nfe_chave": "35230612345678000195550010000000011000000011",
             "status": "alerted",
             "issues": [
               {
-                "ruleId": "TITULO_NFE_DIVERGENCIA",
-                "ruleName": "Divergência com NFe",
+                "rule_id": "TITULO_NFE_DIVERGENCIA",
+                "rule_name": "Divergência com NFe",
                 "category": "alert",
                 "status": "alerted",
                 "message": "Título: valor diverge da NFe",
                 "detail": { "field": "valor", "actual": "1234.56", "expected": "1230.00" },
-                "dataSources": [
-                  { "name": "nfe", "fetchedAt": "2026-07-09T12:01:00.000Z", "ageDays": 0 }
+                "data_sources": [
+                  { "name": "nfe", "fetched_at": "2026-07-09T12:01:00.000Z", "age_days": 0 }
                 ]
               }
             ]
@@ -249,25 +249,25 @@ curl "https://<API_HOST>/v1/operations/$OPERATION_ID/result" \
     ]
   },
   "summary": {
-    "totalTitulos": 12,
+    "total_titulos": 12,
     "approved": 9,
     "blocked": 2,
     "alerted": 1,
-    "totalValue": 100000,
-    "approvedValue": 80000,
-    "blockedValue": 15000,
-    "alertedValue": 5000,
-    "sacados": { "total": 5, "withIssues": 2 },
+    "total_value": 100000,
+    "approved_value": 80000,
+    "blocked_value": 15000,
+    "alerted_value": 5000,
+    "sacados": { "total": 5, "with_issues": 2 },
     "cedente": { "status": "blocked" }
   },
-  "engineId": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
-  "engineName": "Motor Borderô",
+  "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+  "engine_name": "Motor Borderô",
   "timestamp": "2026-07-09T12:02:15.000Z",
   "coverage": [
-    { "provider": "rfb", "requested": 6, "succeeded": 5, "failedKeys": ["98765432000188"] }
+    { "provider": "rfb", "requested": 6, "succeeded": 5, "failed_keys": ["98765432000188"] }
   ],
-  "degradedRules": [
-    { "ruleId": "SACADO_SERASA", "provider": "serasa", "titulosAffected": 2 }
+  "degraded_rules": [
+    { "rule_id": "SACADO_SERASA", "provider": "serasa", "titulos_affected": 2 }
   ]
 }
 ```
@@ -275,7 +275,7 @@ curl "https://<API_HOST>/v1/operations/$OPERATION_ID/result" \
 Variações do endpoint:
 
 - **`?filter=all`** — devolve a árvore completa, incluindo títulos aprovados e sacados sem problemas. Qualquer outro valor retorna `400` com a mensagem `Invalid filter value. Use "issues" or "all".`.
-- **`?include=executionPlan`** — lista separada por vírgulas de blocos extras; adiciona o campo `executionPlan` à resposta (hoje sempre `[]`).
+- **`?include=execution_plan`** — lista separada por vírgulas de blocos extras; adiciona o campo `execution_plan` à resposta (hoje sempre `[]`).
 - Chamar o `/result` antes de a operação chegar a `completed` retorna [`409 conflict`](/problems/conflict) com detail no formato `Operation has not completed yet. Current status: processing`.
 
 <Note>
@@ -291,14 +291,14 @@ O resultado é uma árvore: **cedente → sacados → títulos**, cada nó com u
 |---|---|
 | `status` de qualquer nó | `approved` \| `blocked` \| `alerted` |
 | Rollup (worst-of) | O status do título deriva das issues do título; o do sacado é o pior entre as issues próprias e os títulos; o do cedente é o pior entre as issues próprias e os sacados |
-| `issues[]` | Cada issue traz `ruleId`, `ruleName`, `category` (`blocking` \| `alert`), `status` (`blocked` \| `alerted`), `message`, `detail` (`{field, actual, expected}`) e `dataSources` (`{name, fetchedAt, ageDays}`) |
-| `summary` | Contagens e valores do dataset **completo**: `totalTitulos`, `approved`/`blocked`/`alerted`, `totalValue`/`approvedValue`/`blockedValue`/`alertedValue`, `sacados.total`/`sacados.withIssues` e `cedente.status` |
-| `coverage[]` | Por provider consultado: `requested`, `succeeded` e `failedKeys` (documentos que falharam) |
-| `degradedRules[]` | Regras que não puderam ser avaliadas por fonte indisponível: `ruleId`, `provider`, `titulosAffected` |
-| `titulo.nfeChave` | Chave da NFe vinculada ao título (`null` se não houver); problemas de NFe aparecem como issues do título |
+| `issues[]` | Cada issue traz `rule_id`, `rule_name`, `category` (`blocking` \| `alert`), `status` (`blocked` \| `alerted`), `message`, `detail` (`{field, actual, expected}`) e `data_sources` (`{name, fetched_at, age_days}`) |
+| `summary` | Contagens e valores do dataset **completo**: `total_titulos`, `approved`/`blocked`/`alerted`, `total_value`/`approved_value`/`blocked_value`/`alerted_value`, `sacados.total`/`sacados.with_issues` e `cedente.status` |
+| `coverage[]` | Por provider consultado: `requested`, `succeeded` e `failed_keys` (documentos que falharam) |
+| `degraded_rules[]` | Regras que não puderam ser avaliadas por fonte indisponível: `rule_id`, `provider`, `titulos_affected` |
+| `titulo.nfe_chave` | Chave da NFe vinculada ao título (`null` se não houver); problemas de NFe aparecem como issues do título |
 
 <Warning>
-  Fonte de dados indisponível **não vira issue** — vira `degradedRules` (e aparece em `coverage`). No `summary`, os títulos afetados contam como `alerted`. Se a sua esteira exige cobertura total, trate `degradedRules` não-vazio na sua regra de aprovação.
+  Fonte de dados indisponível **não vira issue** — vira `degraded_rules` (e aparece em `coverage`). No `summary`, os títulos afetados contam como `alerted`. Se a sua esteira exige cobertura total, trate `degraded_rules` não-vazio na sua regra de aprovação.
 </Warning>
 
 Um filtro típico — listar as issues bloqueantes da operação:
@@ -313,8 +313,8 @@ for sacado in result["cedente"]["sacados"]:
     for titulo in sacado["titulos"]:
         for issue in titulo["issues"]:
             if issue["category"] == "blocking":
-                print(f"{titulo['numero']}  sacado={sacado['cnpjCpf']}  "
-                      f"[{issue['ruleId']}] {issue['message']}")
+                print(f"{titulo['numero']}  sacado={sacado['cnpj_cpf']}  "
+                      f"[{issue['rule_id']}] {issue['message']}")
 ```
 
 </Step>
@@ -322,7 +322,7 @@ for sacado in result["cedente"]["sacados"]:
 
 ## Tratamento de erros
 
-Todos os erros seguem RFC 7807 (`Content-Type: application/problem+json`). Use o campo `code` para decidir o que fazer — o campo `type` é apenas um identificador. Os erros de validação do multipart chegam field-level em `errors[]`, com os campos `file`, `xmls` e `cedenteCnpj`:
+Todos os erros seguem RFC 7807 (`Content-Type: application/problem+json`). Use o campo `code` para decidir o que fazer — o campo `type` é apenas um identificador. Os erros de validação do multipart chegam field-level em `errors[]`, com os campos `file`, `xmls` e `cedente_cnpj`:
 
 **Resposta (400):**
 
@@ -335,19 +335,19 @@ Todos os erros seguem RFC 7807 (`Content-Type: application/problem+json`). Use o
   "detail": "One or more fields failed validation.",
   "errors": [
     { "field": "file", "message": "No file provided" },
-    { "field": "cedenteCnpj", "message": "cedenteCnpj is required" }
+    { "field": "cedente_cnpj", "message": "cedente_cnpj is required" }
   ],
   "instance": "/v1?request_id=req-uuid-here"
 }
 ```
 
-Outras mensagens comuns: `Invalid CNPJ format` (dígito verificador do `cedenteCnpj`), falha de parse do CNAB e arquivos acima do teto (16 MB para `file`, 32 MB para `xmls`). Como nada foi parseado, **nada é cobrado**. Os demais códigos: `401 unauthorized`, `402 insufficient_tokens`, `403 feature_not_enabled`, `409 idempotency_conflict` e `422 no_engine` — registro completo em [Erros](/motor-analise/erros).
+Outras mensagens comuns: `Invalid CNPJ format` (dígito verificador do `cedente_cnpj`), falha de parse do CNAB e arquivos acima do teto (16 MB para `file`, 32 MB para `xmls`). Como nada foi parseado, **nada é cobrado**. Os demais códigos: `401 unauthorized`, `402 insufficient_tokens`, `403 feature_not_enabled`, `409 idempotency_conflict` e `422 no_engine` — registro completo em [Erros](/motor-analise/erros).
 
 ## O que você construiu
 
 - Um fluxo completo de análise de borderô: `POST /v1/operations` multipart (202) → polling em `GET /v1/operations/{id}` (`queued`/`processing` → `completed`) → resultado hierárquico em `GET /v1/operations/{id}/result`.
 - Um consumo enxuto do resultado: `?filter=issues` (padrão) entrega só os nós com problemas; `?filter=all` entrega a árvore completa.
-- Interpretação de `issues`, `summary`, `coverage` e `degradedRules` — incluindo a validação de NFe via issues do título e `nfeChave`.
+- Interpretação de `issues`, `summary`, `coverage` e `degraded_rules` — incluindo a validação de NFe via issues do título e `nfe_chave`.
 
 ## Próximos passos
 

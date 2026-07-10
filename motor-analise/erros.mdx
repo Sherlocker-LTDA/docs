@@ -52,7 +52,7 @@ Cada código tem uma página própria em `/problems/<code>`, válida para os doi
 
 | `code` | HTTP | Quando acontece | Campos extras |
 |---|---|---|---|
-| [`validation_error`](/problems/validation_error) | 400 | **CPF/CNPJ:** campo do body com tipo/enum inválido. **Borderô:** parte `file` ausente, `cedenteCnpj` ausente ou inválido, CNAB que não parseia, arquivo acima do teto; `filter` inválido no `GET /result` | `errors[]` |
+| [`validation_error`](/problems/validation_error) | 400 | **CPF/CNPJ:** campo do body com tipo/enum inválido. **Borderô:** parte `file` ausente, `cedente_cnpj` ausente ou inválido, CNAB que não parseia, arquivo acima do teto; `filter` inválido no `GET /result` | `errors[]` |
 | [`bad_request`](/problems/bad_request) | 400 | **CPF/CNPJ:** `Idempotency-Key` ausente (no borderô a key é opcional); `document` sem dígitos, tamanho errado ou dígito verificador inválido | — |
 | [`unauthorized`](/problems/unauthorized) | 401 | **Ambos:** header `Authorization` ausente/malformado; chave inválida ou revogada | — |
 | [`insufficient_tokens`](/problems/insufficient_tokens) | 402 | **Ambos:** saldo do workspace insuficiente — no borderô, o custo é por entidade única (cedente + sacados únicos) | `required`, `balance` |
@@ -92,7 +92,7 @@ Lista cada campo que falhou e a mensagem da restrição:
 }
 ```
 
-No Motor de Borderô, os mesmos `errors[]` reportam problemas field-level com as partes do multipart — `file`, `xmls` e `cedenteCnpj` (ex.: `{ "field": "file", "message": "No file provided" }`, `{ "field": "cedenteCnpj", "message": "Invalid CNPJ format" }`). Nesse caso nada é cobrado — no borderô, o débito só acontece após o parse bem-sucedido do CNAB.
+No Motor de Borderô, os mesmos `errors[]` reportam problemas field-level com as partes do multipart — `file`, `xmls` e `cedente_cnpj` (ex.: `{ "field": "file", "message": "No file provided" }`, `{ "field": "cedente_cnpj", "message": "Invalid CNPJ format" }`). Nesse caso nada é cobrado — no borderô, o débito só acontece após o parse bem-sucedido do CNAB.
 
 ### `insufficient_tokens` — `required` e `balance`
 

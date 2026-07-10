@@ -27,7 +27,10 @@
     "schemas": {
       "CreateOperationRequest": {
         "type": "object",
-        "required": ["file", "cedenteCnpj"],
+        "required": [
+          "file",
+          "cedente_cnpj"
+        ],
         "properties": {
           "file": {
             "type": "string",
@@ -39,12 +42,12 @@
             "format": "binary",
             "description": "ZIP com os XMLs de NFe (nfeProc) dos títulos, para validação cruzada. Opcional. Máximo de 32 MB."
           },
-          "cedenteCnpj": {
+          "cedente_cnpj": {
             "type": "string",
             "description": "CNPJ do cedente, 14 dígitos ou formatado. Obrigatório; o dígito verificador é validado.",
             "example": "12345678000195"
           },
-          "engineId": {
+          "engine_id": {
             "type": "string",
             "description": "ID da engine de borderô a usar. Omitido ou \"template-padrao\": usa a engine template do sistema. Engine não utilizável retorna 422 no_engine.",
             "example": "template-padrao"
@@ -53,7 +56,7 @@
             "type": "string",
             "description": "Finalidade da análise (auditoria LGPD). Opcional."
           },
-          "legalBasis": {
+          "legal_basis": {
             "type": "string",
             "description": "Base legal LGPD para os sacados PF. Opcional."
           }
@@ -61,19 +64,25 @@
       },
       "CreateOperationAccepted": {
         "type": "object",
-        "required": ["operationId", "status", "createdAt"],
+        "required": [
+          "operation_id",
+          "status",
+          "created_at"
+        ],
         "properties": {
-          "operationId": {
+          "operation_id": {
             "type": "string",
             "format": "uuid",
             "description": "UUID da operação criada. Use no GET /v1/operations/{id} e no GET /v1/operations/{id}/result."
           },
           "status": {
             "type": "string",
-            "enum": ["queued"],
+            "enum": [
+              "queued"
+            ],
             "description": "Sempre queued imediatamente após a criação."
           },
-          "createdAt": {
+          "created_at": {
             "type": "string",
             "format": "date-time",
             "description": "Timestamp ISO 8601 de criação."
@@ -82,7 +91,14 @@
       },
       "Operation": {
         "type": "object",
-        "required": ["id", "status", "fileName", "engineId", "createdAt", "queuedAt"],
+        "required": [
+          "id",
+          "status",
+          "file_name",
+          "engine_id",
+          "created_at",
+          "queued_at"
+        ],
         "description": "Envelope de status da operação. Todos os campos estão sempre presentes; as contagens são null até status completed.",
         "properties": {
           "id": {
@@ -92,59 +108,64 @@
           },
           "status": {
             "type": "string",
-            "enum": ["queued", "processing", "completed", "failed"],
+            "enum": [
+              "queued",
+              "processing",
+              "completed",
+              "failed"
+            ],
             "description": "Estado do ciclo de vida da operação. Em failed, os tokens são estornados automaticamente."
           },
-          "fileName": {
+          "file_name": {
             "type": "string",
             "description": "Nome do arquivo CNAB enviado."
           },
-          "fileSize": {
+          "file_size": {
             "type": "number",
             "nullable": true,
             "description": "Tamanho do arquivo em bytes. Pode ser null em operações antigas."
           },
-          "engineId": {
+          "engine_id": {
             "type": "string",
             "description": "Engine de borderô efetivamente usada (explícita ou o template do sistema)."
           },
-          "tituloCount": {
+          "titulo_count": {
             "type": "number",
             "nullable": true,
             "description": "Total de títulos do borderô. null até status completed."
           },
-          "approvedCount": {
+          "approved_count": {
             "type": "number",
             "nullable": true,
             "description": "Títulos aprovados. null até status completed."
           },
-          "blockedCount": {
+          "blocked_count": {
             "type": "number",
             "nullable": true,
             "description": "Títulos bloqueados. null até status completed."
           },
-          "alertCount": {
+          "alert_count": {
             "type": "number",
             "nullable": true,
-            "description": "Títulos em alerta, incluindo os com análise incompleta (fonte indisponível). null até status completed. approvedCount + blockedCount + alertCount = tituloCount."
+            "description": "Títulos em alerta, incluindo os com análise incompleta (fonte indisponível). null até status completed. approved_count + blocked_count + alert_count = titulo_count."
           },
-          "createdAt": {
+          "created_at": {
             "type": "string",
             "format": "date-time",
             "description": "Timestamp ISO 8601 de criação."
           },
-          "queuedAt": {
+          "queued_at": {
             "type": "string",
             "format": "date-time",
             "description": "Timestamp ISO 8601 do enfileiramento."
           },
-          "processingAt": {
+          "processing_at": {
             "type": "string",
             "format": "date-time",
             "nullable": true,
             "description": "Timestamp ISO 8601 do início do processamento; null enquanto queued."
           },
-          "completedAt": {
+          "completed_at": {
             "type": "string",
             "format": "date-time",
             "nullable": true,
@@ -161,24 +182,30 @@
         "type": "object",
         "description": "Uma violação de regra anexada a um nó da árvore (cedente, sacado ou título).",
         "properties": {
-          "ruleId": {
+          "rule_id": {
             "type": "string",
             "description": "Identificador estável da regra violada (ex.: SACADO_PROTESTOS).",
             "example": "SACADO_PROTESTOS"
           },
-          "ruleName": {
+          "rule_name": {
             "type": "string",
             "description": "Nome legível da regra.",
             "example": "Protestos"
           },
           "category": {
             "type": "string",
-            "enum": ["blocking", "alert"],
+            "enum": [
+              "blocking",
+              "alert"
+            ],
             "description": "Categoria da regra: blocking (impeditiva) ou alert (ponto de atenção)."
           },
           "status": {
             "type": "string",
-            "enum": ["blocked", "alerted"],
+            "enum": [
+              "blocked",
+              "alerted"
+            ],
             "description": "Efeito da violação no nó."
           },
           "message": {
@@ -204,7 +231,7 @@
               }
             }
           },
-          "dataSources": {
+          "data_sources": {
             "type": "array",
             "description": "Fontes de dados que embasaram a violação.",
             "items": {
@@ -214,12 +241,12 @@
                   "type": "string",
                   "example": "cenprot"
                 },
-                "fetchedAt": {
+                "fetched_at": {
                   "type": "string",
                   "format": "date-time",
                   "nullable": true
                 },
-                "ageDays": {
+                "age_days": {
                   "type": "number",
                   "example": 3
                 }
@@ -247,19 +274,23 @@
             "description": "Valor do título.",
             "example": 1234.56
           },
-          "dataVencimento": {
+          "data_vencimento": {
             "type": "string",
             "format": "date",
             "description": "Data de vencimento do título (YYYY-MM-DD)."
           },
-          "nfeChave": {
+          "nfe_chave": {
             "type": "string",
             "nullable": true,
             "description": "Chave da NFe vinculada ao título; null se o título não traz chave. Problemas de NFe aparecem como issues do título."
           },
           "status": {
             "type": "string",
-            "enum": ["approved", "blocked", "alerted"],
+            "enum": [
+              "approved",
+              "blocked",
+              "alerted"
+            ],
             "description": "Status consolidado do título, derivado das suas issues (worst-of)."
           },
           "issues": {
@@ -280,24 +311,31 @@
             "format": "uuid",
             "description": "Identificador do sacado no resultado."
           },
-          "cnpjCpf": {
+          "cnpj_cpf": {
             "type": "string",
             "description": "Documento do sacado (CNPJ ou CPF).",
             "example": "98765432000188"
           },
-          "razaoSocial": {
+          "razao_social": {
             "type": "string",
             "description": "Razão social (PJ) ou nome (PF) do sacado.",
             "example": "SACADO SA"
           },
           "tipo": {
             "type": "string",
-            "enum": ["PJ", "PF"],
+            "enum": [
+              "PJ",
+              "PF"
+            ],
             "description": "Tipo do sacado."
           },
           "status": {
             "type": "string",
-            "enum": ["approved", "blocked", "alerted"],
+            "enum": [
+              "approved",
+              "blocked",
+              "alerted"
+            ],
             "description": "Status consolidado do sacado: o pior entre as issues próprias e os títulos (worst-of)."
           },
           "issues": {
@@ -330,14 +368,18 @@
             "description": "CNPJ do cedente.",
             "example": "12345678000195"
           },
-          "razaoSocial": {
+          "razao_social": {
             "type": "string",
             "description": "Razão social do cedente.",
             "example": "CEDENTE LTDA"
           },
           "status": {
             "type": "string",
-            "enum": ["approved", "blocked", "alerted"],
+            "enum": [
+              "approved",
+              "blocked",
+              "alerted"
+            ],
             "description": "Status consolidado do cedente: o pior entre as issues próprias e os sacados (worst-of)."
           },
           "issues": {
@@ -358,9 +400,9 @@
       },
       "ResultSummary": {
         "type": "object",
-        "description": "Resumo do dataset completo. Não muda com o parâmetro filter. O verdict interno incompleto aparece como alerted, com o motivo em degradedRules.",
+        "description": "Resumo do dataset completo. Não muda com o parâmetro filter. O verdict interno incompleto aparece como alerted, com o motivo em degraded_rules.",
         "properties": {
-          "totalTitulos": {
+          "total_titulos": {
             "type": "number",
             "description": "Total de títulos do borderô.",
             "example": 12
@@ -380,22 +422,22 @@
             "description": "Títulos em alerta, incluindo os com análise incompleta (fonte indisponível).",
             "example": 1
           },
-          "totalValue": {
+          "total_value": {
             "type": "number",
             "description": "Valor monetário total do borderô.",
             "example": 100000
           },
-          "approvedValue": {
+          "approved_value": {
             "type": "number",
             "description": "Valor monetário dos títulos aprovados.",
             "example": 80000
           },
-          "blockedValue": {
+          "blocked_value": {
             "type": "number",
             "description": "Valor monetário dos títulos bloqueados.",
             "example": 15000
           },
-          "alertedValue": {
+          "alerted_value": {
             "type": "number",
             "description": "Valor monetário dos títulos em alerta.",
             "example": 5000
@@ -408,7 +450,7 @@
                 "description": "Total de sacados únicos do borderô.",
                 "example": 5
               },
-              "withIssues": {
+              "with_issues": {
                 "type": "number",
                 "description": "Sacados com pelo menos um problema.",
                 "example": 2
@@ -420,7 +462,11 @@
             "properties": {
               "status": {
                 "type": "string",
-                "enum": ["approved", "blocked", "alerted"],
+                "enum": [
+                  "approved",
+                  "blocked",
+                  "alerted"
+                ],
                 "description": "Status consolidado do cedente."
               }
             }
@@ -446,13 +492,15 @@
             "description": "Consultas bem-sucedidas.",
             "example": 5
           },
-          "failedKeys": {
+          "failed_keys": {
             "type": "array",
             "items": {
               "type": "string"
             },
             "description": "Documentos cujas consultas falharam.",
-            "example": ["98765432000188"]
+            "example": [
+              "98765432000188"
+            ]
           }
         }
       },
@@ -460,7 +508,7 @@
         "type": "object",
         "description": "Regra que não pôde ser avaliada porque a fonte de dados ficou indisponível. Não vira issue: os títulos afetados contam como alerted no summary.",
         "properties": {
-          "ruleId": {
+          "rule_id": {
             "type": "string",
             "description": "Identificador da regra degradada.",
             "example": "SACADO_SERASA"
@@ -470,7 +518,7 @@
             "description": "Provider indisponível.",
             "example": "serasa"
           },
-          "titulosAffected": {
+          "titulos_affected": {
             "type": "number",
             "description": "Quantidade de títulos afetados.",
             "example": 2
@@ -480,9 +528,13 @@
       "OperationResult": {
         "type": "object",
         "description": "Resultado hierárquico da operação: árvore cedente → sacados → títulos, com issues por nó.",
-        "required": ["operationId", "cedente", "summary"],
+        "required": [
+          "operation_id",
+          "cedente",
+          "summary"
+        ],
         "properties": {
-          "operationId": {
+          "operation_id": {
             "type": "string",
             "format": "uuid",
             "description": "UUID da operação."
@@ -493,11 +545,11 @@
           "summary": {
             "$ref": "#/components/schemas/ResultSummary"
           },
-          "engineId": {
+          "engine_id": {
             "type": "string",
             "description": "Engine de borderô usada na operação."
           },
-          "engineName": {
+          "engine_name": {
             "type": "string",
             "description": "Nome da engine.",
             "example": "Motor Borderô"
@@ -512,27 +564,32 @@
             "items": {
               "$ref": "#/components/schemas/CoverageEntry"
             },
-            "description": "Cobertura por provider: requested, succeeded e failedKeys."
+            "description": "Cobertura por provider: requested, succeeded e failed_keys."
           },
-          "degradedRules": {
+          "degraded_rules": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/DegradedRule"
             },
             "description": "Regras não avaliadas por fonte indisponível."
           },
-          "executionPlan": {
+          "execution_plan": {
             "type": "array",
             "items": {
               "type": "object"
             },
-            "description": "Presente apenas com ?include=executionPlan. Hoje sempre []."
+            "description": "Presente apenas com ?include=execution_plan. Hoje sempre []."
           }
         }
       },
       "Problem": {
         "type": "object",
-        "required": ["type", "title", "status", "code"],
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code"
+        ],
         "description": "Erro no formato RFC 7807 (application/problem+json). Use o campo code para tratamento programático; type é apenas identificador.",
         "properties": {
           "type": {
@@ -561,7 +618,7 @@
           },
           "errors": {
             "type": "array",
-            "description": "Erros de validação por campo (file, xmls, cedenteCnpj). Presente apenas em validation_error (400).",
+            "description": "Erros de validação por campo (file, xmls, cedente_cnpj). Presente apenas em validation_error (400).",
             "items": {
               "type": "object",
               "properties": {
@@ -594,9 +651,11 @@
     "/v1/operations": {
       "post": {
         "summary": "Criar operação de borderô",
-        "description": "Cria uma operação assíncrona de análise de borderô a partir de um multipart/form-data: o arquivo CNAB 400 remessa (file, máx. 16 MB), o CNPJ do cedente (cedenteCnpj) e, opcionalmente, um ZIP de XMLs de NFe (xmls, máx. 32 MB) para validação cruzada. Os tokens são debitados na criação, após o parse do CNAB: uma cobrança por entidade única do borderô (cedente + sacados únicos) — a cobrança não aparece no payload de resposta. Operações que terminam em failed são estornadas automaticamente. Retorna 202 na primeira submissão; com o header opcional Idempotency-Key, o replay (mesma key + mesmo payload) retorna 200 com o body original, sem nova cobrança.",
+        "description": "Cria uma operação de borderô a partir de um CNAB 400 (parte `file`) e, opcionalmente, um ZIP de XMLs de NFe (parte `xmls`) para validação cruzada. Enfileira a análise e retorna 202. Faça polling em GET /v1/operations/{id} e busque o resultado em /result.",
         "operationId": "createOperation",
-        "tags": ["Operações"],
+        "tags": [
+          "Operações"
+        ],
         "parameters": [
           {
             "name": "Idempotency-Key",
@@ -644,9 +703,9 @@
                   "$ref": "#/components/schemas/CreateOperationAccepted"
                 },
                 "example": {
-                  "operationId": "b2c3d4e5-0000-0000-0000-000000000001",
+                  "operation_id": "b2c3d4e5-0000-0000-0000-000000000001",
                   "status": "queued",
-                  "createdAt": "2026-07-09T12:00:00.000Z"
+                  "created_at": "2026-07-09T12:00:00.000Z"
                 }
               }
             }
@@ -662,7 +721,7 @@
             }
           },
           "400": {
-            "description": "Requisição inválida (validation_error, com errors[] field-level para file, xmls e cedenteCnpj): arquivo ausente (\"No file provided\"), cedenteCnpj ausente (\"cedenteCnpj is required\") ou com dígito verificador inválido (\"Invalid CNPJ format\"), CNAB que não parseia, ou arquivo acima do teto (16 MB para file, 32 MB para xmls). Nada é cobrado — o débito só acontece após o parse.",
+            "description": "Requisição inválida (validation_error, com errors[] field-level para file, xmls e cedente_cnpj): arquivo ausente (\"No file provided\"), cedente_cnpj ausente (\"cedente_cnpj is required\") ou com dígito verificador inválido (\"Invalid CNPJ format\"), CNAB que não parseia, ou arquivo acima do teto (16 MB para file, 32 MB para xmls). Nada é cobrado — o débito só acontece após o parse.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -802,9 +861,11 @@
     "/v1/operations/{id}": {
       "get": {
         "summary": "Consultar operação",
-        "description": "Retorna o envelope de status da operação, sempre com todos os campos. O vocabulário de status é queued | processing | completed | failed. As contagens (tituloCount, approvedCount, blockedCount, alertCount) são null até completed; approvedCount + blockedCount + alertCount = tituloCount, e alertCount inclui os títulos com análise incompleta. completedAt só é preenchido em completed; error (string) só em failed, com estorno automático dos tokens. Não há header Retry-After: consulte a cada ~2 segundos. Quando completed, busque o resultado hierárquico em GET /v1/operations/{id}/result.",
+        "description": "Retorna o envelope de status da operação. As contagens ficam null até o status `completed`; em `failed`, os tokens são estornados. Depois de `completed`, busque a árvore de resultado em GET /v1/operations/{id}/result.",
         "operationId": "getOperation",
-        "tags": ["Operações"],
+        "tags": [
+          "Operações"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -814,7 +875,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "UUID da operação (campo operationId da resposta do POST)."
+            "description": "UUID da operação (campo operation_id da resposta do POST)."
           },
           {
             "name": "x-request-id",
@@ -848,17 +909,17 @@
                     "value": {
                       "id": "b2c3d4e5-0000-0000-0000-000000000001",
                       "status": "processing",
-                      "fileName": "bordero.rem",
-                      "fileSize": 4440,
-                      "engineId": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
-                      "tituloCount": null,
-                      "approvedCount": null,
-                      "blockedCount": null,
-                      "alertCount": null,
-                      "createdAt": "2026-07-09T12:00:00.000Z",
-                      "queuedAt": "2026-07-09T12:00:00.000Z",
-                      "processingAt": "2026-07-09T12:00:02.000Z",
-                      "completedAt": null,
+                      "file_name": "bordero.rem",
+                      "file_size": 4440,
+                      "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+                      "titulo_count": null,
+                      "approved_count": null,
+                      "blocked_count": null,
+                      "alert_count": null,
+                      "created_at": "2026-07-09T12:00:00.000Z",
+                      "queued_at": "2026-07-09T12:00:00.000Z",
+                      "processing_at": "2026-07-09T12:00:02.000Z",
+                      "completed_at": null,
                       "error": null
                     }
                   },
@@ -867,17 +928,17 @@
                     "value": {
                       "id": "b2c3d4e5-0000-0000-0000-000000000001",
                       "status": "completed",
-                      "fileName": "bordero.rem",
-                      "fileSize": 4440,
-                      "engineId": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
-                      "tituloCount": 12,
-                      "approvedCount": 9,
-                      "blockedCount": 2,
-                      "alertCount": 1,
-                      "createdAt": "2026-07-09T12:00:00.000Z",
-                      "queuedAt": "2026-07-09T12:00:00.000Z",
-                      "processingAt": "2026-07-09T12:00:02.000Z",
-                      "completedAt": "2026-07-09T12:02:15.000Z",
+                      "file_name": "bordero.rem",
+                      "file_size": 4440,
+                      "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+                      "titulo_count": 12,
+                      "approved_count": 9,
+                      "blocked_count": 2,
+                      "alert_count": 1,
+                      "created_at": "2026-07-09T12:00:00.000Z",
+                      "queued_at": "2026-07-09T12:00:00.000Z",
+                      "processing_at": "2026-07-09T12:00:02.000Z",
+                      "completed_at": "2026-07-09T12:02:15.000Z",
                       "error": null
                     }
                   }
@@ -919,9 +980,11 @@
     "/v1/operations/{id}/result": {
       "get": {
         "summary": "Consultar resultado da operação",
-        "description": "Retorna o resultado hierárquico de uma operação completed: a árvore cedente → sacados → títulos, com as issues de cada nó, o summary do dataset completo, coverage por provider e degradedRules (regras não avaliadas por fonte indisponível). O status de cada nó (approved | blocked | alerted) segue o rollup worst-of: o título deriva das próprias issues; o sacado é o pior entre issues próprias e títulos; o cedente é o pior entre issues próprias e sacados. Antes de completed, retorna 409 (conflict). O summary não muda com o parâmetro filter.",
+        "description": "Retorna o resultado hierárquico de uma operação `completed`: a árvore cedente → sacados → títulos com issues por nó, mais summary, coverage e degraded_rules. Antes de `completed`, retorna 409. `filter=issues` (padrão) poda nós aprovados; `filter=all` devolve a árvore completa.",
         "operationId": "getOperationResult",
-        "tags": ["Operações"],
+        "tags": [
+          "Operações"
+        ],
         "parameters": [
           {
             "name": "id",
@@ -931,7 +994,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "description": "UUID da operação (campo operationId da resposta do POST)."
+            "description": "UUID da operação (campo operation_id da resposta do POST)."
           },
           {
             "name": "filter",
@@ -939,7 +1002,10 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["issues", "all"],
+              "enum": [
+                "issues",
+                "all"
+              ],
               "default": "issues"
             },
             "description": "issues (padrão): poda títulos aprovados e sacados sem problemas. all: árvore completa. Outro valor retorna 400 (Invalid filter value. Use \"issues\" or \"all\".)."
@@ -951,7 +1017,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Blocos extras, separados por vírgula. Valor suportado: executionPlan (adiciona o campo executionPlan à resposta; hoje sempre [])."
+            "description": "Blocos extras, separados por vírgula. Valor suportado: execution_plan (adiciona o campo execution_plan à resposta; hoje sempre [])."
           },
           {
             "name": "x-request-id",
@@ -980,16 +1046,16 @@
                   "$ref": "#/components/schemas/OperationResult"
                 },
                 "example": {
-                  "operationId": "b2c3d4e5-0000-0000-0000-000000000001",
+                  "operation_id": "b2c3d4e5-0000-0000-0000-000000000001",
                   "cedente": {
                     "id": "c0a80001-0000-0000-0000-000000000001",
                     "cnpj": "12345678000195",
-                    "razaoSocial": "CEDENTE LTDA",
+                    "razao_social": "CEDENTE LTDA",
                     "status": "blocked",
                     "issues": [
                       {
-                        "ruleId": "CEDENTE_PROTESTOS",
-                        "ruleName": "Protestos",
+                        "rule_id": "CEDENTE_PROTESTOS",
+                        "rule_name": "Protestos",
                         "category": "blocking",
                         "status": "blocked",
                         "message": "Cedente: Protestos encontrados",
@@ -998,11 +1064,11 @@
                           "actual": "3",
                           "expected": "0"
                         },
-                        "dataSources": [
+                        "data_sources": [
                           {
                             "name": "cenprot",
-                            "fetchedAt": "2026-07-06T09:00:00.000Z",
-                            "ageDays": 3
+                            "fetched_at": "2026-07-06T09:00:00.000Z",
+                            "age_days": 3
                           }
                         ]
                       }
@@ -1010,8 +1076,8 @@
                     "sacados": [
                       {
                         "id": "c0a80001-0000-0000-0000-000000000002",
-                        "cnpjCpf": "98765432000188",
-                        "razaoSocial": "SACADO SA",
+                        "cnpj_cpf": "98765432000188",
+                        "razao_social": "SACADO SA",
                         "tipo": "PJ",
                         "status": "alerted",
                         "issues": [],
@@ -1020,13 +1086,13 @@
                             "id": "c0a80001-0000-0000-0000-000000000003",
                             "numero": "DOC-001",
                             "valor": 1234.56,
-                            "dataVencimento": "2026-08-01",
-                            "nfeChave": "35230612345678000195550010000000011000000011",
+                            "data_vencimento": "2026-08-01",
+                            "nfe_chave": "35230612345678000195550010000000011000000011",
                             "status": "alerted",
                             "issues": [
                               {
-                                "ruleId": "TITULO_NFE_DIVERGENCIA",
-                                "ruleName": "Divergência com NFe",
+                                "rule_id": "TITULO_NFE_DIVERGENCIA",
+                                "rule_name": "Divergência com NFe",
                                 "category": "alert",
                                 "status": "alerted",
                                 "message": "Título: valor diverge da NFe",
@@ -1035,11 +1101,11 @@
                                   "actual": "1234.56",
                                   "expected": "1230.00"
                                 },
-                                "dataSources": [
+                                "data_sources": [
                                   {
                                     "name": "nfe",
-                                    "fetchedAt": "2026-07-09T12:01:00.000Z",
-                                    "ageDays": 0
+                                    "fetched_at": "2026-07-09T12:01:00.000Z",
+                                    "age_days": 0
                                   }
                                 ]
                               }
@@ -1050,38 +1116,40 @@
                     ]
                   },
                   "summary": {
-                    "totalTitulos": 12,
+                    "total_titulos": 12,
                     "approved": 9,
                     "blocked": 2,
                     "alerted": 1,
-                    "totalValue": 100000,
-                    "approvedValue": 80000,
-                    "blockedValue": 15000,
-                    "alertedValue": 5000,
+                    "total_value": 100000,
+                    "approved_value": 80000,
+                    "blocked_value": 15000,
+                    "alerted_value": 5000,
                     "sacados": {
                       "total": 5,
-                      "withIssues": 2
+                      "with_issues": 2
                     },
                     "cedente": {
                       "status": "blocked"
                     }
                   },
-                  "engineId": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
-                  "engineName": "Motor Borderô",
+                  "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+                  "engine_name": "Motor Borderô",
                   "timestamp": "2026-07-09T12:02:15.000Z",
                   "coverage": [
                     {
                       "provider": "rfb",
                       "requested": 6,
                       "succeeded": 5,
-                      "failedKeys": ["98765432000188"]
+                      "failed_keys": [
+                        "98765432000188"
+                      ]
                     }
                   ],
-                  "degradedRules": [
+                  "degraded_rules": [
                     {
-                      "ruleId": "SACADO_SERASA",
+                      "rule_id": "SACADO_SERASA",
                       "provider": "serasa",
-                      "titulosAffected": 2
+                      "titulos_affected": 2
                     }
                   ]
                 }

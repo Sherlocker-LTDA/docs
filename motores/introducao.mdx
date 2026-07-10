@@ -18,10 +18,10 @@ O Sherlocker expõe **dois motores de análise** pela mesma API `/v1` — mesma 
 | | Motor de CPF/CNPJ | Motor de Borderô |
 |---|---|---|
 | O que analisa | Um CNPJ ou CPF individual (cadastro, sanções, risco) | Um borderô completo em CNAB 400 (cedente, sacados, títulos e NFe) |
-| Entrada | Body JSON com `document` (CNPJ ou CPF) | `multipart/form-data` com o arquivo remessa (`file`), `cedenteCnpj` e ZIP de NFe opcional (`xmls`) |
+| Entrada | Body JSON com `document` (CNPJ ou CPF) | `multipart/form-data` com o arquivo remessa (`file`), `cedente_cnpj` e ZIP de NFe opcional (`xmls`) |
 | Endpoints | `POST /v1/analyses` e `GET /v1/analyses/{id}` | `POST /v1/operations`, `GET /v1/operations/{id}` e `GET /v1/operations/{id}/result` |
 | Cobrança | Por análise | Por entidade única do borderô (cedente + sacados únicos) |
-| Resultado | `verdict` + `blocks` + `coverage` | Árvore cedente → sacados → títulos com `issues` por nó, `summary`, `coverage` e `degradedRules` |
+| Resultado | `verdict` + `blocks` + `coverage` | Árvore cedente → sacados → títulos com `issues` por nó, `summary`, `coverage` e `degraded_rules` |
 | Caso típico | Onboarding/KYC, due diligence de uma contraparte | Esteira de FIDC, securitizadora ou factoring analisando uma remessa |
 
 Regra prática: se a pergunta é "**posso operar com esta empresa/pessoa?**", use o Motor de CPF/CNPJ. Se é "**o que fazer com cada título deste borderô?**", use o Motor de Borderô.
@@ -35,9 +35,9 @@ sequenceDiagram
     participant C as Seu sistema
     participant B as Motor de Bordero
     participant A as Motor de CPF/CNPJ
-    C->>B: POST /v1/operations (multipart: file + cedenteCnpj)
+    C->>B: POST /v1/operations (multipart: file + cedente_cnpj)
     B->>A: 1 analise por entidade unica
-    B-->>C: 202 (operationId, status: queued)
+    B-->>C: 202 (operation_id, status: queued)
     C->>B: GET /v1/operations/{id}/result
     B-->>C: cedente, sacados, titulos, issues, summary
 ```

@@ -1,6 +1,6 @@
 ---
 title: "Engines"
-description: "Como cada motor decide o que verificar: resolução da engine (engine_id/engineId), ações, templates do sistema e blocos"
+description: "Como cada motor decide o que verificar: resolução da engine (engine_id/engine_id), ações, templates do sistema e blocos"
 icon: "gears"
 ---
 
@@ -14,16 +14,16 @@ Uma **engine** é a configuração de uma análise: ela define quais blocos de v
 | **Alerta** (`alert`) | Bloco acionado sai com status `alert`; um ou mais `alert` (sem `blocked`) → verdict `alerta` | Issue de `category: "alert"` no nó; sem nenhum bloqueio, o nó fica `alerted` |
 | **Ignorar** (`ignore`) | Bloco não é avaliado | Regra não é avaliada |
 
-Se nenhuma verificação é acionada, o resultado é `aprovado` (CPF/CNPJ) ou `approved` (borderô). Se o motor termina mas uma fonte de dados falhou: no CPF/CNPJ o verdict fica `incompleto`; no borderô, a regra afetada vai para `degradedRules` e os títulos afetados contam como `alerted` no summary. Veja [Ciclo de vida](/motores/ciclo-de-vida).
+Se nenhuma verificação é acionada, o resultado é `aprovado` (CPF/CNPJ) ou `approved` (borderô). Se o motor termina mas uma fonte de dados falhou: no CPF/CNPJ o verdict fica `incompleto`; no borderô, a regra afetada vai para `degraded_rules` e os títulos afetados contam como `alerted` no summary. Veja [Ciclo de vida](/motores/ciclo-de-vida).
 
 Blocos marcados como **ignorar** nos templates são opt-in: vêm desligados por padrão e passam a contar quando você muda a ação para alerta ou bloqueio em uma engine própria.
 
 ## Como a engine é resolvida
 
-O campo é **opcional** nos dois motores — `engine_id` no body JSON do Motor de CPF/CNPJ, `engineId` como parte de texto do multipart no Motor de Borderô:
+O campo é **opcional** nos dois motores — `engine_id` no body JSON do Motor de CPF/CNPJ, `engine_id` como parte de texto do multipart no Motor de Borderô:
 
 1. **Explícito** — a engine precisa existir e pertencer ao seu workspace (ou ser um template do sistema).
-2. **Omitido** — no Motor de CPF/CNPJ, a API usa a engine padrão do workspace para o `subject_type` e, na falta dela, o template do sistema (PJ ou PF). No Motor de Borderô, `engineId` omitido **ou com o valor `template-padrao`** usa a engine template de borderô do sistema.
+2. **Omitido** — no Motor de CPF/CNPJ, a API usa a engine padrão do workspace para o `subject_type` e, na falta dela, o template do sistema (PJ ou PF). No Motor de Borderô, `engine_id` omitido **ou com o valor `template-padrao`** usa a engine template de borderô do sistema.
 
 ### Erros de resolução
 
@@ -102,8 +102,8 @@ console.log(resp.status, await resp.json());
 curl -X POST "https://<API_HOST>/v1/operations" \
   -H "Authorization: Bearer slhk_sua_chave_aqui" \
   -F "file=@bordero.rem" \
-  -F "cedenteCnpj=12345678000195" \
-  -F "engineId=0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f"
+  -F "cedente_cnpj=12345678000195" \
+  -F "engine_id=0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f"
 ```
 
 ```python Python
@@ -115,8 +115,8 @@ with open("bordero.rem", "rb") as cnab:
         headers={"Authorization": "Bearer slhk_sua_chave_aqui"},
         files={"file": cnab},
         data={
-            "cedenteCnpj": "12345678000195",
-            "engineId": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
+            "cedente_cnpj": "12345678000195",
+            "engine_id": "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f",
         },
     )
 print(resp.status_code, resp.json())
@@ -127,8 +127,8 @@ import { openAsBlob } from "node:fs";
 
 const form = new FormData();
 form.append("file", await openAsBlob("bordero.rem"), "bordero.rem");
-form.append("cedenteCnpj", "12345678000195");
-form.append("engineId", "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f");
+form.append("cedente_cnpj", "12345678000195");
+form.append("engine_id", "0b3c6c7e-9d2a-4f1b-8e5d-2a1b3c4d5e6f");
 
 const resp = await fetch("https://<API_HOST>/v1/operations", {
   method: "POST",
@@ -140,7 +140,7 @@ console.log(resp.status, await resp.json());
 </CodeGroup>
 
 <Warning>
-  Se você usa o header opcional `Idempotency-Key`, o `engineId` faz parte do payload comparado: reenviar o mesmo arquivo com a mesma key e um `engineId` diferente resulta em `409 idempotency_conflict`. Veja [Idempotência](/motores/idempotencia).
+  Se você usa o header opcional `Idempotency-Key`, o `engine_id` faz parte do payload comparado: reenviar o mesmo arquivo com a mesma key e um `engine_id` diferente resulta em `409 idempotency_conflict`. Veja [Idempotência](/motores/idempotencia).
 </Warning>
 
 </Tab>
@@ -151,7 +151,7 @@ console.log(resp.status, await resp.json());
 Engines são criadas, editadas, definidas como padrão e arquivadas **no app Sherlocker** (interface web). A API `/v1` não tem endpoints de CRUD de engines — ela só consome uma engine já existente via `engine_id` ou pela resolução automática. Para criar uma política própria (mudar ações, ajustar parâmetros, ativar blocos opt-in), use o app.
 
 <Tip>
-  No borderô, a resposta do `GET /v1/operations/{id}` sempre traz o `engineId` efetivamente usado — inclusive quando você omitiu o campo (ou enviou `template-padrao`) e a operação rodou com o template do sistema. Guarde-o se quiser reproduzir a mesma política em operações futuras.
+  No borderô, a resposta do `GET /v1/operations/{id}` sempre traz o `engine_id` efetivamente usado — inclusive quando você omitiu o campo (ou enviou `template-padrao`) e a operação rodou com o template do sistema. Guarde-o se quiser reproduzir a mesma política em operações futuras.
 </Tip>
 
 ## O que cada motor verifica
@@ -254,7 +254,7 @@ Uma **engine de borderô** reúne dois conjuntos de verificações, organizados 
 - **Regras de título e de NFe** — validações aplicadas a cada título do arquivo: consistência dos dados do CNAB (valores, vencimentos) e cruzamento com o XML de NFe correspondente, quando o ZIP é enviado (veja [Títulos e NFe](/credito/titulos-e-nfe)).
 - **Regras de cedente e de sacado** — a política de risco aplicada a cada entidade única do borderô, com a mesma mecânica de blocos da aba CPF/CNPJ (bloqueio, alerta, ignorar).
 
-É essa engine que determina as **issues** de cada nó do resultado — e, pelo rollup worst-of, o `status` (`approved` | `blocked` | `alerted`) de títulos, sacados e do cedente. Sem `engineId` (ou com `engineId=template-padrao`), a operação roda com a **engine template de borderô do sistema** — a política padrão do Sherlocker para operações de desconto de duplicatas.
+É essa engine que determina as **issues** de cada nó do resultado — e, pelo rollup worst-of, o `status` (`approved` | `blocked` | `alerted`) de títulos, sacados e do cedente. Sem `engine_id` (ou com `engine_id=template-padrao`), a operação roda com a **engine template de borderô do sistema** — a política padrão do Sherlocker para operações de desconto de duplicatas.
 
 Como cada regra reage — o que vira issue de `category: "alert"`, o que vira `blocking` — depende da configuração da engine. Uma engine de borderô não utilizável retorna `422 no_engine`.
 

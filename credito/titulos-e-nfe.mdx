@@ -1,10 +1,10 @@
 ---
 title: "Títulos e NFe"
-description: "Referência do shape de título na árvore do resultado, o campo nfeChave e a validação cruzada com o ZIP de NFe"
+description: "Referência do shape de título na árvore do resultado, o campo nfe_chave e a validação cruzada com o ZIP de NFe"
 icon: "file-invoice"
 ---
 
-Quando a operação chega a `completed`, o `GET /v1/operations/{id}/result` devolve a árvore **cedente → sacados → títulos**. Esta página é a referência do nó de título, do campo `nfeChave` e da validação cruzada com os XMLs de NFe.
+Quando a operação chega a `completed`, o `GET /v1/operations/{id}/result` devolve a árvore **cedente → sacados → títulos**. Esta página é a referência do nó de título, do campo `nfe_chave` e da validação cruzada com os XMLs de NFe.
 
 ## Shape de um título
 
@@ -15,8 +15,8 @@ Cada título aparece dentro de `cedente.sacados[].titulos[]`:
   "id": "c0a80001-0000-0000-0000-000000000003",
   "numero": "DOC-001",
   "valor": 1234.56,
-  "dataVencimento": "2026-08-01",
-  "nfeChave": "35230612345678000195550010000000011000000011",
+  "data_vencimento": "2026-08-01",
+  "nfe_chave": "35230612345678000195550010000000011000000011",
   "status": "approved",
   "issues": []
 }
@@ -27,12 +27,12 @@ Cada título aparece dentro de `cedente.sacados[].titulos[]`:
 | `id` | UUID | Identificador do título no resultado |
 | `numero` | string | Identificador do título no arquivo remessa (campo "seu número" do CNAB 400) |
 | `valor` | number | Valor do título |
-| `dataVencimento` | string | Data de vencimento (`YYYY-MM-DD`) |
-| `nfeChave` | string \| null | Chave da NFe vinculada ao título; `null` se o título não traz chave |
+| `data_vencimento` | string | Data de vencimento (`YYYY-MM-DD`) |
+| `nfe_chave` | string \| null | Chave da NFe vinculada ao título; `null` se o título não traz chave |
 | `status` | enum | `approved` \| `blocked` \| `alerted` — status consolidado do título, derivado das suas `issues` (worst-of) |
-| `issues` | array | Violações de regra do título — cada uma com `ruleId`, `ruleName`, `category`, `status`, `message`, `detail` e `dataSources` (veja [Ciclo de vida](/motores/ciclo-de-vida)) |
+| `issues` | array | Violações de regra do título — cada uma com `rule_id`, `rule_name`, `category`, `status`, `message`, `detail` e `data_sources` (veja [Ciclo de vida](/motores/ciclo-de-vida)) |
 
-O documento e a razão social do sacado estão no **nó pai** (`sacados[].cnpjCpf`, `sacados[].razaoSocial`, `sacados[].tipo`). O detalhamento de risco do cedente e de cada sacado está nas `issues` dos próprios nós `cedente` e `sacados[]` da árvore — não existem mais IDs de análise separados por título.
+O documento e a razão social do sacado estão no **nó pai** (`sacados[].cnpj_cpf`, `sacados[].razao_social`, `sacados[].tipo`). O detalhamento de risco do cedente e de cada sacado está nas `issues` dos próprios nós `cedente` e `sacados[]` da árvore — não existem mais IDs de análise separados por título.
 
 <Note>
   Com o filtro padrão do `/result` (`?filter=issues`), títulos aprovados e sacados sem problemas são **podados** da árvore. Use `?filter=all` para receber todos os títulos. O `summary` sempre reflete o dataset completo, independentemente do filtro.
@@ -48,7 +48,7 @@ curl -X POST "https://<API_HOST>/v1/operations" \
   -H "Authorization: Bearer slhk_sua_chave_aqui" \
   -F "file=@bordero.rem" \
   -F "xmls=@nfes.zip" \
-  -F "cedenteCnpj=12345678000195"
+  -F "cedente_cnpj=12345678000195"
 ```
 
 ```python Python
@@ -59,7 +59,7 @@ with open("bordero.rem", "rb") as cnab, open("nfes.zip", "rb") as xmls:
         "https://<API_HOST>/v1/operations",
         headers={"Authorization": "Bearer slhk_sua_chave_aqui"},
         files={"file": cnab, "xmls": xmls},
-        data={"cedenteCnpj": "12345678000195"},
+        data={"cedente_cnpj": "12345678000195"},
     )
 print(resp.status_code, resp.json())
 ```
@@ -70,7 +70,7 @@ import { openAsBlob } from "node:fs";
 const form = new FormData();
 form.append("file", await openAsBlob("bordero.rem"), "bordero.rem");
 form.append("xmls", await openAsBlob("nfes.zip"), "nfes.zip");
-form.append("cedenteCnpj", "12345678000195");
+form.append("cedente_cnpj", "12345678000195");
 
 const resp = await fetch("https://<API_HOST>/v1/operations", {
   method: "POST",
@@ -93,13 +93,13 @@ console.log(resp.status, await resp.json());
 
 Não existe um campo de status de NFe por título: o resultado da validação aparece de duas formas na árvore do `/result`:
 
-1. **`titulo.nfeChave`** — a chave da NFe vinculada ao título, ou `null` quando o título não traz chave.
+1. **`titulo.nfe_chave`** — a chave da NFe vinculada ao título, ou `null` quando o título não traz chave.
 2. **Issues do título** — cada problema encontrado no cruzamento (divergência de valor, ausência de lastro etc.) vira uma issue em `titulo.issues[]`, com `category` `blocking` ou `alert` conforme a configuração da [engine de borderô](/motores/engines). O status consolidado do título (`approved` | `blocked` | `alerted`) já reflete essas issues, pelo rollup worst-of.
 
-Se a fonte necessária para uma verificação ficar indisponível, o problema **não vira issue**: a regra afetada aparece em `degradedRules[]` (com `ruleId`, `provider` e `titulosAffected`) e a cobertura por provider em `coverage[]`. No `summary`, os títulos afetados contam como `alerted`.
+Se a fonte necessária para uma verificação ficar indisponível, o problema **não vira issue**: a regra afetada aparece em `degraded_rules[]` (com `rule_id`, `provider` e `titulos_affected`) e a cobertura por provider em `coverage[]`. No `summary`, os títulos afetados contam como `alerted`.
 
 <Warning>
-  `nfeChave: null` não é um problema — é a **ausência de chave** no CNAB, e portanto de validação. Se a sua esteira exige lastro de NFe para todos os títulos, envie sempre a parte `xmls`, use uma engine com as regras de NFe ativas e trate `nfeChave: null`, as issues de NFe e `degradedRules` na sua regra de aprovação.
+  `nfe_chave: null` não é um problema — é a **ausência de chave** no CNAB, e portanto de validação. Se a sua esteira exige lastro de NFe para todos os títulos, envie sempre a parte `xmls`, use uma engine com as regras de NFe ativas e trate `nfe_chave: null`, as issues de NFe e `degraded_rules` na sua regra de aprovação.
 </Warning>
 
 ## Limites dos arquivos
@@ -109,7 +109,7 @@ Se a fonte necessária para uma verificação ficar indisponível, o problema **
 | `file` | CNAB 400 remessa (`.rem`) — Banco Paulista 611, 444 colunas, Windows-1252 | 16 MB |
 | `xmls` | ZIP com XMLs de NFe (`nfeProc`) | 32 MB |
 
-Arquivo ausente, acima do limite ou CNAB que não parseia retornam `400 validation_error` com `errors[]` field-level (`file`, `xmls`, `cedenteCnpj`) — e nada é cobrado, já que o débito só acontece após o parse. Veja [Erros](/motor-analise/erros).
+Arquivo ausente, acima do limite ou CNAB que não parseia retornam `400 validation_error` com `errors[]` field-level (`file`, `xmls`, `cedente_cnpj`) — e nada é cobrado, já que o débito só acontece após o parse. Veja [Erros](/motor-analise/erros).
 
 ## Próximos passos
 
