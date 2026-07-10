@@ -18,16 +18,16 @@ Neste guia você envia um borderô CNAB 400, acompanha o processamento até a co
 - **Arquivo CNAB 400 remessa** (`.rem`) — Banco Paulista 611, 444 colunas, Windows-1252 — com no máximo 16 MB.
 - **CNPJ do cedente** da operação (14 dígitos, com ou sem formatação).
 
-A base URL de todos os exemplos é `https://<API_HOST>/v1`.
+A base URL de todos os exemplos é `https://221b-api.sherlocker.com.br/api/v1`.
 
 <Note>
-  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
 </Note>
 
 <Steps>
 <Step title="Crie a operação">
 
-Envie um `POST /v1/operations` como **`multipart/form-data`** — o arquivo vai direto no form, sem base64:
+Envie um `POST /operations` como **`multipart/form-data`** — o arquivo vai direto no form, sem base64:
 
 | Parte | Tipo | Obrigatória | Descrição |
 |---|---|---|---|
@@ -40,7 +40,7 @@ Envie um `POST /v1/operations` como **`multipart/form-data`** — o arquivo vai 
 
 <CodeGroup>
 ```bash cURL
-curl -X POST "https://<API_HOST>/v1/operations" \
+curl -X POST "https://221b-api.sherlocker.com.br/api/v1/operations" \
   -H "Authorization: Bearer slhk_sua_chave_aqui" \
   -F "file=@bordero.rem" \
   -F "xmls=@nfes.zip" \
@@ -53,7 +53,7 @@ import requests
 
 with open("bordero.rem", "rb") as cnab, open("nfes.zip", "rb") as xmls:
     resp = requests.post(
-        "https://<API_HOST>/v1/operations",
+        "https://221b-api.sherlocker.com.br/api/v1/operations",
         headers={"Authorization": "Bearer slhk_sua_chave_aqui"},
         files={"file": cnab, "xmls": xmls},
         data={"cedente_cnpj": "12345678000195", "engine_id": "template-padrao"},
@@ -72,7 +72,7 @@ form.append("xmls", await openAsBlob("nfes.zip"), "nfes.zip");
 form.append("cedente_cnpj", "12345678000195");
 form.append("engine_id", "template-padrao");
 
-const resp = await fetch("https://<API_HOST>/v1/operations", {
+const resp = await fetch("https://221b-api.sherlocker.com.br/api/v1/operations", {
   method: "POST",
   headers: { Authorization: "Bearer slhk_sua_chave_aqui" },
   body: form,
@@ -102,14 +102,14 @@ Guarde o `operation_id`: é com ele que você consulta o status e o resultado. A
 </Step>
 <Step title="Acompanhe até a conclusão">
 
-Consulte `GET /v1/operations/{id}` até o status ficar terminal (`completed` ou `failed`). O vocabulário de status é `queued` → `processing` → `completed` | `failed`. Não há header `Retry-After` nem campo de intervalo no body — consulte a cada **~2 segundos** (consultar mais rápido não acelera o resultado, e o limite global é de 100 requisições por minuto por IP):
+Consulte `GET /operations/{id}` até o status ficar terminal (`completed` ou `failed`). O vocabulário de status é `queued` → `processing` → `completed` | `failed`. Não há header `Retry-After` nem campo de intervalo no body — consulte a cada **~2 segundos** (consultar mais rápido não acelera o resultado, e o limite global é de 100 requisições por minuto por IP):
 
 <CodeGroup>
 ```bash cURL
 OPERATION_ID="b2c3d4e5-0000-0000-0000-000000000001"
 
 while true; do
-  RESP=$(curl -s "https://<API_HOST>/v1/operations/$OPERATION_ID" \
+  RESP=$(curl -s "https://221b-api.sherlocker.com.br/api/v1/operations/$OPERATION_ID" \
     -H "Authorization: Bearer slhk_sua_chave_aqui")
   STATUS=$(echo "$RESP" | jq -r '.status')
   echo "status: $STATUS"
@@ -128,7 +128,7 @@ import time
 
 while True:
     resp = requests.get(
-        f"https://<API_HOST>/v1/operations/{operation_id}",
+        f"https://221b-api.sherlocker.com.br/api/v1/operations/{operation_id}",
         headers={"Authorization": "Bearer slhk_sua_chave_aqui"},
     )
     op = resp.json()
@@ -143,7 +143,7 @@ while True:
 ```javascript Node.js
 let op;
 while (true) {
-  const resp = await fetch(`https://<API_HOST>/v1/operations/${operation_id}`, {
+  const resp = await fetch(`https://221b-api.sherlocker.com.br/api/v1/operations/${operation_id}`, {
     headers: { Authorization: "Bearer slhk_sua_chave_aqui" },
   });
   op = await resp.json();
@@ -184,10 +184,10 @@ while (true) {
 </Step>
 <Step title="Busque o resultado hierárquico">
 
-Com a operação `completed`, chame o `GET /v1/operations/{id}/result`. Por padrão (`?filter=issues`) a resposta poda os títulos aprovados e os sacados sem problemas — você recebe **só o que precisa de atenção**:
+Com a operação `completed`, chame o `GET /operations/{id}/result`. Por padrão (`?filter=issues`) a resposta poda os títulos aprovados e os sacados sem problemas — você recebe **só o que precisa de atenção**:
 
 ```bash cURL
-curl "https://<API_HOST>/v1/operations/$OPERATION_ID/result" \
+curl "https://221b-api.sherlocker.com.br/api/v1/operations/$OPERATION_ID/result" \
   -H "Authorization: Bearer slhk_sua_chave_aqui"
 ```
 
@@ -305,7 +305,7 @@ Um filtro típico — listar as issues bloqueantes da operação:
 
 ```python Python
 result = requests.get(
-    f"https://<API_HOST>/v1/operations/{operation_id}/result",
+    f"https://221b-api.sherlocker.com.br/api/v1/operations/{operation_id}/result",
     headers={"Authorization": "Bearer slhk_sua_chave_aqui"},
 ).json()
 
@@ -345,7 +345,7 @@ Outras mensagens comuns: `Invalid CNPJ format` (dígito verificador do `cedente_
 
 ## O que você construiu
 
-- Um fluxo completo de análise de borderô: `POST /v1/operations` multipart (202) → polling em `GET /v1/operations/{id}` (`queued`/`processing` → `completed`) → resultado hierárquico em `GET /v1/operations/{id}/result`.
+- Um fluxo completo de análise de borderô: `POST /operations` multipart (202) → polling em `GET /operations/{id}` (`queued`/`processing` → `completed`) → resultado hierárquico em `GET /operations/{id}/result`.
 - Um consumo enxuto do resultado: `?filter=issues` (padrão) entrega só os nós com problemas; `?filter=all` entrega a árvore completa.
 - Interpretação de `issues`, `summary`, `coverage` e `degraded_rules` — incluindo a validação de NFe via issues do título e `nfe_chave`.
 

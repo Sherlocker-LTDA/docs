@@ -14,7 +14,7 @@ Para que o time localize sua requisição nos logs, inclua sempre:
 |------|----------------|
 | `request_id` | Header de resposta `x-request-id`, campo `instance` do erro (`/v1?request_id=<id>`) ou campo `request_id` do body |
 | Timestamp | Data e hora da requisição (com fuso horário) |
-| Endpoint | Método e rota chamados (ex.: `POST /v1/analyses` ou `POST /v1/operations`) |
+| Endpoint | Método e rota chamados (ex.: `POST /analyses` ou `POST /operations`) |
 | `code` do erro | Campo `code` do body de erro (ex.: `server_error`) |
 | Body do erro | O JSON completo da resposta, se possível |
 | `id` da análise/operação | Quando o problema é em um run específico (resultado inesperado, `failed`) |

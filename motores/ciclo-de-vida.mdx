@@ -4,17 +4,17 @@ description: "Estados de uma análise ou operação, semântica dos verdicts e c
 icon: "arrows-rotate"
 ---
 
-Tudo que os motores criam — uma análise (`POST /v1/analyses`) ou uma operação de borderô (`POST /v1/operations`) — é processado de forma assíncrona e passa pela **mesma forma de máquina de estados**: aguardando → executando → terminal. O que muda é o vocabulário público de cada motor. Esta página explica os estados, o polling e, por motor, o que cada campo do resultado significa.
+Tudo que os motores criam — uma análise (`POST /analyses`) ou uma operação de borderô (`POST /operations`) — é processado de forma assíncrona e passa pela **mesma forma de máquina de estados**: aguardando → executando → terminal. O que muda é o vocabulário público de cada motor. Esta página explica os estados, o polling e, por motor, o que cada campo do resultado significa.
 
 <Note>
-  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
 </Note>
 
 ## Máquina de estados
 
 O campo `status` passa por dois estados não-terminais e um terminal, com nomes diferentes em cada motor:
 
-| Fase | CPF/CNPJ (`/v1/analyses`) | Borderô (`/v1/operations`) | Terminal? | Significado |
+| Fase | CPF/CNPJ (`/analyses`) | Borderô (`/operations`) | Terminal? | Significado |
 |------|---------------------------|----------------------------|-----------|-------------|
 | Aguardando | `pending` | `queued` | Não | Aceito (202) e aguardando processamento |
 | Executando | `running` | `processing` | Não | Motor executando as verificações |
@@ -38,7 +38,7 @@ Respostas terminais (`completed`/`failed`) são estáveis — o resultado não m
 
 ## Polling
 
-Consulte o resultado com `GET /v1/analyses/{id}` ou `GET /v1/operations/{id}`. A indicação de intervalo difere por motor:
+Consulte o resultado com `GET /analyses/{id}` ou `GET /operations/{id}`. A indicação de intervalo difere por motor:
 
 - **CPF/CNPJ**: enquanto o run não é terminal, a resposta traz o campo `poll_after_seconds: 2` no body e o header `Retry-After: 2`. Quando o status é terminal, campo e header deixam de aparecer.
 - **Borderô**: não há campo de intervalo nem header `Retry-After` — consulte a cada **~2 segundos** até `completed` ou `failed`.
@@ -48,7 +48,7 @@ Consulte o resultado com `GET /v1/analyses/{id}` ou `GET /v1/operations/{id}`. A
 import requests
 import time
 
-API_HOST = "<API_HOST>"
+API_HOST = "221b-api.sherlocker.com.br/api/v1"
 HEADERS = {"Authorization": "Bearer slhk_sua_chave_aqui"}
 
 # Para o Motor de Bordero, troque "analyses" por "operations"
@@ -57,7 +57,7 @@ run_id = "a1b2c3d4-0000-0000-0000-000000000001"
 
 while True:
     resp = requests.get(
-        f"https://{API_HOST}/v1/analyses/{run_id}",
+        f"https://{API_HOST}/analyses/{run_id}",
         headers=HEADERS,
     )
     data = resp.json()
@@ -69,7 +69,7 @@ while True:
 ```
 
 ```javascript Node.js
-const API_HOST = "<API_HOST>";
+const API_HOST = "221b-api.sherlocker.com.br/api/v1";
 const headers = { Authorization: "Bearer slhk_sua_chave_aqui" };
 
 // Para o Motor de Bordero, troque "analyses" por "operations"
@@ -79,7 +79,7 @@ const runId = "a1b2c3d4-0000-0000-0000-000000000001";
 let data;
 while (true) {
   const resp = await fetch(
-    `https://${API_HOST}/v1/analyses/${runId}`,
+    `https://${API_HOST}/analyses/${runId}`,
     { headers }
   );
   data = await resp.json();
@@ -152,7 +152,7 @@ Enquanto a análise está em `pending` ou `running`, `verdict`, `blocks`, `cover
 
 ### Exemplo: em andamento
 
-`GET /v1/analyses/{id}` com a análise ainda em `running` retorna `200` com header `Retry-After: 2`:
+`GET /analyses/{id}` com a análise ainda em `running` retorna `200` com header `Retry-After: 2`:
 
 ```json
 {
@@ -202,8 +202,8 @@ Os campos `tokens_charged` e `balance` aparecem na resposta quando disponíveis.
 
 No borderô, status e resultado moram em endpoints diferentes:
 
-- `GET /v1/operations/{id}` — o **envelope de status** (camelCase), sempre com todos os campos.
-- `GET /v1/operations/{id}/result` — o **resultado hierárquico** (árvore cedente → sacados → títulos), disponível apenas quando `completed`. Antes disso, retorna [`409 conflict`](/problems/conflict).
+- `GET /operations/{id}` — o **envelope de status** (camelCase), sempre com todos os campos.
+- `GET /operations/{id}/result` — o **resultado hierárquico** (árvore cedente → sacados → títulos), disponível apenas quando `completed`. Antes disso, retorna [`409 conflict`](/problems/conflict).
 
 ### Status de entidade
 
@@ -233,7 +233,7 @@ O envelope de status traz **sempre todos os campos**; o que muda é o preenchime
 
 ### Exemplo: em processamento
 
-`GET /v1/operations/{id}` com a operação ainda em `processing` (sem header `Retry-After` — consulte a cada ~2s):
+`GET /operations/{id}` com a operação ainda em `processing` (sem header `Retry-After` — consulte a cada ~2s):
 
 ```json
 {
@@ -275,7 +275,7 @@ O envelope de status traz **sempre todos os campos**; o que muda é o preenchime
 }
 ```
 
-A partir daí, busque a árvore completa em `GET /v1/operations/{id}/result` — por padrão só os nós com problemas (`?filter=issues`); com `?filter=all`, todos. O shape de cada título, incluindo `nfe_chave` e as issues de NFe, está em [Títulos e NFe](/credito/titulos-e-nfe); o fluxo completo, no [Quickstart](/credito/quickstart).
+A partir daí, busque a árvore completa em `GET /operations/{id}/result` — por padrão só os nós com problemas (`?filter=issues`); com `?filter=all`, todos. O shape de cada título, incluindo `nfe_chave` e as issues de NFe, está em [Títulos e NFe](/credito/titulos-e-nfe); o fluxo completo, no [Quickstart](/credito/quickstart).
 
 </Tab>
 </Tabs>

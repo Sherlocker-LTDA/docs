@@ -4,10 +4,10 @@ description: "Referência comum de erros dos Motores de Análise: formato RFC 78
 icon: "triangle-exclamation"
 ---
 
-Toda resposta de erro da API `/v1` segue o [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) e é retornada com `Content-Type: application/problem+json`. Isso vale para os **dois motores** — Motor de CPF/CNPJ (`POST /v1/analyses`, `GET /v1/analyses/{id}`) e Motor de Borderô (`POST /v1/operations`, `GET /v1/operations/{id}`, `GET /v1/operations/{id}/result`): mesmo formato, mesmos códigos.
+Toda resposta de erro da API `/v1` segue o [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) e é retornada com `Content-Type: application/problem+json`. Isso vale para os **dois motores** — Motor de CPF/CNPJ (`POST /analyses`, `GET /analyses/{id}`) e Motor de Borderô (`POST /operations`, `GET /operations/{id}`, `GET /operations/{id}/result`): mesmo formato, mesmos códigos.
 
 <Note>
-  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
 </Note>
 
 ## Formato base
@@ -15,7 +15,7 @@ Toda resposta de erro da API `/v1` segue o [RFC 7807](https://datatracker.ietf.o
 Exemplo: uma requisição sem o header `Authorization` retorna `401`:
 
 ```bash
-curl -i "https://<API_HOST>/v1/analyses/a1b2c3d4-0000-0000-0000-000000000001"
+curl -i "https://221b-api.sherlocker.com.br/api/v1/analyses/a1b2c3d4-0000-0000-0000-000000000001"
 ```
 
 ```json
@@ -60,7 +60,7 @@ Cada código tem uma página própria em `/problems/<code>`, válida para os doi
 | [`forbidden`](/problems/forbidden) | 403 | **Ambos:** 403 genérico, não relacionado a feature | — |
 | [`not_found`](/problems/not_found) | 404 | **Ambos:** análise/operação inexistente ou de outro workspace; `engine_id` inexistente ou de outro workspace | — |
 | [`idempotency_conflict`](/problems/idempotency_conflict) | 409 | **Ambos:** mesma `Idempotency-Key` em andamento, ou reutilizada com conteúdo diferente — no CPF/CNPJ a comparação cobre o body; no borderô, o payload multipart (arquivos + campos). No borderô a key é opcional: sem ela, não há deduplicação | — |
-| [`conflict`](/problems/conflict) | 409 | **Borderô:** `GET /v1/operations/{id}/result` antes de a operação chegar a `completed` | — |
+| [`conflict`](/problems/conflict) | 409 | **Borderô:** `GET /operations/{id}/result` antes de a operação chegar a `completed` | — |
 | [`no_engine`](/problems/no_engine) | 422 | **Ambos:** engine arquivada, incompatível ou não utilizável; nenhuma engine disponível | — |
 | [`http_error`](/problems/http_error) | varia | **Ambos:** fallback genérico para HTTP não mapeado em um código mais específico | — |
 | [`server_error`](/problems/server_error) | 500 | **Ambos:** erro inesperado no servidor; use o `instance` (request_id) ao acionar o suporte | — |
@@ -134,7 +134,7 @@ Aponta para a página de solicitação de acesso ao beta:
 Faça o branching pelo campo `code` — o tratamento é o mesmo nos dois motores. Regras práticas:
 
 - `validation_error` / `bad_request`: corrija a requisição. Se for reenviar um POST com conteúdo diferente, use uma `Idempotency-Key` **nova** (a mesma key com conteúdo diferente retorna `409`).
-- `idempotency_conflict` com requisição em andamento: não reenvie o POST — consulte via `GET` (`/v1/analyses/{id}` ou `/v1/operations/{id}`) com o `id` da resposta 202 original.
+- `idempotency_conflict` com requisição em andamento: não reenvie o POST — consulte via `GET` (`/analyses/{id}` ou `/operations/{id}`) com o `id` da resposta 202 original.
 - `server_error` (e timeouts de rede): reenvie **com a mesma** `Idempotency-Key`, com back-off. Detalhes em [Idempotência](/motores/idempotencia).
 
 <CodeGroup>
@@ -153,7 +153,7 @@ class SherlockerApiError(Exception):
 
 
 def handle_sherlocker_error(resp: requests.Response) -> None:
-    """Tratamento unico para /v1/analyses e /v1/operations."""
+    """Tratamento unico para /analyses e /operations."""
     problem = resp.json()
     code = problem.get("code")
 
@@ -184,7 +184,7 @@ def handle_sherlocker_error(resp: requests.Response) -> None:
         raise SherlockerApiError(problem)
 
     if code == "conflict":
-        # Bordero: /result antes de completed — continue o polling do GET /v1/operations/{id}
+        # Bordero: /result antes de completed — continue o polling do GET /operations/{id}
         raise SherlockerApiError(problem)
 
     if code in ("forbidden", "not_found", "no_engine"):
@@ -203,7 +203,7 @@ def handle_sherlocker_error(resp: requests.Response) -> None:
  *   errors: [{ field, message }]        (validation_error)
  *   required, balance                   (insufficient_tokens)
  *   request_access_url                  (feature_not_enabled)
- * Tratamento unico para /v1/analyses e /v1/operations.
+ * Tratamento unico para /analyses e /operations.
  */
 async function handleSherlockerError(res) {
   const problem = await res.json();
@@ -241,7 +241,7 @@ async function handleSherlockerError(res) {
       throw new Error("Requisicao concorrente em andamento: faca polling da original");
 
     case "conflict":
-      // Bordero: /result antes de completed — continue o polling do GET /v1/operations/{id}
+      // Bordero: /result antes de completed — continue o polling do GET /operations/{id}
       throw new Error("Operacao ainda nao concluida: aguarde status completed");
 
     case "no_engine":

@@ -4,7 +4,7 @@ description: "Referência do shape de título na árvore do resultado, o campo n
 icon: "file-invoice"
 ---
 
-Quando a operação chega a `completed`, o `GET /v1/operations/{id}/result` devolve a árvore **cedente → sacados → títulos**. Esta página é a referência do nó de título, do campo `nfe_chave` e da validação cruzada com os XMLs de NFe.
+Quando a operação chega a `completed`, o `GET /operations/{id}/result` devolve a árvore **cedente → sacados → títulos**. Esta página é a referência do nó de título, do campo `nfe_chave` e da validação cruzada com os XMLs de NFe.
 
 ## Shape de um título
 
@@ -40,11 +40,11 @@ O documento e a razão social do sacado estão no **nó pai** (`sacados[].cnpj_c
 
 ## Validação cruzada com NFe
 
-A parte opcional `xmls` do `POST /v1/operations` (multipart) recebe um **ZIP com os XMLs de NFe** (`nfeProc`) dos títulos, com no máximo 32 MB. Quando enviado, o motor procura o XML correspondente a cada título e cruza os dados do CNAB com os da nota — a duplicata bate com uma NFe real?
+A parte opcional `xmls` do `POST /operations` (multipart) recebe um **ZIP com os XMLs de NFe** (`nfeProc`) dos títulos, com no máximo 32 MB. Quando enviado, o motor procura o XML correspondente a cada título e cruza os dados do CNAB com os da nota — a duplicata bate com uma NFe real?
 
 <CodeGroup>
 ```bash cURL
-curl -X POST "https://<API_HOST>/v1/operations" \
+curl -X POST "https://221b-api.sherlocker.com.br/api/v1/operations" \
   -H "Authorization: Bearer slhk_sua_chave_aqui" \
   -F "file=@bordero.rem" \
   -F "xmls=@nfes.zip" \
@@ -56,7 +56,7 @@ import requests
 
 with open("bordero.rem", "rb") as cnab, open("nfes.zip", "rb") as xmls:
     resp = requests.post(
-        "https://<API_HOST>/v1/operations",
+        "https://221b-api.sherlocker.com.br/api/v1/operations",
         headers={"Authorization": "Bearer slhk_sua_chave_aqui"},
         files={"file": cnab, "xmls": xmls},
         data={"cedente_cnpj": "12345678000195"},
@@ -72,7 +72,7 @@ form.append("file", await openAsBlob("bordero.rem"), "bordero.rem");
 form.append("xmls", await openAsBlob("nfes.zip"), "nfes.zip");
 form.append("cedente_cnpj", "12345678000195");
 
-const resp = await fetch("https://<API_HOST>/v1/operations", {
+const resp = await fetch("https://221b-api.sherlocker.com.br/api/v1/operations", {
   method: "POST",
   headers: { Authorization: "Bearer slhk_sua_chave_aqui" },
   body: form,
@@ -82,7 +82,7 @@ console.log(resp.status, await resp.json());
 </CodeGroup>
 
 <Note>
-  Durante o beta, substitua `<API_HOST>` pelo host fornecido pelo time Sherlocker. O host definitivo será publicado na promoção a produção.
+  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
 </Note>
 
 <Tip>

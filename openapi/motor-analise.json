@@ -7,8 +7,8 @@
   },
   "servers": [
     {
-      "url": "https://api.sherlocker.com.br",
-      "description": "Beta - host definitivo sera confirmado na promocao a producao; durante o beta use o host fornecido pelo time Sherlocker"
+      "url": "https://221b-api.sherlocker.com.br/api/v1",
+      "description": "Mesma base da API 221b. Autentica via Authorization: Bearer slhk_ (nao usa ?token=)."
     }
   ],
   "security": [
@@ -62,7 +62,7 @@
           "id": {
             "type": "string",
             "format": "uuid",
-            "description": "UUID da análise criada. Use no GET /v1/analyses/{id}."
+            "description": "UUID da análise criada. Use no GET /analyses/{id}."
           },
           "status": {
             "type": "string",
@@ -288,7 +288,7 @@
     }
   },
   "paths": {
-    "/v1/analyses": {
+    "/analyses": {
       "post": {
         "summary": "Criar análise",
         "description": "Cria uma análise de risco assíncrona para um CNPJ (PJ) ou CPF (PF). O tipo é auto-detectado pelo tamanho do documento (14 → pj, 11 → pf) ou definido em subject_type. Análises de CPF exigem a feature analysis_engine_pf. Os tokens são debitados na criação; análises que terminam em failed são reembolsadas automaticamente. Retorna 202 na primeira submissão e 200 no replay idempotente (mesma Idempotency-Key + mesmo body em até 24h, sem nova cobrança).",
@@ -494,7 +494,7 @@
         }
       }
     },
-    "/v1/analyses/{id}": {
+    "/analyses/{id}": {
       "get": {
         "summary": "Consultar análise",
         "description": "Retorna o estado atual e o resultado de uma análise. Enquanto pending/running, a resposta inclui poll_after_seconds no body e o header Retry-After com o mesmo valor: aguarde esse intervalo antes do próximo poll. Quando completed/failed, traz verdict, blocks e coverage.",

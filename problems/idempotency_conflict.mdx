@@ -15,13 +15,13 @@ A `Idempotency-Key` enviada conflita com uma requisição anterior. Há dois cen
 
 O que conta como "mesmo conteúdo" depende do motor:
 
-- **`POST /v1/analyses`**: o body da requisição.
-- **`POST /v1/operations`**: o payload multipart — o conteúdo dos arquivos (`file` e `xmls`) e os campos (`cedente_cnpj`, `engine_id`, `purpose`, `legal_basis`). Trocar o arquivo, o ZIP ou qualquer campo com a mesma key gera conflito.
+- **`POST /analyses`**: o body da requisição.
+- **`POST /operations`**: o payload multipart — o conteúdo dos arquivos (`file` e `xmls`) e os campos (`cedente_cnpj`, `engine_id`, `purpose`, `legal_basis`). Trocar o arquivo, o ZIP ou qualquer campo com a mesma key gera conflito.
 
 Para referência: mesma key + **mesmo** conteúdo dentro de 24 horas não é erro, retorna `200` com o body original da `202`, sem nova cobrança.
 
 <Note>
-  No `POST /v1/operations` (Motor de Borderô), o header `Idempotency-Key` é **opcional**: este erro só pode ocorrer quando você envia a key. Sem ela, cada POST cria uma operação nova — sem deduplicação e sem conflito. No `POST /v1/analyses`, a key continua obrigatória.
+  No `POST /operations` (Motor de Borderô), o header `Idempotency-Key` é **opcional**: este erro só pode ocorrer quando você envia a key. Sem ela, cada POST cria uma operação nova — sem deduplicação e sem conflito. No `POST /analyses`, a key continua obrigatória.
 </Note>
 
 ## Causas comuns
@@ -32,7 +32,7 @@ Para referência: mesma key + **mesmo** conteúdo dentro de 24 horas não é err
 
 ## Como corrigir
 
-- **Concorrência**: não reenvie o POST. Aguarde a requisição original terminar e consulte via `GET` (`/v1/analyses/{id}` ou `/v1/operations/{id}`) usando o `id` da resposta `202` original.
+- **Concorrência**: não reenvie o POST. Aguarde a requisição original terminar e consulte via `GET` (`/analyses/{id}` ou `/operations/{id}`) usando o `id` da resposta `202` original.
 - **Conteúdo diferente**: se a mudança é intencional (nova análise, outro borderô), gere uma **nova** `Idempotency-Key`.
 - **Retry seguro**: em timeout ou erro 5xx de rede, reenvie com a **mesma** key (nunca gere key nova em retry, há risco de cobrança dupla). Em 4xx de validação, corrija e use key **nova**.
 - Gere a key como UUID e amarre ao ID interno do job (ou do borderô) no seu sistema, garantindo uma key por requisição pretendida.
