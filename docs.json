@@ -90,7 +90,8 @@
               "entidades/endereco",
               "entidades/divida",
               "entidades/beneficio",
-              "entidades/licitacao"
+              "entidades/licitacao",
+              "entidades/doacao-politica"
             ]
           },
           {
@@ -158,6 +159,14 @@
               "GET /listas-restritivas/cpf/{cpf}",
               "GET /listas-restritivas/cnpj/{cnpj}",
               "GET /listas-restritivas/{documento}"
+            ]
+          },
+          {
+            "group": "Doações Políticas",
+            "openapi": "/openapi/doacoes-politicas.json",
+            "pages": [
+              "GET /doacoes-politicas/cpf/{cpf}",
+              "GET /doacoes-politicas/cnpj/{cnpj}"
             ]
           }
         ]

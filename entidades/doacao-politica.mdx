@@ -1,0 +1,204 @@
+---
+title: "Doação Política"
+description: "Doação eleitoral declarada ao TSE, consultada pelo CPF/CNPJ do doador"
+icon: "check-to-slot"
+---
+
+Uma **Doação Política** representa uma doação declarada ao TSE nas prestações de
+contas eleitorais, consultada pelo documento do **doador**: quem doou, para quem
+(candidato, partido ou comitê), quanto, quando e por qual caminho (direta ou via
+intermediário).
+
+## Cobertura
+
+| Escopo | Status |
+|--------|--------|
+| Eleições 2018, 2020, 2022 e 2024 (candidatos + doador originário) | **Disponível** |
+| Órgãos partidários e prestações partidárias anuais | Em expansão |
+| Legado 2002–2016 (inclui doações de empresas, legais até 2014) | Em expansão |
+
+O CPF/CNPJ do **doador** vem completo e sem máscara em todos os anos cobertos.
+A base é atualizada conforme o TSE publica retificações, então valores podem
+mudar entre consultas distantes no tempo.
+
+## Resposta
+
+```json
+{
+  "documento": "12345678901",
+  "tipo_documento": "cpf",
+  "nome": "João Da Silva",
+  "total": 7,
+  "limit": 100,
+  "offset": 0,
+  "resumo": {
+    "valor_total": 15500.00,
+    "valor_financeiro": 13000.00,
+    "valor_estimavel": 2500.00,
+    "quantidade": 7,
+    "anos": [2022, 2020, 2018],
+    "beneficiarios_distintos": 4,
+    "partidos_distintos": 3,
+    "por_ano": [
+      { "ano": 2022, "valor": 8000.00, "quantidade": 3 }
+    ],
+    "por_partido": [
+      { "partido": "XYZ", "valor": 8000.00, "quantidade": 3 }
+    ]
+  },
+  "doacoes": []
+}
+```
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `documento` | string | Documento consultado (apenas dígitos) |
+| `tipo_documento` | string | `cpf` ou `cnpj` |
+| `nome` | string \| null | Nome do doador (Title Case, prioriza o nome na Receita Federal). `null` quando `total` é 0 |
+| `total` | integer | Total de doações **com os filtros aplicados** (não é o tamanho da página) — base da paginação |
+| `limit` | integer | Tamanho da página aplicado (default 100, máx. 500) |
+| `offset` | integer | Deslocamento aplicado (máx. 50.000) |
+| `resumo` | object \| null | Agregado com os filtros aplicados. `null` quando `total` é 0 |
+| `doacoes` | array | Página de doações (ano DESC, data DESC) |
+
+<Note>
+Documento com dígito verificador inválido ou sem doações responde `200` com
+`total: 0` — nunca `404` — e o token da consulta é **reembolsado
+automaticamente**.
+</Note>
+
+## Doação
+
+```json
+{
+  "sq_receita": "20221234567890",
+  "ano_eleicao": 2022,
+  "turno": 1,
+  "descricao_eleicao": "Eleições Gerais Estaduais 2022",
+  "data": "2022-09-15",
+  "valor": 5000.00,
+  "natureza": "financeira",
+  "especie": "Transferência eletrônica",
+  "fonte_receita": "Outros",
+  "origem_receita": "Recursos de pessoas físicas",
+  "descricao": "Doação via PIX",
+  "recibo": "000000123456XY",
+  "origem": "originaria",
+  "intermediario": {
+    "nome": "Partido Xyz - Diretório Nacional",
+    "documento": "01234567000189"
+  },
+  "beneficiario": {
+    "tipo": "candidato",
+    "sq_candidato": "250001234567",
+    "cpf": "12345678909",
+    "nome": "Maria Oliveira",
+    "numero": "1234",
+    "cargo": "Deputado Federal",
+    "partido": "XYZ",
+    "uf": "SP",
+    "municipio": null,
+    "cnpj_prestador": "45678901000123"
+  }
+}
+```
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `sq_receita` | string | Identificador TSE do recibo (recibos estimáveis são itemizados em várias linhas com o mesmo `sq_receita`) |
+| `ano_eleicao` | integer | Ano da eleição |
+| `turno` | integer \| null | Turno (1 ou 2) |
+| `descricao_eleicao` | string | Descrição da eleição na fonte |
+| `data` | string \| null | Data da doação (YYYY-MM-DD); `null` quando a fonte não informa |
+| `valor` | number | Valor em R$ |
+| `natureza` | string | `financeira` (dinheiro) ou `estimavel` (bens/serviços valorados) |
+| `especie` | string | Espécie do recurso (ex.: `Transferência eletrônica`, `Estimado`) |
+| `fonte_receita` | string | Fonte do recurso (ex.: `Fundo Partidário`, `FEFC`, `Outros`) |
+| `origem_receita` | string | Origem do recurso na fonte TSE |
+| `descricao` | string \| null | Descrição livre da doação |
+| `recibo` | string \| null | Número do recibo eleitoral |
+| `origem` | string | `direta` ou `originaria` (ver abaixo) |
+| `intermediario` | object \| null | Quem repassou o recurso; presente apenas quando `origem` é `originaria` |
+| `beneficiario` | object | Quem recebeu a doação |
+
+### `origem`: direta vs. originária
+
+O TSE publica dois registros para doações intermediadas: a **receita** (doador
+direto do beneficiário) e o **doador originário** (quem de fato deu o dinheiro —
+típico de repasses partido → candidato e financiamento coletivo). A API unifica
+os dois na mesma lista:
+
+- **`direta`** — o documento consultado doou diretamente ao beneficiário.
+  `intermediario` é `null`.
+- **`originaria`** — o recurso chegou ao beneficiário através de um
+  intermediário (ex.: diretório partidário). `intermediario` traz nome e
+  documento de quem repassou.
+
+<Warning>
+A mesma doação intermediada aparece na consulta de **dois documentos
+diferentes**: no doador direto como `direta` e no doador originário como
+`originaria`. Ao cruzar consultas de documentos distintos, não some os dois
+lados como se fossem doações independentes.
+</Warning>
+
+### `natureza`: financeira vs. estimável
+
+- **`financeira`** — dinheiro (transferência, PIX, cheque, espécie).
+- **`estimavel`** — bens ou serviços **valorados em dinheiro** (cessão de
+  veículo, serviços prestados). Não é dinheiro que entrou em conta. O `resumo`
+  separa `valor_financeiro` de `valor_estimavel`; `valor_total` soma os dois.
+
+## Beneficiário
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `tipo` | string | `candidato`, `partido` ou `comite` |
+| `sq_candidato` | string \| null | Sequencial TSE do candidato; `null` para partido/comitê |
+| `cpf` | string \| null | CPF do candidato. Completo em 2018/2020/2022; `null` para partido/comitê e em 2024 (suprimido pelo TSE) |
+| `nome` | string | Nome do beneficiário (Title Case) |
+| `numero` | string \| null | Número de urna |
+| `cargo` | string \| null | Cargo em disputa (Title Case) |
+| `partido` | string | Sigla do partido (upper) |
+| `uf` | string | UF da prestação (27 UFs + `BR`, `VT`, `ZZ`) |
+| `municipio` | string \| null | Município em eleição municipal; `null` em eleição federal/estadual |
+| `cnpj_prestador` | string \| null | CNPJ da prestação de contas do beneficiário |
+
+## Resumo agregado
+
+O `resumo` reflete **todas** as doações do documento com os filtros aplicados
+(não apenas a página atual). Com `?ano=2022`, o `total`, o `resumo` e a lista
+refletem só 2022.
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `valor_total` | number | Soma geral em R$ (financeiro + estimável) |
+| `valor_financeiro` | number | Soma das doações em dinheiro |
+| `valor_estimavel` | number | Soma das doações em bens/serviços |
+| `quantidade` | integer | Total de doações |
+| `anos` | array | Anos com doações (decrescente) |
+| `beneficiarios_distintos` | integer | Beneficiários distintos |
+| `partidos_distintos` | integer | Partidos distintos |
+| `por_ano` | array | `{ ano, valor, quantidade }` por ano (ano decrescente) |
+| `por_partido` | array | `{ partido, valor, quantidade }` por partido (valor decrescente) |
+
+## Limitações
+
+1. **Doações de empresas (PJ) só existem até 2014** — proibidas a partir das
+   eleições de 2016 (ADI 4650 + Lei 13.165/2015). Nos anos cobertos hoje
+   (2018–2024), CNPJs doadores tendem a ser diretórios partidários,
+   candidaturas e comitês.
+2. **CPF do candidato beneficiário é suprimido pelo TSE em 2024** — o campo
+   `beneficiario.cpf` vem completo em 2018/2020/2022 e `null` em 2024. O
+   documento do **doador** vem completo em todos os anos.
+3. **Doações sem documento de doador divulgado** na fonte TSE não são
+   localizáveis por CPF/CNPJ.
+
+## Endpoints
+
+| Rota | Descrição |
+|------|-----------|
+| `GET /doacoes-politicas/cpf/{cpf}` | Doações feitas por um CPF (direta + originária) |
+| `GET /doacoes-politicas/cnpj/{cnpj}` | Doações feitas por um CNPJ (direta + originária) |
+
+Query params comuns: `limit` (default 100, máx. 500), `offset` (máx. 50.000),
+`ano`, `uf`, `partido`, `cargo` — filtros se aplicam também ao `total`/`resumo`.
