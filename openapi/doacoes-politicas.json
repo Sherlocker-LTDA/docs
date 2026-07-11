@@ -1,0 +1,748 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Doações Políticas API",
+    "description": "Consulta as doações políticas FEITAS por um CPF ou CNPJ (doador), declaradas ao TSE nas prestações de contas eleitorais: quem doou, para quem, quanto e quando. Unifica doações diretas e originárias (repasses intermediados) na mesma lista, com resumo agregado (total, por ano, por partido). Síncrono: a resposta já vem completa, sem job nem polling. Documento inválido ou sem doações responde 200 com total 0 (crédito reembolsado automaticamente) — nunca 404.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "DoacaoBeneficiario": {
+        "type": "object",
+        "description": "Quem recebeu a doação: candidato, órgão partidário ou comitê.",
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "enum": ["candidato", "partido", "comite"],
+            "description": "Tipo do beneficiário",
+            "example": "candidato"
+          },
+          "sq_candidato": {
+            "type": "string",
+            "nullable": true,
+            "description": "Sequencial TSE do candidato; null para partido/comitê",
+            "example": "250001234567"
+          },
+          "cpf": {
+            "type": "string",
+            "nullable": true,
+            "description": "CPF do candidato beneficiário (apenas dígitos). Completo nas eleições 2018/2020/2022; null para partido/comitê e em 2024 (suprimido pelo TSE)",
+            "example": "12345678909"
+          },
+          "nome": {
+            "type": "string",
+            "description": "Nome do beneficiário (Title Case)",
+            "example": "Maria Oliveira"
+          },
+          "numero": {
+            "type": "string",
+            "nullable": true,
+            "description": "Número de urna do candidato",
+            "example": "1234"
+          },
+          "cargo": {
+            "type": "string",
+            "nullable": true,
+            "description": "Cargo em disputa (Title Case); null para partido/comitê",
+            "example": "Deputado Federal"
+          },
+          "partido": {
+            "type": "string",
+            "description": "Sigla do partido (upper)",
+            "example": "XYZ"
+          },
+          "uf": {
+            "type": "string",
+            "description": "UF da prestação de contas. Além das 27 UFs: BR (nacional), VT (voto em trânsito), ZZ (exterior)",
+            "example": "SP"
+          },
+          "municipio": {
+            "type": "string",
+            "nullable": true,
+            "description": "Município (Title Case) em eleição municipal; null em eleição federal/estadual",
+            "example": null
+          },
+          "cnpj_prestador": {
+            "type": "string",
+            "nullable": true,
+            "description": "CNPJ da prestação de contas do beneficiário (apenas dígitos)",
+            "example": "45678901000123"
+          }
+        }
+      },
+      "DoacaoIntermediario": {
+        "type": "object",
+        "description": "Doador direto que repassou o recurso ao beneficiário. Presente apenas quando origem = originaria (ex.: repasse de diretório partidário, financiamento coletivo).",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "description": "Nome do intermediário (Title Case)",
+            "example": "Partido Xyz - Diretório Nacional"
+          },
+          "documento": {
+            "type": "string",
+            "description": "CPF/CNPJ do intermediário (apenas dígitos)",
+            "example": "01234567000189"
+          }
+        }
+      },
+      "DoacaoPolitica": {
+        "type": "object",
+        "description": "Uma doação declarada ao TSE. Cada item corresponde a uma linha dos arquivos de prestação de contas — receitas estimáveis itemizadas pelo TSE (mesmo sq_receita) aparecem como linhas separadas, cada uma com seu valor.",
+        "properties": {
+          "sq_receita": {
+            "type": "string",
+            "description": "Identificador TSE do recibo (não é único por linha: recibos estimáveis são itemizados em várias linhas)",
+            "example": "20221234567890"
+          },
+          "ano_eleicao": {
+            "type": "integer",
+            "description": "Ano da eleição/exercício",
+            "example": 2022
+          },
+          "turno": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Turno (1 ou 2); null quando não informado",
+            "example": 1
+          },
+          "descricao_eleicao": {
+            "type": "string",
+            "description": "Descrição da eleição na fonte TSE",
+            "example": "Eleições Gerais Estaduais 2022"
+          },
+          "data": {
+            "type": "string",
+            "nullable": true,
+            "description": "Data da doação (ISO YYYY-MM-DD); null quando a fonte não informa",
+            "example": "2022-09-15"
+          },
+          "valor": {
+            "type": "number",
+            "description": "Valor em R$ (2 casas decimais)",
+            "example": 5000.0
+          },
+          "natureza": {
+            "type": "string",
+            "enum": ["financeira", "estimavel"],
+            "description": "financeira = dinheiro (transferência, PIX, espécie); estimavel = bens/serviços valorados em dinheiro (cessão de veículo, serviços). Estimável NÃO é dinheiro que entrou em conta — não some cegamente com financeira",
+            "example": "financeira"
+          },
+          "especie": {
+            "type": "string",
+            "description": "Espécie do recurso na fonte TSE",
+            "example": "Transferência eletrônica"
+          },
+          "fonte_receita": {
+            "type": "string",
+            "description": "Fonte do recurso (ex.: Fundo Partidário, FEFC, Outros)",
+            "example": "Outros"
+          },
+          "origem_receita": {
+            "type": "string",
+            "description": "Origem do recurso na fonte TSE",
+            "example": "Recursos de pessoas físicas"
+          },
+          "descricao": {
+            "type": "string",
+            "nullable": true,
+            "description": "Descrição livre da doação; null quando vazia",
+            "example": "Doação via PIX"
+          },
+          "recibo": {
+            "type": "string",
+            "nullable": true,
+            "description": "Número do recibo eleitoral; null quando não emitido",
+            "example": "000000123456XY"
+          },
+          "origem": {
+            "type": "string",
+            "enum": ["direta", "originaria"],
+            "description": "direta = o documento consultado doou diretamente ao beneficiário; originaria = o documento é o doador originário e o recurso chegou via um intermediário (ver campo intermediario)",
+            "example": "direta"
+          },
+          "intermediario": {
+            "nullable": true,
+            "description": "Doador direto que repassou o recurso; presente apenas quando origem = originaria",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DoacaoIntermediario"
+              }
+            ]
+          },
+          "beneficiario": {
+            "$ref": "#/components/schemas/DoacaoBeneficiario"
+          }
+        }
+      },
+      "DoacoesResumoPorAno": {
+        "type": "object",
+        "properties": {
+          "ano": {
+            "type": "integer",
+            "example": 2022
+          },
+          "valor": {
+            "type": "number",
+            "example": 8000.0
+          },
+          "quantidade": {
+            "type": "integer",
+            "example": 3
+          }
+        }
+      },
+      "DoacoesResumoPorPartido": {
+        "type": "object",
+        "properties": {
+          "partido": {
+            "type": "string",
+            "example": "XYZ"
+          },
+          "valor": {
+            "type": "number",
+            "example": 8000.0
+          },
+          "quantidade": {
+            "type": "integer",
+            "example": 3
+          }
+        }
+      },
+      "DoacoesResumo": {
+        "type": "object",
+        "description": "Agregado de TODAS as doações do documento com os filtros aplicados (não apenas da página atual).",
+        "properties": {
+          "valor_total": {
+            "type": "number",
+            "description": "Soma de todas as doações em R$ (financeiro + estimável)",
+            "example": 15500.0
+          },
+          "valor_financeiro": {
+            "type": "number",
+            "description": "Soma das doações em dinheiro",
+            "example": 13000.0
+          },
+          "valor_estimavel": {
+            "type": "number",
+            "description": "Soma das doações em bens/serviços valorados",
+            "example": 2500.0
+          },
+          "quantidade": {
+            "type": "integer",
+            "description": "Total de doações (igual ao campo total do envelope)",
+            "example": 7
+          },
+          "anos": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Anos com doações (decrescente)",
+            "example": [2022, 2020, 2018]
+          },
+          "beneficiarios_distintos": {
+            "type": "integer",
+            "description": "Beneficiários distintos (candidatos/órgãos)",
+            "example": 4
+          },
+          "partidos_distintos": {
+            "type": "integer",
+            "example": 3
+          },
+          "por_ano": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DoacoesResumoPorAno"
+            },
+            "description": "Breakdown por ano (ano decrescente)"
+          },
+          "por_partido": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DoacoesResumoPorPartido"
+            },
+            "description": "Breakdown por partido (valor decrescente)"
+          }
+        }
+      },
+      "DoacoesPoliticasResponse": {
+        "type": "object",
+        "properties": {
+          "documento": {
+            "type": "string",
+            "description": "Documento consultado (apenas dígitos)",
+            "example": "12345678901"
+          },
+          "tipo_documento": {
+            "type": "string",
+            "enum": ["cpf", "cnpj"],
+            "example": "cpf"
+          },
+          "nome": {
+            "type": "string",
+            "nullable": true,
+            "description": "Nome do doador (Title Case; prioriza o nome na Receita Federal). null quando total = 0",
+            "example": "João Da Silva"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total de doações COM os filtros aplicados (não é o tamanho da página) — base da paginação. 0 = sem doações, documento inválido ou base indisponível (crédito reembolsado)",
+            "example": 7
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Tamanho da página aplicado (após clamp)",
+            "example": 100
+          },
+          "offset": {
+            "type": "integer",
+            "description": "Deslocamento aplicado (após clamp)",
+            "example": 0
+          },
+          "resumo": {
+            "nullable": true,
+            "description": "Resumo agregado com os filtros aplicados; null quando total = 0",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DoacoesResumo"
+              }
+            ]
+          },
+          "doacoes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DoacaoPolitica"
+            },
+            "description": "Página de doações, ordenada por ano DESC e data DESC"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number",
+            "example": 400
+          },
+          "message": {
+            "type": "string",
+            "example": "Validation failed"
+          },
+          "path": {
+            "type": "string",
+            "example": "/api/v1/doacoes-politicas/cpf/12345678901"
+          },
+          "timestamp": {
+            "type": "string",
+            "example": "2026-07-11T10:45:18.042Z"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/doacoes-politicas/cpf/{cpf}": {
+      "get": {
+        "operationId": "getDoacoesPoliticasByCpf",
+        "summary": "Doações políticas de uma pessoa",
+        "description": "Lista paginada das doações eleitorais declaradas ao TSE em que o CPF aparece como doador direto (origem = direta) ou doador originário de repasse intermediado (origem = originaria, com o intermediário que repassou), mais um resumo agregado. Os filtros se aplicam à página E ao total/resumo. Documento com dígito verificador inválido ou sem doações responde 200 com total 0 (crédito reembolsado automaticamente) — nunca 400/404. Cobertura atual: eleições 2018, 2020, 2022 e 2024.",
+        "tags": ["Doações Políticas"],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "description": "CPF do doador (com ou sem formatação; não-dígitos são removidos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678901"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Tamanho da página (default 100; máximo 500 — valores fora da faixa são ajustados, não rejeitados)",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "example": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Deslocamento da página (default 0; máximo 50000 — valores fora da faixa são ajustados)",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "example": 0
+            }
+          },
+          {
+            "name": "ano",
+            "in": "query",
+            "required": false,
+            "description": "Filtra pelo ano da eleição (ex.: 2022). Aplica-se também ao total e ao resumo",
+            "schema": {
+              "type": "integer",
+              "example": 2022
+            }
+          },
+          {
+            "name": "uf",
+            "in": "query",
+            "required": false,
+            "description": "UF da prestação de contas do beneficiário (27 UFs + BR/VT/ZZ; case-insensitive)",
+            "schema": {
+              "type": "string",
+              "example": "SP"
+            }
+          },
+          {
+            "name": "partido",
+            "in": "query",
+            "required": false,
+            "description": "Sigla do partido do beneficiário (case-insensitive)",
+            "schema": {
+              "type": "string",
+              "example": "XYZ"
+            }
+          },
+          {
+            "name": "cargo",
+            "in": "query",
+            "required": false,
+            "description": "Cargo do beneficiário (ex.: Vereador, Deputado Federal; case-insensitive)",
+            "schema": {
+              "type": "string",
+              "example": "Deputado Federal"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Envelope com total, resumo agregado e página de doações. total 0 quando não há resultados ou o documento é inválido (crédito reembolsado) — nunca 404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoacoesPoliticasResponse"
+                },
+                "example": {
+                  "documento": "12345678901",
+                  "tipo_documento": "cpf",
+                  "nome": "João Da Silva",
+                  "total": 7,
+                  "limit": 2,
+                  "offset": 0,
+                  "resumo": {
+                    "valor_total": 15500.0,
+                    "valor_financeiro": 13000.0,
+                    "valor_estimavel": 2500.0,
+                    "quantidade": 7,
+                    "anos": [2022, 2020, 2018],
+                    "beneficiarios_distintos": 4,
+                    "partidos_distintos": 3,
+                    "por_ano": [
+                      { "ano": 2022, "valor": 8000.0, "quantidade": 3 },
+                      { "ano": 2020, "valor": 4500.0, "quantidade": 2 },
+                      { "ano": 2018, "valor": 3000.0, "quantidade": 2 }
+                    ],
+                    "por_partido": [
+                      { "partido": "XYZ", "valor": 8000.0, "quantidade": 3 },
+                      { "partido": "ABC", "valor": 4500.0, "quantidade": 2 },
+                      { "partido": "DEF", "valor": 3000.0, "quantidade": 2 }
+                    ]
+                  },
+                  "doacoes": [
+                    {
+                      "sq_receita": "20221234567890",
+                      "ano_eleicao": 2022,
+                      "turno": 1,
+                      "descricao_eleicao": "Eleições Gerais Estaduais 2022",
+                      "data": "2022-09-15",
+                      "valor": 5000.0,
+                      "natureza": "financeira",
+                      "especie": "Transferência eletrônica",
+                      "fonte_receita": "Outros",
+                      "origem_receita": "Recursos de pessoas físicas",
+                      "descricao": "Doação via PIX",
+                      "recibo": "000000123456XY",
+                      "origem": "originaria",
+                      "intermediario": {
+                        "nome": "Partido Xyz - Diretório Nacional",
+                        "documento": "01234567000189"
+                      },
+                      "beneficiario": {
+                        "tipo": "candidato",
+                        "sq_candidato": "250001234567",
+                        "cpf": "12345678909",
+                        "nome": "Maria Oliveira",
+                        "numero": "1234",
+                        "cargo": "Deputado Federal",
+                        "partido": "XYZ",
+                        "uf": "SP",
+                        "municipio": null,
+                        "cnpj_prestador": "45678901000123"
+                      }
+                    },
+                    {
+                      "sq_receita": "20229876543210",
+                      "ano_eleicao": 2022,
+                      "turno": 1,
+                      "descricao_eleicao": "Eleições Gerais Estaduais 2022",
+                      "data": "2022-08-20",
+                      "valor": 2500.0,
+                      "natureza": "estimavel",
+                      "especie": "Estimado",
+                      "fonte_receita": "Outros",
+                      "origem_receita": "Recursos de pessoas físicas",
+                      "descricao": "Cessão de veículo para a campanha",
+                      "recibo": null,
+                      "origem": "direta",
+                      "intermediario": null,
+                      "beneficiario": {
+                        "tipo": "candidato",
+                        "sq_candidato": "250007654321",
+                        "cpf": "98765432100",
+                        "nome": "José Pereira",
+                        "numero": "45",
+                        "cargo": "Governador",
+                        "partido": "XYZ",
+                        "uf": "SP",
+                        "municipio": null,
+                        "cnpj_prestador": "56789012000134"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Query param com tipo inválido (ex.: ano não numérico). Documento inválido NÃO gera 400 — responde 200 com total 0",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Quota de consultas do workspace excedida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doacoes-politicas/cnpj/{cnpj}": {
+      "get": {
+        "operationId": "getDoacoesPoliticasByCnpj",
+        "summary": "Doações políticas de uma empresa",
+        "description": "Mesmo contrato da consulta por CPF. Contexto legal: doações empresariais diretas foram legais até as eleições de 2014 (proibidas a partir de 2016 — ADI 4650 + Lei 13.165/2015); nos anos cobertos atualmente (2018–2024), CNPJs doadores tendem a ser diretórios partidários, candidaturas e comitês, não empresas privadas. Os dados de doações de empresas (até 2014) chegam nas próximas fases de cobertura.",
+        "tags": ["Doações Políticas"],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ do doador (com ou sem formatação; não-dígitos são removidos)",
+            "schema": {
+              "type": "string",
+              "example": "12345678000190"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Tamanho da página (default 100; máximo 500 — valores fora da faixa são ajustados, não rejeitados)",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "example": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Deslocamento da página (default 0; máximo 50000 — valores fora da faixa são ajustados)",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "example": 0
+            }
+          },
+          {
+            "name": "ano",
+            "in": "query",
+            "required": false,
+            "description": "Filtra pelo ano da eleição (ex.: 2022). Aplica-se também ao total e ao resumo",
+            "schema": {
+              "type": "integer",
+              "example": 2022
+            }
+          },
+          {
+            "name": "uf",
+            "in": "query",
+            "required": false,
+            "description": "UF da prestação de contas do beneficiário (27 UFs + BR/VT/ZZ; case-insensitive)",
+            "schema": {
+              "type": "string",
+              "example": "SP"
+            }
+          },
+          {
+            "name": "partido",
+            "in": "query",
+            "required": false,
+            "description": "Sigla do partido do beneficiário (case-insensitive)",
+            "schema": {
+              "type": "string",
+              "example": "XYZ"
+            }
+          },
+          {
+            "name": "cargo",
+            "in": "query",
+            "required": false,
+            "description": "Cargo do beneficiário (ex.: Vereador, Deputado Federal; case-insensitive)",
+            "schema": {
+              "type": "string",
+              "example": "Prefeito"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Envelope com total, resumo agregado e página de doações. total 0 quando não há resultados ou o documento é inválido (crédito reembolsado) — nunca 404",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoacoesPoliticasResponse"
+                },
+                "example": {
+                  "documento": "01234567000189",
+                  "tipo_documento": "cnpj",
+                  "nome": "Partido Xyz - Diretório Nacional",
+                  "total": 1,
+                  "limit": 100,
+                  "offset": 0,
+                  "resumo": {
+                    "valor_total": 150000.0,
+                    "valor_financeiro": 150000.0,
+                    "valor_estimavel": 0,
+                    "quantidade": 1,
+                    "anos": [2022],
+                    "beneficiarios_distintos": 1,
+                    "partidos_distintos": 1,
+                    "por_ano": [{ "ano": 2022, "valor": 150000.0, "quantidade": 1 }],
+                    "por_partido": [{ "partido": "XYZ", "valor": 150000.0, "quantidade": 1 }]
+                  },
+                  "doacoes": [
+                    {
+                      "sq_receita": "20225555555555",
+                      "ano_eleicao": 2022,
+                      "turno": 1,
+                      "descricao_eleicao": "Eleições Gerais Estaduais 2022",
+                      "data": "2022-08-10",
+                      "valor": 150000.0,
+                      "natureza": "financeira",
+                      "especie": "Transferência eletrônica",
+                      "fonte_receita": "FEFC",
+                      "origem_receita": "Recursos de partido político",
+                      "descricao": null,
+                      "recibo": "000000987654ZW",
+                      "origem": "direta",
+                      "intermediario": null,
+                      "beneficiario": {
+                        "tipo": "candidato",
+                        "sq_candidato": "250001234567",
+                        "cpf": "12345678909",
+                        "nome": "Maria Oliveira",
+                        "numero": "1234",
+                        "cargo": "Deputado Federal",
+                        "partido": "XYZ",
+                        "uf": "SP",
+                        "municipio": null,
+                        "cnpj_prestador": "45678901000123"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Query param com tipo inválido (ex.: ano não numérico). Documento inválido NÃO gera 400 — responde 200 com total 0",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Quota de consultas do workspace excedida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
