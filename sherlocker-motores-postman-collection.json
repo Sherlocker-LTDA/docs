@@ -29,7 +29,12 @@
     {
       "key": "document",
       "value": "12345678000195",
-      "description": "CNPJ (14 digitos) ou CPF (11 digitos) a analisar no Motor de CPF/CNPJ"
+      "description": "CNPJ (14 digitos) a analisar no Motor de CPF/CNPJ (analise PJ)"
+    },
+    {
+      "key": "cpf",
+      "value": "111.444.777-35",
+      "description": "CPF a analisar no Motor de CPF/CNPJ (analise PF)"
     },
     {
       "key": "analysis_id",
@@ -84,7 +89,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"document\": \"12345678000195\",\n  \"subject_type\": \"pj\",\n  \"purpose\": \"due diligence de fornecedor\"\n}"
+              "raw": "{\n  \"document\": \"{{document}}\",\n  \"subject_type\": \"pj\",\n  \"purpose\": \"due diligence de fornecedor\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/analyses",
@@ -131,7 +136,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"document\": \"111.444.777-35\",\n  \"subject_type\": \"pf\",\n  \"legal_basis\": \"protecao_credito\",\n  \"purpose\": \"onboarding KYC\"\n}"
+              "raw": "{\n  \"document\": \"{{cpf}}\",\n  \"subject_type\": \"pf\",\n  \"legal_basis\": \"protecao_credito\",\n  \"purpose\": \"onboarding KYC\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/analyses",
