@@ -48,6 +48,33 @@ Ambos são assíncronos (polling — no CPF/CNPJ com `poll_after_seconds`/`Retry
   Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
 </Note>
 
+## Collection do Postman
+
+Disponibilizamos uma collection do Postman **só para os Motores**, com as requests dos dois motores (`POST`/`GET /analyses` e `POST`/`GET /operations`), autenticação `Bearer slhk_` já configurada e captura automática do `analysis_id`/`operation_id`.
+
+<Steps>
+  <Step title="Baixar a collection">
+    Faça download do arquivo [sherlocker-motores-postman-collection.json](https://raw.githubusercontent.com/Sherlocker-LTDA/sherlocker-docs/refs/heads/main/sherlocker-motores-postman-collection.json).
+  </Step>
+  <Step title="Importar no Postman">
+    No [Postman](https://www.postman.com/downloads/), clique em **Import** e selecione o arquivo. Você verá a collection **Sherlocker Motores de Análise v1** com as pastas **Motor de CPF/CNPJ** e **Motor de Borderô (CNAB 400)**.
+  </Step>
+  <Step title="Configurar a chave slhk_">
+    Abra a aba **Variables** da collection e preencha `token` com sua chave `slhk_`. A collection já usa `Authorization: Bearer {{token}}` — **não** use `?token=`.
+  </Step>
+  <Step title="Testar">
+    Rode **Criar análise - CNPJ (PJ)**: o `analysis_id` é salvo automaticamente. Em seguida rode **Consultar análise** e repita até o `status` ser `completed`. Para o borderô, selecione o arquivo `.REM` no campo `file` de **Criar operação**.
+  </Step>
+</Steps>
+
+<Note>
+  As variáveis `document` e `cedente_cnpj` já vêm com valores de exemplo. Preencha apenas o `token` para começar.
+</Note>
+
+<Warning>
+  Nunca compartilhe a collection com o `token` preenchido. Use a coluna **Current value** (que não é exportada) em vez de **Initial value**.
+</Warning>
+
 ## Próximos passos
 
 <CardGroup cols={2}>
