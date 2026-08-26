@@ -791,9 +791,16 @@
                 "cpf",
                 "{{cpf}}"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "tipos_vinculo",
+                  "value": "documento,nome",
+                  "description": "Opcional. Sem este parametro, retorna somente vinculos por documento.",
+                  "disabled": true
+                }
+              ]
             },
-            "description": "Retorna processos judiciais vinculados a um CPF."
+            "description": "Retorna por padrao processos vinculados ao CPF pelo documento. Habilite tipos_vinculo=documento,nome para incluir associacoes por nome. Cada processo informa tipo_relacao."
           },
           "response": []
         },
@@ -812,9 +819,16 @@
                 "cnpj",
                 "{{cnpj}}"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "tipos_vinculo",
+                  "value": "documento,nome",
+                  "description": "Opcional. Sem este parametro, retorna somente vinculos por documento.",
+                  "disabled": true
+                }
+              ]
             },
-            "description": "Retorna processos judiciais vinculados a um CNPJ."
+            "description": "Retorna por padrao processos vinculados ao CNPJ pelo documento. Habilite tipos_vinculo=documento,nome para incluir associacoes por nome. Cada processo informa tipo_relacao."
           },
           "response": []
         },

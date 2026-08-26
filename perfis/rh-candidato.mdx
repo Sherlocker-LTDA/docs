@@ -68,6 +68,18 @@ Os **dados básicos** (nome, nascimento / razão social) vêm no campo `dados` d
   `8f6b2e10-1c3a-4d5e-9a7b-2c4d6e8f0a1b`
 </ParamField>
 
+<ParamField body="tipos_vinculo" type="string[]">
+  Opcional. Tipos de vínculo aceitos no módulo `processos`: `documento` e
+  `nome`. O padrão é `["documento"]`. Para incluir também processos associados
+  apenas pelo nome, envie `["documento", "nome"]`.
+</ParamField>
+
+<Note>
+  Por padrão, o perfil RH retorna somente processos vinculados pelo documento,
+  tanto para o candidato quanto para os parentes. A associação por nome é
+  opt-in e pode envolver homônimos.
+</Note>
+
 <ParamField header="Idempotency-Key" type="string">
   Opcional. A mesma chave em até 24h retorna o **mesmo** job, sem executar nem cobrar de novo.
 </ParamField>
@@ -92,6 +104,19 @@ curl -X POST "https://221b-api.sherlocker.com.br/api/v1/perfis" \
 }
 ```
 </CodeGroup>
+
+Para incluir também vínculos por nome:
+
+```bash
+curl -X POST "https://221b-api.sherlocker.com.br/api/v1/perfis" \
+  -H "Authorization: Bearer SEU_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "documento": "123.456.789-00",
+    "perfil_id": "8f6b2e10-1c3a-4d5e-9a7b-2c4d6e8f0a1b",
+    "tipos_vinculo": ["documento", "nome"]
+  }'
+```
 
 ## Consultar
 
@@ -168,6 +193,7 @@ Resposta quando `concluida`:
           {
             "numero_processo": "00012345620248260100",
             "numero_formatado": "0001234-56.2024.8.26.0100",
+            "tipo_relacao": "documento",
             "tribunal": "tjsp",
             "classe_codigo": 1116,
             "classe_nome": "Execução Fiscal",
@@ -346,6 +372,12 @@ interface CriarResposta {     // POST /perfis → 202
   criado_em: string;
 }
 
+interface CriarRequisicao {   // POST /perfis
+  documento: string;
+  perfil_id: string;
+  tipos_vinculo?: ("documento" | "nome")[]; // padrão: ["documento"]
+}
+
 interface Entidade {
   tipo: "pessoa" | "empresa";
   documento: { tipo: "cpf" | "cnpj"; numero: string };
@@ -410,6 +442,7 @@ interface Processos {
   total: number;
   itens: {
     numero_processo: string; numero_formatado: string; tribunal: string;
+    tipo_relacao: "documento" | "nome";
     classe_codigo: number; classe_nome: string; grau: string;
     data_ajuizamento: string; orgao_julgador: string; assuntos: string;
     valor_acao: number | null;
