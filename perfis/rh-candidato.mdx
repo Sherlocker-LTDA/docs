@@ -193,7 +193,7 @@ Resposta quando `concluida`:
           {
             "numero_processo": "00012345620248260100",
             "numero_formatado": "0001234-56.2024.8.26.0100",
-            "tipo_relacao": "documento",
+            "tipo_vinculo": "documento",
             "tribunal": "tjsp",
             "classe_codigo": 1116,
             "classe_nome": "Execução Fiscal",
@@ -442,7 +442,7 @@ interface Processos {
   total: number;
   itens: {
     numero_processo: string; numero_formatado: string; tribunal: string;
-    tipo_relacao: "documento" | "nome";
+    tipo_vinculo: "documento" | "nome";
     classe_codigo: number; classe_nome: string; grau: string;
     data_ajuizamento: string; orgao_julgador: string; assuntos: string;
     valor_acao: number | null;

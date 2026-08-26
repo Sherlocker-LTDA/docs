@@ -800,7 +800,7 @@
                 }
               ]
             },
-            "description": "Retorna por padrao processos vinculados ao CPF pelo documento. Habilite tipos_vinculo=documento,nome para incluir associacoes por nome. Cada processo informa tipo_relacao."
+            "description": "Retorna por padrao processos vinculados ao CPF pelo documento. Habilite tipos_vinculo=documento,nome para incluir associacoes por nome. Cada processo informa tipo_vinculo."
           },
           "response": []
         },
@@ -828,7 +828,7 @@
                 }
               ]
             },
-            "description": "Retorna por padrao processos vinculados ao CNPJ pelo documento. Habilite tipos_vinculo=documento,nome para incluir associacoes por nome. Cada processo informa tipo_relacao."
+            "description": "Retorna por padrao processos vinculados ao CNPJ pelo documento. Habilite tipos_vinculo=documento,nome para incluir associacoes por nome. Cada processo informa tipo_vinculo."
           },
           "response": []
         },

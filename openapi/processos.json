@@ -91,7 +91,7 @@
       "ProcessoDetalhado": {
         "type": "object",
         "required": [
-          "tipo_relacao"
+          "tipo_vinculo"
         ],
         "description": "Processo retornado pela listagem por CPF/CNPJ. Todos os campos sao planos (nao ha objeto `processo` aninhado).",
         "properties": {
@@ -103,7 +103,7 @@
             "type": "string",
             "description": "Numero formatado (ex: 0001234-56.2020.8.26.0100)"
           },
-          "tipo_relacao": {
+          "tipo_vinculo": {
             "type": "string",
             "enum": [
               "documento",
@@ -113,7 +113,7 @@
           },
           "mencoes_nome": {
             "type": "array",
-            "description": "Nomes que associaram o processo quando tipo_relacao e nome.",
+            "description": "Nomes que associaram o processo quando tipo_vinculo e nome.",
             "items": {
               "type": "string"
             }
@@ -275,7 +275,7 @@
       "get": {
         "operationId": "getProcessosByCpf",
         "summary": "Processos judiciais de uma pessoa",
-        "description": "Retorna por padrao somente processos vinculados ao CPF pelo documento. Para incluir tambem associacoes por nome, envie `tipos_vinculo=documento,nome`. Cada processo informa `tipo_relacao`. O comportamento e o mesmo com ou sem `realtime=true`.",
+        "description": "Retorna por padrao somente processos vinculados ao CPF pelo documento. Para incluir tambem associacoes por nome, envie `tipos_vinculo=documento,nome`. Cada processo informa `tipo_vinculo`. O comportamento e o mesmo com ou sem `realtime=true`.",
         "tags": [
           "Processos"
         ],
@@ -361,7 +361,7 @@
                     {
                       "numero_processo": "00012345620208260100",
                       "numero_formatado": "0001234-56.2020.8.26.0100",
-                      "tipo_relacao": "documento",
+                      "tipo_vinculo": "documento",
                       "tribunal": "tjsp",
                       "classe_codigo": 7,
                       "classe_nome": "Procedimento Comum Cível",
@@ -387,7 +387,7 @@
                     {
                       "numero_processo": "10054321520198260002",
                       "numero_formatado": "1005432-15.2019.8.26.0002",
-                      "tipo_relacao": "documento",
+                      "tipo_vinculo": "documento",
                       "tribunal": "tjsp",
                       "classe_codigo": 12,
                       "classe_nome": "Execução Fiscal",
@@ -437,7 +437,7 @@
       "get": {
         "operationId": "getProcessosByCnpj",
         "summary": "Processos judiciais de uma empresa",
-        "description": "Retorna por padrao somente processos vinculados ao CNPJ pelo documento. Para incluir tambem associacoes por nome, envie `tipos_vinculo=documento,nome`. Cada processo informa `tipo_relacao`. O comportamento e o mesmo com ou sem `realtime=true`.",
+        "description": "Retorna por padrao somente processos vinculados ao CNPJ pelo documento. Para incluir tambem associacoes por nome, envie `tipos_vinculo=documento,nome`. Cada processo informa `tipo_vinculo`. O comportamento e o mesmo com ou sem `realtime=true`.",
         "tags": [
           "Processos"
         ],
@@ -523,7 +523,7 @@
                     {
                       "numero_processo": "00054321020218260100",
                       "numero_formatado": "0005432-10.2021.8.26.0100",
-                      "tipo_relacao": "documento",
+                      "tipo_vinculo": "documento",
                       "tribunal": "tjsp",
                       "classe_codigo": 12,
                       "classe_nome": "Execução Fiscal",
@@ -548,7 +548,7 @@
                     {
                       "numero_processo": "10087654320208020001",
                       "numero_formatado": "1008765-43.2020.8.02.0001",
-                      "tipo_relacao": "nome",
+                      "tipo_vinculo": "nome",
                       "mencoes_nome": ["Silva Comércio Ltda"],
                       "tribunal": "trt2",
                       "classe_codigo": 985,
