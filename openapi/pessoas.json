@@ -816,6 +816,16 @@
               "type": "string",
               "example": "12345678901"
             }
+          },
+          {
+            "name": "realtime",
+            "in": "query",
+            "required": false,
+            "description": "Se true, enfileira a validação oficial do nome no TST/BNDT e inclui validacao_oficial na resposta.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           }
         ],
         "responses": {

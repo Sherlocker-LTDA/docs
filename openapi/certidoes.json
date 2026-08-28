@@ -1,0 +1,338 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sherlocker Certidões API",
+    "description": "Emissão assíncrona de comprovante cadastral CNPJ e Certidão de Débitos Trabalhistas, com JSON estruturado e evidência em PDF.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://221b-api.sherlocker.com.br/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "schemas": {
+      "CertidaoError": {
+        "type": "object",
+        "required": ["code", "category", "message", "retryable", "retry_after_seconds"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "FONTE_INDISPONIVEL"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["validation", "business", "upstream", "integration", "integrity", "infrastructure", "configuration", "internal"]
+          },
+          "message": {
+            "type": "string"
+          },
+          "retryable": {
+            "type": "boolean"
+          },
+          "retry_after_seconds": {
+            "type": "integer",
+            "nullable": true
+          }
+        }
+      },
+      "CertidaoEvidence": {
+        "type": "object",
+        "required": ["status", "type", "mime_type", "pdf_url"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["available"]
+          },
+          "type": {
+            "type": "string",
+            "enum": ["official_certificate", "sherlocker_verification_report"]
+          },
+          "mime_type": {
+            "type": "string",
+            "enum": ["application/pdf"]
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "pdf_url": {
+            "type": "string",
+            "example": "/api/v1/certidoes/0d7c8a8a-74e1-42f3-a74b-ecf60568ff51/pdf"
+          }
+        }
+      },
+      "CertidaoEnvelope": {
+        "type": "object",
+        "required": ["certidao_id", "tipo", "status", "stage", "result", "evidence", "error", "links"],
+        "properties": {
+          "certidao_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": ["cpf", "cnpj", "cndt", "nome"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["queued", "processing", "completed", "failed"]
+          },
+          "stage": {
+            "type": "string",
+            "enum": ["waiting_worker", "accessing_source", "completed", "failed"]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "result": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true
+          },
+          "evidence": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CertidaoEvidence"
+              }
+            ],
+            "nullable": true
+          },
+          "error": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CertidaoError"
+              }
+            ],
+            "nullable": true
+          },
+          "links": {
+            "type": "object",
+            "required": ["self", "pdf"],
+            "properties": {
+              "self": {
+                "type": "string"
+              },
+              "pdf": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/certidoes/cpf": {
+      "post": {
+        "summary": "Emitir certidão de CPF",
+        "description": "Inicia a consulta em tempo real do nome e da situação cadastral de um CPF. A emissão é assíncrona; use o identificador retornado para acompanhar o resultado.",
+        "operationId": "emitirCertidaoCpf",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["cpf"],
+                "properties": {
+                  "cpf": {
+                    "type": "string",
+                    "pattern": "^[0-9]{11}$",
+                    "example": "52998224725"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Emissão enfileirada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CertidaoEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "CPF inválido"
+          },
+          "422": {
+            "description": "Dados cadastrais insuficientes para a consulta"
+          }
+        }
+      }
+    },
+    "/certidoes/cnpj": {
+      "post": {
+        "summary": "Emitir certidão de CNPJ",
+        "description": "Inicia a consulta em tempo real dos dados oficiais de um CNPJ. A emissão é assíncrona; use o identificador retornado para acompanhar o resultado.",
+        "operationId": "emitirCertidaoCnpj",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["cnpj"],
+                "properties": {
+                  "cnpj": {
+                    "type": "string",
+                    "pattern": "^[0-9]{14}$",
+                    "example": "11222333000181"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Emissão enfileirada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CertidaoEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "CNPJ inválido"
+          }
+        }
+      }
+    },
+    "/certidoes/trabalhista": {
+      "post": {
+        "summary": "Emitir certidão trabalhista",
+        "description": "Inicia a emissão em tempo real da Certidão Negativa de Débitos Trabalhistas (CNDT) para um CPF ou CNPJ.",
+        "operationId": "emitirCertidaoTrabalhista",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["documento"],
+                "properties": {
+                  "documento": {
+                    "type": "string",
+                    "pattern": "^([0-9]{11}|[0-9]{14})$",
+                    "example": "52998224725"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Emissão enfileirada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CertidaoEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "CPF ou CNPJ inválido"
+          }
+        }
+      }
+    },
+    "/certidoes/{certidaoId}": {
+      "get": {
+        "summary": "Consultar certidão",
+        "description": "Retorna o estado atual da emissão e, quando concluída, os dados estruturados ou o erro encontrado.",
+        "operationId": "consultarCertidao",
+        "parameters": [
+          {
+            "name": "certidaoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado atual da emissão",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CertidaoEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Certidão inexistente ou pertencente a outra workspace"
+          }
+        }
+      }
+    },
+    "/certidoes/{certidaoId}/pdf": {
+      "get": {
+        "summary": "Baixar PDF da certidão",
+        "description": "Retorna o PDF de uma emissão concluída. Enquanto a certidão estiver em processamento, o documento ainda não estará disponível.",
+        "operationId": "baixarPdfCertidao",
+        "parameters": [
+          {
+            "name": "certidaoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirecionamento temporário para a evidência"
+          },
+          "404": {
+            "description": "Certidão inexistente ou pertencente a outra workspace"
+          },
+          "409": {
+            "description": "A emissão ainda não foi concluída"
+          },
+          "503": {
+            "description": "Evidência temporariamente indisponível"
+          }
+        }
+      }
+    }
+  }
+}

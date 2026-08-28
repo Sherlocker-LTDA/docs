@@ -1,0 +1,111 @@
+---
+title: "Base de processos x tempo real"
+description: "Cobertura, latência e uso correto de cada modo de consulta processual"
+icon: "scale-balanced"
+---
+
+A consulta de processos oferece dois caminhos complementares. A **base
+consolidada** é indicada para cobertura, histórico e volume. O modo **tempo
+real** tenta atualizar dados diretamente no sistema público compatível no
+momento da solicitação.
+
+## Quando usar cada modo
+
+| Critério | Base consolidada | Tempo real |
+|---|---|---|
+| Entrada | CPF, CNPJ, nome ou número | CPF/CNPJ nos portais compatíveis; número no tribunal inferido |
+| Latência | Milissegundos ou poucos segundos | Segundos a minutos, em job assíncrono |
+| Cobertura | Múltiplas justiças, tribunais, graus e histórico | Parcial e dependente do portal público |
+| Atualização | Conforme o ciclo da base | Momento da execução |
+| Estabilidade | Alta | Dependente da capacidade e disponibilidade dos sistemas oficiais |
+| Melhor uso | Dossiês, listas, filtros e varredura | Atualizar um caso decisivo ou um processo conhecido |
+
+<Warning>
+  `realtime=true` não significa cobertura nacional. Ele significa que a
+  Sherlocker tentou as fontes compatíveis e informa no job o que foi
+  consultado, concluído, parcial ou bloqueado.
+</Warning>
+
+## Consulta por CPF ou CNPJ
+
+```http
+GET /processos/cpf/{cpf}
+GET /processos/cnpj/{cnpj}
+```
+
+Sem `realtime`, a resposta vem somente da base consolidada. Com
+`?realtime=true`, a resposta mantém os processos já conhecidos e adiciona um
+job para descoberta e atualização:
+
+```http
+GET /processos/cnpj/{cnpj}?realtime=true
+```
+
+```json
+{
+  "documento": "11222333000181",
+  "total": 3,
+  "processos": [],
+  "realtime": {
+    "job_id": "0d7c...",
+    "status": "queued",
+    "poll_url": "/api/v1/processos/jobs/0d7c...",
+    "results_url": "/api/v1/processos/jobs/0d7c.../results"
+  }
+}
+```
+
+O realtime por documento tenta hoje a descoberta em sete TJs estaduais com
+consulta e-SAJ por CPF/CNPJ: TJAC, TJAL, TJAM, TJBA, TJCE, TJMS e TJSP. A
+obtenção de detalhes é mais restrita: há consulta compatível para TJAL, TJAM,
+TJCE e TJSP; os demais podem devolver descoberta parcial ou não disponibilizar
+os detalhes necessários.
+
+Esse fluxo não equivale a uma consulta direta completa em todos os 27 TJs, nem
+cobre diretamente TRFs, TRTs, tribunais superiores, justiça eleitoral ou
+militar por documento. Publicações do PJe/DJEN podem complementar a descoberta
+por nome, mas não substituem uma busca integral no acervo de cada tribunal.
+
+## Consulta por número
+
+```http
+GET /processos/numero/{numero}
+GET /processos/numero/{numero}?realtime=true
+```
+
+Sem `realtime`, a rota lê o processo já indexado. Com `realtime=true`, ela
+devolve o estado atual da base e inicia um job no tribunal inferido do número
+CNJ. Consulte o `poll_url` até o estado terminal.
+
+<Note>
+  O número CNJ identifica ramo, tribunal e unidade de origem, mas isso não
+  garante que o respectivo tribunal disponibilize uma consulta pública
+  compatível. Quando a consulta em tempo real não estiver disponível, a própria
+  resposta informa `realtime.status: "unsupported"` e nenhum job é criado. A
+  Sherlocker não consulta outro tribunal como substituto.
+</Note>
+
+## Como interpretar cobertura
+
+O job distingue:
+
+- `complete`: as etapas previstas para aquela fonte terminaram;
+- `partial`: houve resultado, mas uma ou mais fontes ou detalhes falharam;
+- `failed`: nenhuma resposta utilizável foi produzida;
+- `result_total_is_final`: indica se a lista canônica deixou de crescer.
+
+Um job concluído significa **execução concluída dentro da cobertura declarada**,
+e não “nenhum outro processo existe no Brasil”.
+
+## Por que não existe uma única busca oficial nacional por parte
+
+A [API Pública do DataJud](https://datajud-wiki.cnj.jus.br/api-publica/) é
+organizada por aliases de tribunais e oferece metadados processuais; ela não é
+um resolvedor nacional público de CPF/CNPJ para partes. Já o
+[PJe Comunica](https://comunicaapi.pje.jus.br/swagger/index.html) publica
+comunicações processuais e destinatários, que podem trazer o nome sem expor o
+documento.
+
+Na prática, o dado disponível depende do sistema de origem, do grau, do tipo de
+publicação, do nível de sigilo e da forma como o processo foi cadastrado. Por
+isso, cobertura, vínculo e atualidade são dimensões separadas na resposta.
