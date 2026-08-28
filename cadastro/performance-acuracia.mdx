@@ -4,29 +4,50 @@ description: "Quando usar a base consolidada e quando consultar uma fonte oficia
 icon: "gauge-high"
 ---
 
-A API oferece dois caminhos complementares. A **busca de dados** prioriza
-velocidade, cobertura e volume. As **certidões** priorizam atualidade e evidência
-oficial no momento da decisão.
+A diferença entre as consultas é o **momento de atualização do dado**:
 
-<Note>
-  Quando a decisão depender do nome exato, a certidão consulta o registro oficial
-  no momento da solicitação, sem depender do ciclo de consolidação da base. É a
-  opção indicada para confirmar alterações já registradas, como nome social,
-  mudança de sobrenome por casamento ou divórcio, retificação civil e alteração
-  de razão social.
-</Note>
+- A **busca de Pessoa e Empresa** usa a base consolidada da Sherlocker, atualizada
+  mensalmente. É indicada para consultas rápidas, em volume e com mais dados e
+  relacionamentos.
+- As **certidões** consultam a fonte oficial em tempo real, no momento da
+  solicitação. São indicadas quando a decisão depende do nome ou da situação
+  cadastral registrados naquele momento.
+
+A base consolidada permanece atual conforme seu ciclo mensal. A consulta em
+tempo real acrescenta uma confirmação D+0 e não fica sujeita ao intervalo entre
+uma alteração na fonte oficial e a próxima atualização mensal.
 
 ## Comparação
 
-| Critério | Busca de Pessoa e Empresa | Certidões oficiais |
+| Critério | Base consolidada | Certidões em tempo real |
 |---|---|---|
 | Fonte | Base consolidada da Sherlocker | Portal oficial consultado D+0 |
 | Latência | Normalmente milissegundos ou poucos segundos | TST/CNDT: 10–45s; Receita/CPF e CNPJ: 30–120s; todas podem levar minutos |
-| Atualização | Conforme o ciclo informado para cada conjunto de dados | No momento da solicitação |
+| Atualização | Mensal | No momento da solicitação |
+| Alterações recentes | Entram no próximo ciclo mensal | Reflete as alterações já registradas na fonte oficial |
 | Volume | Adequada para listas, filtros e alto throughput | Adequada para validações pontuais |
 | Cobertura | Combina múltiplas fontes e histórico | Limitada ao escopo jurídico da certidão |
 | Evidência | JSON cadastral consolidado | JSON estruturado e PDF da emissão |
 | Dependência externa | Baixa durante a consulta | Alta: capacidade e disponibilidade da fonte oficial |
+
+## Alterações confirmadas em tempo real
+
+Use a consulta D+0 quando uma alteração recente puder mudar a identificação ou
+a decisão. Entre os cenários mais comuns estão:
+
+- inclusão, alteração ou retirada de nome social;
+- mudança de sobrenome por casamento, divórcio ou dissolução de união;
+- retificação de prenome ou sobrenome no registro civil;
+- mudança de nome decorrente de adoção, filiação ou reconhecimento de
+  paternidade ou maternidade;
+- correção de erro cadastral no nome;
+- alteração de razão social ou nome empresarial;
+- abertura, reativação, suspensão, inaptidão ou baixa de empresa;
+- alteração de natureza jurídica ou de outros dados cadastrais oficiais.
+
+A consulta em tempo real confirma o que já está registrado na fonte oficial no
+momento da solicitação. Ela não antecipa uma alteração que ainda esteja em
+processamento pelo órgão responsável.
 
 ## Use a busca de dados quando
 
@@ -75,7 +96,7 @@ depois solicite a validação em tempo real.
   custo operacional do tempo real somente onde ele melhora a decisão.
 </Tip>
 
-## Acurácia não significa cobertura total
+## Escopo das certidões
 
 Uma certidão é autoritativa dentro do seu propósito, mas não substitui todos os
 dados cadastrais. A CNDT, por exemplo, comprova a situação da pessoa no BNDT; ela
@@ -85,6 +106,3 @@ Já a base consolidada permanece a melhor escolha para reunir histórico,
 relacionamentos e dados de múltiplas fontes com alta velocidade. A certidão
 acrescenta uma confirmação oficial pontual quando a precisão cadastral no momento
 da decisão for o critério principal.
-
-Quando a atualidade for decisiva, use a certidão. Quando velocidade, cobertura e
-volume forem mais importantes, use a busca de dados.
