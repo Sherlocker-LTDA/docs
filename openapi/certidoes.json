@@ -148,7 +148,8 @@
   "paths": {
     "/certidoes/cpf": {
       "post": {
-        "summary": "Inicia a emissão do comprovante cadastral CPF",
+        "summary": "Emitir certidão de CPF",
+        "description": "Inicia a consulta em tempo real do nome e da situação cadastral de um CPF. A emissão é assíncrona; use o identificador retornado para acompanhar o resultado.",
         "operationId": "emitirCertidaoCpf",
         "requestBody": {
           "required": true,
@@ -190,7 +191,8 @@
     },
     "/certidoes/cnpj": {
       "post": {
-        "summary": "Inicia a emissão do comprovante cadastral CNPJ",
+        "summary": "Emitir certidão de CNPJ",
+        "description": "Inicia a consulta em tempo real dos dados oficiais de um CNPJ. A emissão é assíncrona; use o identificador retornado para acompanhar o resultado.",
         "operationId": "emitirCertidaoCnpj",
         "requestBody": {
           "required": true,
@@ -229,7 +231,8 @@
     },
     "/certidoes/trabalhista": {
       "post": {
-        "summary": "Inicia a emissão da CNDT",
+        "summary": "Emitir certidão trabalhista",
+        "description": "Inicia a emissão em tempo real da Certidão Negativa de Débitos Trabalhistas (CNDT) para um CPF ou CNPJ.",
         "operationId": "emitirCertidaoTrabalhista",
         "requestBody": {
           "required": true,
@@ -268,7 +271,8 @@
     },
     "/certidoes/{certidaoId}": {
       "get": {
-        "summary": "Consulta o estado e o resultado da emissão",
+        "summary": "Consultar certidão",
+        "description": "Retorna o estado atual da emissão e, quando concluída, os dados estruturados ou o erro encontrado.",
         "operationId": "consultarCertidao",
         "parameters": [
           {
@@ -300,7 +304,8 @@
     },
     "/certidoes/{certidaoId}/pdf": {
       "get": {
-        "summary": "Obtém a evidência PDF de uma emissão concluída",
+        "summary": "Baixar PDF da certidão",
+        "description": "Retorna o PDF de uma emissão concluída. Enquanto a certidão estiver em processamento, o documento ainda não estará disponível.",
         "operationId": "baixarPdfCertidao",
         "parameters": [
           {
