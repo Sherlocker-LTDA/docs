@@ -1,0 +1,81 @@
+---
+title: "Vínculo por documento x nome"
+description: "Como interpretar a relação de uma pessoa ou empresa com um processo"
+icon: "link"
+---
+
+Todo processo retornado por uma consulta de pessoa ou empresa informa
+`tipo_vinculo`. O campo explica **por que** aquele processo entrou no resultado:
+
+| Valor | O que foi encontrado | Confiança recomendada |
+|---|---|---|
+| `documento` | Uma parte foi associada ao CPF ou CNPJ consultado | Alta para identificação |
+| `nome` | Uma parte ou publicação foi associada pelo nome | Sinal que exige desambiguação |
+
+## Documento é o padrão
+
+```http
+GET /processos/cpf/{cpf}
+GET /processos/cnpj/{cnpj}
+```
+
+Por padrão, essas rotas retornam somente vínculos por documento. Para incluir
+relações pelo nome conhecido da pessoa ou empresa:
+
+```http
+GET /processos/cpf/{cpf}?tipos_vinculo=documento,nome
+GET /processos/cnpj/{cnpj}?tipos_vinculo=documento,nome
+```
+
+O contrato é aditivo: pedir nome não transforma um match nominal em match de
+documento, e cada item mantém seu `tipo_vinculo`.
+
+## Por que alguns sistemas só permitem associação por nome
+
+Os sistemas judiciais brasileiros não possuem um único cadastro público de
+partes. Processos antigos podem ter sido migrados sem CPF/CNPJ; determinados
+portais não publicam o documento; e uma comunicação processual pode identificar
+o destinatário pelo nome sem expor seu CPF ou CNPJ.
+
+Isso também aparece na separação entre fontes oficiais: a
+[API Pública do DataJud](https://datajud-wiki.cnj.jus.br/api-publica/) fornece
+metadados por tribunal, enquanto o
+[PJe Comunica](https://comunicaapi.pje.jus.br/swagger/index.html) representa
+comunicações publicadas. Uma menção nominal em publicação é evidência de que o
+nome apareceu naquele contexto, não prova isolada de identidade civil.
+
+## Riscos do vínculo por nome
+
+- homônimos completos;
+- razão social abreviada ou nome fantasia;
+- alteração de nome civil, social ou empresarial;
+- grafia sem acento, truncada ou herdada de sistema antigo;
+- parte sem documento publicado;
+- menção em diário que não corresponde a uma parte cadastrada no processo.
+
+Por isso, não use `tipo_vinculo: "nome"` sozinho para decisão automática de
+alto impacto.
+
+## Busca direta por nome
+
+```http
+GET /processos/nome?nome={nome}&fonte=ambas
+```
+
+Quando houver um CPF ou CNPJ candidato, envie-o para descartar partes que já
+possuem outro documento conhecido:
+
+```http
+GET /processos/nome?nome={nome}&documento={cpf_ou_cnpj}&fonte=ambas
+```
+
+O documento opcional serve para desambiguação; ele não converte resultados sem
+documento em vínculos documentais.
+
+## Regra prática
+
+1. Use `documento` como critério padrão de pertencimento.
+2. Use `nome` para ampliar cobertura e levantar pistas.
+3. Confirme homônimos com documento, polo, classe, tribunal, datas e contexto.
+4. Em decisões de maior risco, atualize o processo por número e preserve a
+   fonte e o instante da consulta.

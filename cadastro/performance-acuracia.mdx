@@ -1,0 +1,90 @@
+---
+title: "Consultas D+0"
+description: "Quando usar a base consolidada e quando consultar uma fonte oficial em tempo real"
+icon: "gauge-high"
+---
+
+A API oferece dois caminhos complementares. A **busca de dados** prioriza
+velocidade, cobertura e volume. As **certidões** priorizam atualidade e evidência
+oficial no momento da decisão.
+
+<Note>
+  Quando a decisão depender do nome exato, a certidão consulta o registro oficial
+  no momento da solicitação, sem depender do ciclo de consolidação da base. É a
+  opção indicada para confirmar alterações já registradas, como nome social,
+  mudança de sobrenome por casamento ou divórcio, retificação civil e alteração
+  de razão social.
+</Note>
+
+## Comparação
+
+| Critério | Busca de Pessoa e Empresa | Certidões oficiais |
+|---|---|---|
+| Fonte | Base consolidada da Sherlocker | Portal oficial consultado D+0 |
+| Latência | Normalmente milissegundos ou poucos segundos | TST/CNDT: 10–45s; Receita/CPF e CNPJ: 30–120s; todas podem levar minutos |
+| Atualização | Conforme o ciclo informado para cada conjunto de dados | No momento da solicitação |
+| Volume | Adequada para listas, filtros e alto throughput | Adequada para validações pontuais |
+| Cobertura | Combina múltiplas fontes e histórico | Limitada ao escopo jurídico da certidão |
+| Evidência | JSON cadastral consolidado | JSON estruturado e PDF da emissão |
+| Dependência externa | Baixa durante a consulta | Alta: capacidade e disponibilidade da fonte oficial |
+
+## Use a busca de dados quando
+
+- precisar enriquecer muitos CPFs ou CNPJs;
+- estiver explorando pessoas, empresas, contatos ou relacionamentos;
+- precisar de resposta imediata em uma interface;
+- a atualização periódica da base for suficiente para a decisão;
+- quiser combinar histórico e dados de diversas fontes.
+
+<CardGroup cols={2}>
+  <Card title="Pessoa" icon="user" href="/entidades/pessoa">
+    Consulte e enriqueça dados de uma pessoa pela base consolidada.
+  </Card>
+  <Card title="Empresa" icon="building" href="/entidades/empresa">
+    Consulte dados cadastrais e relacionamentos de uma empresa.
+  </Card>
+</CardGroup>
+
+Buscas abertas por nome continuam usando a base consolidada. Uma fonte oficial
+normalmente exige CPF ou CNPJ; portanto, primeiro identifique o documento e só
+depois solicite a validação em tempo real.
+
+## Use certidões quando
+
+- o cadastro for usado em uma decisão de maior risco;
+- precisar confirmar a situação atual de um CNPJ;
+- precisar confirmar o nome e a situação cadastral atual de um CPF;
+- precisar comprovar a regularidade trabalhista de CPF ou CNPJ;
+- precisar preservar o documento consultado como evidência;
+- uma alteração de nome civil, social ou empresarial puder mudar a decisão.
+
+<Card title="Certidões" icon="file-certificate" href="/cadastro/certidoes">
+  Consulte as opções D+0 para CPF, CNPJ e regularidade trabalhista.
+</Card>
+
+## Fluxo recomendado
+
+1. Consulte Pessoa ou Empresa para identificar e enriquecer o registro rapidamente.
+2. Aplique suas regras de risco e selecione apenas os casos que precisam de D+0.
+3. Solicite a certidão oficial para os casos selecionados.
+4. Acompanhe o `certidao_id` até `completed` ou `failed`.
+5. Preserve o JSON e o hash do PDF junto da decisão tomada.
+
+<Tip>
+  Esse modelo mantém a experiência rápida para a maioria das consultas e usa o
+  custo operacional do tempo real somente onde ele melhora a decisão.
+</Tip>
+
+## Acurácia não significa cobertura total
+
+Uma certidão é autoritativa dentro do seu propósito, mas não substitui todos os
+dados cadastrais. A CNDT, por exemplo, comprova a situação da pessoa no BNDT; ela
+não é um cadastro civil completo nem uma busca aberta por nome.
+
+Já a base consolidada permanece a melhor escolha para reunir histórico,
+relacionamentos e dados de múltiplas fontes com alta velocidade. A certidão
+acrescenta uma confirmação oficial pontual quando a precisão cadastral no momento
+da decisão for o critério principal.
+
+Quando a atualidade for decisiva, use a certidão. Quando velocidade, cobertura e
+volume forem mais importantes, use a busca de dados.

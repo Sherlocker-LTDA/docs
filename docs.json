@@ -41,6 +41,7 @@
               "authentication",
               "guias/integracao-api",
               "padrao-de-dados",
+              "cadastro/performance-acuracia",
               "guias/postman",
               "guias/mcp"
             ]
@@ -168,6 +169,18 @@
               "GET /doacoes-politicas/cpf/{cpf}",
               "GET /doacoes-politicas/cnpj/{cnpj}"
             ]
+          },
+          {
+            "group": "Certidões",
+            "openapi": "/openapi/certidoes.json",
+            "pages": [
+              "cadastro/certidoes",
+              "POST /certidoes/cpf",
+              "POST /certidoes/cnpj",
+              "POST /certidoes/trabalhista",
+              "GET /certidoes/{certidaoId}",
+              "GET /certidoes/{certidaoId}/pdf"
+            ]
           }
         ]
       },
@@ -253,6 +266,8 @@
             "group": "Processos",
             "openapi": "/openapi/processos.json",
             "pages": [
+              "processos/base-vs-tempo-real",
+              "processos/vinculo-nome-documento",
               "GET /processos/cpf/{cpf}",
               "GET /processos/cnpj/{cnpj}",
               "GET /processos/numero/{numero}",

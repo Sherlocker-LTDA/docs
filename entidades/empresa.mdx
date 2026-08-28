@@ -6,6 +6,17 @@ icon: "building"
 
 Uma **Empresa** é identificada pelo CNPJ e representa uma pessoa jurídica registrada na Receita Federal.
 
+<Note>
+  Os dados cadastrais são atualizados mensalmente, conforme a base da Receita
+  Federal.
+
+  - **Validar o nome D+0:** `GET /empresas/cnpj/{cnpj}?realtime=true`
+  - **Confirmar a situação e gerar o comprovante:** `POST /certidoes/cnpj`
+
+  Consultas D+0 são assíncronas e podem levar de segundos a alguns minutos.
+  [Saiba quando usar cada opção](/cadastro/performance-acuracia).
+</Note>
+
 ## Tipagem
 
 ```json

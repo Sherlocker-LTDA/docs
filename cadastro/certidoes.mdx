@@ -1,0 +1,256 @@
+---
+title: "Certidões em tempo real"
+description: "Emissão D+0 de comprovantes cadastrais e certidões trabalhistas"
+icon: "file-certificate"
+---
+
+O módulo de **Certidões** consulta uma fonte oficial no momento da solicitação,
+estrutura os dados encontrados e preserva a evidência em PDF.
+
+Use estas rotas quando a decisão exigir uma evidência D+0. Para buscas rápidas,
+exploração cadastral e processamento em volume, continue usando os endpoints de
+Pessoa e Empresa, que consultam a base consolidada da Sherlocker.
+
+## Rotas
+
+| Endpoint | Finalidade | Fonte |
+|---|---|---|
+| `POST /certidoes/cpf` | Comprovante de situação cadastral do CPF | Receita Federal |
+| `POST /certidoes/cnpj` | Comprovante de inscrição e situação cadastral | Receita Federal |
+| `POST /certidoes/trabalhista` | Certidão de Débitos Trabalhistas para CPF ou CNPJ | TST / BNDT |
+| `GET /certidoes/{certidao_id}` | Acompanhar a emissão e obter o resultado | Sherlocker |
+| `GET /certidoes/{certidao_id}/pdf` | Baixar a evidência por acesso temporário | Sherlocker |
+
+## Tempo de resposta
+
+A emissão depende do processamento e da disponibilidade da fonte oficial.
+Por isso, a criação responde `202 Accepted` e devolve um `certidao_id` para
+acompanhamento.
+
+<Note>
+  A vantagem desse fluxo é a atualização oficial D+0. Em contrapartida, ele é
+  deliberadamente mais lento que a base consolidada e deve ser acompanhado por
+  polling.
+</Note>
+
+| Fonte | Faixa inicial de planejamento | Principal custo de tempo |
+|---|---|---|
+| TST/CNDT | 10–45 segundos; pode chegar a alguns minutos | Processamento na fonte oficial e geração do PDF |
+| Receita/CPF e CNPJ | 30–120 segundos; pode chegar a alguns minutos | Processamento na fonte oficial e geração da evidência |
+
+Essas faixas são expectativas de engenharia para dimensionar a integração, não
+um SLA nem percentis medidos em produção. Elas serão refinadas com telemetria de
+latência e taxa de sucesso por fonte.
+
+```json
+{
+  "certidao_id": "0d7c8a8a-74e1-42f3-a74b-ecf60568ff51",
+  "tipo": "cndt",
+  "status": "queued",
+  "stage": "waiting_worker",
+  "result": null,
+  "error": null,
+  "links": {
+    "self": "/api/v1/certidoes/0d7c8a8a-74e1-42f3-a74b-ecf60568ff51",
+    "pdf": "/api/v1/certidoes/0d7c8a8a-74e1-42f3-a74b-ecf60568ff51/pdf"
+  }
+}
+```
+
+Os estados públicos são:
+
+| Estado | Significado |
+|---|---|
+| `queued` | A solicitação foi aceita e aguarda processamento |
+| `processing` | A fonte oficial está sendo consultada |
+| `completed` | JSON e evidência foram produzidos |
+| `failed` | A emissão não pôde ser concluída |
+
+Uma falha da fonte aparece no recurso com `status: "failed"`. O `GET` do recurso
+continua respondendo HTTP 200, pois a solicitação existe e foi localizada.
+
+## Certidão trabalhista
+
+A Certidão de Débitos Trabalhistas informa se uma pessoa física ou jurídica está
+inscrita no Banco Nacional de Devedores Trabalhistas (BNDT). Ela pode ser:
+
+| Classificação | Significado |
+|---|---|
+| `negativa` | Não consta débito trabalhista inadimplido no BNDT |
+| `positiva` | Consta débito trabalhista nas condições consideradas pelo BNDT |
+| `positiva_com_efeito_de_negativa` | Existe registro, mas sua condição produz os efeitos jurídicos de uma certidão negativa |
+
+<Note>
+  Uma certidão positiva não é erro da API. É um resultado oficial válido da
+  consulta realizada.
+</Note>
+
+A CNDT tem abrangência nacional e sua validade é informada no próprio documento.
+O PDF disponibilizado nesta rota é o documento emitido pelo TST.
+
+## Validação oficial do nome na busca básica
+
+Não existe um endpoint separado de certidão de nome. Use `realtime=true` na busca
+básica de Pessoa ou Empresa:
+
+```http
+GET /pessoas/cpf/{cpf}?realtime=true
+GET /empresas/cnpj/{cnpj}?realtime=true
+```
+
+A busca continua retornando imediatamente os dados da base consolidada e inclui
+uma referência para acompanhar a validação oficial:
+
+```json
+{
+  "documento": "12.345.678/0001-90",
+  "razao_social": "EMPRESA EXEMPLO LTDA",
+  "validacao_oficial": {
+    "status": "queued",
+    "fonte": "tst_bndt",
+    "nome_base": "EMPRESA EXEMPLO LTDA",
+    "certidao_id": "0d7c8a8a-74e1-42f3-a74b-ecf60568ff51",
+    "poll_url": "/api/v1/certidoes/0d7c8a8a-74e1-42f3-a74b-ecf60568ff51"
+  }
+}
+```
+
+A fonte do TST não oferece uma pesquisa aberta por nome. A validação retorna o
+nome que consta na certidão associada ao CPF ou CNPJ informado.
+
+Essa confirmação reduz o risco de divergência quando houve alteração já
+registrada de nome social, sobrenome por casamento ou divórcio, retificação civil
+ou razão social. Ela complementa a base consolidada nos casos em que o nome exato
+no momento da decisão é essencial.
+
+Quando a emissão termina, o resultado deixa a divergência explícita:
+
+```json
+{
+  "nome_base": "EMPRESA EXEMPLO LTDA",
+  "nome_oficial": "EMPRESA EXEMPLO S.A.",
+  "divergente": true,
+  "fonte_nome": "tst_bndt",
+  "capturado_em": "2026-08-28T18:32:10.000Z"
+}
+```
+
+O valor da base não é sobrescrito silenciosamente. O cliente decide se deve
+atualizar o cadastro, abrir uma revisão ou apenas registrar a evidência.
+
+<Warning>
+  O nome validado é aquele associado ao documento no TST/BNDT no momento da
+  emissão. Para validação civil de CPF ou confirmação cadastral completa de CNPJ,
+  use também a fonte cadastral apropriada da Receita.
+</Warning>
+
+## Comprovante do CNPJ
+
+Informe o CNPJ no corpo da requisição:
+
+```http
+POST /certidoes/cnpj
+Content-Type: application/json
+
+{
+  "cnpj": "11222333000181"
+}
+```
+
+O resultado contém razão social, nome fantasia, situação cadastral, atividades,
+endereço e demais campos retornados pela fonte.
+
+Quando o portal não fornece um PDF oficial, o arquivo é identificado como
+`sherlocker_verification_report`. Ele é uma evidência gerada pela Sherlocker a
+partir dos dados consultados e não deve ser apresentado como documento emitido
+pela Receita Federal.
+
+## Comprovante do CPF
+
+Informe o CPF no corpo da requisição:
+
+```http
+POST /certidoes/cpf
+Content-Type: application/json
+
+{
+  "cpf": "52998224725"
+}
+```
+
+O resultado informa o nome, a data de nascimento, a situação cadastral, os
+dados de inscrição disponíveis, a data de emissão e o código de controle do
+comprovante. Essa certidão confirma a situação cadastral do CPF; ela não contém
+informações econômicas, financeiras ou fiscais do titular.
+
+Como o portal apresenta o comprovante em uma página, a evidência PDF é
+identificada como `sherlocker_verification_report`: uma reprodução preservada
+pela Sherlocker, e não um arquivo PDF originalmente assinado pela Receita.
+
+## Segurança do PDF
+
+A CNDT e os comprovantes de CPF e CNPJ ficam em armazenamento privado. A rota
+de download produz um acesso temporário, sem expor uma URL pública permanente.
+
+O recurso assíncrono permanece disponível por 24 horas. Depois desse período,
+o polling e o download respondem `404`, e uma nova emissão deve ser solicitada.
+
+| HTTP | Download do PDF |
+|---:|---|
+| `302` | Redirecionamento temporário para a evidência |
+| `404` | Certidão inexistente ou expirada |
+| `409` | Emissão ainda não concluída |
+| `503` | Armazenamento temporariamente indisponível |
+
+## Erros
+
+Erros de entrada são recusados antes da criação do recurso:
+
+```json
+{
+  "statusCode": 400,
+  "message": "O CPF ou CNPJ informado é inválido.",
+  "path": "/api/v1/certidoes/trabalhista",
+  "timestamp": "2026-08-28T14:30:00-03:00"
+}
+```
+
+Depois que a solicitação é aceita, falhas da emissão aparecem no campo `error`
+do recurso consultado. Esse objeto usa códigos estáveis, `category`,
+`retryable` e `retry_after_seconds`. Falhas temporárias comuns incluem
+indisponibilidade da fonte, tempo limite e indisponibilidade do armazenamento.
+
+### Códigos da emissão
+
+| Código | Quando ocorre | Tentar novamente |
+|---|---|---|
+| `CERTIDAO_NAO_EMITIVEL` | O TST informou que não pode emitir para o documento | Não |
+| `CNPJ_NAO_RESOLVIVEL` | A Receita não localizou ou não resolveu o CNPJ | Não |
+| `CPF_NAO_CONFIRMADO` | Os dados do CPF não foram confirmados pela fonte oficial | Não |
+| `DADOS_CADASTRAIS_INSUFICIENTES` | A consulta oficial não está disponível para esse cadastro | Não |
+| `FONTE_INDISPONIVEL` | A fonte oficial não concluiu a consulta | Sim |
+| `RECEITA_INDISPONIVEL` | A consulta cadastral da Receita falhou | Sim |
+| `PDF_NAO_GERADO` | A fonte não disponibilizou o arquivo no prazo | Sim |
+| `PDF_INVALIDO` | O conteúdo recebido não é um PDF válido | Sim |
+| `EXECUCAO_TIMEOUT` | O prazo total da execução foi atingido | Sim |
+| `ARMAZENAMENTO_INDISPONIVEL` | Não foi possível preservar a evidência | Sim |
+| `ERRO_INTERNO` | A emissão não pôde ser concluída | Conforme `retryable` |
+
+O campo `code` pode receber novos valores sem alteração de versão. Integrações
+devem usar `category`, `retryable` e `retry_after_seconds` para decidir o próximo
+passo e tratar códigos desconhecidos como falha da emissão.
+
+O download pode devolver `EVIDENCIA_INDISPONIVEL` com HTTP 503 quando a
+certidão terminou, mas o arquivo ou a URL temporária não puderam ser entregues.
+
+### Erros HTTP antes do job
+
+| HTTP | Significado |
+|---:|---|
+| `400` | CPF/CNPJ inválido ou corpo fora do contrato |
+| `422` | Dados cadastrais insuficientes para a consulta solicitada |
+| `401` | Credencial ausente ou inválida |
+| `402` | Saldo insuficiente |
+| `403` | Assinatura ou permissão indisponível |
+| `429` | Limite de requisições atingido |
+| `500` | Falha inesperada antes da criação do recurso |

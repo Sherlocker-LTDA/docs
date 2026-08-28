@@ -6,6 +6,13 @@ icon: "gavel"
 
 Um **Processo** representa um processo judicial coletado de múltiplos tribunais brasileiros. Cada processo contém suas partes (autor, réu), advogados e movimentações.
 
+<Note>
+  Antes de integrar, veja [Base de processos x tempo real](/processos/base-vs-tempo-real)
+  e [Vínculo por documento x nome](/processos/vinculo-nome-documento). Essas
+  páginas explicam a cobertura real das fontes e como interpretar
+  `tipo_vinculo`.
+</Note>
+
 ## Campos
 
 | Campo | Tipo | Descrição |
@@ -23,6 +30,7 @@ Um **Processo** representa um processo judicial coletado de múltiplos tribunais
 | `partes` | Parte[] | Lista de partes envolvidas |
 | `advogados` | Advogado[] | Lista de advogados atuantes |
 | `movimentacoes` | object[] | Até 10 movimentações mais recentes do processo |
+| `tipo_vinculo` | `documento` \| `nome` | Motivo pelo qual o processo foi associado à pessoa ou empresa |
 
 ## Exemplo
 

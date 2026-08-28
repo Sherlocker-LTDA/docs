@@ -6,6 +6,18 @@ icon: "user"
 
 Uma **Pessoa** é a entidade central do Sherlocker. A partir de um CPF, você acessa identidade, localização, rede familiar, histórico profissional, patrimônio, situação financeira e presença digital.
 
+<Note>
+  Esta consulta prioriza performance e cobertura usando a base consolidada da
+  Sherlocker. Se você precisa confirmar o nome associado ao documento em uma
+  fonte oficial no momento da decisão, acrescente `?realtime=true` a
+  `GET /pessoas/cpf/{cpf}`. Os dados da base são devolvidos imediatamente e a
+  resposta inclui uma validação assíncrona. Ela normalmente leva dezenas de
+  segundos e, conforme a disponibilidade do portal oficial, pode levar alguns
+  minutos. Para confirmar também a situação cadastral do CPF na Receita, use
+  `POST /certidoes/cpf`, enviando o CPF no corpo da requisição. Veja
+  [Consultas D+0](/cadastro/performance-acuracia).
+</Note>
+
 ## Pontos de entrada
 
 | Dado disponível | Endpoint | Resultado |

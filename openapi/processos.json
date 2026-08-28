@@ -610,6 +610,13 @@
             "required": true,
             "description": "Numero do processo (com ou sem formatacao)",
             "schema": { "type": "string", "example": "0000001-23.2020.8.26.0100" }
+          },
+          {
+            "name": "realtime",
+            "in": "query",
+            "required": false,
+            "description": "Quando true, preserva a leitura atual da base e enfileira consulta no tribunal inferido do numero CNJ, quando houver scraper suportado.",
+            "schema": { "type": "boolean", "default": false }
           }
         ],
         "responses": {
