@@ -366,27 +366,6 @@
         ]
       },
       {
-        "tab": "Dossiê",
-        "icon": "file-magnifying-glass",
-        "groups": [
-          {
-            "group": "Dossiê",
-            "openapi": "/openapi/plataforma-dossie.json",
-            "pages": [
-              "plataforma/dossie",
-              "POST /dossies",
-              "GET /dossies",
-              "GET /dossies/{dossie_id}",
-              "GET /dossies/{dossie_id}/status",
-              "GET /dossies/{dossie_id}/attempts",
-              "GET /dossies/{dossie_id}/events",
-              "POST /dossies/{dossie_id}/cancel",
-              "POST /dossies/{dossie_id}/retry"
-            ]
-          }
-        ]
-      },
-      {
         "tab": "Monitoramento",
         "icon": "radar",
         "groups": [
@@ -412,9 +391,28 @@
         ]
       },
       {
-        "tab": "Rastro",
-        "icon": "route",
+        "tab": "Plataforma",
+        "icon": "layer-group",
         "groups": [
+          {
+            "group": "Visão geral",
+            "pages": ["plataforma/introducao"]
+          },
+          {
+            "group": "Dossiê",
+            "openapi": "/openapi/plataforma-dossie.json",
+            "pages": [
+              "plataforma/dossie",
+              "POST /dossies",
+              "GET /dossies",
+              "GET /dossies/{dossie_id}",
+              "GET /dossies/{dossie_id}/status",
+              "GET /dossies/{dossie_id}/attempts",
+              "GET /dossies/{dossie_id}/events",
+              "POST /dossies/{dossie_id}/cancel",
+              "POST /dossies/{dossie_id}/retry"
+            ]
+          },
           {
             "group": "Rastro",
             "openapi": "/openapi/plataforma-rastro.json",
@@ -426,16 +424,6 @@
               "GET /rastro/searches/{search_id}/events",
               "POST /rastro/searches/{search_id}/cancel"
             ]
-          }
-        ]
-      },
-      {
-        "tab": "Plataforma",
-        "icon": "layer-group",
-        "groups": [
-          {
-            "group": "Visão geral",
-            "pages": ["plataforma/introducao"]
           },
           {
             "group": "Board e Mapa",
