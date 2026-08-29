@@ -1,0 +1,432 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Dossiê API",
+    "description": "Criação, acompanhamento e recuperação de Dossiês.",
+    "version": "1.0"
+  },
+  "servers": [{ "url": "https://221b-api.sherlocker.com.br/api/v1" }],
+  "security": [{ "bearerAuth": [] }],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": { "type": "http", "scheme": "bearer" }
+    },
+    "parameters": {
+      "DossieId": {
+        "name": "dossie_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": { "type": "string", "maxLength": 255 }
+      },
+      "Cursor": {
+        "name": "cursor",
+        "in": "query",
+        "schema": { "type": "string" }
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        }
+      }
+    },
+    "schemas": {
+      "Dossie": {
+        "type": "object",
+        "required": [
+          "id",
+          "object",
+          "status",
+          "subject_type",
+          "kind",
+          "current_attempt",
+          "artifacts",
+          "stale",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "object": { "type": "string", "enum": ["dossie"] },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "completed",
+              "needs_review",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "subject_type": { "type": "string", "enum": ["cpf", "cnpj"] },
+          "kind": { "type": "string", "enum": ["basic", "advanced"] },
+          "current_attempt": { "$ref": "#/components/schemas/Attempt" },
+          "coverage": { "type": "object", "additionalProperties": true },
+          "result": { "type": "object", "additionalProperties": true },
+          "failure": { "type": "object", "additionalProperties": true },
+          "artifacts": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Artifact" }
+          },
+          "stale": { "type": "boolean" },
+          "poll_after_seconds": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Attempt": {
+        "type": "object",
+        "required": ["id", "number", "status", "queued_at", "billing"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "number": { "type": "integer", "minimum": 1 },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "completed",
+              "needs_review",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "queued_at": { "type": "string", "format": "date-time" },
+          "started_at": { "type": "string", "format": "date-time" },
+          "completed_at": { "type": "string", "format": "date-time" },
+          "billing": { "$ref": "#/components/schemas/Billing" }
+        }
+      },
+      "Billing": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": [
+              "not_charged",
+              "charge_pending",
+              "charged",
+              "refund_pending",
+              "refunded"
+            ]
+          },
+          "amount": { "type": "integer" },
+          "unit": { "type": "string", "enum": ["tokens"] }
+        }
+      },
+      "Artifact": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["dossie_pdf", "dossie_docx", "artifact"]
+          },
+          "media_type": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["available", "temporarily_unavailable"]
+          },
+          "download_url": { "type": "string", "format": "uri" },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "available_until": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string" },
+          "sequence": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "data": { "type": "object", "additionalProperties": true }
+        }
+      },
+      "Page": {
+        "type": "object",
+        "properties": {
+          "next_cursor": { "type": "string", "nullable": true },
+          "has_more": { "type": "boolean" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["status", "code", "detail", "request_id", "retryable"],
+        "properties": {
+          "status": { "type": "integer" },
+          "code": { "type": "string" },
+          "detail": { "type": "string" },
+          "request_id": { "type": "string" },
+          "retryable": { "type": "boolean" }
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Erro no formato application/problem+json",
+        "content": {
+          "application/problem+json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/dossies": {
+      "post": {
+        "summary": "Criar Dossiê",
+        "description": "Cria um Dossiê e inicia sua primeira tentativa. Exige o escopo dossies:write e uma chave de idempotência.",
+        "operationId": "createDossie",
+        "parameters": [{ "$ref": "#/components/parameters/IdempotencyKey" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["document"],
+                "properties": {
+                  "document": {
+                    "type": "string",
+                    "description": "CPF ou CNPJ, com ou sem pontuação."
+                  },
+                  "subject_type": { "type": "string", "enum": ["cpf", "cnpj"] },
+                  "kind": {
+                    "type": "string",
+                    "enum": ["basic", "advanced"],
+                    "default": "basic"
+                  },
+                  "context": { "type": "string", "maxLength": 2000 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Dossiê aceito",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Dossie" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "402": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" },
+          "422": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "get": {
+        "summary": "Listar Dossiês",
+        "description": "Lista Dossiês do workspace por cursor e permite filtrar pelo estado.",
+        "operationId": "listDossies",
+        "parameters": [
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Cursor" },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "queued",
+                "running",
+                "completed",
+                "needs_review",
+                "failed",
+                "cancelled"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Página de Dossiês",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Dossie" }
+                    },
+                    "page": { "$ref": "#/components/schemas/Page" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/dossies/{dossie_id}": {
+      "get": {
+        "summary": "Consultar Dossiê",
+        "description": "Retorna o estado atual, tentativa, cobertura, resultado e artefatos do Dossiê.",
+        "operationId": "getDossie",
+        "parameters": [{ "$ref": "#/components/parameters/DossieId" }],
+        "responses": {
+          "200": {
+            "description": "Dossiê encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Dossie" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/dossies/{dossie_id}/status": {
+      "get": {
+        "summary": "Consultar andamento do Dossiê",
+        "description": "Leitura leve do estado atual para acompanhamento assíncrono.",
+        "operationId": "getDossieStatus",
+        "parameters": [{ "$ref": "#/components/parameters/DossieId" }],
+        "responses": {
+          "200": {
+            "description": "Estado atual",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Dossie" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/dossies/{dossie_id}/attempts": {
+      "get": {
+        "summary": "Listar tentativas do Dossiê",
+        "description": "Lista a tentativa inicial e os reprocessamentos, preservando o histórico.",
+        "operationId": "listDossieAttempts",
+        "parameters": [
+          { "$ref": "#/components/parameters/DossieId" },
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Cursor" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Página de tentativas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Attempt" }
+                    },
+                    "page": { "$ref": "#/components/schemas/Page" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/dossies/{dossie_id}/events": {
+      "get": {
+        "summary": "Listar eventos do Dossiê",
+        "description": "Retorna eventos duráveis em ordem de sequência.",
+        "operationId": "listDossieEvents",
+        "parameters": [
+          { "$ref": "#/components/parameters/DossieId" },
+          { "$ref": "#/components/parameters/Cursor" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Eventos do Dossiê",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Event" }
+                    },
+                    "page": { "$ref": "#/components/schemas/Page" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/dossies/{dossie_id}/cancel": {
+      "post": {
+        "summary": "Cancelar Dossiê",
+        "description": "Solicita cancelamento enquanto o trabalho ainda permite essa transição.",
+        "operationId": "cancelDossie",
+        "parameters": [{ "$ref": "#/components/parameters/DossieId" }],
+        "responses": {
+          "202": {
+            "description": "Cancelamento aceito",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Dossie" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/dossies/{dossie_id}/retry": {
+      "post": {
+        "summary": "Reprocessar Dossiê",
+        "description": "Cria uma nova tentativa para um Dossiê elegível, preservando o mesmo identificador.",
+        "operationId": "retryDossie",
+        "parameters": [
+          { "$ref": "#/components/parameters/DossieId" },
+          { "$ref": "#/components/parameters/IdempotencyKey" }
+        ],
+        "responses": {
+          "202": {
+            "description": "Nova tentativa aceita",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Dossie" }
+              }
+            }
+          },
+          "402": { "$ref": "#/components/responses/Error" },
+          "404": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    }
+  }
+}

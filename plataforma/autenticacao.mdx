@@ -1,0 +1,114 @@
+---
+title: "Autenticação e fundamentos"
+description: "Chaves com escopo, isolamento por workspace, idempotência e formatos comuns"
+icon: "key"
+---
+
+As APIs usam uma chave com escopos. A chave identifica o workspace, limita as ações
+permitidas e registra a origem de cada recurso.
+
+## Base da API
+
+```text
+https://221b-api.sherlocker.com.br/api/v1
+```
+
+## Enviar a chave
+
+Envie a chave no header `Authorization`:
+
+```bash
+curl https://221b-api.sherlocker.com.br/api/v1/dossies \
+  -H "Authorization: Bearer slhk_sua_chave_aqui"
+```
+
+Não envie a chave em query string, corpo, logs ou código executado no navegador.
+
+## Escopos por área
+
+| Área          | Leitura         | Escrita ou execução         |
+| ------------- | --------------- | --------------------------- |
+| Dossiê        | `dossies:read`  | `dossies:write`             |
+| Monitoramento | `monitors:read` | `monitors:write`            |
+| Rastro        | `rastro:read`   | `rastro:search`             |
+| Board e Mapa  | `boards:read`   | `boards:write`              |
+| Lente         | `lente:read`    | `lente:geo` ou `lente:face` |
+| Webhooks      | `webhooks:read` | `webhooks:write`            |
+
+Um escopo de escrita não concede leitura automaticamente. Uma chave com apenas
+`dossies:write`, por exemplo, pode criar um Dossiê, mas não consultar seu resultado.
+
+## Workspace e acesso
+
+Todo recurso pertence ao workspace da chave:
+
+- leituras e alterações são filtradas pelo workspace derivado da credencial;
+- um ID inexistente ou pertencente a outro workspace recebe o mesmo erro de recurso não encontrado;
+- outra chave do mesmo workspace pode acessar o recurso se possuir o escopo necessário;
+- revogar uma chave bloqueia novas chamadas, mas não cancela trabalhos já aceitos.
+
+Headers enviados pelo cliente não podem substituir a identidade ou o workspace da chave.
+
+## Idempotência
+
+Criações, reprocessamentos e outras operações que podem gerar cobrança exigem
+`Idempotency-Key`. Gere uma chave única por intenção e guarde o ID retornado.
+
+```bash
+curl -X POST https://221b-api.sherlocker.com.br/api/v1/rastro/searches \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Idempotency-Key: 123e4567-e89b-42d3-a456-426614174000" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "email",
+    "target": "contato@example.com",
+    "strategy": "all"
+  }'
+```
+
+| Situação                                           | Comportamento                                                        |
+| -------------------------------------------------- | -------------------------------------------------------------------- |
+| primeira requisição aceita                         | cria o recurso e informa sua localização                             |
+| mesma chave e mesmo conteúdo                       | devolve o resultado lógico anterior sem duplicar recurso ou cobrança |
+| mesma chave enquanto a primeira requisição termina | pede uma nova tentativa após o intervalo informado                   |
+| mesma chave com conteúdo diferente                 | rejeita por conflito de idempotência                                 |
+| chave ausente quando obrigatória                   | rejeita antes de criar ou cobrar                                     |
+
+Duas chaves diferentes representam duas intenções diferentes, mesmo quando o corpo é
+idêntico.
+
+## Formato das respostas
+
+- JSON em `snake_case`, UTF-8 e timestamps ISO 8601 em UTC;
+- toda resposta inclui `x-request-id` para suporte e rastreamento;
+- recursos singulares são retornados diretamente;
+- coleções usam `data` e `page`, com cursor opaco;
+- a paginação aceita até 100 itens por chamada.
+
+```json
+{
+  "data": [],
+  "page": {
+    "next_cursor": null,
+    "has_more": false
+  }
+}
+```
+
+## Trabalhos assíncronos
+
+O andamento, o conteúdo encontrado e a cobrança são dimensões diferentes. Um resultado
+negativo válido não é um erro HTTP; depois que um trabalho foi aceito, uma falha de
+execução aparece no próprio recurso.
+
+Use o intervalo sugerido pela resposta ao consultar o andamento. Para receber mudanças
+sem consultas repetidas, veja [Eventos e webhooks](/plataforma/eventos-webhooks).
+
+## Limites e artefatos
+
+Corpos JSON aceitam até 2 MiB, salvo quando a referência de uma operação informa outro
+limite. Artefatos ficam em armazenamento privado e usam URLs assinadas de curta duração.
+Uma nova leitura autorizada pode emitir outra URL sem alterar o artefato.
+
+Recursos, resultados, eventos e artefatos permanecem armazenados sem prazo de expiração.
+A expiração de uma URL assinada afeta apenas aquele link de acesso.

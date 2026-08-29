@@ -1,0 +1,389 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Lente API",
+    "description": "Análises de localização e comparação facial com upload privado.",
+    "version": "1.0"
+  },
+  "servers": [{ "url": "https://221b-api.sherlocker.com.br/api/v1" }],
+  "security": [{ "bearerAuth": [] }],
+  "components": {
+    "securitySchemes": { "bearerAuth": { "type": "http", "scheme": "bearer" } },
+    "parameters": {
+      "AnalysisId": {
+        "name": "analysis_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": { "type": "string", "maxLength": 255 }
+      },
+      "Cursor": {
+        "name": "cursor",
+        "in": "query",
+        "schema": { "type": "string" }
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        }
+      }
+    },
+    "schemas": {
+      "Analysis": {
+        "type": "object",
+        "required": [
+          "id",
+          "object",
+          "mode",
+          "status",
+          "file",
+          "billing",
+          "artifacts",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "object": { "type": "string", "enum": ["lente_analysis"] },
+          "mode": { "type": "string", "enum": ["geo", "face"] },
+          "status": {
+            "type": "string",
+            "enum": [
+              "awaiting_upload",
+              "queued",
+              "running",
+              "completed",
+              "failed",
+              "cancelled",
+              "expired"
+            ]
+          },
+          "file": {
+            "type": "object",
+            "properties": {
+              "media_type": {
+                "type": "string",
+                "enum": ["image/jpeg", "image/png", "image/webp"]
+              },
+              "size_bytes": { "type": "integer", "maximum": 15728640 },
+              "sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+              "upload_status": {
+                "type": "string",
+                "enum": ["pending", "verified", "rejected", "expired"]
+              }
+            }
+          },
+          "upload": {
+            "type": "object",
+            "description": "Presente enquanto o arquivo aguarda envio.",
+            "properties": {
+              "method": { "type": "string", "enum": ["PUT"] },
+              "url": { "type": "string", "format": "uri" },
+              "headers": {
+                "type": "object",
+                "additionalProperties": { "type": "string" }
+              },
+              "expires_at": { "type": "string", "format": "date-time" }
+            }
+          },
+          "billing": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "not_charged",
+                  "charge_pending",
+                  "charged",
+                  "refund_pending",
+                  "refunded"
+                ]
+              },
+              "amount": { "type": "integer" },
+              "unit": { "type": "string", "enum": ["tokens"] }
+            }
+          },
+          "result": {
+            "type": "object",
+            "description": "Hipóteses e evidências do modo selecionado.",
+            "additionalProperties": true
+          },
+          "failure": { "type": "object", "additionalProperties": true },
+          "artifacts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "type": { "type": "string", "enum": ["input_image"] },
+                "status": {
+                  "type": "string",
+                  "enum": ["available", "temporarily_unavailable"]
+                },
+                "url": { "type": "string", "format": "uri" },
+                "url_expires_at": { "type": "string", "format": "date-time" },
+                "available_until": { "type": "string", "nullable": true }
+              }
+            }
+          },
+          "poll_after_seconds": { "type": "integer" },
+          "submitted_at": { "type": "string", "format": "date-time" },
+          "started_at": { "type": "string", "format": "date-time" },
+          "completed_at": { "type": "string", "format": "date-time" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string" },
+          "sequence": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "data": { "type": "object", "additionalProperties": true }
+        }
+      },
+      "Page": {
+        "type": "object",
+        "properties": {
+          "next_cursor": { "type": "string", "nullable": true },
+          "has_more": { "type": "boolean" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["status", "code", "detail", "request_id", "retryable"],
+        "properties": {
+          "status": { "type": "integer" },
+          "code": { "type": "string" },
+          "detail": { "type": "string" },
+          "request_id": { "type": "string" },
+          "retryable": { "type": "boolean" }
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Erro no formato application/problem+json",
+        "content": {
+          "application/problem+json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/lente/analyses": {
+      "post": {
+        "summary": "Criar análise da Lente",
+        "description": "Reserva um envio privado para uma análise de localização ou comparação facial.",
+        "operationId": "createLenteAnalysis",
+        "parameters": [{ "$ref": "#/components/parameters/IdempotencyKey" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["mode", "file"],
+                "properties": {
+                  "mode": { "type": "string", "enum": ["geo", "face"] },
+                  "file": {
+                    "type": "object",
+                    "required": ["media_type", "size_bytes", "sha256"],
+                    "properties": {
+                      "media_type": {
+                        "type": "string",
+                        "enum": ["image/jpeg", "image/png", "image/webp"]
+                      },
+                      "size_bytes": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 15728640
+                      },
+                      "sha256": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{64}$"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Análise criada com instruções de upload",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Analysis" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" },
+          "415": { "$ref": "#/components/responses/Error" },
+          "422": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "get": {
+        "summary": "Listar análises da Lente",
+        "description": "Lista análises por cursor, estado e modo.",
+        "operationId": "listLenteAnalyses",
+        "parameters": [
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Cursor" },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "awaiting_upload",
+                "queued",
+                "running",
+                "completed",
+                "failed",
+                "cancelled",
+                "expired"
+              ]
+            }
+          },
+          {
+            "name": "mode",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["geo", "face"] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Página de análises",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Analysis" }
+                    },
+                    "page": { "$ref": "#/components/schemas/Page" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/lente/analyses/{analysis_id}": {
+      "get": {
+        "summary": "Consultar análise da Lente",
+        "description": "Retorna upload, andamento, resultado, cobrança e artefatos da análise.",
+        "operationId": "getLenteAnalysis",
+        "parameters": [{ "$ref": "#/components/parameters/AnalysisId" }],
+        "responses": {
+          "200": {
+            "description": "Análise encontrada",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Analysis" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/lente/analyses/{analysis_id}/submit": {
+      "post": {
+        "summary": "Submeter imagem para análise",
+        "description": "Verifica o arquivo enviado, aplica a cobrança e inicia o processamento.",
+        "operationId": "submitLenteAnalysis",
+        "parameters": [
+          { "$ref": "#/components/parameters/AnalysisId" },
+          { "$ref": "#/components/parameters/IdempotencyKey" }
+        ],
+        "responses": {
+          "202": {
+            "description": "Análise aceita para processamento",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Analysis" }
+              }
+            }
+          },
+          "402": { "$ref": "#/components/responses/Error" },
+          "404": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" },
+          "415": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/lente/analyses/{analysis_id}/cancel": {
+      "post": {
+        "summary": "Cancelar análise da Lente",
+        "description": "Solicita cancelamento enquanto a análise ainda permite essa transição.",
+        "operationId": "cancelLenteAnalysis",
+        "parameters": [{ "$ref": "#/components/parameters/AnalysisId" }],
+        "responses": {
+          "202": {
+            "description": "Cancelamento aceito",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Analysis" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/lente/analyses/{analysis_id}/events": {
+      "get": {
+        "summary": "Listar eventos da análise",
+        "description": "Retorna eventos duráveis em ordem de sequência.",
+        "operationId": "listLenteAnalysisEvents",
+        "parameters": [
+          { "$ref": "#/components/parameters/AnalysisId" },
+          { "$ref": "#/components/parameters/Cursor" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Eventos da análise",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Event" }
+                    },
+                    "page": { "$ref": "#/components/schemas/Page" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    }
+  }
+}

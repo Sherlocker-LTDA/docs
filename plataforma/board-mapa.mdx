@@ -1,337 +1,43 @@
 ---
 title: "Board e Mapa"
-description: "API para grafos investigativos versionados, colaboração e exports"
-icon: "diagram-project"
+description: "Organização visual de entidades, vínculos, lugares e evidências"
 ---
 
-Board e Mapa representam entidades, relações e contexto geográfico em um grafo
-pertencente ao workspace. A API pública usa schema tipado, versão monotônica e
-concorrência otimista para impedir que uma edição silenciosamente sobrescreva
-outra.
+Board e Mapa transformam achados investigativos em uma visão conectada. Pessoas,
+empresas, lugares, documentos, eventos e anotações podem ser organizados como entidades
+e relações, permitindo explorar uma investigação e comunicar sua lógica.
 
-<Warning>
-  **Implementação local em revisão.** A migration não foi aplicada, os workers
-  permanecem desligados por padrão e não há disponibilidade observada em
-  produção nem compatibilidade garantida com documentos internos existentes.
-</Warning>
+O Mapa é uma forma de visualizar dados geográficos dentro do Board, não um contêiner
+separado obrigatório. Assim, a mesma investigação pode combinar relações, posições e
+contexto sem duplicar o trabalho.
 
-## Visão rápida
+## O que Board e Mapa fazem
 
-| Item         | Contrato                                                         |
-| ------------ | ---------------------------------------------------------------- |
-| Base externa | `https://api.sherlocker.com.br/api/v1`                           |
-| Recurso      | `board` contínuo e versionado                                    |
-| Scopes       | `boards:write` para criar/mutar; `boards:read` para ler/exportar |
-| Finalidade   | não exige `purpose_id` por mutação                               |
-| Concorrência | `If-Match`/ETag ou versão equivalente em toda mutação            |
-| Billing      | plano/uso; nenhuma cobrança individual por mutação nesta fase    |
-| Outputs      | snapshot do grafo, deltas, eventos e exports privados            |
+- organizam entidades e vínculos em uma estrutura visual;
+- registram lugares e contexto geográfico quando isso é relevante;
+- permitem evoluir a investigação sem perder versões anteriores;
+- protegem alterações concorrentes para evitar sobrescrever o trabalho de outra pessoa;
+- geram representações compartilháveis da visão investigativa.
 
-Mapa não é um contêiner separado obrigatório: localização é um tipo de dado do
-grafo. Um Board pode ter somente entidades e relações, somente elementos
-geográficos ou combinar ambos.
+## Quando usar
 
-## Endpoints implementados localmente
+Use Board e Mapa quando:
 
-| Método   | Path                                     | Scope          |       Resposta | Finalidade                          |
-| -------- | ---------------------------------------- | -------------- | -------------: | ----------------------------------- |
-| `POST`   | `/boards`                                | `boards:write` |          `201` | criar Board com versão `1`          |
-| `GET`    | `/boards`                                | `boards:read`  |          `200` | listar metadata por cursor          |
-| `GET`    | `/boards/{board_id}`                     | `boards:read`  | `200` ou `304` | recuperar snapshot, versão e ETag   |
-| `PATCH`  | `/boards/{board_id}`                     | `boards:write` |          `200` | alterar metadata com `If-Match`     |
-| `PATCH`  | `/boards/{board_id}/delta`               | `boards:write` |          `200` | aplicar upserts/removes atômicos    |
-| `POST`   | `/boards/{board_id}/archive`             | `boards:write` |          `200` | arquivar de forma idempotente       |
-| `POST`   | `/boards/{board_id}/unarchive`           | `boards:write` |          `200` | reativar de forma idempotente       |
-| `DELETE` | `/boards/{board_id}`                     | `boards:write` |          `204` | excluir o Board                     |
-| `GET`    | `/boards/{board_id}/events`              | `boards:read`  |          `200` | consumir eventos por cursor         |
-| `POST`   | `/boards/{board_id}/exports`             | `boards:read`  |          `202` | criar export assíncrono do snapshot |
-| `GET`    | `/boards/{board_id}/exports/{export_id}` | `boards:read`  |          `200` | acompanhar e baixar export          |
+- a investigação envolve muitas pessoas, empresas, eventos ou documentos conectados;
+- relações indiretas são tão importantes quanto os dados de cada entidade;
+- localização e proximidade ajudam a explicar o caso;
+- diferentes analistas precisam colaborar na mesma visão;
+- os achados precisam ser apresentados de forma compreensível para outras áreas.
 
-O recurso versionado, a concorrência e o lifecycle acima refletem o checkout
-local. Discriminadores, formatos e nomes de campo só se tornam contrato público
-quando publicados no OpenAPI.
+## Quando escolher outro recurso
 
-## Criar um Board
+Board e Mapa organizam conhecimento; eles não fazem, sozinhos, toda a coleta. Use
+[Dossiê](/plataforma/dossie), [Rastro](/plataforma/rastro) ou
+[Lente](/plataforma/lente) para produzir
+achados e leve ao Board apenas o que for relevante para a investigação.
 
-Envie uma `Idempotency-Key` para que um retry de rede não crie dois Boards. O
-exemplo abaixo ilustra a fronteira tipada; o catálogo definitivo de tipos será
-publicado com o OpenAPI do produto.
+## Como modelar a investigação
 
-```bash
-curl -X POST https://api.sherlocker.com.br/api/v1/boards \
-  -H "Authorization: Bearer slhk_sua_chave_aqui" \
-  -H "Idempotency-Key: 123e4567-e89b-42d3-a456-426614174030" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Investigação exemplo",
-    "schema_version": 1,
-    "nodes": [
-      {
-        "id": "node_person_1",
-        "type": "person",
-        "position": { "x": 120, "y": 80 },
-        "data": {
-          "label": "Pessoa exemplo",
-          "document": "52998224725"
-        }
-      },
-      {
-        "id": "node_place_1",
-        "type": "place",
-        "position": { "x": 420, "y": 80 },
-        "data": {
-          "label": "Local de interesse",
-          "location": {
-            "latitude": -23.5505,
-            "longitude": -46.6333
-          }
-        }
-      }
-    ],
-    "edges": [
-      {
-        "id": "edge_1",
-        "type": "relationship",
-        "source": "node_person_1",
-        "target": "node_place_1",
-        "data": { "label": "relacionado_a" }
-      }
-    ]
-  }'
-```
-
-Resposta `201 Created`:
-
-```http
-HTTP/1.1 201 Created
-Location: /api/v1/boards/11111111-1111-4111-8111-111111111111
-x-request-id: req_01JEXEMPLO
-ETag: "11111111-1111-4111-8111-111111111111-v1-s1"
-```
-
-```json
-{
-  "id": "11111111-1111-4111-8111-111111111111",
-  "object": "board",
-  "name": "Investigação exemplo",
-  "status": "active",
-  "schema_version": 1,
-  "version": 1,
-  "nodes_count": 2,
-  "edges_count": 1,
-  "billing": {
-    "model": "plan_usage",
-    "status": "included",
-    "price_version": "board-plan-v1"
-  },
-  "created_at": "2026-08-29T16:00:00Z",
-  "updated_at": "2026-08-29T16:00:00Z"
-}
-```
-
-O ETag retornado é opaco; não o reconstrua no cliente.
-
-## Lifecycle
-
-| Status     | Terminal? | Significado                         | Próximos estados |
-| ---------- | --------: | ----------------------------------- | ---------------- |
-| `active`   |       não | leitura e mutação permitidas        | `archived`       |
-| `archived` |       não | somente leitura e export por padrão | `active`         |
-
-Archive e unarchive são idempotentes. Exclusão responde `204`; depois dela, o
-Board retorna `404 resource_not_found`. `deleted` não é um status normal exposto.
-
-<Note>
-  Excluir um Board é uma operação normal do produto, mas não promete purge de
-  todo dado derivado do workspace. Solicitações de privacidade continuam pelo
-  fluxo autenticado de [Suporte](/support).
-</Note>
-
-## Versão e concorrência
-
-Cada Board possui `version` bigint iniciado em `1`. Uma mutação efetiva incrementa
-a versão; um delta sem mudança preserva o valor.
-
-Envie o ETag lido anteriormente:
-
-```bash
-curl -X PATCH \
-  https://api.sherlocker.com.br/api/v1/boards/11111111-1111-4111-8111-111111111111/delta \
-  -H "Authorization: Bearer slhk_sua_chave_aqui" \
-  -H 'If-Match: "11111111-1111-4111-8111-111111111111-v1-s1"' \
-  -H "Content-Type: application/json" \
-  -d '{
-    "nodes": {
-      "upsert": [
-        {
-          "id": "node_company_1",
-          "type": "company",
-          "position": { "x": 270, "y": 250 },
-          "data": {
-            "label": "Empresa exemplo",
-            "document": "11222333000181"
-          }
-        }
-      ],
-      "remove": []
-    },
-    "edges": {
-      "upsert": [],
-      "remove": []
-    }
-  }'
-```
-
-### Mutação aplicada
-
-```json
-{
-  "result": "applied",
-  "version": 2,
-  "nodes_count": 3,
-  "edges_count": 1
-}
-```
-
-### Delta sem efeito
-
-```json
-{
-  "result": "no_op",
-  "version": 2,
-  "nodes_count": 3,
-  "edges_count": 1
-}
-```
-
-`no_op` é resultado da mutação, não lifecycle nem falha.
-
-### ETag obsoleto
-
-```json
-{
-  "type": "https://docs.sherlocker.com.br/problems/resource_version_conflict",
-  "title": "Resource Version Conflict",
-  "status": 409,
-  "code": "resource_version_conflict",
-  "detail": "The board changed after the supplied version.",
-  "instance": "/api/v1/boards/11111111-1111-4111-8111-111111111111/delta",
-  "request_id": "req_01JEXEMPLO",
-  "retryable": true,
-  "context": {
-    "current_version": 3,
-    "current_etag": "\"11111111-1111-4111-8111-111111111111-v3-s1\""
-  }
-}
-```
-
-Ao receber esse erro:
-
-1. faça `GET /boards/{id}` novamente;
-2. reconcilie a edição local com o snapshot atual;
-3. reenvie o delta com o novo `If-Match`.
-
-Não faça retry cego com a versão antiga.
-
-## Validação do grafo
-
-Nodes e edges são discriminados por `type` e versionados por `schema_version`.
-O contrato público não expõe um documento genérico nem tipos internos da UI.
-
-Erros semânticos retornam `422 semantic_validation_error`; itens em `errors`
-podem usar:
-
-- `invalid_graph`
-- `invalid_node`
-- `invalid_edge`
-- `dangling_edge`
-- `duplicate_entity`
-
-Se um edge referencia node ausente, nenhuma parte do delta é gravada.
-
-## Leitura condicional
-
-Envie `If-None-Match` para evitar baixar novamente um snapshot inalterado:
-
-```bash
-curl https://api.sherlocker.com.br/api/v1/boards/11111111-1111-4111-8111-111111111111 \
-  -H "Authorization: Bearer slhk_sua_chave_aqui" \
-  -H 'If-None-Match: "11111111-1111-4111-8111-111111111111-v2-s1"'
-```
-
-Se a versão for a mesma, a API responde `304 Not Modified` sem body.
-
-## Exports
-
-Export é um job assíncrono separado do Board:
-
-```text
-queued → running → available | failed
-```
-
-Uma criação aceita retorna `202`, `Location`, `poll_after_seconds` e um
-`export_id`. Quando `available`, o recurso traz metadata e URL assinada de curta
-duração.
-
-Envie `{"format":"pdf"}` e uma `Idempotency-Key`. O snapshot do grafo e a
-`board_version` são persistidos junto com o job; alterações posteriores no Board
-não mudam o conteúdo desse export.
-
-```json
-{
-  "id": "22222222-2222-4222-8222-222222222222",
-  "object": "board_export",
-  "board_id": "11111111-1111-4111-8111-111111111111",
-  "board_version": 2,
-  "status": "available",
-  "format": "pdf",
-  "artifact": {
-    "id": "22222222-2222-4222-8222-222222222222",
-    "status": "available",
-    "media_type": "application/pdf",
-    "download_url": "https://storage.example.invalid/signed/board.pdf",
-    "url_expires_at": "2026-08-29T16:15:00Z",
-    "available_until": null
-  },
-  "billing": {
-    "model": "plan_usage",
-    "status": "included",
-    "price_version": "board-plan-v1"
-  }
-}
-```
-
-Falhas possíveis: `render_failed`, `storage_unavailable` e
-`invalid_command_payload`.
-
-## Billing
-
-Board usa cobrança por plano/uso. Criar ou aplicar uma mutação individual não
-produz débito avulso nesta fase.
-
-| Eixo                 | Exemplo                                    |
-| -------------------- | ------------------------------------------ |
-| lifecycle do Board   | `active`, `archived`                       |
-| resultado da mutação | `applied`, `no_op`                         |
-| lifecycle do export  | `queued`, `running`, `available`, `failed` |
-| billing              | `included`, política/uso do plano          |
-
-ETag resolve concorrência; `Idempotency-Key` resolve repetição de uma criação ou
-comando assíncrono. Um mecanismo não substitui o outro.
-
-## Eventos
-
-Eventos emitidos localmente incluem `board.created`, `board.updated`,
-`board.archived`, `board.unarchived`, `board.deleted`,
-`board.export.queued`, `board.export.started`,
-`board.export.retry_scheduled`, `board.export.available` e
-`board.export.failed`. Eventos de export usam o `board_id` como `resource_id` e
-trazem o `export_id` no payload, portanto também aparecem em
-`GET /boards/{board_id}/events`.
-
-## Relacionado
-
-- [Autenticação e erros](/plataforma/autenticacao-erros)
-- [Lente](/plataforma/lente)
-- [Dossiê](/plataforma/dossie)
-- [Suporte e solicitações de privacidade](/support)
+Crie entidades para os elementos que possuem identidade própria e relações para os
+vínculos que precisam ser explicados. Use anotações para hipóteses e contexto, mantendo
+separação clara entre evidência observada e interpretação do analista.

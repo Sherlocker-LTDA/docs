@@ -69,45 +69,6 @@
         ]
       },
       {
-        "tab": "Plataforma",
-        "icon": "layer-group",
-        "groups": [
-          {
-            "group": "Visão geral",
-            "pages": ["plataforma/introducao"]
-          },
-          {
-            "group": "Fundamentos",
-            "pages": ["plataforma/autenticacao-erros"]
-          },
-          {
-            "group": "Problemas da Plataforma",
-            "pages": [
-              "problems/invalid_path",
-              "problems/invalid_content_length",
-              "problems/idempotency_in_progress",
-              "problems/method_not_allowed",
-              "problems/payload_too_large",
-              "problems/bad_gateway",
-              "problems/gateway_timeout",
-              "problems/scoped_key_required",
-              "problems/key_entitlement_missing",
-              "problems/entitlement_not_enabled"
-            ]
-          },
-          {
-            "group": "Produtos da Plataforma",
-            "pages": [
-              "plataforma/dossie",
-              "plataforma/monitoramento",
-              "plataforma/rastro",
-              "plataforma/board-mapa",
-              "plataforma/lente"
-            ]
-          }
-        ]
-      },
-      {
         "tab": "Cadastro",
         "icon": "users",
         "groups": [
@@ -400,6 +361,144 @@
             "pages": [
               "api/access",
               "support"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Dossiê",
+        "icon": "file-magnifying-glass",
+        "groups": [
+          {
+            "group": "Dossiê",
+            "openapi": "/openapi/plataforma-dossie.json",
+            "pages": [
+              "plataforma/dossie",
+              "POST /dossies",
+              "GET /dossies",
+              "GET /dossies/{dossie_id}",
+              "GET /dossies/{dossie_id}/status",
+              "GET /dossies/{dossie_id}/attempts",
+              "GET /dossies/{dossie_id}/events",
+              "POST /dossies/{dossie_id}/cancel",
+              "POST /dossies/{dossie_id}/retry"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Monitoramento",
+        "icon": "radar",
+        "groups": [
+          {
+            "group": "Monitoramento",
+            "openapi": "/openapi/plataforma-monitoramento.json",
+            "pages": [
+              "plataforma/monitoramento",
+              "POST /monitors",
+              "GET /monitors",
+              "GET /monitors/{monitor_id}",
+              "PATCH /monitors/{monitor_id}",
+              "POST /monitors/{monitor_id}/pause",
+              "POST /monitors/{monitor_id}/resume",
+              "POST /monitors/{monitor_id}/cancel",
+              "GET /monitors/{monitor_id}/cycles",
+              "GET /monitors/{monitor_id}/cycles/{cycle_id}",
+              "GET /monitors/{monitor_id}/changes",
+              "POST /monitors/{monitor_id}/changes/{change_id}/ack",
+              "GET /monitors/{monitor_id}/events"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Rastro",
+        "icon": "route",
+        "groups": [
+          {
+            "group": "Rastro",
+            "openapi": "/openapi/plataforma-rastro.json",
+            "pages": [
+              "plataforma/rastro",
+              "POST /rastro/searches",
+              "GET /rastro/searches",
+              "GET /rastro/searches/{search_id}",
+              "GET /rastro/searches/{search_id}/events",
+              "POST /rastro/searches/{search_id}/cancel"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Plataforma",
+        "icon": "layer-group",
+        "groups": [
+          {
+            "group": "Visão geral",
+            "pages": ["plataforma/introducao"]
+          },
+          {
+            "group": "Board e Mapa",
+            "openapi": "/openapi/plataforma-board.json",
+            "pages": [
+              "plataforma/board-mapa",
+              "POST /boards",
+              "GET /boards",
+              "GET /boards/{board_id}",
+              "PATCH /boards/{board_id}",
+              "PATCH /boards/{board_id}/delta",
+              "POST /boards/{board_id}/archive",
+              "POST /boards/{board_id}/unarchive",
+              "DELETE /boards/{board_id}",
+              "GET /boards/{board_id}/events",
+              "POST /boards/{board_id}/exports",
+              "GET /boards/{board_id}/exports/{export_id}"
+            ]
+          },
+          {
+            "group": "Lente",
+            "openapi": "/openapi/plataforma-lente.json",
+            "pages": [
+              "plataforma/lente",
+              "POST /lente/analyses",
+              "GET /lente/analyses",
+              "GET /lente/analyses/{analysis_id}",
+              "POST /lente/analyses/{analysis_id}/submit",
+              "POST /lente/analyses/{analysis_id}/cancel",
+              "GET /lente/analyses/{analysis_id}/events"
+            ]
+          },
+          {
+            "group": "Fundamentos",
+            "pages": ["plataforma/autenticacao", "plataforma/eventos-webhooks"]
+          },
+          {
+            "group": "Webhooks",
+            "openapi": "/openapi/plataforma-webhooks.json",
+            "pages": [
+              "POST /webhook-endpoints",
+              "GET /webhook-endpoints",
+              "GET /webhook-endpoints/{endpoint_id}",
+              "PATCH /webhook-endpoints/{endpoint_id}",
+              "POST /webhook-endpoints/{endpoint_id}/rotate-secret",
+              "GET /webhook-endpoints/{endpoint_id}/deliveries",
+              "POST /webhook-endpoints/{endpoint_id}/deliveries/{delivery_id}/replay"
+            ]
+          },
+          {
+            "group": "Erros",
+            "pages": [
+              "plataforma/erros",
+              "problems/invalid_path",
+              "problems/invalid_content_length",
+              "problems/idempotency_in_progress",
+              "problems/method_not_allowed",
+              "problems/payload_too_large",
+              "problems/bad_gateway",
+              "problems/gateway_timeout",
+              "problems/scoped_key_required",
+              "problems/key_entitlement_missing",
+              "problems/entitlement_not_enabled"
             ]
           }
         ]

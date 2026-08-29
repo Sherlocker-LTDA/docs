@@ -1,284 +1,44 @@
 ---
 title: "Monitoramento"
-description: "API para acompanhar alvos, ciclos de coleta e alterações detectadas"
-icon: "radar"
+description: "Acompanhamento contínuo de pessoas e empresas com detecção de mudanças"
 ---
 
-Monitoramento acompanha um CPF ou CNPJ ao longo do tempo. O Monitor é um recurso
-contínuo; cada coleta é um ciclo imutável, e cada diferença detectada vira uma
-alteração que pode ser reconhecida sem apagar o fato histórico.
+Monitoramento acompanha uma pessoa ou empresa ao longo do tempo. Em vez de produzir
+apenas uma fotografia, ele executa verificações recorrentes e destaca alterações que
+podem mudar uma avaliação de risco, compliance ou relacionamento.
 
-<Warning>
-  **Implementação local em revisão.** As migrations não foram aplicadas, os
-  workers permanecem desligados por padrão e não há disponibilidade observada em
-  produção para estes endpoints.
-</Warning>
+## O que o Monitoramento faz
 
-## Visão rápida
+- observa os temas selecionados em ciclos periódicos;
+- compara novas observações com o histórico já conhecido;
+- registra mudanças com contexto, severidade e momento da detecção;
+- permite reconhecer alterações que já foram tratadas;
+- mostra a saúde do acompanhamento para diferenciar ausência de mudança de falha de coleta.
 
-| Item              | Contrato                                                                     |
-| ----------------- | ---------------------------------------------------------------------------- |
-| Base externa      | `https://api.sherlocker.com.br/api/v1`                                       |
-| Recurso           | `monitor` contínuo                                                           |
-| Scopes            | `monitors:write` para criar/alterar comandos; `monitors:read` para consultar |
-| Finalidade        | `purpose_id` obrigatório e imutável                                          |
-| Idempotência      | obrigatória na criação                                                       |
-| Unidade faturável | alvo ativo por período; ciclo não é cobrança avulsa                          |
-| Outputs           | ciclos, cobertura, snapshots, alterações e entregas                          |
+O histórico permanece ligado ao mesmo acompanhamento, facilitando entender não apenas
+o estado atual, mas como ele mudou.
 
-## Endpoints implementados localmente
+## Quando usar
 
-| Método  | Path                                             | Scope            | Resposta | Finalidade                                         |
-| ------- | ------------------------------------------------ | ---------------- | -------: | -------------------------------------------------- |
-| `POST`  | `/monitors`                                      | `monitors:write` |    `201` | criar Monitor ativo                                |
-| `GET`   | `/monitors`                                      | `monitors:read`  |    `200` | listar Monitores por cursor                        |
-| `GET`   | `/monitors/{monitor_id}`                         | `monitors:read`  |    `200` | ler lifecycle, saúde e assinatura                  |
-| `PATCH` | `/monitors/{monitor_id}`                         | `monitors:write` |    `200` | alterar nome, emails, frequência ou `listen_items` |
-| `POST`  | `/monitors/{monitor_id}/pause`                   | `monitors:write` |    `200` | pausar novas coletas                               |
-| `POST`  | `/monitors/{monitor_id}/resume`                  | `monitors:write` |    `200` | retomar coletas                                    |
-| `POST`  | `/monitors/{monitor_id}/cancel`                  | `monitors:write` |    `202` | encerrar Monitor e liberar unidade extra           |
-| `GET`   | `/monitors/{monitor_id}/cycles`                  | `monitors:read`  |    `200` | listar ciclos por cursor, status ou período        |
-| `GET`   | `/monitors/{monitor_id}/cycles/{cycle_id}`       | `monitors:read`  |    `200` | ler coverage e mudanças de um ciclo                |
-| `GET`   | `/monitors/{monitor_id}/changes`                 | `monitors:read`  |    `200` | listar alterações detectadas                       |
-| `POST`  | `/monitors/{monitor_id}/changes/{change_id}/ack` | `monitors:write` |    `200` | reconhecer uma alteração                           |
-| `GET`   | `/monitors/{monitor_id}/events`                  | `monitors:read`  |    `200` | consumir eventos duráveis por cursor               |
+Use Monitoramento quando:
 
-Os recursos, lifecycles e comandos acima refletem o checkout local. Seus nomes
-de campo, filtros e limites só se tornam contrato público quando publicados no
-OpenAPI.
+- clientes, fornecedores, parceiros ou contrapartes precisam de revisão contínua;
+- uma alteração cadastral, societária, judicial ou financeira pode exigir ação;
+- sua política de KYC, compliance ou risco exige atualização periódica;
+- você precisa receber alertas sem repetir consultas manuais;
+- é importante comprovar quando uma mudança foi detectada e quando foi tratada.
 
-## Criar um Monitor
+## Quando escolher outra área
 
-```bash
-curl -X POST https://api.sherlocker.com.br/api/v1/monitors \
-  -H "Authorization: Bearer slhk_sua_chave_aqui" \
-  -H "Idempotency-Key: 123e4567-e89b-42d3-a456-426614174010" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Empresa acompanhada",
-    "identifier": "11222333000181",
-    "identifier_type": "cnpj",
-    "purpose_id": "11111111-1111-4111-8111-111111111111",
-    "listen_items": ["company", "processes", "debts"],
-    "emails": ["alertas@example.com"],
-    "confirm_extra": false
-  }'
-```
+Para uma avaliação pontual e ampla, comece com
+[Dossiê](/plataforma/dossie). O Monitoramento é
+mais adequado depois que o alvo já foi definido e a pergunta passa a ser “o que
+mudou?”. Para explorar relações entre várias entidades, use
+[Board e Mapa](/plataforma/board-mapa).
 
-Uma criação normal retorna `201 Created`:
+## Como interpretar o acompanhamento
 
-```http
-HTTP/1.1 201 Created
-Location: /api/v1/monitors/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa
-x-request-id: req_01JEXEMPLO
-```
-
-```json
-{
-  "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-  "object": "monitor",
-  "status": "active",
-  "name": "Empresa acompanhada",
-  "identifier": "11222333000181",
-  "identifier_type": "cnpj",
-  "purpose_id": "11111111-1111-4111-8111-111111111111",
-  "listen_items": ["company", "processes", "debts"],
-  "emails": [],
-  "frequency_hours": 24,
-  "health": {
-    "status": "unknown",
-    "consecutive_failures": 0,
-    "last_cycle_at": null
-  },
-  "subscription": {
-    "status": "included",
-    "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
-  },
-  "execution_allowed": true,
-  "blocking_reason": null,
-  "created_at": "2026-08-29T14:00:00Z",
-  "updated_at": "2026-08-29T14:00:00Z"
-}
-```
-
-### Monitor adicional
-
-Se o workspace exceder a franquia e `confirm_extra` não for `true`, nenhum
-recurso é criado e a API retorna `402 extra_confirmation_required` com o preview
-de preço. Reenvie com uma **nova** `Idempotency-Key` e `confirm_extra: true`
-somente após obter a confirmação do usuário responsável.
-
-O objeto `subscription` informa se a unidade está incluída, adicional ou com
-pagamento pendente. A API não apresenta uma cobrança avulsa fictícia por ciclo.
-
-### Unicidade e replay
-
-Só pode existir um Monitor `active` ou `paused` para a combinação:
-
-```text
-workspace + identifier_type + identifier normalizado + purpose_id
-```
-
-- Mesma `Idempotency-Key` e mesmo body: replay do Monitor original.
-- Nova key para a mesma combinação: `409 duplicate_monitor`, sem nova cobrança.
-- Nome, emails, frequência ou `listen_items` diferentes não criam outro Monitor;
-  altere o existente com `PATCH`.
-- Depois de `cancelled`, uma nova criação é permitida.
-
-## Lifecycle do Monitor
-
-| Status      | Terminal? | Significado                      | Próximos estados      |
-| ----------- | --------: | -------------------------------- | --------------------- |
-| `active`    |       não | o scheduler pode criar ciclos    | `paused`, `cancelled` |
-| `paused`    |       não | o cliente suspendeu novos ciclos | `active`, `cancelled` |
-| `cancelled` |       sim | encerrado; histórico preservado  | nenhum                |
-
-Somente um comando explícito do cliente muda `active` para `paused`. Uma falha
-técnica ou financeira não finge que o usuário pausou o Monitor.
-
-## Saúde operacional
-
-`health.status` descreve a qualidade recente sem substituir `monitor.status`:
-
-| Saúde      | Significado                                                  |
-| ---------- | ------------------------------------------------------------ |
-| `unknown`  | nenhum ciclo terminou                                        |
-| `healthy`  | último ciclo concluiu sem fonte crítica degradada            |
-| `degraded` | houve warnings ou cobertura parcial, mas existem dados úteis |
-| `failing`  | falhas consecutivas ultrapassaram o limiar operacional       |
-
-Um ciclo falho mantém o Monitor `active`. O scheduler tenta o próximo ciclo
-conforme a política; um ciclo bem-sucedido zera `consecutive_failures`.
-
-## Ciclos de coleta
-
-Cada coleta recebe um `cycle_id` imutável e tem lifecycle próprio:
-
-| Status                    | Terminal? | Significado                                  |
-| ------------------------- | --------: | -------------------------------------------- |
-| `queued`                  |       não | ciclo persistido e aguardando execução       |
-| `running`                 |       não | coleta em andamento                          |
-| `completed`               |       sim | todas as fontes críticas concluíram          |
-| `completed_with_warnings` |       sim | dados úteis com cobertura parcial            |
-| `failed`                  |       sim | nenhuma cobertura útil ou erro irrecuperável |
-| `skipped`                 |       sim | ciclo deliberadamente não executado          |
-| `cancelled`               |       sim | interrompido antes da coleta irreversível    |
-
-Só pode existir um ciclo `queued` ou `running` por Monitor. Ticks concorrentes são
-suprimidos antes de criar outro ciclo.
-
-### Exemplo: ciclo parcial
-
-```json
-{
-  "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
-  "object": "monitor_cycle",
-  "monitor_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-  "status": "completed_with_warnings",
-  "scheduled_at": "2026-08-30T09:00:00Z",
-  "started_at": "2026-08-30T09:00:12Z",
-  "completed_at": "2026-08-30T09:04:08Z",
-  "coverage": {
-    "status": "partial",
-    "items": [
-      { "type": "company", "outcome": "unchanged" },
-      { "type": "processes", "outcome": "changed" },
-      { "type": "debts", "outcome": "unavailable" }
-    ]
-  },
-  "changes_count": 1,
-  "billing": {
-    "model": "subscription",
-    "subscription_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
-  }
-}
-```
-
-Outcomes possíveis por item: `changed`, `unchanged`, `unavailable`, `error`,
-`skipped` e `unsupported`. Uma falha ou resposta ambígua nunca é convertida em
-`unchanged`.
-
-`skip_reason` pode ser `monitor_paused`, `monitor_cancelled`,
-`payment_required`, `duplicate_cycle`, `not_due` ou `feature_disabled`.
-
-## Alterações detectadas
-
-Uma alteração é um fato imutável. Reconhecê-la muda apenas o estado de leitura:
-
-```json
-{
-  "id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
-  "monitor_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-  "cycle_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
-  "status": "open",
-  "severity": "warn",
-  "type": "processes",
-  "category": "PROCESS_NEW",
-  "title": "Novo processo identificado",
-  "summary": "Uma nova relação processual apareceu desde o snapshot anterior.",
-  "occurred_at": "2026-08-30T09:04:08Z",
-  "ack_at": null,
-  "delivery": {
-    "status": "delivered",
-    "delivered_at": "2026-08-30T09:04:40Z"
-  }
-}
-```
-
-| Campo           | Valores                                                     |
-| --------------- | ----------------------------------------------------------- |
-| `status`        | `open`, `acknowledged`                                      |
-| `severity`      | `info`, `warn`, `critical`                                  |
-| item monitorado | `company`, `debts`, `processes`, `partners`, `socialmedias` |
-
-`delivery.status` e `ack_at` são independentes: receber um webhook não significa
-que uma pessoa reconheceu a alteração.
-
-## Billing e execução
-
-Monitoramento cobra por alvo ativo e período, não por ciclo individual.
-
-| `subscription.status` | Significado                                          |
-| --------------------- | ---------------------------------------------------- |
-| `included`            | ocupa uma unidade incluída no plano                  |
-| `extra_active`        | unidade adicional faturada e ativa                   |
-| `past_due`            | pagamento pendente; novos ciclos podem ser suspensos |
-| `release_pending`     | cancelamento aceito, liberação em processamento      |
-| `released`            | unidade extra liberada                               |
-
-A resposta também traz:
-
-- `execution_allowed`: se novos ciclos podem executar;
-- `blocking_reason`: `null`, `monitor_paused`, `monitor_cancelled`,
-  `payment_required` ou `feature_disabled`.
-
-Um ciclo sempre informa `billing.model: "subscription"` e o
-`subscription_id`; ele nunca apresenta uma cobrança avulsa fictícia.
-
-## Eventos e webhooks
-
-Eventos emitidos localmente incluem `monitor.created`, `monitor.updated`, `monitor.paused`,
-`monitor.resumed`, `monitor.cancelled`, `monitor.cycle.started`,
-`monitor.cycle.completed`, `monitor.cycle.degraded`, `monitor.cycle.failed`,
-`monitor.change.detected` e `monitor.change.acknowledged`.
-
-Webhook é opcional e thin: carrega IDs e resumo não sensível. Polling dos
-endpoints de Monitor, ciclo e mudança permanece autoritativo mesmo quando a
-entrega entra em retry ou DLQ.
-
-## Erros específicos
-
-|  HTTP | `code`                        | Quando ocorre                                          |
-| ----: | ----------------------------- | ------------------------------------------------------ |
-| `402` | `extra_confirmation_required` | unidade adicional exige confirmação                    |
-| `402` | `payment_required`            | inadimplência bloqueia nova execução                   |
-| `409` | `duplicate_monitor`           | já existe Monitor ativo/pausado para alvo e finalidade |
-| `409` | `invalid_state_transition`    | comando incompatível com o lifecycle                   |
-| `400` | `invalid_cursor`              | cursor não corresponde aos filtros da lista            |
-
-## Relacionado
-
-- [Autenticação e erros](/plataforma/autenticacao-erros)
-- [Dossiê](/plataforma/dossie)
-- [Rastro](/plataforma/rastro)
-- [Suporte e solicitações de privacidade](/support)
+Separe sempre a situação do acompanhamento, a saúde das coletas e as mudanças
+detectadas. Um acompanhamento ativo pode estar temporariamente degradado; uma coleta
+bem-sucedida pode não gerar mudança; e uma mudança reconhecida continua fazendo parte
+do histórico.

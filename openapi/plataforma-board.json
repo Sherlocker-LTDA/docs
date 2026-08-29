@@ -1,0 +1,588 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Board e Mapa API",
+    "description": "Boards investigativos versionados, relações, colaboração e exportação.",
+    "version": "1.0"
+  },
+  "servers": [{ "url": "https://221b-api.sherlocker.com.br/api/v1" }],
+  "security": [{ "bearerAuth": [] }],
+  "components": {
+    "securitySchemes": { "bearerAuth": { "type": "http", "scheme": "bearer" } },
+    "parameters": {
+      "BoardId": {
+        "name": "board_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "ExportId": {
+        "name": "export_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "IfMatch": {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "description": "ETag da versão que será alterada.",
+        "schema": { "type": "string" }
+      },
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": { "type": "string", "maxLength": 255 }
+      },
+      "Cursor": {
+        "name": "cursor",
+        "in": "query",
+        "schema": { "type": "string" }
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        }
+      }
+    },
+    "schemas": {
+      "Position": {
+        "type": "object",
+        "required": ["x", "y"],
+        "properties": {
+          "x": { "type": "number", "minimum": -10000000, "maximum": 10000000 },
+          "y": { "type": "number", "minimum": -10000000, "maximum": 10000000 }
+        }
+      },
+      "Node": {
+        "type": "object",
+        "required": ["id", "type", "position", "data"],
+        "properties": {
+          "id": { "type": "string", "maxLength": 128 },
+          "type": {
+            "type": "string",
+            "enum": [
+              "person",
+              "company",
+              "place",
+              "email",
+              "phone",
+              "document",
+              "event",
+              "note"
+            ]
+          },
+          "position": { "$ref": "#/components/schemas/Position" },
+          "data": { "type": "object", "additionalProperties": true }
+        }
+      },
+      "Edge": {
+        "type": "object",
+        "required": ["id", "type", "source", "target"],
+        "properties": {
+          "id": { "type": "string", "maxLength": 128 },
+          "type": { "type": "string", "enum": ["relationship"] },
+          "source": { "type": "string", "maxLength": 128 },
+          "target": { "type": "string", "maxLength": 128 },
+          "data": { "type": "object", "additionalProperties": true }
+        }
+      },
+      "Board": {
+        "type": "object",
+        "required": [
+          "id",
+          "object",
+          "name",
+          "status",
+          "schema_version",
+          "version",
+          "nodes_count",
+          "edges_count",
+          "billing",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "object": { "type": "string", "enum": ["board"] },
+          "name": { "type": "string" },
+          "status": { "type": "string", "enum": ["active", "archived"] },
+          "schema_version": { "type": "integer", "enum": [1] },
+          "version": { "type": "integer", "minimum": 1 },
+          "nodes_count": { "type": "integer" },
+          "edges_count": { "type": "integer" },
+          "nodes": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Node" }
+          },
+          "edges": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Edge" }
+          },
+          "properties": { "type": "object", "additionalProperties": true },
+          "billing": {
+            "type": "object",
+            "properties": {
+              "model": { "type": "string", "enum": ["plan_usage"] },
+              "status": { "type": "string", "enum": ["included"] }
+            }
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "DeltaResult": {
+        "type": "object",
+        "properties": {
+          "result": { "type": "string", "enum": ["applied", "no_op"] },
+          "version": { "type": "integer" },
+          "nodes_count": { "type": "integer" },
+          "edges_count": { "type": "integer" }
+        }
+      },
+      "Export": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "object": { "type": "string", "enum": ["board_export"] },
+          "board_id": { "type": "string", "format": "uuid" },
+          "board_version": { "type": "integer" },
+          "status": {
+            "type": "string",
+            "enum": ["queued", "running", "available", "failed"]
+          },
+          "format": { "type": "string", "enum": ["pdf"] },
+          "artifact": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": ["available", "temporarily_unavailable"]
+              },
+              "download_url": { "type": "string", "format": "uri" },
+              "url_expires_at": { "type": "string", "format": "date-time" },
+              "available_until": { "type": "string", "nullable": true }
+            }
+          },
+          "failure": { "type": "object", "additionalProperties": true },
+          "poll_after_seconds": { "type": "integer" }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string" },
+          "sequence": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "data": { "type": "object", "additionalProperties": true }
+        }
+      },
+      "Page": {
+        "type": "object",
+        "properties": {
+          "next_cursor": { "type": "string", "nullable": true },
+          "has_more": { "type": "boolean" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["status", "code", "detail", "request_id", "retryable"],
+        "properties": {
+          "status": { "type": "integer" },
+          "code": { "type": "string" },
+          "detail": { "type": "string" },
+          "request_id": { "type": "string" },
+          "retryable": { "type": "boolean" }
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Erro no formato application/problem+json",
+        "content": {
+          "application/problem+json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/boards": {
+      "post": {
+        "summary": "Criar Board",
+        "description": "Cria um Board com sua primeira versão de entidades e relações.",
+        "operationId": "createBoard",
+        "parameters": [{ "$ref": "#/components/parameters/IdempotencyKey" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "schema_version"],
+                "properties": {
+                  "name": { "type": "string", "maxLength": 255 },
+                  "schema_version": { "type": "integer", "enum": [1] },
+                  "nodes": {
+                    "type": "array",
+                    "maxItems": 5000,
+                    "items": { "$ref": "#/components/schemas/Node" }
+                  },
+                  "edges": {
+                    "type": "array",
+                    "maxItems": 10000,
+                    "items": { "$ref": "#/components/schemas/Edge" }
+                  },
+                  "properties": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Board criado; o header ETag identifica a versão.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Board" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" },
+          "422": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "get": {
+        "summary": "Listar Boards",
+        "description": "Lista Boards por cursor e estado.",
+        "operationId": "listBoards",
+        "parameters": [
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Cursor" },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["active", "archived"] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Página de Boards",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Board" }
+                    },
+                    "page": { "$ref": "#/components/schemas/Page" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/boards/{board_id}": {
+      "get": {
+        "summary": "Consultar Board",
+        "description": "Retorna o snapshot atual e seu ETag. Aceita If-None-Match para leitura condicional.",
+        "operationId": "getBoard",
+        "parameters": [
+          { "$ref": "#/components/parameters/BoardId" },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Board encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Board" }
+              }
+            }
+          },
+          "304": { "description": "O Board não mudou desde o ETag enviado." },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "patch": {
+        "summary": "Atualizar dados do Board",
+        "description": "Altera nome ou propriedades usando controle de versão por ETag.",
+        "operationId": "updateBoard",
+        "parameters": [
+          { "$ref": "#/components/parameters/BoardId" },
+          { "$ref": "#/components/parameters/IfMatch" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "maxLength": 255 },
+                  "properties": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Board atualizado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Board" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" },
+          "412": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "delete": {
+        "summary": "Excluir Board",
+        "description": "Exclui o Board indicado quando o ETag corresponde à versão atual.",
+        "operationId": "deleteBoard",
+        "parameters": [
+          { "$ref": "#/components/parameters/BoardId" },
+          { "$ref": "#/components/parameters/IfMatch" }
+        ],
+        "responses": {
+          "204": { "description": "Board excluído" },
+          "404": { "$ref": "#/components/responses/Error" },
+          "412": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/boards/{board_id}/delta": {
+      "patch": {
+        "summary": "Aplicar alterações ao Board",
+        "description": "Aplica inclusões, atualizações e remoções de entidades e relações de forma atômica.",
+        "operationId": "applyBoardDelta",
+        "parameters": [
+          { "$ref": "#/components/parameters/BoardId" },
+          { "$ref": "#/components/parameters/IfMatch" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nodes": {
+                    "type": "object",
+                    "properties": {
+                      "upsert": {
+                        "type": "array",
+                        "maxItems": 500,
+                        "items": { "$ref": "#/components/schemas/Node" }
+                      },
+                      "remove": {
+                        "type": "array",
+                        "maxItems": 500,
+                        "items": { "type": "string" }
+                      }
+                    }
+                  },
+                  "edges": {
+                    "type": "object",
+                    "properties": {
+                      "upsert": {
+                        "type": "array",
+                        "maxItems": 1000,
+                        "items": { "$ref": "#/components/schemas/Edge" }
+                      },
+                      "remove": {
+                        "type": "array",
+                        "maxItems": 1000,
+                        "items": { "type": "string" }
+                      }
+                    }
+                  },
+                  "properties": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Alterações aplicadas ou reconhecidas como sem efeito",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DeltaResult" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" },
+          "412": { "$ref": "#/components/responses/Error" },
+          "422": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/boards/{board_id}/archive": {
+      "post": {
+        "summary": "Arquivar Board",
+        "description": "Arquiva o Board sem excluir seu conteúdo.",
+        "operationId": "archiveBoard",
+        "parameters": [
+          { "$ref": "#/components/parameters/BoardId" },
+          { "$ref": "#/components/parameters/IfMatch" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Board arquivado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Board" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" },
+          "412": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/boards/{board_id}/unarchive": {
+      "post": {
+        "summary": "Reativar Board",
+        "description": "Torna ativo um Board arquivado.",
+        "operationId": "unarchiveBoard",
+        "parameters": [
+          { "$ref": "#/components/parameters/BoardId" },
+          { "$ref": "#/components/parameters/IfMatch" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Board reativado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Board" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" },
+          "412": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/boards/{board_id}/events": {
+      "get": {
+        "summary": "Listar eventos do Board",
+        "description": "Retorna eventos duráveis em ordem de sequência.",
+        "operationId": "listBoardEvents",
+        "parameters": [
+          { "$ref": "#/components/parameters/BoardId" },
+          { "$ref": "#/components/parameters/Cursor" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Eventos do Board",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Event" }
+                    },
+                    "page": { "$ref": "#/components/schemas/Page" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/boards/{board_id}/exports": {
+      "post": {
+        "summary": "Criar exportação do Board",
+        "description": "Gera um PDF assíncrono da versão atual do Board.",
+        "operationId": "createBoardExport",
+        "parameters": [
+          { "$ref": "#/components/parameters/BoardId" },
+          { "$ref": "#/components/parameters/IdempotencyKey" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["format"],
+                "properties": {
+                  "format": { "type": "string", "enum": ["pdf"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Exportação aceita",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Export" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/boards/{board_id}/exports/{export_id}": {
+      "get": {
+        "summary": "Consultar exportação do Board",
+        "description": "Retorna andamento e, quando disponível, o link temporário do PDF.",
+        "operationId": "getBoardExport",
+        "parameters": [
+          { "$ref": "#/components/parameters/BoardId" },
+          { "$ref": "#/components/parameters/ExportId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exportação encontrada",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Export" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    }
+  }
+}
