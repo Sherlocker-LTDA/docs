@@ -69,6 +69,30 @@
         ]
       },
       {
+        "tab": "Plataforma",
+        "icon": "layer-group",
+        "groups": [
+          {
+            "group": "Visão geral",
+            "pages": ["plataforma/introducao"]
+          },
+          {
+            "group": "Fundamentos",
+            "pages": ["plataforma/autenticacao-erros"]
+          },
+          {
+            "group": "Produtos da Plataforma",
+            "pages": [
+              "plataforma/dossie",
+              "plataforma/monitoramento",
+              "plataforma/rastro",
+              "plataforma/board-mapa",
+              "plataforma/lente"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Cadastro",
         "icon": "users",
         "groups": [

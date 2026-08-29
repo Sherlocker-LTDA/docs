@@ -1,0 +1,111 @@
+---
+title: "Plataforma"
+description: "Visão geral dos novos contratos de integração do Sherlocker"
+icon: "layer-group"
+---
+
+A área **Plataforma** reúne a documentação dos novos contratos de integração para capacidades que já existem — ou estão sendo preparadas — no ecossistema Sherlocker. Ela cobre o ciclo completo de uma investigação: iniciar um trabalho, acompanhar a execução, consultar resultados, receber eventos e exportar artefatos.
+
+<Warning>
+  A implementação destes contratos existe **somente no checkout local em
+  revisão**. As migrations não foram aplicadas, os workers permanecem
+  desabilitados por padrão e não há disponibilidade observada em produção. Uma
+  funcionalidade existir no app Sherlocker não significa que sua API pública já
+  esteja liberada. Use somente endpoints cuja página declare explicitamente que
+  o acesso foi habilitado para o seu workspace.
+</Warning>
+
+## Endereço público e rota interna
+
+O mesmo caminho aparece de duas formas porque existe uma camada pública na frente do backend:
+
+| Contexto                          | Forma                                      | Para quem                                                          |
+| --------------------------------- | ------------------------------------------ | ------------------------------------------------------------------ |
+| API pública externa da Plataforma | `https://api.sherlocker.com.br/api/v1/...` | Clientes e integrações autorizadas quando o contrato for liberado  |
+| Rota do backend                   | `/v1/...`                                  | Serviços internos, código dos controllers e operação da plataforma |
+
+Para uma futura integração externa com estes contratos, a base normativa é `https://api.sherlocker.com.br/api/v1`. A presença de um controller interno em `/v1` **não publica automaticamente** esse endpoint na API externa: ainda são necessários contrato estável, autenticação por chave de API, autorização por workspace, documentação e liberação operacional.
+
+<Note>
+  As páginas desta área descrevem contratos antes da disponibilidade pública
+  para orientar a implementação e permitir sua revisão. O status informado na
+  página de cada produto prevalece sobre exemplos de URL ou payload.
+</Note>
+
+## Produtos da Plataforma
+
+<CardGroup cols={2}>
+  <Card title="Dossiê" icon="file-magnifying-glass" href="/plataforma/dossie">
+    Geração e acompanhamento assíncrono de dossiês. **Status: implementado
+    localmente; não publicado.**
+  </Card>
+  <Card title="Monitoramento" icon="radar" href="/plataforma/monitoramento">
+    Acompanhamento contínuo de entidades e mudanças. **Status: implementado
+    localmente; não publicado.**
+  </Card>
+  <Card title="Rastro" icon="route" href="/plataforma/rastro">
+    Busca investigativa em fontes abertas e consolidação de resultados.
+    **Status: implementado localmente; não publicado.**
+  </Card>
+  <Card
+    title="Board e Mapa"
+    icon="diagram-project"
+    href="/plataforma/board-mapa"
+  >
+    Colaboração sobre entidades, relações, contexto geográfico e exports
+    privados. **Status: implementado localmente; não publicado.**
+  </Card>
+  <Card title="Lente" icon="camera" href="/plataforma/lente">
+    Análises de imagem com upload privado, execução e resultados rastreáveis.
+    **Status: implementado localmente; não publicado.**
+  </Card>
+</CardGroup>
+
+## Fundação comum dos contratos
+
+As APIs da Plataforma convergem para os mesmos princípios:
+
+- **Workspace como fronteira de autorização** — uma chave não acessa recursos de outro workspace.
+- **Execuções duráveis para operações demoradas** — criação assíncrona, consulta de status e resultado terminal, sem depender de uma conexão aberta do cliente.
+- **Idempotência nas escritas** — retries não devem gerar trabalho ou cobrança em duplicidade.
+- **Cobrança e estorno rastreáveis** — quando aplicável, o consumo pertence ao workspace e falhas elegíveis são compensadas.
+- **Polling como contrato autoritativo** — webhooks e realtime podem reduzir latência, mas não substituem a consulta do estado persistido.
+- **Artefatos privados** — exports e arquivos são entregues por URLs temporárias, sem tornar o bucket público.
+
+Esses princípios orientam a implementação local. Consulte a página do produto e o OpenAPI publicado antes de integrar.
+
+<Card
+  title="Autenticação, tenancy e erros"
+  icon="key"
+  href="/plataforma/autenticacao-erros"
+>
+  Entenda a identidade da chave, o isolamento por workspace e o formato comum de
+  falhas dos novos contratos.
+</Card>
+
+## APIs já documentadas
+
+Os contratos atualmente expostos dos **Motores de Análise** continuam em uma área separada, com seu próprio status de beta, autenticação, referência OpenAPI e base `https://221b-api.sherlocker.com.br/api/v1`. A base atual dos Motores não altera a base normativa dos novos contratos da Plataforma.
+
+<CardGroup cols={2}>
+  <Card
+    title="Motor de CPF/CNPJ"
+    icon="user-check"
+    href="/motor-analise/introducao"
+  >
+    Análise assíncrona de risco de uma pessoa ou empresa.
+  </Card>
+  <Card
+    title="Motor de Borderô"
+    icon="file-invoice-dollar"
+    href="/credito/introducao"
+  >
+    Análise de operações CNAB 400, títulos e NFe.
+  </Card>
+</CardGroup>
+
+<Info>
+  Precisa avaliar um destes contratos antes da publicação? Fale com o time
+  Sherlocker antes de desenvolver a integração. Veja os canais em
+  [Suporte](/support).
+</Info>
