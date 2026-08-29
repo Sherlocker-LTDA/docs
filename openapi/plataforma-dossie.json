@@ -152,16 +152,6 @@
           }
         }
       },
-      "Event": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string" },
-          "type": { "type": "string" },
-          "sequence": { "type": "integer" },
-          "created_at": { "type": "string", "format": "date-time" },
-          "data": { "type": "object", "additionalProperties": true }
-        }
-      },
       "Page": {
         "type": "object",
         "properties": {
@@ -314,69 +304,6 @@
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Dossie" }
-              }
-            }
-          },
-          "404": { "$ref": "#/components/responses/Error" }
-        }
-      }
-    },
-    "/dossies/{dossie_id}/attempts": {
-      "get": {
-        "summary": "Listar tentativas do Dossiê",
-        "description": "Lista a tentativa inicial e os reprocessamentos, preservando o histórico.",
-        "operationId": "listDossieAttempts",
-        "parameters": [
-          { "$ref": "#/components/parameters/DossieId" },
-          { "$ref": "#/components/parameters/Limit" },
-          { "$ref": "#/components/parameters/Cursor" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Página de tentativas",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": { "$ref": "#/components/schemas/Attempt" }
-                    },
-                    "page": { "$ref": "#/components/schemas/Page" }
-                  }
-                }
-              }
-            }
-          },
-          "404": { "$ref": "#/components/responses/Error" }
-        }
-      }
-    },
-    "/dossies/{dossie_id}/events": {
-      "get": {
-        "summary": "Listar eventos do Dossiê",
-        "description": "Retorna eventos duráveis em ordem de sequência.",
-        "operationId": "listDossieEvents",
-        "parameters": [
-          { "$ref": "#/components/parameters/DossieId" },
-          { "$ref": "#/components/parameters/Cursor" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Eventos do Dossiê",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": { "$ref": "#/components/schemas/Event" }
-                    },
-                    "page": { "$ref": "#/components/schemas/Page" }
-                  }
-                }
               }
             }
           },

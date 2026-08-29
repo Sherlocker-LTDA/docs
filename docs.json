@@ -381,11 +381,8 @@
               "POST /monitors/{monitor_id}/pause",
               "POST /monitors/{monitor_id}/resume",
               "POST /monitors/{monitor_id}/cancel",
-              "GET /monitors/{monitor_id}/cycles",
-              "GET /monitors/{monitor_id}/cycles/{cycle_id}",
               "GET /monitors/{monitor_id}/changes",
-              "POST /monitors/{monitor_id}/changes/{change_id}/ack",
-              "GET /monitors/{monitor_id}/events"
+              "POST /monitors/{monitor_id}/changes/{change_id}/ack"
             ]
           }
         ]
@@ -407,8 +404,6 @@
               "GET /dossies",
               "GET /dossies/{dossie_id}",
               "GET /dossies/{dossie_id}/status",
-              "GET /dossies/{dossie_id}/attempts",
-              "GET /dossies/{dossie_id}/events",
               "POST /dossies/{dossie_id}/cancel",
               "POST /dossies/{dossie_id}/retry"
             ]
@@ -421,7 +416,6 @@
               "POST /rastro/searches",
               "GET /rastro/searches",
               "GET /rastro/searches/{search_id}",
-              "GET /rastro/searches/{search_id}/events",
               "POST /rastro/searches/{search_id}/cancel"
             ]
           },
@@ -438,7 +432,6 @@
               "POST /boards/{board_id}/archive",
               "POST /boards/{board_id}/unarchive",
               "DELETE /boards/{board_id}",
-              "GET /boards/{board_id}/events",
               "POST /boards/{board_id}/exports",
               "GET /boards/{board_id}/exports/{export_id}"
             ]
@@ -452,8 +445,7 @@
               "GET /lente/analyses",
               "GET /lente/analyses/{analysis_id}",
               "POST /lente/analyses/{analysis_id}/submit",
-              "POST /lente/analyses/{analysis_id}/cancel",
-              "GET /lente/analyses/{analysis_id}/events"
+              "POST /lente/analyses/{analysis_id}/cancel"
             ]
           },
           {
@@ -461,7 +453,7 @@
             "pages": [
               "plataforma/autenticacao",
               "plataforma/estados-resultados",
-              "plataforma/eventos-webhooks"
+              "plataforma/atualizacoes-automaticas"
             ]
           },
           {

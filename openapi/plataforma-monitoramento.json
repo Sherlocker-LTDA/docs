@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Monitoramento API",
-    "description": "Acompanhamento contínuo, ciclos de coleta e mudanças detectadas.",
+    "description": "Acompanhamento contínuo e mudanças detectadas.",
     "version": "1.0"
   },
   "servers": [{ "url": "https://221b-api.sherlocker.com.br/api/v1" }],
@@ -12,12 +12,6 @@
     "parameters": {
       "MonitorId": {
         "name": "monitor_id",
-        "in": "path",
-        "required": true,
-        "schema": { "type": "string", "format": "uuid" }
-      },
-      "CycleId": {
-        "name": "cycle_id",
         "in": "path",
         "required": true,
         "schema": { "type": "string", "format": "uuid" }
@@ -146,28 +140,6 @@
           "updated_at": { "type": "string", "format": "date-time" }
         }
       },
-      "Cycle": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string", "format": "uuid" },
-          "status": {
-            "type": "string",
-            "enum": [
-              "queued",
-              "running",
-              "completed",
-              "completed_with_warnings",
-              "failed",
-              "skipped",
-              "cancelled"
-            ]
-          },
-          "coverage": { "type": "object", "additionalProperties": true },
-          "changes_count": { "type": "integer" },
-          "started_at": { "type": "string", "format": "date-time" },
-          "completed_at": { "type": "string", "format": "date-time" }
-        }
-      },
       "Change": {
         "type": "object",
         "properties": {
@@ -186,16 +158,6 @@
             "format": "date-time",
             "nullable": true
           }
-        }
-      },
-      "Event": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string" },
-          "type": { "type": "string" },
-          "sequence": { "type": "integer" },
-          "created_at": { "type": "string", "format": "date-time" },
-          "data": { "type": "object", "additionalProperties": true }
         }
       },
       "Page": {
@@ -470,60 +432,6 @@
         }
       }
     },
-    "/monitors/{monitor_id}/cycles": {
-      "get": {
-        "summary": "Listar ciclos de coleta",
-        "description": "Lista as verificações periódicas realizadas para o acompanhamento.",
-        "operationId": "listMonitorCycles",
-        "parameters": [
-          { "$ref": "#/components/parameters/MonitorId" },
-          { "$ref": "#/components/parameters/Limit" },
-          { "$ref": "#/components/parameters/Cursor" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Página de ciclos",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": { "$ref": "#/components/schemas/Cycle" }
-                    },
-                    "page": { "$ref": "#/components/schemas/Page" }
-                  }
-                }
-              }
-            }
-          },
-          "404": { "$ref": "#/components/responses/Error" }
-        }
-      }
-    },
-    "/monitors/{monitor_id}/cycles/{cycle_id}": {
-      "get": {
-        "summary": "Consultar ciclo de coleta",
-        "description": "Retorna estado, cobertura e quantidade de mudanças de um ciclo.",
-        "operationId": "getMonitorCycle",
-        "parameters": [
-          { "$ref": "#/components/parameters/MonitorId" },
-          { "$ref": "#/components/parameters/CycleId" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Ciclo encontrado",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Cycle" }
-              }
-            }
-          },
-          "404": { "$ref": "#/components/responses/Error" }
-        }
-      }
-    },
     "/monitors/{monitor_id}/changes": {
       "get": {
         "summary": "Listar mudanças detectadas",
@@ -586,37 +494,6 @@
           },
           "404": { "$ref": "#/components/responses/Error" },
           "409": { "$ref": "#/components/responses/Error" }
-        }
-      }
-    },
-    "/monitors/{monitor_id}/events": {
-      "get": {
-        "summary": "Listar eventos do Monitoramento",
-        "description": "Retorna eventos duráveis em ordem de sequência.",
-        "operationId": "listMonitorEvents",
-        "parameters": [
-          { "$ref": "#/components/parameters/MonitorId" },
-          { "$ref": "#/components/parameters/Cursor" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Eventos do Monitoramento",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": { "$ref": "#/components/schemas/Event" }
-                    },
-                    "page": { "$ref": "#/components/schemas/Page" }
-                  }
-                }
-              }
-            }
-          },
-          "404": { "$ref": "#/components/responses/Error" }
         }
       }
     }

@@ -174,16 +174,6 @@
           "poll_after_seconds": { "type": "integer" }
         }
       },
-      "Event": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string" },
-          "type": { "type": "string" },
-          "sequence": { "type": "integer" },
-          "created_at": { "type": "string", "format": "date-time" },
-          "data": { "type": "object", "additionalProperties": true }
-        }
-      },
       "Page": {
         "type": "object",
         "properties": {
@@ -491,37 +481,6 @@
           },
           "404": { "$ref": "#/components/responses/Error" },
           "412": { "$ref": "#/components/responses/Error" }
-        }
-      }
-    },
-    "/boards/{board_id}/events": {
-      "get": {
-        "summary": "Listar eventos do Board",
-        "description": "Retorna eventos duráveis em ordem de sequência.",
-        "operationId": "listBoardEvents",
-        "parameters": [
-          { "$ref": "#/components/parameters/BoardId" },
-          { "$ref": "#/components/parameters/Cursor" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Eventos do Board",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": { "$ref": "#/components/schemas/Event" }
-                    },
-                    "page": { "$ref": "#/components/schemas/Page" }
-                  }
-                }
-              }
-            }
-          },
-          "404": { "$ref": "#/components/responses/Error" }
         }
       }
     },

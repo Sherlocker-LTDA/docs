@@ -104,16 +104,6 @@
           "completed_at": { "type": "string", "format": "date-time" }
         }
       },
-      "Event": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string" },
-          "type": { "type": "string" },
-          "sequence": { "type": "integer" },
-          "created_at": { "type": "string", "format": "date-time" },
-          "data": { "type": "object", "additionalProperties": true }
-        }
-      },
       "Page": {
         "type": "object",
         "properties": {
@@ -247,37 +237,6 @@
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Search" }
-              }
-            }
-          },
-          "404": { "$ref": "#/components/responses/Error" }
-        }
-      }
-    },
-    "/rastro/searches/{search_id}/events": {
-      "get": {
-        "summary": "Listar eventos da busca",
-        "description": "Retorna eventos duráveis em ordem de sequência.",
-        "operationId": "listRastroSearchEvents",
-        "parameters": [
-          { "$ref": "#/components/parameters/SearchId" },
-          { "$ref": "#/components/parameters/Cursor" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Eventos da busca",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": { "$ref": "#/components/schemas/Event" }
-                    },
-                    "page": { "$ref": "#/components/schemas/Page" }
-                  }
-                }
               }
             }
           },

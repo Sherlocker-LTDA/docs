@@ -144,16 +144,6 @@
           "updated_at": { "type": "string", "format": "date-time" }
         }
       },
-      "Event": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string" },
-          "type": { "type": "string" },
-          "sequence": { "type": "integer" },
-          "created_at": { "type": "string", "format": "date-time" },
-          "data": { "type": "object", "additionalProperties": true }
-        }
-      },
       "Page": {
         "type": "object",
         "properties": {
@@ -351,37 +341,6 @@
           },
           "404": { "$ref": "#/components/responses/Error" },
           "409": { "$ref": "#/components/responses/Error" }
-        }
-      }
-    },
-    "/lente/analyses/{analysis_id}/events": {
-      "get": {
-        "summary": "Listar eventos da análise",
-        "description": "Retorna eventos duráveis em ordem de sequência.",
-        "operationId": "listLenteAnalysisEvents",
-        "parameters": [
-          { "$ref": "#/components/parameters/AnalysisId" },
-          { "$ref": "#/components/parameters/Cursor" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Eventos da análise",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": { "$ref": "#/components/schemas/Event" }
-                    },
-                    "page": { "$ref": "#/components/schemas/Page" }
-                  }
-                }
-              }
-            }
-          },
-          "404": { "$ref": "#/components/responses/Error" }
         }
       }
     }

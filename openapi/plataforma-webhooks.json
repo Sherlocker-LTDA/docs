@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Webhooks API",
-    "description": "Destinos, assinaturas, entregas, novas tentativas e replay de eventos.",
+    "description": "Destinos, assinaturas, entregas, novas tentativas e reenvio de notificações.",
     "version": "1.0"
   },
   "servers": [{ "url": "https://221b-api.sherlocker.com.br/api/v1" }],
