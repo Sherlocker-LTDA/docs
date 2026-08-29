@@ -152,7 +152,15 @@
           "id": { "type": "string", "format": "uuid" },
           "status": {
             "type": "string",
-            "enum": ["queued", "running", "completed", "failed"]
+            "enum": [
+              "queued",
+              "running",
+              "completed",
+              "completed_with_warnings",
+              "failed",
+              "skipped",
+              "cancelled"
+            ]
           },
           "coverage": { "type": "object", "additionalProperties": true },
           "changes_count": { "type": "integer" },

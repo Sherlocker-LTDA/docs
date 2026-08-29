@@ -470,7 +470,11 @@
           },
           {
             "group": "Fundamentos",
-            "pages": ["plataforma/autenticacao", "plataforma/eventos-webhooks"]
+            "pages": [
+              "plataforma/autenticacao",
+              "plataforma/estados-resultados",
+              "plataforma/eventos-webhooks"
+            ]
           },
           {
             "group": "Webhooks",
