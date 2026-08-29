@@ -1,0 +1,30 @@
+---
+title: "invalid_path"
+description: "Erro 400: path contém dot-segments ou barras invertidas"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `400`
+
+O gateway rejeitou o path antes de encaminhá-lo. Rotas públicas não aceitam os
+segmentos `.` ou `..`, inclusive codificados, nem barras invertidas.
+
+Use exatamente o path documentado, sem normalização feita pelo cliente. Corrija
+a URL antes de reenviar; retry do mesmo path continuará falhando.
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/invalid_path",
+  "title": "Invalid Path",
+  "status": 400,
+  "code": "invalid_path",
+  "detail": "Dot-segments and backslashes are not accepted in product API paths.",
+  "instance": "/api/v1/dossies/../health",
+  "request_id": "req_01JEXEMPLO",
+  "retryable": false
+}
+```
+
+## Relacionado
+
+- [Autenticação e erros](/plataforma/autenticacao-erros)

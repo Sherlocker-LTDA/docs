@@ -1,0 +1,28 @@
+---
+title: "bad_gateway"
+description: "Erro 502: o upstream da API de produto falhou"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `502`
+
+O gateway não conseguiu obter uma resposta válida do serviço de produto. A
+resposta traz `retryable: true`. Faça back-off e, em uma escrita, preserve a mesma
+`Idempotency-Key`.
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/bad_gateway",
+  "title": "Bad Gateway",
+  "status": 502,
+  "code": "bad_gateway",
+  "detail": "Product API upstream unavailable.",
+  "instance": "/api/v1/dossies",
+  "request_id": "req_01JEXEMPLO",
+  "retryable": true
+}
+```
+
+## Relacionado
+
+- [Autenticação e erros](/plataforma/autenticacao-erros)

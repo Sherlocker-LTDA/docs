@@ -22,25 +22,28 @@ Cada título aparece dentro de `cedente.sacados[].titulos[]`:
 }
 ```
 
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| `id` | UUID | Identificador do título no resultado |
-| `numero` | string | Identificador do título no arquivo remessa (campo "seu número" do CNAB 400) |
-| `valor` | number | Valor do título |
-| `data_vencimento` | string | Data de vencimento (`YYYY-MM-DD`) |
-| `nfe_chave` | string \| null | Chave da NFe vinculada ao título; `null` se o título não traz chave |
-| `status` | enum | `approved` \| `blocked` \| `alerted` — status consolidado do título, derivado das suas `issues` (worst-of) |
-| `issues` | array | Violações de regra do título — cada uma com `rule_id`, `rule_name`, `category`, `status`, `message`, `detail` e `data_sources` (veja [Ciclo de vida](/motores/ciclo-de-vida)) |
+| Campo             | Tipo           | Descrição                                                                                                                                                                     |
+| ----------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`              | UUID           | Identificador do título no resultado                                                                                                                                          |
+| `numero`          | string         | Identificador do título no arquivo remessa (campo "seu número" do CNAB 400)                                                                                                   |
+| `valor`           | number         | Valor do título                                                                                                                                                               |
+| `data_vencimento` | string         | Data de vencimento (`YYYY-MM-DD`)                                                                                                                                             |
+| `nfe_chave`       | string \| null | Chave da NFe vinculada ao título; `null` se o título não traz chave                                                                                                           |
+| `status`          | enum           | `approved` \| `blocked` \| `alerted` — status consolidado do título, derivado das suas `issues` (worst-of)                                                                    |
+| `issues`          | array          | Violações de regra do título — cada uma com `rule_id`, `rule_name`, `category`, `status`, `message`, `detail` e `data_sources` (veja [Ciclo de vida](/motores/ciclo-de-vida)) |
 
 O documento e a razão social do sacado estão no **nó pai** (`sacados[].cnpj_cpf`, `sacados[].razao_social`, `sacados[].tipo`). O detalhamento de risco do cedente e de cada sacado está nas `issues` dos próprios nós `cedente` e `sacados[]` da árvore — não existem mais IDs de análise separados por título.
 
 <Note>
-  Com o filtro padrão do `/result` (`?filter=issues`), títulos aprovados e sacados sem problemas são **podados** da árvore. Use `?filter=all` para receber todos os títulos. O `summary` sempre reflete o dataset completo, independentemente do filtro.
+  Com o filtro padrão do `/result` (`?filter=issues`), títulos aprovados e
+  sacados sem problemas são **podados** da árvore. Use `?filter=all` para
+  receber todos os títulos. O `summary` sempre reflete o dataset completo,
+  independentemente do filtro.
 </Note>
 
 ## Validação cruzada com NFe
 
-A parte opcional `xmls` do `POST /operations` (multipart) recebe um **ZIP com os XMLs de NFe** (`nfeProc`) dos títulos, com no máximo 32 MB. Quando enviado, o motor procura o XML correspondente a cada título e cruza os dados do CNAB com os da nota — a duplicata bate com uma NFe real?
+A parte opcional `xmls` do `POST /operations` (multipart) recebe um **ZIP com os XMLs de NFe** (`nfeProc`) dos títulos, com no máximo 512 MiB. Quando enviado, o motor procura o XML correspondente a cada título e cruza os dados do CNAB com os da nota — a duplicata bate com uma NFe real?
 
 <CodeGroup>
 ```bash cURL
@@ -72,21 +75,30 @@ form.append("file", await openAsBlob("bordero.rem"), "bordero.rem");
 form.append("xmls", await openAsBlob("nfes.zip"), "nfes.zip");
 form.append("cedente_cnpj", "12345678000195");
 
-const resp = await fetch("https://221b-api.sherlocker.com.br/api/v1/operations", {
-  method: "POST",
-  headers: { Authorization: "Bearer slhk_sua_chave_aqui" },
-  body: form,
-});
+const resp = await fetch(
+  "https://221b-api.sherlocker.com.br/api/v1/operations",
+  {
+    method: "POST",
+    headers: { Authorization: "Bearer slhk_sua_chave_aqui" },
+    body: form,
+  },
+);
 console.log(resp.status, await resp.json());
 ```
+
 </CodeGroup>
 
 <Note>
-  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
+  Os Motores usam a **mesma base** da API 221b
+  (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via
+  `Authorization: Bearer slhk_…` — **não** via `?token=`.
 </Note>
 
 <Tip>
-  Se você usa o header opcional `Idempotency-Key`, o ZIP de NFe faz parte do payload comparado: reenviar o mesmo CNAB com um ZIP diferente e a mesma key resulta em `409 idempotency_conflict`. Veja [Idempotência](/motores/idempotencia).
+  Se você usa o header opcional `Idempotency-Key`, o ZIP de NFe faz parte do
+  payload comparado: reenviar o mesmo CNAB com um ZIP diferente e a mesma key
+  resulta em `409 idempotency_conflict`. Veja
+  [Idempotência](/motores/idempotencia).
 </Tip>
 
 ## Como o resultado da NFe aparece
@@ -99,22 +111,30 @@ Não existe um campo de status de NFe por título: o resultado da validação ap
 Se a fonte necessária para uma verificação ficar indisponível, o problema **não vira issue**: a regra afetada aparece em `degraded_rules[]` (com `rule_id`, `provider` e `titulos_affected`) e a cobertura por provider em `coverage[]`. No `summary`, os títulos afetados contam como `alerted`.
 
 <Warning>
-  `nfe_chave: null` não é um problema — é a **ausência de chave** no CNAB, e portanto de validação. Se a sua esteira exige lastro de NFe para todos os títulos, envie sempre a parte `xmls`, use uma engine com as regras de NFe ativas e trate `nfe_chave: null`, as issues de NFe e `degraded_rules` na sua regra de aprovação.
+  `nfe_chave: null` não é um problema — é a **ausência de chave** no CNAB, e
+  portanto de validação. Se a sua esteira exige lastro de NFe para todos os
+  títulos, envie sempre a parte `xmls`, use uma engine com as regras de NFe
+  ativas e trate `nfe_chave: null`, as issues de NFe e `degraded_rules` na sua
+  regra de aprovação.
 </Warning>
 
 ## Limites dos arquivos
 
-| Parte | Formato | Limite |
-|-------|---------|--------|
-| `file` | CNAB 400 remessa (`.rem`) — Banco Paulista 611, 444 colunas, Windows-1252 | 16 MB |
-| `xmls` | ZIP com XMLs de NFe (`nfeProc`) | 32 MB |
+| Parte  | Formato                                                                   | Limite  |
+| ------ | ------------------------------------------------------------------------- | ------- |
+| `file` | CNAB 400 remessa (`.rem`) — Banco Paulista 611, 444 colunas, Windows-1252 | 128 MiB |
+| `xmls` | ZIP com XMLs de NFe (`nfeProc`)                                           | 512 MiB |
 
-Arquivo ausente, acima do limite ou CNAB que não parseia retornam `400 validation_error` com `errors[]` field-level (`file`, `xmls`, `cedente_cnpj`) — e nada é cobrado, já que o débito só acontece após o parse. Veja [Erros](/motor-analise/erros).
+Arquivo ausente, acima do limite ou CNAB que não parseia retornam `400 validation_error` com `errors[]` field-level (`file`, `xmls`, `cedente_cnpj`) — e nada é cobrado, já que o débito só acontece após o parse. O multipart completo, incluindo framing, aceita no máximo 768 MiB no gateway. Veja [Erros](/motor-analise/erros).
 
 ## Próximos passos
 
 <CardGroup cols={3}>
-  <Card title="Ciclo de vida" icon="arrows-rotate" href="/motores/ciclo-de-vida">
+  <Card
+    title="Ciclo de vida"
+    icon="arrows-rotate"
+    href="/motores/ciclo-de-vida"
+  >
     Como o status de cada nó é consolidado (worst-of)
   </Card>
   <Card title="Engines" icon="gears" href="/motores/engines">

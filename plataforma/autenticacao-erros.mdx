@@ -121,7 +121,7 @@ curl -X POST https://api.sherlocker.com.br/api/v1/rastro/searches \
 | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | primeira requisição aceita                              | retorna `201` ou `202`, recurso e `Location`                                                         |
 | mesma key e mesmo fingerprint                           | repete o status e o corpo lógicos, sem novo recurso ou cobrança; inclui `Idempotency-Replayed: true` |
-| mesma key enquanto a primeira persistência não terminou | `409 request_in_progress` e `Retry-After`                                                            |
+| mesma key enquanto a primeira persistência não terminou | `409 idempotency_in_progress` e `Retry-After`                                                        |
 | mesma key com conteúdo diferente                        | `409 idempotency_conflict`                                                                           |
 | key ausente quando obrigatória                          | `400 idempotency_key_required`                                                                       |
 
@@ -194,25 +194,38 @@ Erros usam `Content-Type: application/problem+json`:
 
 ### Problemas comuns
 
-|        HTTP | `code`                                                  | Ação recomendada                                                 |
-| ----------: | ------------------------------------------------------- | ---------------------------------------------------------------- |
-|       `400` | `validation_error`                                      | corrija os campos e use nova `Idempotency-Key`                   |
-|       `400` | `invalid_cursor`                                        | inicie uma nova paginação com os mesmos filtros                  |
-|       `401` | `missing_api_key`, `invalid_api_key`, `revoked_api_key` | corrija ou substitua a credencial                                |
-|       `402` | `insufficient_balance`, `payment_required`              | regularize saldo ou assinatura                                   |
-|       `403` | `insufficient_scope`, `feature_not_enabled`             | use uma chave e entitlement habilitados                          |
-|       `404` | `resource_not_found`                                    | confira o ID no workspace atual                                  |
-|       `409` | `invalid_state_transition`, `result_not_ready`          | consulte o recurso e respeite `allowed_actions` ou `Retry-After` |
-|       `409` | `refund_pending`, `prior_refund_pending`                | aguarde a liquidação do refund antes de tentar de novo           |
-|       `413` | `payload_too_large`                                     | reduza o corpo ou arquivo                                        |
-|       `415` | `unsupported_media_type`                                | envie um formato aceito                                          |
-|       `422` | `unsupported_subject`, `unsupported_mode`               | ajuste o tipo de alvo ou modo                                    |
-|       `429` | `rate_limit_exceeded`, `quota_exceeded`                 | respeite `Retry-After` e os limites vigentes                     |
-| `502`–`504` | falha de gateway ou serviço                             | repita apenas operações seguras com a mesma key                  |
+|  HTTP | `code`                                                  | Ação recomendada                                                 |
+| ----: | ------------------------------------------------------- | ---------------------------------------------------------------- |
+| `400` | `validation_error`                                      | corrija os campos e use nova `Idempotency-Key`                   |
+| `400` | `invalid_cursor`                                        | inicie uma nova paginação com os mesmos filtros                  |
+| `400` | `invalid_path`, `invalid_content_length`                | corrija o path ou o header antes de reenviar                     |
+| `401` | `missing_api_key`, `invalid_api_key`, `revoked_api_key` | corrija ou substitua a credencial                                |
+| `402` | `insufficient_balance`, `payment_required`              | regularize saldo ou assinatura                                   |
+| `403` | `scoped_key_required`, `key_entitlement_missing`        | emita uma chave scoped com o produto habilitado                  |
+| `403` | `insufficient_scope`, `entitlement_not_enabled`         | ajuste os scopes ou habilite o produto no workspace              |
+| `404` | `resource_not_found`                                    | confira o ID no workspace atual                                  |
+| `405` | `method_not_allowed`                                    | use um dos verbos anunciados no header `Allow`                   |
+| `409` | `invalid_state_transition`, `result_not_ready`          | consulte o recurso e respeite `allowed_actions` ou `Retry-After` |
+| `409` | `idempotency_in_progress`                               | aguarde `Retry-After` e repita com a mesma key                   |
+| `409` | `refund_pending`, `prior_refund_pending`                | aguarde a liquidação do refund antes de tentar de novo           |
+| `413` | `payload_too_large`                                     | reduza o corpo ou arquivo                                        |
+| `415` | `unsupported_media_type`                                | envie um formato aceito                                          |
+| `422` | `unsupported_subject`, `unsupported_mode`               | ajuste o tipo de alvo ou modo                                    |
+| `429` | `rate_limit_exceeded`, `quota_exceeded`                 | respeite `Retry-After` e os limites vigentes                     |
+| `502` | `bad_gateway`                                           | repita operações seguras com a mesma key e back-off              |
+| `504` | `gateway_timeout`                                       | repita operações seguras com a mesma key e back-off              |
 
 Respostas temporárias podem trazer `retry_after_seconds` no corpo e
 `Retry-After` no header. Nunca faça retry automático de um erro não marcado como
 `retryable`.
+
+### Limites de transporte
+
+Corpos JSON das APIs de produto aceitam no máximo **2 MiB**. O Motor de Borderô
+mantém limites próprios de **128 MiB** para o CNAB, **512 MiB** para o ZIP de NFe
+e **768 MiB** para o multipart completo, incluindo campos e framing. Uploads
+chunked são aceitos e contados durante o stream; ao ultrapassar o teto, o gateway
+aborta o envio ao upstream e retorna `413 payload_too_large`.
 
 ## Polling, eventos e webhooks
 

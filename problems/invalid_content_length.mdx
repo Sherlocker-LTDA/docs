@@ -1,0 +1,28 @@
+---
+title: "invalid_content_length"
+description: "Erro 400: Content-Length não é um inteiro válido"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `400`
+
+O header `Content-Length` informado não é um inteiro não negativo válido. Deixe
+a biblioteca HTTP calcular o header ou envie o tamanho exato do corpo em bytes.
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/invalid_content_length",
+  "title": "Invalid Content Length",
+  "status": 400,
+  "code": "invalid_content_length",
+  "detail": "Content-Length must be a non-negative integer.",
+  "instance": "/api/v1/dossies",
+  "request_id": "req_01JEXEMPLO",
+  "retryable": false
+}
+```
+
+## Relacionado
+
+- [Autenticação e erros](/plataforma/autenticacao-erros)
+- [payload_too_large](/problems/payload_too_large)

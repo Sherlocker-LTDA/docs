@@ -81,6 +81,21 @@
             "pages": ["plataforma/autenticacao-erros"]
           },
           {
+            "group": "Problemas da Plataforma",
+            "pages": [
+              "problems/invalid_path",
+              "problems/invalid_content_length",
+              "problems/idempotency_in_progress",
+              "problems/method_not_allowed",
+              "problems/payload_too_large",
+              "problems/bad_gateway",
+              "problems/gateway_timeout",
+              "problems/scoped_key_required",
+              "problems/key_entitlement_missing",
+              "problems/entitlement_not_enabled"
+            ]
+          },
+          {
             "group": "Produtos da Plataforma",
             "pages": [
               "plataforma/dossie",

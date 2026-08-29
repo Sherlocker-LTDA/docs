@@ -136,7 +136,7 @@ verificado, a API persiste o job, aplica a cobrança e move o recurso para
 - Mesma key e mesmo `analysis_id`: replay da submissão original, sem nova
   cobrança.
 - Mesma key enquanto a primeira submissão ainda está em progresso:
-  `409 request_in_progress` e `Retry-After`.
+  `409 idempotency_in_progress` e `Retry-After`.
 
 ```http
 HTTP/1.1 202 Accepted

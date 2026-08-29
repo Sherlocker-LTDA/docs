@@ -1,0 +1,33 @@
+---
+title: "payload_too_large"
+description: "Erro 413: corpo ou multipart ultrapassa o limite da rota"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `413`
+
+O corpo ultrapassou o limite da rota. O campo `context.max_bytes` informa o teto
+aplicado pelo gateway. Em uploads chunked, o gateway encerra o stream assim que o
+contador excede esse valor.
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/payload_too_large",
+  "title": "Payload Too Large",
+  "status": 413,
+  "code": "payload_too_large",
+  "detail": "The request body exceeds the limit for this endpoint.",
+  "instance": "/api/v1/operations",
+  "request_id": "req_01JEXEMPLO",
+  "retryable": false,
+  "context": { "max_bytes": 805306368 }
+}
+```
+
+Corpos JSON aceitam até 2 MiB. No Motor de Borderô, o limite total do multipart
+é 768 MiB, com até 128 MiB para o CNAB e 512 MiB para o ZIP de NFe.
+
+## Relacionado
+
+- [Autenticação e erros](/plataforma/autenticacao-erros)
+- [Motor de Borderô](/credito/quickstart)
