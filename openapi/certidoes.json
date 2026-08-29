@@ -83,7 +83,7 @@
           },
           "tipo": {
             "type": "string",
-            "enum": ["cpf", "cnpj", "cndt", "nome"]
+            "enum": ["cnpj", "cndt", "nome"]
           },
           "status": {
             "type": "string",
@@ -111,6 +111,43 @@
           "result": {
             "type": "object",
             "nullable": true,
+            "description": "Dados estruturados da emissão. Os campos variam conforme o tipo da certidão.",
+            "properties": {
+              "nome_base": {
+                "type": "string",
+                "nullable": true,
+                "description": "Nome retornado pela base consolidada antes da validação D+0."
+              },
+              "nome_oficial": {
+                "type": "string",
+                "description": "Nome associado ao documento no TST/BNDT no momento da emissão."
+              },
+              "divergente": {
+                "type": "boolean",
+                "nullable": true,
+                "description": "Indica se o nome da base difere do nome informado pelo TST."
+              },
+              "fonte_nome": {
+                "type": "string",
+                "enum": ["tst_bndt"]
+              },
+              "capturado_em": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "titular": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string"
+                  }
+                }
+              },
+              "classificacao": {
+                "type": "string",
+                "enum": ["negativa", "positiva", "positiva_com_efeito_de_negativa"]
+              }
+            },
             "additionalProperties": true
           },
           "evidence": {
@@ -146,49 +183,6 @@
     }
   },
   "paths": {
-    "/certidoes/cpf": {
-      "post": {
-        "summary": "Emitir certidão de CPF",
-        "description": "Inicia a consulta em tempo real do nome e da situação cadastral de um CPF. A emissão é assíncrona; use o identificador retornado para acompanhar o resultado.",
-        "operationId": "emitirCertidaoCpf",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": ["cpf"],
-                "properties": {
-                  "cpf": {
-                    "type": "string",
-                    "pattern": "^[0-9]{11}$",
-                    "example": "52998224725"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "202": {
-            "description": "Emissão enfileirada",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CertidaoEnvelope"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "CPF inválido"
-          },
-          "422": {
-            "description": "Dados cadastrais insuficientes para a consulta"
-          }
-        }
-      }
-    },
     "/certidoes/cnpj": {
       "post": {
         "summary": "Emitir certidão de CNPJ",

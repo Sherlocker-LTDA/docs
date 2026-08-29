@@ -10,8 +10,8 @@ A diferença entre as consultas é o **momento de atualização do dado**:
   mensalmente. É indicada para consultas rápidas, em volume e com mais dados e
   relacionamentos.
 - As **certidões** consultam a fonte oficial em tempo real, no momento da
-  solicitação. São indicadas quando a decisão depende do nome ou da situação
-  cadastral registrados naquele momento.
+  solicitação. Use a CNDT para confirmar o nome associado a um CPF no TST e o
+  comprovante CNPJ para confirmar os dados cadastrais atuais de uma empresa.
 
 A base consolidada permanece atual conforme seu ciclo mensal. A consulta em
 tempo real acrescenta uma confirmação D+0 e não fica sujeita ao intervalo entre
@@ -22,7 +22,7 @@ uma alteração na fonte oficial e a próxima atualização mensal.
 | Critério | Base consolidada | Certidões em tempo real |
 |---|---|---|
 | Fonte | Base consolidada da Sherlocker | Portal oficial consultado D+0 |
-| Latência | Normalmente milissegundos ou poucos segundos | TST/CNDT: 10–45s; Receita/CPF e CNPJ: 30–120s; todas podem levar minutos |
+| Latência | Normalmente milissegundos ou poucos segundos | TST/CNDT: 10–45s; Receita/CNPJ: 30–120s; ambas podem levar minutos |
 | Atualização | Mensal | No momento da solicitação |
 | Alterações recentes | Entram no próximo ciclo mensal | Reflete as alterações já registradas na fonte oficial |
 | Volume | Adequada para listas, filtros e alto throughput | Adequada para validações pontuais |
@@ -74,13 +74,13 @@ depois solicite a validação em tempo real.
 
 - o cadastro for usado em uma decisão de maior risco;
 - precisar confirmar a situação atual de um CNPJ;
-- precisar confirmar o nome e a situação cadastral atual de um CPF;
+- precisar confirmar no TST o nome associado a um CPF;
 - precisar comprovar a regularidade trabalhista de CPF ou CNPJ;
 - precisar preservar o documento consultado como evidência;
 - uma alteração de nome civil, social ou empresarial puder mudar a decisão.
 
 <Card title="Certidões" icon="file-certificate" href="/cadastro/certidoes">
-  Consulte as opções D+0 para CPF, CNPJ e regularidade trabalhista.
+  Consulte as opções D+0 para CNPJ e regularidade trabalhista.
 </Card>
 
 ## Fluxo recomendado

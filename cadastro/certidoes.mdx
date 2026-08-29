@@ -1,6 +1,6 @@
 ---
 title: "Certidões em tempo real"
-description: "Emissão D+0 de comprovantes cadastrais e certidões trabalhistas"
+description: "Emissão D+0 de comprovantes CNPJ e certidões trabalhistas"
 icon: "file-certificate"
 ---
 
@@ -15,7 +15,6 @@ Pessoa e Empresa, que consultam a base consolidada da Sherlocker.
 
 | Endpoint | Finalidade | Fonte |
 |---|---|---|
-| `POST /certidoes/cpf` | Comprovante de situação cadastral do CPF | Receita Federal |
 | `POST /certidoes/cnpj` | Comprovante de inscrição e situação cadastral | Receita Federal |
 | `POST /certidoes/trabalhista` | Certidão de Débitos Trabalhistas para CPF ou CNPJ | TST / BNDT |
 | `GET /certidoes/{certidao_id}` | Acompanhar a emissão e obter o resultado | Sherlocker |
@@ -36,7 +35,7 @@ acompanhamento.
 | Fonte | Faixa inicial de planejamento | Principal custo de tempo |
 |---|---|---|
 | TST/CNDT | 10–45 segundos; pode chegar a alguns minutos | Processamento na fonte oficial e geração do PDF |
-| Receita/CPF e CNPJ | 30–120 segundos; pode chegar a alguns minutos | Processamento na fonte oficial e geração da evidência |
+| Receita/CNPJ | 30–120 segundos; pode chegar a alguns minutos | Processamento na fonte oficial e geração da evidência |
 
 Essas faixas são expectativas de engenharia para dimensionar a integração, não
 um SLA nem percentis medidos em produção. Elas serão refinadas com telemetria de
@@ -88,27 +87,25 @@ inscrita no Banco Nacional de Devedores Trabalhistas (BNDT). Ela pode ser:
 A CNDT tem abrangência nacional e sua validade é informada no próprio documento.
 O PDF disponibilizado nesta rota é o documento emitido pelo TST.
 
-## Validação oficial do nome na busca básica
+## Confirmação D+0 do nome de uma pessoa
 
-Não existe um endpoint separado de certidão de nome. Use `realtime=true` na busca
-básica de Pessoa ou Empresa:
+Na busca básica de Pessoa, use `realtime=true` para confirmar no TST o nome
+associado ao CPF. A busca retorna os dados consolidados imediatamente e inclui
+uma referência para acompanhar a validação D+0:
 
-```http
-GET /pessoas/cpf/{cpf}?realtime=true
-GET /empresas/cnpj/{cnpj}?realtime=true
-```
-
-A busca continua retornando imediatamente os dados da base consolidada e inclui
-uma referência para acompanhar a validação oficial:
+<Card title="Consultar Pessoa" icon="user" href="/entidades/pessoa">
+  Acesse a busca básica e habilite a validação em tempo real quando necessário.
+</Card>
 
 ```json
 {
-  "documento": "12.345.678/0001-90",
-  "razao_social": "EMPRESA EXEMPLO LTDA",
+  "documento": "529.982.247-25",
+  "tipo_documento": "CPF",
+  "nome_completo": "NOME CADASTRADO NA BASE",
   "validacao_oficial": {
     "status": "queued",
     "fonte": "tst_bndt",
-    "nome_base": "EMPRESA EXEMPLO LTDA",
+    "nome_base": "NOME CADASTRADO NA BASE",
     "certidao_id": "0d7c8a8a-74e1-42f3-a74b-ecf60568ff51",
     "poll_url": "/api/v1/certidoes/0d7c8a8a-74e1-42f3-a74b-ecf60568ff51"
   }
@@ -116,32 +113,40 @@ uma referência para acompanhar a validação oficial:
 ```
 
 A fonte do TST não oferece uma pesquisa aberta por nome. A validação retorna o
-nome que consta na certidão associada ao CPF ou CNPJ informado.
+nome que consta na certidão associada ao CPF informado.
 
 Essa confirmação reduz o risco de divergência quando houve alteração já
-registrada de nome social, sobrenome por casamento ou divórcio, retificação civil
-ou razão social. Ela complementa a base consolidada nos casos em que o nome exato
-no momento da decisão é essencial.
+registrada de nome social, sobrenome por casamento ou divórcio ou retificação
+civil. Ela complementa a base consolidada nos casos em que o nome no momento da
+decisão é essencial.
 
-Quando a emissão termina, o resultado deixa a divergência explícita:
+Quando a emissão termina, o recurso consultado deixa a divergência explícita:
 
 ```json
 {
-  "nome_base": "EMPRESA EXEMPLO LTDA",
-  "nome_oficial": "EMPRESA EXEMPLO S.A.",
-  "divergente": true,
-  "fonte_nome": "tst_bndt",
-  "capturado_em": "2026-08-28T18:32:10.000Z"
+  "tipo": "nome",
+  "status": "completed",
+  "result": {
+    "nome_base": "NOME CADASTRADO NA BASE",
+    "nome_oficial": "NOME INFORMADO PELO TST",
+    "divergente": true,
+    "fonte_nome": "tst_bndt",
+    "capturado_em": "2026-08-28T18:32:10.000Z"
+  }
 }
 ```
 
 O valor da base não é sobrescrito silenciosamente. O cliente decide se deve
 atualizar o cadastro, abrir uma revisão ou apenas registrar a evidência.
 
+Se também precisar comprovar a regularidade trabalhista, emita a Certidão
+Trabalhista. Nesse fluxo, o nome oficial fica em `result.titular.nome`; a
+comparação com o nome da base é retornada apenas pela validação `realtime=true`.
+
 <Warning>
   O nome validado é aquele associado ao documento no TST/BNDT no momento da
-  emissão. Para validação civil de CPF ou confirmação cadastral completa de CNPJ,
-  use também a fonte cadastral apropriada da Receita.
+  emissão. A CNDT também informa a situação de débitos trabalhistas; ela não
+  confirma a situação cadastral do CPF na Receita Federal.
 </Warning>
 
 ## Comprovante do CNPJ
@@ -165,31 +170,9 @@ Quando o portal não fornece um PDF oficial, o arquivo é identificado como
 partir dos dados consultados e não deve ser apresentado como documento emitido
 pela Receita Federal.
 
-## Comprovante do CPF
-
-Informe o CPF no corpo da requisição:
-
-```http
-POST /certidoes/cpf
-Content-Type: application/json
-
-{
-  "cpf": "52998224725"
-}
-```
-
-O resultado informa o nome, a data de nascimento, a situação cadastral, os
-dados de inscrição disponíveis, a data de emissão e o código de controle do
-comprovante. Essa certidão confirma a situação cadastral do CPF; ela não contém
-informações econômicas, financeiras ou fiscais do titular.
-
-Como o portal apresenta o comprovante em uma página, a evidência PDF é
-identificada como `sherlocker_verification_report`: uma reprodução preservada
-pela Sherlocker, e não um arquivo PDF originalmente assinado pela Receita.
-
 ## Segurança do PDF
 
-A CNDT e os comprovantes de CPF e CNPJ ficam em armazenamento privado. A rota
+A CNDT e os comprovantes de CNPJ ficam em armazenamento privado. A rota
 de download produz um acesso temporário, sem expor uma URL pública permanente.
 
 O recurso assíncrono permanece disponível por 24 horas. Depois desse período,
@@ -226,8 +209,6 @@ indisponibilidade da fonte, tempo limite e indisponibilidade do armazenamento.
 |---|---|---|
 | `CERTIDAO_NAO_EMITIVEL` | O TST informou que não pode emitir para o documento | Não |
 | `CNPJ_NAO_RESOLVIVEL` | A Receita não localizou ou não resolveu o CNPJ | Não |
-| `CPF_NAO_CONFIRMADO` | Os dados do CPF não foram confirmados pela fonte oficial | Não |
-| `DADOS_CADASTRAIS_INSUFICIENTES` | A consulta oficial não está disponível para esse cadastro | Não |
 | `FONTE_INDISPONIVEL` | A fonte oficial não concluiu a consulta | Sim |
 | `RECEITA_INDISPONIVEL` | A consulta cadastral da Receita falhou | Sim |
 | `PDF_NAO_GERADO` | A fonte não disponibilizou o arquivo no prazo | Sim |
@@ -248,7 +229,6 @@ certidão terminou, mas o arquivo ou a URL temporária não puderam ser entregue
 | HTTP | Significado |
 |---:|---|
 | `400` | CPF/CNPJ inválido ou corpo fora do contrato |
-| `422` | Dados cadastrais insuficientes para a consulta solicitada |
 | `401` | Credencial ausente ou inválida |
 | `402` | Saldo insuficiente |
 | `403` | Assinatura ou permissão indisponível |
