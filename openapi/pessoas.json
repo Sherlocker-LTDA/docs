@@ -836,9 +836,13 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "cpf": {
+                    "documento": {
                       "type": "string",
-                      "example": "12345678901"
+                      "example": "123.456.789-01"
+                    },
+                    "tipo_documento": {
+                      "type": "string",
+                      "enum": ["CPF"]
                     },
                     "nome_completo": {
                       "type": "string",
@@ -887,6 +891,34 @@
                             "type": "string",
                             "example": "Cônjuge"
                           }
+                        }
+                      }
+                    },
+                    "validacao_oficial": {
+                      "type": "object",
+                      "description": "Referência assíncrona incluída quando realtime=true.",
+                      "required": ["status", "fonte", "nome_base", "certidao_id", "poll_url"],
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "enum": ["queued", "failed"]
+                        },
+                        "fonte": {
+                          "type": "string",
+                          "enum": ["tst_bndt"]
+                        },
+                        "nome_base": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "certidao_id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "nullable": true
+                        },
+                        "poll_url": {
+                          "type": "string",
+                          "nullable": true
                         }
                       }
                     }

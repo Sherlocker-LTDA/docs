@@ -175,7 +175,6 @@
             "openapi": "/openapi/certidoes.json",
             "pages": [
               "cadastro/certidoes",
-              "POST /certidoes/cpf",
               "POST /certidoes/cnpj",
               "POST /certidoes/trabalhista",
               "GET /certidoes/{certidaoId}",
