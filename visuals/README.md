@@ -185,8 +185,18 @@ Todas as páginas geradas para `GET`, `POST`, `PATCH` e `DELETE` devem continuar
 - `scene-catalog.mjs` compõe as cenas e mantém o vínculo entre página e desenho;
 - `scripts/render-sketches.mjs` gera os arquivos em `images/sketches` e os inclui nas páginas;
 - os SVGs usam fundo transparente para se integrar ao tema da documentação sem moldura;
-- 73 cenas foram renderizadas para 82 páginas elegíveis;
+- 77 cenas foram renderizadas para 82 páginas elegíveis;
 - as 37 páginas editoriais excluídas e as 91 páginas OpenAPI permanecem sem desenho.
+
+### Artigos de visão
+
+Os artigos de valor usam quatro cenas editoriais adicionais, sem grafos ou
+conexões entre nós. Cada desenho sustenta uma única ideia:
+
+- `vision-infra-pain`: o custo acumulado de resolver cada pergunta com outra pilha;
+- `vision-infra-foundation`: capacidades diferentes sobre uma base comum;
+- `vision-team-pain`: o trabalho invisível de copiar, reconciliar e redigir;
+- `vision-team-shared`: um caso preservado no Sherlocker ou na plataforma própria via API.
 
 Para reconstruir todos os SVGs e reaplicar o catálogo:
 
