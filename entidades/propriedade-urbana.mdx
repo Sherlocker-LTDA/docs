@@ -4,7 +4,6 @@ description: "Propriedade urbana com dados de IPTU e proprietário"
 icon: "house"
 ---
 
-
 Uma **Propriedade Urbana** representa uma propriedade registrada em cadastro municipal de IPTU. O campo `fonte` indica a plataforma/origem do dado e o campo `localizacao.uf` o estado.
 
 ## Tipagem
@@ -64,7 +63,19 @@ Dados de **1.400+ municípios** brasileiros via integração com portais municip
 
 ## Conexões
 
-<img src="/images/sketches/entity-propriedade-urbana.svg" alt="Propriedade urbana e suas principais relações." />
+```mermaid
+graph LR
+  IU[Imóvel Urbano] --> P[Pessoa<br/>proprietário]
+  IU --> E[Empresa<br/>proprietário]
+  IU --> EN[Endereço<br/>localização]
+  P --> IU
+  E --> IU
+
+  style IU fill:#4CAF5033,stroke:#4CAF50,color:#ccc
+  style P fill:#6C63FF33,stroke:#6C63FF,color:#ccc
+  style E fill:#FF6B6B33,stroke:#FF6B6B,color:#ccc
+  style EN fill:#6C63FF33,stroke:#6C63FF,color:#ccc
+```
 
 - **Pessoa** — como proprietário (CPF)
 - **Empresa** — como proprietário (CNPJ)

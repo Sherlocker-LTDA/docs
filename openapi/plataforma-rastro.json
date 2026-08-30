@@ -135,7 +135,7 @@
     }
   },
   "paths": {
-    "/rastro/searches": {
+    "/rastro": {
       "post": {
         "summary": "Criar busca do Rastro",
         "description": "Inicia uma busca pública por email, telefone, usuário ou carteira digital.",
@@ -225,7 +225,7 @@
         }
       }
     },
-    "/rastro/searches/{search_id}": {
+    "/rastro/{search_id}": {
       "get": {
         "summary": "Consultar busca do Rastro",
         "description": "Retorna andamento, cobertura, correspondências, cobrança e artefatos.",
@@ -244,7 +244,7 @@
         }
       }
     },
-    "/rastro/searches/{search_id}/cancel": {
+    "/rastro/{search_id}/cancel": {
       "post": {
         "summary": "Cancelar busca do Rastro",
         "description": "Solicita cancelamento enquanto a busca ainda permite essa transição.",

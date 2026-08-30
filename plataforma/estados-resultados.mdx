@@ -1,9 +1,8 @@
 ---
 title: "Ciclo de vida e resultados"
 description: "Como interpretar estados, resultados e cobertura nas APIs da Plataforma"
+icon: "arrows-rotate"
 ---
-
-<img src="/images/sketches/platform-states.svg" alt="Os recursos da Plataforma compartilham uma sequência coerente de estados." />
 
 As APIs separam quatro dimensões que não devem ser tratadas como sinônimos:
 
@@ -52,17 +51,6 @@ cobertura mínima do contrato.
 
 Somente `found` e `not_found` são conclusivos. Bloqueio, indisponibilidade,
 erro ou resposta ambígua nunca significam que o dado não existe.
-
-## Mapa Investigativo
-
-| Dimensão | Valores possíveis |
-| --- | --- |
-| estado do mapa | `active`, `archived` |
-| resultado de alteração | `applied`, `no_op` |
-| exportação | `queued`, `running`, `available`, `failed` |
-
-`no_op` é uma alteração válida que não modificou o conteúdo, normalmente porque
-o mesmo comando já havia sido aplicado.
 
 ## Lente
 

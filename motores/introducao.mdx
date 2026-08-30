@@ -4,8 +4,6 @@ description: "As APIs de análise de risco do Sherlocker: CPF/CNPJ individual e 
 icon: "radar"
 ---
 
-<img src="/images/sketches/motors-overview.svg" alt="Pessoas, empresas e borderôs seguem por triagens diferentes até seus resultados." />
-
 O Sherlocker expõe **dois motores de análise** pela mesma API `/v1` — mesma base, mesma chave `slhk_` e mesma feature de acesso:
 
 - **[Motor de CPF/CNPJ](/motor-analise/introducao)** — análise de risco de um documento individual: você envia um CNPJ ou CPF e recebe um veredito consolidado (`verdict`) com o detalhamento de cada verificação (`blocks`) e das fontes consultadas (`coverage`).
@@ -32,7 +30,17 @@ Regra prática: se a pergunta é "**posso operar com esta empresa/pessoa?**", us
 
 O Motor de Borderô usa o Motor de CPF/CNPJ por baixo: cada entidade única do arquivo (o cedente e cada sacado distinto) é analisada uma vez — e o detalhamento de cada entidade chega nas `issues` dos próprios nós `cedente` e `sacados[]` da árvore do `GET /operations/{id}/result`:
 
-<img src="/images/sketches/motors-orchestration-flow.svg" alt="O Motor de Borderô aciona a triagem de cada entidade e consolida o resultado." />
+```mermaid
+sequenceDiagram
+    participant C as Seu sistema
+    participant B as Motor de Bordero
+    participant A as Motor de CPF/CNPJ
+    C->>B: POST /operations (multipart: file + cedente_cnpj)
+    B->>A: 1 analise por entidade unica
+    B-->>C: 202 (operation_id, status: queued)
+    C->>B: GET /operations/{id}/result
+    B-->>C: cedente, sacados, titulos, issues, summary
+```
 
 Ambos são assíncronos (polling — no CPF/CNPJ com `poll_after_seconds`/`Retry-After`, no borderô a cada ~2s), cobram tokens do mesmo pool do workspace (com estorno automático em `failed`) e retornam erros no mesmo formato RFC 7807 — veja a [referência comum de erros](/motor-analise/erros). O header `Idempotency-Key` é obrigatório no `POST /analyses` e opcional no `POST /operations` — veja [Idempotência](/motores/idempotencia).
 

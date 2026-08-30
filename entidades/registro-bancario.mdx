@@ -4,7 +4,6 @@ description: "Verificação de contas bancárias vinculadas a um CPF"
 icon: "building-columns"
 ---
 
-
 Um **Registro Bancário** representa a existência de uma conta em uma instituição financeira vinculada a um CPF.
 
 ## Tipagem
@@ -37,7 +36,12 @@ Banco do Brasil, Caixa Econômica Federal, Caixa Tem, Bradesco.
 
 ## Conexões
 
-<img src="/images/sketches/entity-registro-bancario.svg" alt="Registro bancário e suas principais relações." />
+```mermaid
+graph LR
+  RB[Registro Bancário] --> P[Pessoa<br/>CPF]
+  RB --> T[Telefone<br/>descoberto]
+  RB --> E[Email<br/>descoberto]
+```
 
 - **Pessoa** — contas verificadas por CPF
 - **Telefone / Email** — bancos revelam contatos vinculados à conta

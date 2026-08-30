@@ -4,7 +4,6 @@ description: "Investigação de candidato para análise de RH — página exclus
 icon: "id-card"
 ---
 
-
 <Info>
 Página **exclusiva** do seu contrato. Este perfil não é listado publicamente — use o `perfil_id` apenas nas suas integrações.
 </Info>
@@ -20,7 +19,22 @@ O perfil **Candidato RH** investiga, numa única execução, um candidato para a
 
 ## O que ele investiga
 
-<img src="/images/sketches/candidate-network.svg" alt="O candidato se conecta a parentes, empresas e sócios que ampliam a verificação." />
+```mermaid
+flowchart LR
+  C["<div style='text-align:left'><b>👤 Candidato (CPF)</b><br/>• Telefones<br/>• Endereços<br/>• E-mails<br/>• Processos<br/>• Antecedentes criminais<br/>• Listas restritivas<br/>• Histórico profissional</div>"]
+  P["<div style='text-align:left'><b>👪 Parentes identificados</b><br/>• Processos<br/>• Antecedentes criminais<br/>• Listas restritivas</div>"]
+  E["<div style='text-align:left'><b>🏢 Empresas vinculadas</b><br/>• Linha do tempo<br/>• Listas restritivas</div>"]
+  S["<div style='text-align:left'><b>🤝 Sócios</b></div>"]
+
+  C --> P
+  C --> E
+  E --> S
+
+  style C fill:#DCE9FB,stroke:#3B82F6,color:#1E3A8A
+  style P fill:#FBEBD3,stroke:#D97706,color:#92400E
+  style E fill:#EBE6FB,stroke:#7C3AED,color:#5B21B6
+  style S fill:#D9F2E1,stroke:#16A34A,color:#166534
+```
 
 ### Módulos por entidade
 

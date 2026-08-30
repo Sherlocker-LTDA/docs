@@ -4,7 +4,6 @@ description: "Cadastros em lojas, farmácias, fidelidade e histórico de encomen
 icon: "store"
 ---
 
-
 Um **Registro Comercial** representa a existência de cadastro ou atividade de consumo vinculada a um CPF — inclui contas em lojas, farmácias, programas de fidelidade e histórico de encomendas.
 
 ## Tipagem — Cadastro
@@ -39,7 +38,13 @@ O **CPF** é o identificador — verificamos cadastros e encomendas vinculadas a
 
 ## Conexões
 
-<img src="/images/sketches/entity-registro-comercial.svg" alt="Registro comercial e suas principais relações." />
+```mermaid
+graph LR
+  RC[Registro Comercial] --> P[Pessoa<br/>CPF]
+  RC --> T[Telefone<br/>descoberto]
+  RC --> E[Email<br/>descoberto]
+  P --> RC
+```
 
 - **Pessoa** — cadastros verificados por CPF
 - **Telefone / Email** — registros comerciais frequentemente revelam contatos não encontrados em outras fontes

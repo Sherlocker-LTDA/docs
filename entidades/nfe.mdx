@@ -4,7 +4,6 @@ description: "NF-e consultada por chave de acesso"
 icon: "file-invoice"
 ---
 
-
 Uma **Nota Fiscal Eletrônica (NF-e)** representa um documento fiscal emitido eletronicamente, consultado através da chave de acesso de 44 dígitos junto à SEFAZ.
 
 ## Tipagem
@@ -52,7 +51,12 @@ Uma **Nota Fiscal Eletrônica (NF-e)** representa um documento fiscal emitido el
 
 ## Conexões
 
-<img src="/images/sketches/entity-nfe.svg" alt="Nota fiscal eletrônica e suas principais relações." />
+```mermaid
+graph LR
+  NF[NF-e] --> EM[Empresa<br/>emitente]
+  NF --> DE[Empresa/Pessoa<br/>destinatario]
+  EM --> NF
+```
 
 - **Empresa emitente** — quem emitiu a nota (CNPJ)
 - **Destinatário** — quem recebeu (CNPJ ou CPF)

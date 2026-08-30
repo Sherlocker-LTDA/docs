@@ -4,8 +4,6 @@ description: "Rode sua primeira análise de risco de CNPJ e CPF com a API do Mot
 icon: "rocket"
 ---
 
-<img src="/images/sketches/analysis-quickstart.svg" alt="Um documento é enviado, acompanhado durante o processamento e convertido em um veredito." />
-
 Neste guia você cria uma análise de risco de CNPJ, acompanha o processamento até o veredito final e repete o fluxo para um CPF. É o mesmo motor que roda na interface web do Sherlocker, agora acessível por API.
 
 <Note>
@@ -159,7 +157,7 @@ console.log(`verdict: ${run.verdict}`);
 ```
 </CodeGroup>
 
-**Fluxo de status:** `pending` → `running` → `completed` | `failed`. Por ora a API é polling-only (sem webhooks).
+**Fluxo de status:** `pending` → `running` → `completed` | `failed`.
 
 **Resposta (200, análise concluída):**
 

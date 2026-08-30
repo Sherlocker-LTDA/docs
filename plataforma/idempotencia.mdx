@@ -12,14 +12,13 @@ uma segunda cobrança.
 
 - criação e nova tentativa de Dossiê;
 - criação de busca no Rastro;
-- criação de Mapa Investigativo e solicitação de exportação;
 - criação e envio de análise da Lente.
 
 Gere uma chave única para cada intenção e reutilize-a somente ao repetir exatamente
 a mesma operação.
 
 ```bash
-curl -X POST https://221b-api.sherlocker.com.br/api/v1/rastro/searches \
+curl -X POST https://221b-api.sherlocker.com.br/api/v1/rastro \
   -H "Authorization: Bearer slhk_sua_chave_aqui" \
   -H "Idempotency-Key: 123e4567-e89b-42d3-a456-426614174000" \
   -H "Content-Type: application/json" \

@@ -4,7 +4,6 @@ description: "Patentes, marcas, modelos de utilidade e desenhos industriais no I
 icon: "lightbulb"
 ---
 
-
 Uma **Patente** representa um registro de patente no INPI (Instituto Nacional da Propriedade Industrial) vinculado a um CPF ou CNPJ.
 
 ## Tipagem
@@ -53,7 +52,15 @@ A resposta dos endpoints envolve a patente em um objeto `{ sucesso, documento, t
 
 ## Conexões
 
-<img src="/images/sketches/entity-patente.svg" alt="Propriedade intelectual e suas principais relações." />
+```mermaid
+graph LR
+  PI[Propriedade Intelectual] --> P[Pessoa<br/>inventor/titular]
+  PI --> E[Empresa<br/>titular]
+
+  style PI fill:#4CAF5033,stroke:#4CAF50,color:#ccc
+  style P fill:#6C63FF33,stroke:#6C63FF,color:#ccc
+  style E fill:#FF6B6B33,stroke:#FF6B6B,color:#ccc
+```
 
 - **Pessoa** — como inventor ou titular
 - **Empresa** — como titular (depositante)

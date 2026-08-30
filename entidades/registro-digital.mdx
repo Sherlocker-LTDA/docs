@@ -4,7 +4,6 @@ description: "Registro de conta em plataforma digital ou rede social"
 icon: "globe"
 ---
 
-
 Um **Registro Digital** representa a existência de uma conta vinculada a um email em plataformas online, redes sociais e serviços digitais.
 
 ## Tipagem
@@ -46,7 +45,12 @@ O **email** é o identificador — a partir dele verificamos a existência de co
 
 ## Conexões
 
-<img src="/images/sketches/entity-registro-digital.svg" alt="Registro digital e suas principais relações." />
+```mermaid
+graph LR
+  RD[Registro Digital] --> E[Email<br/>identificador]
+  RD --> P[Pessoa<br/>CPF]
+  E --> RD
+```
 
 - **Email** — identificador usado para busca
 - **Pessoa** — o email conecta ao CPF via entidade Email

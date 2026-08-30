@@ -4,7 +4,6 @@ description: "Tudo que o Sherlocker sabe sobre uma pessoa física"
 icon: "user"
 ---
 
-
 Uma **Pessoa** é a entidade central do Sherlocker. A partir de um CPF, você acessa identidade, localização, rede familiar, histórico profissional, patrimônio, situação financeira e presença digital.
 
 <Note>
@@ -130,7 +129,16 @@ Também é possível consultar cada dimensão isoladamente para chamadas mais r�
 
 ## Relações com outras entidades
 
-<img src="/images/sketches/entity-pessoa.svg" alt="Pessoa e suas principais relações." />
+```mermaid
+graph LR
+  P[Pessoa<br/>CPF] --> E[Empresa<br/>CNPJ]
+  P --> I[Imovel<br/>IPTU]
+  P --> V[Veiculo<br/>Placa]
+  P --> PR[Processo<br/>CNJ]
+  P --> PA[Parente<br/>CPF]
+  PA --> P
+  E --> P
+```
 
 Uma pessoa se conecta a:
 - **Empresas** — como sócia, administradora ou funcionária

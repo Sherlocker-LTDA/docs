@@ -4,8 +4,6 @@ description: "Análise de risco automatizada de CNPJ e CPF via API"
 icon: "user-check"
 ---
 
-<img src="/images/sketches/motor.svg" alt="Uma lista de empresas antes e outra depois da análise, com uma empresa atravessando a triagem." />
-
 O **Motor de CPF/CNPJ** (Motor de Análise) é a API pública para rodar análises de risco automatizadas de **CNPJ** e **CPF** — o mesmo motor usado na interface web do Sherlocker. Você envia um documento, o motor consulta as fontes de dados configuradas na sua engine e devolve um veredito consolidado com o detalhamento de cada verificação.
 
 <Frame>
@@ -35,7 +33,19 @@ A API é assíncrona, com apenas dois endpoints:
 2. Você faz polling com `GET /analyses/{id}`, respeitando o `poll_after_seconds` da resposta, até o status chegar a `completed` ou `failed`.
 3. No resultado, o `verdict` (`aprovado`, `alerta`, `reprovado` ou `incompleto`) resume a análise; `blocks` detalha cada verificação e `coverage` mostra o que foi consultado em cada fonte de dados.
 
-<img src="/images/sketches/analysis-request-flow.svg" alt="Uma solicitação é enviada, processada e consultada até devolver um veredito." />
+```mermaid
+sequenceDiagram
+    participant C as Seu sistema
+    participant S as Motor de Analise /v1
+    C->>S: POST /analyses (document + Idempotency-Key)
+    S-->>C: 202 Accepted (id, status: pending)
+    loop A cada poll_after_seconds (2s)
+        C->>S: GET /analyses/{id}
+        S-->>C: 200 (status: pending ou running)
+    end
+    C->>S: GET /analyses/{id}
+    S-->>C: 200 (status: completed, verdict, blocks, coverage)
+```
 
 Todos os endpoints usam a base `https://221b-api.sherlocker.com.br/api/v1` e autenticação pelo header `Authorization: Bearer slhk_sua_chave_aqui`.
 
@@ -43,7 +53,8 @@ Todos os endpoints usam a base `https://221b-api.sherlocker.com.br/api/v1` e aut
   Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
 </Note>
 
-Análises que terminam em `failed` têm os tokens reembolsados automaticamente. A API é polling-only por enquanto: não há webhooks nem listagem de análises.
+Análises que terminam em `failed` têm os tokens reembolsados automaticamente. As
+análises são consultadas pelo identificador retornado na criação.
 
 ## E o Motor de Borderô?
 

@@ -4,8 +4,6 @@ description: "Análise de borderôs CNAB 400 para FIDCs via API"
 icon: "file-invoice-dollar"
 ---
 
-<img src="/images/sketches/credit-bordero.svg" alt="Títulos e notas fiscais são pareados e atravessam a validação." />
-
 O **Motor de Borderô** é a API pública para analisar **borderôs CNAB 400** de operações de desconto de duplicatas. Você envia o arquivo remessa como `multipart/form-data`, o motor faz o parse dos títulos, roda uma análise de risco completa do **cedente** e de **cada sacado único**, valida cada título (com cruzamento opcional contra os XMLs de NFe) e devolve um **resultado hierárquico** — cedente → sacados → títulos, cada nó com status consolidado e as violações de regra (issues).
 
 Foi feito para quem opera recebíveis e precisa da esteira de análise dentro do próprio fluxo:
@@ -26,7 +24,21 @@ A API é assíncrona, com três endpoints:
 2. Você faz polling com `GET /operations/{id}` a cada ~2 segundos, até o status chegar a `completed` ou `failed`. O envelope de status traz as contagens consolidadas (`titulo_count`, `approved_count`, `blocked_count`, `alert_count`) quando a operação conclui.
 3. `GET /operations/{id}/result` devolve o resultado hierárquico: a árvore cedente → sacados → títulos com as `issues` de cada nó, o `summary` do dataset completo, `coverage` e `degraded_rules`. Por padrão (`?filter=issues`), só os nós com problemas; com `?filter=all`, a árvore completa.
 
-<img src="/images/sketches/credit-request-flow.svg" alt="Um borderô é enviado, validado e consultado até o resultado ficar disponível." />
+```mermaid
+sequenceDiagram
+    participant C as Seu sistema
+    participant S as Motor de Bordero /v1
+    C->>S: POST /operations (multipart: file + cedente_cnpj)
+    S-->>C: 202 Accepted (operation_id, status: queued)
+    loop A cada ~2s
+        C->>S: GET /operations/{id}
+        S-->>C: 200 (status: queued ou processing)
+    end
+    C->>S: GET /operations/{id}
+    S-->>C: 200 (status: completed, contagens)
+    C->>S: GET /operations/{id}/result
+    S-->>C: 200 (cedente, sacados, titulos, issues, summary)
+```
 
 Todos os endpoints usam a base `https://221b-api.sherlocker.com.br/api/v1` e autenticação pelo header `Authorization: Bearer slhk_sua_chave_aqui` — a **mesma base, a mesma chave e a mesma feature** do Motor de Análise.
 
@@ -34,7 +46,7 @@ Todos os endpoints usam a base `https://221b-api.sherlocker.com.br/api/v1` e aut
   Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
 </Note>
 
-A cobrança é por **entidade única** do borderô (cedente + sacados únicos), não por título: um borderô de 42 títulos com 1 cedente e 11 sacados únicos cobra 12 análises. Operações que terminam em `failed` têm os tokens reembolsados automaticamente. Veja [Cobrança](/motores/cobranca). A API é polling-only por enquanto: não há webhooks nem listagem de operações.
+A cobrança é por **entidade única** do borderô (cedente + sacados únicos), não por título: um borderô de 42 títulos com 1 cedente e 11 sacados únicos cobra 12 análises. Operações que terminam em `failed` têm os tokens reembolsados automaticamente. Veja [Cobrança](/motores/cobranca). As operações são consultadas pelo identificador retornado na criação.
 
 ## E o Motor de CPF/CNPJ?
 

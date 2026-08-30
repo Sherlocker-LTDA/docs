@@ -36,9 +36,7 @@
           {
             "group": "Conheça o Sherlocker",
             "pages": [
-              "introduction",
-              "visao/investigacao-como-infraestrutura",
-              "visao/integracao-do-time"
+              "introduction"
             ]
           },
           {
@@ -362,19 +360,12 @@
               "problems/http_error",
               "problems/server_error"
             ]
-          },
-          {
-            "group": "Acesso e suporte",
-            "pages": [
-              "api/access",
-              "support"
-            ]
           }
         ]
       },
       {
         "tab": "Monitoramento",
-        "icon": "radar",
+        "icon": "bell",
         "groups": [
           {
             "group": "Começando",
@@ -428,7 +419,7 @@
       },
       {
         "tab": "Plataforma",
-        "icon": "layer-group",
+        "icon": "cubes",
         "groups": [
           {
             "group": "Começando",
@@ -462,27 +453,10 @@
             "openapi": "/openapi/plataforma-rastro.json",
             "pages": [
               "plataforma/rastro",
-              "POST /rastro/searches",
-              "GET /rastro/searches",
-              "GET /rastro/searches/{search_id}",
-              "POST /rastro/searches/{search_id}/cancel"
-            ]
-          },
-          {
-            "group": "Mapa Investigativo",
-            "openapi": "/openapi/plataforma-board.json",
-            "pages": [
-              "plataforma/board-mapa",
-              "POST /boards",
-              "GET /boards",
-              "GET /boards/{board_id}",
-              "PATCH /boards/{board_id}",
-              "PATCH /boards/{board_id}/delta",
-              "POST /boards/{board_id}/archive",
-              "POST /boards/{board_id}/unarchive",
-              "DELETE /boards/{board_id}",
-              "POST /boards/{board_id}/exports",
-              "GET /boards/{board_id}/exports/{export_id}"
+              "POST /rastro",
+              "GET /rastro",
+              "GET /rastro/{search_id}",
+              "POST /rastro/{search_id}/cancel"
             ]
           },
           {

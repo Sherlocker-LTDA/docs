@@ -4,8 +4,6 @@ description: "Analise seu primeiro borderô CNAB 400 com a API do Motor de Borde
 icon: "rocket"
 ---
 
-<img src="/images/sketches/credit-quickstart.svg" alt="Um arquivo CNAB 400 percorre o processamento e devolve o resultado de cada título." />
-
 Neste guia você envia um borderô CNAB 400, acompanha o processamento até a conclusão e busca o resultado hierárquico da análise — cedente, sacados, títulos e as violações de regra (issues) de cada nó. É a mesma esteira de análise da interface web do Sherlocker, agora acessível por API.
 
 <Note>
@@ -199,7 +197,7 @@ while (true) {
 
 - `titulo_count`, `approved_count`, `blocked_count` e `alert_count` são `null` até `completed`. A soma `approved_count + blocked_count + alert_count` sempre fecha com `titulo_count` — `alert_count` inclui os títulos com análise incompleta (fonte de dados indisponível).
 - `completed_at` só aparece preenchido em `completed`; `error` (string) só em `failed`.
-- Operações que terminam em `failed` são estornadas automaticamente. Por ora a API é polling-only (sem webhooks).
+- Operações que terminam em `failed` são estornadas automaticamente.
 
 </Step>
 <Step title="Busque o resultado hierárquico">
