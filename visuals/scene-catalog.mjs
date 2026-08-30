@@ -118,7 +118,7 @@ function segmentationScene() {
 }
 
 function dueDiligenceScene() {
-  return `${grid("due-grid")}${sectionLabel("GRUPO ECONÔMICO", 48, 48)}${sectionLabel("ANÁLISES DE RISCO", 302, 48)}${sectionLabel("RELATÓRIO CONSOLIDADO", 508, 48)}<path class="sk-ghost" d="M88 88l104 90 104-90M88 318l104-140 104 140" />${entityNode({ x: 88, y: 88, kind: "user" })}${entityNode({ x: 192, y: 178, kind: "company", active: true })}${entityNode({ x: 296, y: 88, kind: "user" })}${entityNode({ x: 88, y: 318, kind: "company" })}${entityNode({ x: 296, y: 318, kind: "user" })}<path class="sk-flow" d="M224 178h78M428 92C470 92 466 153 508 153M428 215h80M428 338C470 338 466 277 508 277" />${stage("gavel", 302, 54, 126, 76)}${stage("banknote", 302, 177, 126, 76)}${stage("landmark", 302, 300, 126, 76)}${documentCard(508, 52, 204, 344)}${connectionDot("M224 178h78")}`;
+  return `${grid("due-grid")}${sectionLabel("GRUPO ECONÔMICO", 48, 48)}${sectionLabel("ANÁLISES DE RISCO", 330, 48)}${sectionLabel("RELATÓRIO CONSOLIDADO", 520, 48)}<path class="sk-ghost" d="M70 95l90 95 96-95M70 315l90-125 96 125" />${entityNode({ x: 70, y: 95, kind: "user" })}${entityNode({ x: 160, y: 190, kind: "company", active: true })}${entityNode({ x: 256, y: 95, kind: "user" })}${entityNode({ x: 70, y: 315, kind: "company" })}${entityNode({ x: 256, y: 315, kind: "user" })}<path class="sk-flow" d="M192 190h138M456 92C490 92 486 153 520 153M456 215h64M456 338C490 338 486 277 520 277" />${stage("gavel", 330, 54, 126, 76)}${stage("banknote", 330, 177, 126, 76)}${stage("landmark", 330, 300, 126, 76)}${documentCard(520, 52, 192, 344)}${connectionDot("M192 190h138")}`;
 }
 
 function assetInvestigationScene() {
