@@ -141,7 +141,19 @@ function dueDiligenceScene() {
 }
 
 function assetInvestigationScene() {
-  return `${grid("asset-investigation-grid")}${sectionLabel("REDE DE RELAÇÕES", 42, 48)}${sectionLabel("ATIVOS ENCONTRADOS", 382, 48)}${sectionLabel("RELATÓRIO PATRIMONIAL", 528, 48)}<path class="sk-ghost" d="M64 110l112 92 112-92M64 320l112-118 112 118" />${entityNode({ x: 64, y: 110, kind: "user" })}${entityNode({ x: 176, y: 202, kind: "company", active: true })}${entityNode({ x: 288, y: 110, kind: "user" })}${entityNode({ x: 64, y: 320, kind: "user" })}${entityNode({ x: 288, y: 320, kind: "company" })}<path class="sk-flow" d="M208 202C326 202 326 88 410 88M208 202h202M208 202C326 202 326 316 410 316M468 88C500 88 504 138 528 138M468 202h60M468 316C500 316 504 276 528 276" />${assetNode("house", 439, 88)}${assetNode("car", 439, 202)}${assetNode("tractor", 439, 316)}${documentCard(528, 52, 184, 344)}${connectionDot("M208 202h202")}`;
+  const relations = [
+    [76, 118, "user", "CÔNJUGE"],
+    [232, 118, "company", "EMPRESA"],
+    [76, 306, "user", "SÓCIO"],
+    [232, 306, "company", "VÍNCULO"],
+  ];
+  const assets = [
+    ["house", "IMÓVEL", 82],
+    ["car", "VEÍCULO", 180],
+    ["tractor", "RURAL", 278],
+  ];
+
+  return `<style>.asset-scene text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.asset-scene .asset-heading{font-size:14px;font-weight:600;letter-spacing:.03em;text-anchor:middle}.asset-scene .asset-node-label{font-size:10px;font-weight:600;letter-spacing:.04em;text-anchor:middle}.asset-scene .asset-card-label{font-size:13px;font-weight:600;letter-spacing:.03em}</style><g class="asset-scene"><text class="sk-label asset-heading" x="154" y="54">REDE DE RELAÇÕES</text><text class="sk-label asset-heading" x="424" y="54">ATIVOS</text><text class="sk-label asset-heading" x="630" y="54">RELATÓRIO</text><path class="sk-ghost" d="M76 118L154 214 232 118M76 306l78-92 78 92" />${relations.map(([x, y, kind, label]) => `${entityNode({ x, y, kind })}<text class="sk-small-label asset-node-label" x="${x}" y="${y + 49}">${label}</text>`).join("")}${entityNode({ x: 154, y: 214, kind: "company", active: true })}<text class="sk-label asset-node-label" x="154" y="263">ALVO</text><path class="sk-flow" d="M186 214C252 214 268 120 330 120M186 214h144M186 214C252 214 268 316 330 316M510 120C528 120 530 148 548 148M510 218h38M510 316C528 316 530 282 548 282" />${assets.map(([iconName, label, y]) => `<g transform="translate(330 ${y})">${panel(0, 0, 180, 76, 10)}${icon(iconName, 18, 24, 30)}<text class="sk-label asset-card-label" x="66" y="47">${label}</text></g>`).join("")}<g transform="translate(548 82)"><path class="sk-plane" d="M0 0h130l34 34v238H0z" /><path class="sk-hair" d="M130 0v34h34M20 84h124M20 145h124M20 206h124" />${icon("file", 20, 20, 34)}<path class="sk-line" d="M72 34h62M72 50h38" />${icon("house", 22, 99, 26)}<path class="sk-line" d="M66 110h70M66 126h44" />${icon("car", 22, 160, 26)}<path class="sk-line" d="M66 171h58M66 187h76" />${icon("shield", 104, 222, 36)}</g>${connectionDot("M186 214h144", "5.2s")}</g>`;
 }
 
 function locationScene() {
