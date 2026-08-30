@@ -192,14 +192,14 @@ function platformScene() {
 }
 
 function investigationInfrastructureFoundationScene() {
-  const capabilities = [
-    ["checklist", "1. ANTES DE ENTRAR", "O MOTOR VALIDA O CADASTRO COM AS REGRAS DO FIDC."],
-    ["map", "2. QUANDO HÁ DÚVIDA", "OC E MAPA APROFUNDAM A ANÁLISE INTERNA."],
-    ["banknote", "3. A CADA OPERAÇÃO", "O BORDERÔ VERIFICA CEDENTE, SACADOS E TÍTULOS."],
-    ["refresh", "4. DEPOIS DA ENTRADA", "O MONITORAMENTO SINALIZA O QUE MUDOU."],
+  const stages = [
+    [92, "01", "checklist", "VALIDAR", "CADASTRO", "REGRAS DO FIDC"],
+    [282, "02", "map", "APROFUNDAR", "EXCEÇÃO", "OC E MAPA"],
+    [472, "03", "banknote", "VERIFICAR", "OPERAÇÃO", "CEDENTE · SACADOS · TÍTULOS"],
+    [662, "04", "refresh", "ACOMPANHAR", "MUDANÇAS", "ALERTAS CONTÍNUOS"],
   ];
 
-  return `<style>.vision-editorial .sk-label{font-size:21px}.vision-editorial .sk-small-label{font-size:13px;letter-spacing:.08em}.vision-editorial .vision-total{font-size:23px}</style><g class="vision-editorial"><text class="sk-label" x="46" y="38">DO CADASTRO AO MONITORAMENTO</text><text class="sk-small-label" x="46" y="62">UMA ÚNICA JORNADA DE RISCO PARA O FIDC</text><path class="sk-hair" d="M46 80H714" />${capabilities.map(([iconName, label, detail], index) => `<g transform="translate(46 ${96 + index * 68})">${icon(iconName, 0, 5, 34)}<text class="sk-label" x="62" y="21">${label}</text><text class="sk-small-label" x="62" y="46">${detail}</text>${index < capabilities.length - 1 ? '<path class="sk-ghost" d="M17 46v22" /><path class="sk-hair" d="M62 58H668" />' : ""}</g>`).join("")}<path class="sk-hair" d="M46 360H714" /><text class="sk-label vision-total" x="46" y="394">UMA ESTEIRA · UMA BASE · MENOS APLICATIVOS</text></g>`;
+  return `<style>.vision-journey .journey-number{font-size:13px;letter-spacing:.12em;text-anchor:middle}.vision-journey .journey-title{font-size:18px;text-anchor:middle}.vision-journey .journey-detail{font-size:12px;letter-spacing:.06em;text-anchor:middle}.vision-journey .journey-footer{font-size:18px}</style><g class="vision-journey"><text class="sk-label" x="46" y="38">DO CADASTRO AO MONITORAMENTO</text><text class="sk-small-label" x="46" y="62">UMA ÚNICA JORNADA DE RISCO PARA O FIDC</text><path class="sk-hair" d="M46 80H714" />${arrows("M122 148H252", "M312 148H442", "M502 148H632")}${stages.map(([x, number, iconName, title, secondLine, detail]) => `<g transform="translate(${x} 148)"><text class="sk-small-label journey-number" x="0" y="-58">${number}</text>${icon(iconName, -17, -43, 34)}<circle class="sk-hot" cx="0" cy="0" r="3.5" /><text class="sk-label journey-title" x="0" y="48">${title}</text><text class="sk-label journey-title" x="0" y="72">${secondLine}</text><text class="sk-small-label journey-detail" x="0" y="102">${detail}</text></g>`).join("")}${connectionDot("M122 148H632", "6s")}<path class="sk-hair" d="M46 282H714" /><text class="sk-label journey-footer" x="46" y="326">UMA ESTEIRA · UMA BASE · UM CONTEXTO · MENOS APLICATIVOS</text></g>`;
 }
 
 function teamFragmentedPainScene() {
