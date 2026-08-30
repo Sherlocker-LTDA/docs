@@ -4,7 +4,6 @@ description: "Como interpretar situação, saúde e mudanças sem acessar a exec
 icon: "arrows-rotate"
 ---
 
-<img src="/images/sketches/monitor-lifecycle.svg" alt="Um acompanhamento percorre estados e produz alertas." />
 
 Monitoramento separa três dimensões: a situação escolhida pelo cliente, a saúde das
 verificações e as mudanças de negócio encontradas.
@@ -17,15 +16,7 @@ verificações e as mudanças de negócio encontradas.
 | `paused` | novas verificações ficam suspensas até a retomada |
 | `cancelled` | o acompanhamento foi encerrado definitivamente |
 
-```mermaid
-stateDiagram-v2
-    [*] --> active
-    active --> paused
-    paused --> active
-    active --> cancelled
-    paused --> cancelled
-    cancelled --> [*]
-```
+<img src="/images/sketches/monitor-lifecycle.svg" alt="Um acompanhamento percorre estados e produz alertas." />
 
 ## Saúde
 

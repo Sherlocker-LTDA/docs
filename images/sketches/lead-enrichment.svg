@@ -1,28 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="430" viewBox="0 0 760 430" role="img" aria-labelledby="title description"><title id="title">Enriquecimento de leads</title><desc id="description">Um identificador inicial se expande para um perfil conectado.</desc><style>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="380" viewBox="0 0 760 380" role="img" aria-labelledby="title description"><title id="title">Enriquecimento de leads</title><desc id="description">Um identificador inicial se expande para um perfil conectado.</desc><style>
   :host{display:block;color:#f0a121}
-  svg{display:block;width:100%;height:auto;aspect-ratio:16/9;background:transparent;overflow:hidden}
-  .sk-grid{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.07}
+  svg{display:block;width:100%;height:auto;aspect-ratio:2/1;background:transparent;overflow:hidden}
   .sk-line,.sk-icon,.sk-flow,.sk-hair,.sk-ghost{fill:none;stroke:#f0a121;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
   .sk-line,.sk-icon{stroke-width:1.55}
   .sk-hair{stroke-width:.85;stroke-opacity:.3}
   .sk-ghost{stroke-width:1;stroke-opacity:.28;stroke-dasharray:5 7}
   .sk-flow{stroke-width:1.1;stroke-opacity:.42;stroke-dasharray:7 8;animation:flow 2.2s linear infinite}
+  .sk-arrow{fill:none;stroke:#f0a121;stroke-width:1.15;stroke-opacity:.7;marker-end:url(#sk-arrow);vector-effect:non-scaling-stroke}
   .sk-plane,.sk-row-bg,.sk-icon-box{fill:rgba(240,161,33,.024);stroke:#f0a121;stroke-width:1.15;stroke-opacity:.68;vector-effect:non-scaling-stroke}
   .sk-row-bg{fill:rgba(240,161,33,.018);stroke-opacity:.24}
   .sk-icon-box{stroke-opacity:.34}
   .sk-hot{fill:#f0a121;filter:url(#soft-glow)}
   .sk-label{fill:#f0a121;font:500 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.08em}
   .sk-small-label{fill:#f0a121;fill-opacity:.58;font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.13em}
+  .sk-section-label{fill:#f0a121;fill-opacity:.76;font:600 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.04em}
+  .sk-node-label{fill:#f0a121;fill-opacity:.74;font:500 11px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.04em}
+  .sk-flow-label{fill:#f0a121;fill-opacity:.9;font:500 17px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.01em}
+  .sk-flow-caption{fill:#f0a121;fill-opacity:.62;font:500 13px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.07em}
   .is-muted{opacity:.45}
   .sk-corner{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.35}
   .sk-node-ring,.sk-timeline-dot{fill:rgba(240,161,33,.018);stroke:#f0a121;stroke-width:1.4;vector-effect:non-scaling-stroke}
   .sk-timeline-dot{fill:#f0a121;stroke-width:0;filter:url(#soft-glow)}
   @keyframes flow{to{stroke-dashoffset:-30}}
   @media(prefers-reduced-motion:reduce){*{animation:none!important}}
-</style><defs>
-    <pattern id="lead-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" class="sk-grid" /></pattern>
+</style><g transform="translate(-15.2 -25) scale(1.04 1)"><defs>
     <filter id="soft-glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-  </defs><rect width="760" height="430" fill="url(#lead-grid)" /><g class="sk-stage " transform="translate(42 52)"><rect class="sk-plane" x="0" y="0" width="146" height="78" rx="10" /><g class="sk-icon" transform="translate(16 22) scale(1.25)"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" /></g><path class="sk-line" d="M62 28h64M62 46h38" /></g><g class="sk-stage " transform="translate(42 176)"><rect class="sk-plane" x="0" y="0" width="146" height="78" rx="10" /><g class="sk-icon" transform="translate(16 22) scale(1.25)"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" /><rect x="2" y="4" width="20" height="16" rx="2" /></g><path class="sk-line" d="M62 28h64M62 46h38" /></g><g class="sk-stage " transform="translate(42 300)"><rect class="sk-plane" x="0" y="0" width="146" height="78" rx="10" /><g class="sk-icon" transform="translate(16 22) scale(1.25)"><path d="M16 10h2M16 14h2M6.17 15a3 3 0 0 1 5.66 0" /><circle cx="9" cy="11" r="2" /><rect x="2" y="5" width="20" height="14" rx="2" /></g><path class="sk-line" d="M62 28h64M62 46h38" /></g><path class="sk-flow" d="M188 91C292 91 286 215 388 215M188 215h200M188 339C292 339 286 215 388 215" /><circle class="sk-hot" r="3"><animateMotion dur="4.8s" begin="0s" repeatCount="indefinite" path="M188 339C292 339 286 215 388 215" /></circle><rect class="sk-plane" x="388" y="76" width="308" height="278" rx="14" /><g class="sk-entity-node is-active" transform="translate(466 154)">
+    <marker id="sk-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8z" fill="#f0a121" fill-opacity=".72" /></marker>
+  </defs><text class="sk-section-label" x="42" y="36" text-anchor="start">IDENTIFICADOR INICIAL</text><text class="sk-section-label" x="388" y="60" text-anchor="start">PERFIL ENRIQUECIDO</text><g class="sk-stage " transform="translate(42 52)"><rect class="sk-plane" x="0" y="0" width="146" height="78" rx="10" /><g class="sk-icon" transform="translate(16 22) scale(1.25)"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" /></g><path class="sk-line" d="M62 28h64M62 46h38" /></g><g class="sk-stage " transform="translate(42 176)"><rect class="sk-plane" x="0" y="0" width="146" height="78" rx="10" /><g class="sk-icon" transform="translate(16 22) scale(1.25)"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" /><rect x="2" y="4" width="20" height="16" rx="2" /></g><path class="sk-line" d="M62 28h64M62 46h38" /></g><g class="sk-stage " transform="translate(42 300)"><rect class="sk-plane" x="0" y="0" width="146" height="78" rx="10" /><g class="sk-icon" transform="translate(16 22) scale(1.25)"><path d="M16 10h2M16 14h2M6.17 15a3 3 0 0 1 5.66 0" /><circle cx="9" cy="11" r="2" /><rect x="2" y="5" width="20" height="14" rx="2" /></g><path class="sk-line" d="M62 28h64M62 46h38" /></g><path class="sk-flow" d="M188 91C292 91 286 215 388 215M188 215h200M188 339C292 339 286 215 388 215" /><circle class="sk-hot" r="3"><animateMotion dur="4.8s" begin="0s" repeatCount="indefinite" path="M188 339C292 339 286 215 388 215" /></circle><rect class="sk-plane" x="388" y="76" width="308" height="278" rx="14" /><g class="sk-entity-node is-active" transform="translate(466 154)">
     <circle class="sk-node-ring" r="32" />
     <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g>
-  </g><path class="sk-line" d="M528 135h128M528 154h92M424 235h228M424 265h164M424 295h194" /><g class="sk-icon" transform="translate(610 292) scale(1.5)"><rect x="16" y="16" width="6" height="6" rx="1" /><rect x="2" y="16" width="6" height="6" rx="1" /><rect x="9" y="2" width="6" height="6" rx="1" /><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3M12 12V8" /></g></svg>
+  </g><path class="sk-line" d="M528 135h128M528 154h92M424 235h228M424 265h164M424 295h194" /><g class="sk-icon" transform="translate(610 292) scale(1.5)"><rect x="16" y="16" width="6" height="6" rx="1" /><rect x="2" y="16" width="6" height="6" rx="1" /><rect x="9" y="2" width="6" height="6" rx="1" /><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3M12 12V8" /></g></g></svg>

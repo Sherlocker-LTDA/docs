@@ -4,7 +4,6 @@ description: "Estados de uma análise ou operação, semântica dos verdicts e c
 icon: "arrows-rotate"
 ---
 
-<img src="/images/sketches/job-lifecycle.svg" alt="Um trabalho percorre criação, processamento e conclusão." />
 
 Tudo que os motores criam — uma análise (`POST /analyses`) ou uma operação de borderô (`POST /operations`) — é processado de forma assíncrona e passa pela **mesma forma de máquina de estados**: aguardando → executando → terminal. O que muda é o vocabulário público de cada motor. Esta página explica os estados, o polling e, por motor, o que cada campo do resultado significa.
 
@@ -23,16 +22,7 @@ O campo `status` passa por dois estados não-terminais e um terminal, com nomes 
 | Concluído | `completed` | `completed` | Sim | Motor terminou; resultado disponível |
 | Falhou | `failed` | `failed` | Sim | O motor não conseguiu concluir; sem resultado e **tokens estornados automaticamente** |
 
-```mermaid
-stateDiagram-v2
-    [*] --> aguardando
-    aguardando --> executando
-    aguardando --> failed
-    executando --> completed
-    executando --> failed
-    completed --> [*]
-    failed --> [*]
-```
+<img src="/images/sketches/job-lifecycle.svg" alt="Um trabalho percorre criação, processamento e conclusão." />
 
 Trate `failed` como possível a partir de qualquer estado não-terminal: um run que expira ainda aguardando (sem chegar a executar) também termina em `failed`.
 

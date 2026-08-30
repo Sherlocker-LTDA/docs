@@ -26,21 +26,7 @@ A API é assíncrona, com três endpoints:
 2. Você faz polling com `GET /operations/{id}` a cada ~2 segundos, até o status chegar a `completed` ou `failed`. O envelope de status traz as contagens consolidadas (`titulo_count`, `approved_count`, `blocked_count`, `alert_count`) quando a operação conclui.
 3. `GET /operations/{id}/result` devolve o resultado hierárquico: a árvore cedente → sacados → títulos com as `issues` de cada nó, o `summary` do dataset completo, `coverage` e `degraded_rules`. Por padrão (`?filter=issues`), só os nós com problemas; com `?filter=all`, a árvore completa.
 
-```mermaid
-sequenceDiagram
-    participant C as Seu sistema
-    participant S as Motor de Bordero /v1
-    C->>S: POST /operations (multipart: file + cedente_cnpj)
-    S-->>C: 202 Accepted (operation_id, status: queued)
-    loop A cada ~2s
-        C->>S: GET /operations/{id}
-        S-->>C: 200 (status: queued ou processing)
-    end
-    C->>S: GET /operations/{id}
-    S-->>C: 200 (status: completed, contagens)
-    C->>S: GET /operations/{id}/result
-    S-->>C: 200 (cedente, sacados, titulos, issues, summary)
-```
+<img src="/images/sketches/credit-request-flow.svg" alt="Um borderô é enviado, validado e consultado até o resultado ficar disponível." />
 
 Todos os endpoints usam a base `https://221b-api.sherlocker.com.br/api/v1` e autenticação pelo header `Authorization: Bearer slhk_sua_chave_aqui` — a **mesma base, a mesma chave e a mesma feature** do Motor de Análise.
 
