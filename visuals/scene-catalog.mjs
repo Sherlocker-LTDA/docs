@@ -104,7 +104,14 @@ function creditScene() {
 }
 
 function platformScene() {
-  return `${grid("platform-grid")}<circle class="sk-node-ring" cx="380" cy="215" r="54" />${icon("network", 354, 189, 52)}<path class="sk-flow" d="M326 215C250 215 250 112 180 112M434 215C510 215 510 112 580 112M326 215C250 215 250 318 180 318M434 215C510 215 510 318 580 318" />${stage("file", 54, 73, 252, 78)}${stage("search", 454, 73, 252, 78)}${stage("map", 54, 279, 252, 78)}${stage("image", 454, 279, 252, 78)}${connectionDot("M326 215C250 215 250 112 180 112")}${connectionDot("M434 215C510 215 510 318 580 318", "4.8s", "2.4s")}`;
+  const capabilities = [
+    ["file", "DOSSIÊ", "CONSOLIDAÇÃO"],
+    ["search", "RASTRO", "SINAIS DIGITAIS"],
+    ["map", "BOARD E MAPA", "RELAÇÕES E CONTEXTO"],
+    ["image", "LENTE", "EVIDÊNCIA VISUAL"],
+  ];
+
+  return `${grid("platform-grid")}${panel(62, 46, 636, 338, 14)}${icon("network", 90, 72, 34)}<text class="sk-label" x="140" y="88">PLATAFORMA</text><text class="sk-small-label" x="140" y="109">TODAS AS CAPACIDADES, UMA BASE</text><path class="sk-hair" d="M82 130h596" />${capabilities.map(([iconName, label, detail], index) => `<g transform="translate(92 ${142 + index * 54})">${icon(iconName, 0, 5, 28)}<text class="sk-label" x="46" y="24">${label}</text><text class="sk-small-label" x="286" y="22">${detail}</text><circle class="sk-hot" cx="568" cy="18" r="2.5" />${index < capabilities.length - 1 ? '<path class="sk-hair" d="M0 43h586" />' : ""}</g>`).join("")}<text class="sk-small-label" x="92" y="370">UMA OPERAÇÃO · UMA INTEGRAÇÃO · UMA GOVERNANÇA</text>`;
 }
 
 function boardScene() {
@@ -174,7 +181,7 @@ register("process-sources", "Base processual e tempo real", "Duas fontes process
 register("identity-match", "Documento e nome", "O documento cria um vínculo exato; o nome produz correspondências possíveis.", identityMatchScene);
 register("motors-overview", "Motores de Análise", "Pessoas, empresas e borderôs seguem por triagens diferentes até seus resultados.", motorsOverviewScene);
 register("credit-bordero", "Motor de Borderô", "Títulos e notas fiscais são pareados e atravessam a validação.", creditScene);
-register("platform-overview", "Plataforma", "Dossiê, Rastro, Board e Lente compartilham a mesma linguagem de investigação.", platformScene);
+register("platform-overview", "Plataforma", "Dossiê, Rastro, Board e Mapa e Lente fazem parte de uma única Plataforma, com operação, integração e governança compartilhadas.", platformScene);
 register("board-map", "Board e Mapa", "Pessoas e empresas são organizadas num canvas investigativo sobre uma planta.", boardScene);
 register("lente", "Lente", "Uma imagem pode originar uma estimativa de localização ou uma comparação facial.", lensScene);
 register("integration-rest", "Integração via API", "Uma aplicação envia uma solicitação e recebe um resultado estruturado.", () => integrationScene("globe"));

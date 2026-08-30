@@ -83,6 +83,56 @@ e exceções permanecem conectados ao contexto do caso.
 **A revisão continua humana.** Um sinal pode orientar uma análise, mas não deve
 ser tratado isoladamente como prova de identidade ou decisão automática.
 
+## Do manual ao automático, sem trocar de base
+
+Infraestrutura também significa permitir que um processo amadureça sem obrigar a
+empresa a reconstruí-lo em outra ferramenta. O mesmo conjunto de capacidades
+pode apoiar uma investigação manual, preparar etapas para revisão ou executar
+critérios reproduzíveis de forma automática.
+
+<Frame>
+  <img
+    src="/images/visao/maturidade-da-automacao.svg"
+    alt="Evolução gradual de uma investigação manual para uma investigação assistida e, depois, para um processo automatizado"
+  />
+</Frame>
+
+Na investigação manual, uma pessoa escolhe os caminhos. Na investigação
+assistida, coleta, expansão, organização e síntese inicial podem chegar prontas
+para revisão. Quando os critérios ficam estáveis, o Motor de Análise transforma
+essas regras em uma triagem reproduzível.
+
+O Motor funciona melhor no que pode ser expresso como política, regra ou limiar:
+satisfazer um critério, produzir um alerta ou impedir um encaminhamento. Ele não
+deve inventar uma resposta quando faltam dados, evidências divergem ou a decisão
+depende de interpretação.
+
+### A exceção continua na infraestrutura
+
+Um caso excepcional não deveria sair da automação para uma planilha, uma troca de
+mensagens ou outra ferramenta contratada apenas para completar a análise.
+
+<Frame>
+  <img
+    src="/images/visao/excecao-continua-no-fluxo.svg"
+    alt="Fluxo em que o Motor sinaliza um limite, um atalho leva o documento ao Dossiê, a investigação é aprofundada e uma pessoa revisa e decide"
+  />
+</Frame>
+
+Na experiência em preview do Motor colaborativo, o resultado oferece o atalho
+**Abrir dossiê**. Se já existir um Dossiê utilizável para o documento analisado,
+ele é aberto; caso contrário, a criação começa com CPF ou CNPJ preenchido. A
+pessoa ainda escolhe o foco e confirma a investigação.
+
+Hoje, esse atalho reaproveita o identificador do documento. Ele não transfere
+automaticamente o resultado, o motivo ou as evidências do Motor para o Dossiê.
+A empresa ainda define como preservar esse contexto no seu processo. O ganho
+atual é reduzir a reentrada de dados e manter um caminho para aprofundar o caso
+sem fingir que toda exceção cabe em “sim” ou “não”.
+
+O Dossiê pode automatizar partes abertas da investigação e organizar o resultado
+para revisão. O julgamento e a decisão continuam com as pessoas responsáveis.
+
 ## Uma base, diferentes perguntas
 
 A infraestrutura não exige que todas as áreas investiguem do mesmo jeito. Ela

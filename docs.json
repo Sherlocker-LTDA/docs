@@ -38,9 +38,7 @@
             "pages": [
               "introduction",
               "visao/investigacao-como-infraestrutura",
-              "visao/integracao-do-time",
-              "visao/automacao-que-nao-perde-a-excecao",
-              "visao/plataforma-ou-api"
+              "visao/integracao-do-time"
             ]
           },
           {
@@ -443,9 +441,7 @@
           {
             "group": "Começando",
             "pages": [
-              "plataforma/introducao",
-              "plataforma/quickstart",
-              "plataforma/autenticacao"
+              "plataforma/introducao"
             ]
           },
           {
