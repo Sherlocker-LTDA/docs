@@ -145,6 +145,41 @@ function creditScene() {
   return `${grid("credit-grid")}<g transform="translate(42 54)">${[0, 1, 2].map((i) => `<g transform="translate(0 ${i * 92})">${stage("receipt", 0, 0, 170, 72)}<path class="sk-flow" d="M170 36h54" />${stage("file", 224, 0, 150, 72)}</g>`).join("")}</g><path class="sk-flow" d="M416 90C472 90 470 215 504 215M416 182C472 182 470 215 504 215M416 274C472 274 470 215 504 215" />${scanner(504, 97, 112, 236)}<g class="catalog-arrive" transform="translate(650 122)">${icon("check", 0, 0, 42)}${icon("check", 0, 84, 42)}${icon("check", 0, 168, 42)}</g>${sharedSceneAnimation}`;
 }
 
+function analysisQuickstartScene() {
+  return `${grid("analysis-quickstart-grid")}${sectionLabel("DOCUMENTO", 42, 60)}${sectionLabel("PROCESSAMENTO", 295, 60)}${sectionLabel("VEREDITO", 548, 60)}${flowStep("send", "Enviar CPF/CNPJ", 42, 150, 170, 110)}${flowStep("refresh", "Acompanhar", 295, 150, 170, 110)}${flowStep("shield", "Ler resultado", 548, 150, 170, 110)}${arrows("M212 205H285", "M465 205H538")}${connectionDot("M212 205H285", "4.8s")}${sharedSceneAnimation}`;
+}
+
+function analysisBlockCatalogScene() {
+  const blocks = [
+    ["id", "CADASTRO", "check"],
+    ["scale", "SANÇÕES", "check"],
+    ["gavel", "PROCESSOS", "alert"],
+    ["banknote", "CRÉDITO", "check"],
+  ];
+
+  return `${grid("analysis-blocks-grid")}${sectionLabel("DOCUMENTO", 42, 56)}${sectionLabel("BLOCOS CONFIGURADOS", 220, 56)}${sectionLabel("VEREDITO", 580, 56)}${entityNode({ x: 86, y: 215, kind: "company", active: true })}${arrows("M118 215H210", "M540 215H570")}${panel(220, 72, 320, 286, 13)}${blocks.map(([iconName, label, status], index) => `<g transform="translate(240 ${88 + index * 64})"><rect class="sk-row-bg" width="280" height="52" rx="8" />${icon(iconName, 14, 14, 24)}<text class="sk-label" x="56" y="31">${label}</text>${icon(status, 244, 14, 24)}</g>`).join("")}${compactResult(580, 159, "shield")}${connectionDot("M118 215H210", "4.8s")}${sharedSceneAnimation}`;
+}
+
+function creditQuickstartScene() {
+  const statuses = [
+    ["send", "NA FILA"],
+    ["refresh", "ANALISANDO"],
+    ["check", "CONCLUÍDO"],
+  ];
+
+  return `${grid("credit-quickstart-grid")}${sectionLabel("ARQUIVO CNAB 400", 40, 58)}${sectionLabel("PROCESSAMENTO", 290, 58)}${sectionLabel("RESULTADO POR TÍTULO", 548, 58)}${flowStep("file", "Enviar arquivo", 40, 150, 170, 110)}${arrows("M210 205H280", "M470 215H538")}${panel(290, 82, 180, 266, 13)}${statuses.map(([iconName, label], index) => `<g transform="translate(308 ${104 + index * 72})"><circle class="sk-timeline-dot" cx="12" cy="14" r="6" />${icon(iconName, 36, 0, 28)}<text class="sk-label" x="80" y="19">${label}</text>${index < statuses.length - 1 ? '<path class="sk-hair" d="M12 28v44" />' : ""}</g>`).join("")}<g transform="translate(548 102)">${panel(0, 0, 170, 226, 12)}${[0, 1, 2].map((index) => `<g transform="translate(14 ${18 + index * 66})"><rect class="sk-row-bg" width="142" height="52" rx="8" />${icon("receipt", 10, 14, 24)}<text class="sk-label" x="48" y="31">TÍTULO 0${index + 1}</text>${icon(index === 1 ? "alert" : "check", 108, 14, 24)}</g>`).join("")}</g>${connectionDot("M210 205H280", "4.8s")}${sharedSceneAnimation}`;
+}
+
+function titlesNfeScene() {
+  const rows = [
+    ["01", "check", "CONFERE"],
+    ["02", "alert", "DIVERGÊNCIA"],
+    ["03", "check", "CONFERE"],
+  ];
+
+  return `${grid("titles-nfe-grid")}${sectionLabel("TÍTULOS", 36, 58)}${sectionLabel("XMLS DE NFE", 285, 58)}${sectionLabel("VALIDAÇÃO CRUZADA", 534, 58)}${panel(36, 78, 190, 280, 13)}${panel(285, 78, 190, 280, 13)}${panel(534, 78, 190, 280, 13)}${rows.map(([number, status, result], index) => { const y = 98 + index * 82; return `<g transform="translate(50 ${y})"><rect class="sk-row-bg" width="162" height="62" rx="8" />${icon("receipt", 12, 19, 24)}<text class="sk-label" x="54" y="36">TÍTULO ${number}</text></g><g transform="translate(299 ${y})"><rect class="sk-row-bg" width="162" height="62" rx="8" />${icon("file", 12, 19, 24)}<text class="sk-label" x="54" y="36">NFE ${number}</text></g><g transform="translate(548 ${y})"><rect class="sk-row-bg" width="162" height="62" rx="8" />${icon(status, 12, 19, 24)}<text class="sk-label" x="54" y="36">${result}</text></g>${arrows(`M226 ${y + 31}H275`, `M475 ${y + 31}H524`)}`; }).join("")}${connectionDot("M226 129H275", "4.8s")}${sharedSceneAnimation}`;
+}
+
 function platformScene() {
   const capabilities = [
     ["file", "DOSSIÊ", "CONSOLIDAÇÃO"],
@@ -266,6 +301,10 @@ register("process-sources", "Base processual e tempo real", "Duas fontes process
 register("identity-match", "Documento e nome", "O documento cria um vínculo exato; o nome produz correspondências possíveis.", identityMatchScene);
 register("motors-overview", "Motores de Análise", "Pessoas, empresas e borderôs seguem por triagens diferentes até seus resultados.", motorsOverviewScene);
 register("credit-bordero", "Motor de Borderô", "Títulos e notas fiscais são pareados e atravessam a validação.", creditScene);
+register("analysis-quickstart", "Primeira análise de CPF/CNPJ", "Um documento é enviado, acompanhado durante o processamento e convertido em um veredito.", analysisQuickstartScene);
+register("analysis-block-catalog", "Catálogo de blocos", "Um documento passa por blocos configurados de cadastro, sanções, processos e crédito antes do veredito.", analysisBlockCatalogScene);
+register("credit-quickstart", "Primeira análise de borderô", "Um arquivo CNAB 400 percorre o processamento e devolve o resultado de cada título.", creditQuickstartScene);
+register("titles-nfe", "Títulos e notas fiscais", "Cada título é comparado ao XML de sua nota fiscal para confirmar os dados ou apontar divergências.", titlesNfeScene);
 register("platform-overview", "Plataforma", "Dossiê, Rastro, Board e Mapa e Lente fazem parte de uma única Plataforma, com operação, integração e governança compartilhadas.", platformScene);
 register("vision-infra-pain", "A pilha cresce", "Uma nova pergunta cria outro software, outra integração, outro onboarding e outro formato de entrega.", investigationInfrastructurePainScene);
 register("vision-infra-foundation", "Uma base para investigar", "Consultas, regras, exceções e monitoramento operam sobre uma base comum de identidade, contexto e governança.", investigationInfrastructureFoundationScene);
@@ -345,7 +384,7 @@ const reusedPages = [
   ...entityDefinitions.map(([slug, title]) => [`entidades/${slug}.mdx`, title, `entity-${slug}`, "Entidades"]),
   ...legalCategories.map((slug) => [`categorias/${slug}.mdx`, slug.replaceAll("-", " "), `legal-${slug}`, "Categorias jurídicas"]),
   ["guias/recuperacoes-falencias.mdx", "Recuperações e falências", "legal-recovery-guide", "Fora da navegação"],
-  ["motores/ciclo-de-vida.mdx", "Ciclo de vida dos motores", "job-lifecycle", "Motores"], ["motores/engines.mdx", "Engines", "engine-rules", "Motores"], ["motor-analise/blocos.mdx", "Catálogo de blocos", "engine-rules", "Motores"], ["motor-analise/quickstart.mdx", "Quickstart CPF/CNPJ", "motor", "Motores"], ["credito/quickstart.mdx", "Quickstart Borderô", "credit-bordero", "Motores"], ["credito/titulos-e-nfe.mdx", "Títulos e NFe", "credit-bordero", "Motores"],
+  ["motores/ciclo-de-vida.mdx", "Ciclo de vida dos motores", "job-lifecycle", "Motores"], ["motores/engines.mdx", "Engines", "engine-rules", "Motores"], ["motor-analise/blocos.mdx", "Catálogo de blocos", "analysis-block-catalog", "Motores"], ["motor-analise/quickstart.mdx", "Quickstart CPF/CNPJ", "analysis-quickstart", "Motores"], ["credito/quickstart.mdx", "Quickstart Borderô", "credit-quickstart", "Motores"], ["credito/titulos-e-nfe.mdx", "Títulos e NFe", "titles-nfe", "Motores"],
   ["monitoramento/quickstart.mdx", "Quickstart Monitoramento", "monitoramento", "Monitoramento"], ["monitoramento/ciclo-de-vida.mdx", "Ciclo do monitoramento", "monitor-lifecycle", "Monitoramento"], ["monitoramento/temas-monitorados.mdx", "Temas monitorados", "monitoramento", "Monitoramento"],
   ["plataforma/quickstart.mdx", "Quickstart Plataforma", "dossie", "Plataforma"], ["plataforma/estados-resultados.mdx", "Estados e resultados", "platform-states", "Plataforma"],
 ].map(([path, title, scene, group]) => ({ path, title, scene, group, reuse: true }));
