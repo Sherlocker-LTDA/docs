@@ -1,175 +1,176 @@
 ---
 title: "Investigação como infraestrutura"
-description: "Por que ampliar a capacidade de investigação não deveria exigir uma nova ferramenta para cada problema."
+description: "Como reduzir dependências ao acompanhar o ciclo de risco de um cadastro, da entrada ao monitoramento contínuo."
 icon: "layer-group"
 ---
 
-Quando aparece uma nova pergunta dentro da empresa, o caminho costuma parecer
-óbvio: procurar uma ferramenta que consiga respondê-la.
+Para um diretor de tecnologia de um FIDC, risco não acontece em uma consulta
+isolada. Ele acompanha a esteira inteira.
 
-O RH precisa conhecer melhor um candidato. O Financeiro precisa avaliar uma
-contraparte. O Jurídico precisa localizar relações ou patrimônio. Cada demanda
-parece diferente e, por isso, cada uma acaba criando seu próprio software, seu
-próprio fornecedor e sua própria forma de trabalhar.
+Antes de um cedente ou sacado entrar na base, é preciso validar o cadastro. Se a
+regra encontrar uma exceção, alguém precisa aprofundar a análise. Quando uma
+operação de crédito chega, é necessário verificar cedente, sacados e títulos.
+Depois da entrada, mudanças relevantes ainda precisam ser monitoradas.
 
-É assim que a operação se fragmenta. Não porque a empresa decidiu construir uma
-pilha complexa, mas porque resolveu cada problema separadamente.
+O negócio enxerga uma única jornada. Tecnologia, muitas vezes, precisa sustentá-la
+com vários aplicativos que não compartilham contexto.
 
-## Uma nova pergunta não deveria criar uma nova pilha
+## Uma esteira não deveria exigir uma aplicação por etapa
 
-O ciclo normalmente começa pequeno. Uma área pede uma consulta. Tecnologia
-contrata uma solução. Depois vêm a integração, os acessos, o treinamento e a
-necessidade de transformar mais um formato de resultado em algo que a empresa
-consiga usar.
+O problema começa quando cada momento da jornada é resolvido separadamente: um
+fornecedor para validar o cadastro, outro para a análise interna, outro para a
+operação de crédito e mais um para acompanhar quem já entrou na base.
 
-<Frame>
-  <img
-    src="/images/sketches/vision-infra-pain.svg"
-    alt="Uma nova pergunta cria outro software, outra integração, outro onboarding e outro formato de entrega"
-  />
-</Frame>
-
-O software pode resolver a consulta. A dependência criada ao redor dele continua
+Cada aplicação pode funcionar bem sozinha. A dependência criada entre elas fica
 com a empresa.
 
-Com o tempo, o diretor de tecnologia deixa de administrar apenas capacidades e
-passa a administrar uma coleção de exceções:
+Para o diretor de tecnologia, isso significa manter:
 
-- contratos e modelos de cobrança incompatíveis;
-- credenciais, permissões e regras de acesso diferentes;
-- integrações que entregam estruturas diferentes para a mesma entidade;
-- pessoas treinadas em ferramentas que não conversam entre si;
-- relatórios reconstruídos sempre que o caso muda de mão.
+- integrações e formatos diferentes para o mesmo CPF ou CNPJ;
+- credenciais, permissões e trilhas de acesso em vários fornecedores;
+- novos onboardings sempre que uma capacidade é acrescentada;
+- contratos, franquias e modelos de cobrança difíceis de comparar;
+- contexto reconstruído quando um caso sai da automação e exige análise humana.
 
-O custo da fragmentação não está apenas nas licenças. Está no esforço permanente
-de fazer a pilha funcionar como se fosse uma só.
+O custo não está apenas nas licenças. Está em fazer aplicações separadas se
+comportarem como uma esteira única.
 
-## A diferença entre ferramenta e infraestrutura
+## A diferença entre uma ferramenta e uma infraestrutura
 
-Uma ferramenta começa pelo método que executa. Uma infraestrutura começa pela
-capacidade que precisa estar disponível.
+Quando um time de desenvolvimento precisa de computação, armazenamento ou filas,
+ele pode provisionar capacidades diferentes sobre uma fundação comum. Não precisa
+contratar uma nova operação de tecnologia para cada recurso.
 
-Quando um time de desenvolvimento precisa de computação ou armazenamento, ele
-não precisa iniciar uma nova seleção de fornecedor para cada aplicação. Ele
-provisiona o recurso dentro de uma fundação comum. A
-[AWS descreve esse modelo](https://aws.amazon.com/what-is-cloud-computing/) como
-acesso sob demanda a diferentes recursos, com consumo conforme o uso.
+Essa é a analogia do Sherlocker com a infraestrutura de nuvem. Ela descreve o
+modelo operacional, não uma comparação de escala, arquitetura ou maturidade.
 
-A analogia do Sherlocker com a AWS termina no modelo operacional. Não é uma
-comparação de escala, arquitetura ou maturidade.
-
-Investigar como infraestrutura significa partir de uma pergunta, acionar as
-capacidades necessárias e devolver evidências organizadas para revisão e
-decisão, dentro de uma base comum.
+O Sherlocker não é apenas uma ferramenta que executa uma investigação. Ele reúne
+capacidades para que a empresa consiga validar, aprofundar, automatizar e
+acompanhar o risco sem reconstruir a operação em cada etapa.
 
 <Frame>
   <img
     src="/images/sketches/vision-infra-foundation.svg"
-    alt="Consultas, regras, exceções e monitoramento operam sobre uma base comum de identidade, contexto e governança"
+    alt="Motor, OC e Mapa, Motor de Borderô e Monitoramento acompanham o mesmo ciclo antes, durante e depois da entrada"
   />
 </Frame>
 
-Cada parte do fluxo tem uma função clara:
+A infraestrutura é modular. A empresa pode começar por uma regra de cadastro,
+acrescentar uma análise interna, automatizar operações de crédito ou monitorar a
+base existente. O valor está em essas capacidades poderem compor a mesma jornada.
 
-**A pergunta define o trabalho.** O ponto de partida é o que a empresa precisa
-decidir, não a lista de ferramentas disponíveis.
+## Um FIDC, da entrada ao acompanhamento contínuo
 
-**O Sherlocker reúne capacidades.** Dados cadastrais, processos, patrimônio,
-relações e outras dimensões contratadas podem participar da mesma investigação.
+### 1. Valide o cadastro com regras reproduzíveis
 
-**As evidências chegam organizadas.** Entidades, vínculos, cronologia, cobertura
-e exceções permanecem conectados ao contexto do caso.
+Na entrada de um cedente ou sacado, o
+[Motor de CPF/CNPJ](/motor-analise/introducao) aplica a política configurada para
+aquele documento. Critérios objetivos podem produzir aprovação, alerta ou
+bloqueio de maneira consistente, sem depender de uma conferência manual para
+cada cadastro.
 
-**A revisão continua humana.** Um sinal pode orientar uma análise, mas não deve
-ser tratado isoladamente como prova de identidade ou decisão automática.
+A regra automatiza o que a empresa já consegue expressar como política. Ela não
+deve inventar uma resposta quando faltam dados, as evidências divergem ou a
+decisão exige interpretação.
 
-## Do manual ao automático, sem trocar de base
+### 2. Aprofunde a exceção sem contratar outra pilha
 
-Infraestrutura também significa permitir que um processo amadureça sem obrigar a
-empresa a reconstruí-lo em outra ferramenta. O mesmo conjunto de capacidades
-pode apoiar uma investigação manual, preparar etapas para revisão ou executar
-critérios reproduzíveis de forma automática.
+Quando uma análise interna precisa ir além do resultado da regra, o time pode
+usar capacidades como OC e Mapa, quando habilitadas, para aprofundar o caso e
+organizar relações e contexto.
 
-Na investigação manual, uma pessoa escolhe os caminhos. Na investigação
-assistida, coleta, expansão, organização e síntese inicial podem chegar prontas
-para revisão. Quando os critérios ficam estáveis, o Motor de Análise transforma
-essas regras em uma triagem reproduzível.
+O objetivo não é transformar toda decisão em “sim” ou “não”. É permitir que o
+caso excepcional continue dentro da infraestrutura, com as pessoas certas
+avaliando o que a automação não consegue concluir sozinha.
 
-O Motor funciona melhor no que pode ser expresso como política, regra ou limiar:
-satisfazer um critério, produzir um alerta ou impedir um encaminhamento. Ele não
-deve inventar uma resposta quando faltam dados, evidências divergem ou a decisão
-depende de interpretação.
+### 3. Verifique a operação de crédito
 
-### A exceção continua na infraestrutura
+O [Motor de Borderô](/credito/introducao) analisa um borderô CNAB 400 antes da
+aprovação da operação. Ele considera o cedente, cada sacado único e os títulos,
+com validação opcional contra XMLs de NFe, e devolve os pontos que exigem atenção.
 
-Um caso excepcional não deveria sair da automação para uma planilha, uma troca de
-mensagens ou outra ferramenta contratada apenas para completar a análise.
+Assim, a validação da operação não precisa nascer como outra integração isolada.
+Ela compõe a mesma esteira de análise usada para as entidades envolvidas.
+
+### 4. Continue acompanhando quem já entrou
+
+Depois da entrada, uma aprovação antiga não garante que o risco permaneceu igual.
+O [Monitoramento](/monitoramento/introducao) acompanha CPF ou CNPJ nos temas
+selecionados e destaca mudanças cadastrais, societárias, judiciais ou financeiras
+que podem exigir uma nova ação.
+
+A empresa deixa de depender apenas de revisões pontuais. O acompanhamento passa a
+fazer parte do ciclo normal da contraparte dentro da base.
+
+<Warning>
+  Motor de CPF/CNPJ e Motor de Borderô estão em beta. As APIs de Plataforma e
+  Monitoramento estão em preview e rollout. Antes de implementar esta jornada,
+  confirme com o time Sherlocker quais capacidades e escopos estão habilitados
+  para o seu workspace.
+</Warning>
+
+## A automação trata a regra; a infraestrutura preserva a exceção
+
+Um motor é eficiente no que pode ser expresso como critério, limite ou política.
+O ponto em que muitas operações travam é o resultado inconclusivo: alguém precisa
+investigar, mas o contexto fica preso no motor e o trabalho recomeça em outro
+sistema.
 
 Na experiência em preview do Motor colaborativo, o resultado oferece o atalho
 **Abrir dossiê**. Se já existir um Dossiê utilizável para o documento analisado,
 ele é aberto; caso contrário, a criação começa com CPF ou CNPJ preenchido. A
 pessoa ainda escolhe o foco e confirma a investigação.
 
-Hoje, esse atalho reaproveita o identificador do documento. Ele não transfere
-automaticamente o resultado, o motivo ou as evidências do Motor para o Dossiê.
-A empresa ainda define como preservar esse contexto no seu processo. O ganho
-atual é reduzir a reentrada de dados e manter um caminho para aprofundar o caso
-sem fingir que toda exceção cabe em “sim” ou “não”.
+Hoje, esse atalho reaproveita o identificador. Ele não transfere automaticamente
+o resultado, o motivo ou as evidências do Motor para o Dossiê. A empresa ainda
+define como preservar esse contexto no seu processo. O ganho atual é reduzir a
+reentrada de dados e manter um caminho para aprofundar o caso sem fingir que toda
+exceção cabe em um veredito binário.
 
-O Dossiê pode automatizar partes abertas da investigação e organizar o resultado
-para revisão. O julgamento e a decisão continuam com as pessoas responsáveis.
+## O time pode operar no Sherlocker ou na própria plataforma
 
-## Uma base, diferentes perguntas
+A infraestrutura não obriga a empresa a mover toda a sua jornada para uma nova
+interface.
 
-A infraestrutura não exige que todas as áreas investiguem do mesmo jeito. Ela
-permite que perguntas diferentes utilizem a mesma fundação operacional.
+Quando a análise exige exploração e julgamento, o time pode trabalhar diretamente
+no Sherlocker. Quando a esteira já existe em um sistema interno, as APIs publicadas
+e habilitadas podem incorporar capacidades do Sherlocker ao fluxo que o usuário já
+conhece. O modelo também pode ser híbrido: regras e operações rodam por API, e as
+exceções seguem para revisão no Sherlocker.
 
-Em uma avaliação de contraparte, o Financeiro pode começar por uma empresa,
-compreender seu quadro societário e encaminhar exceções ao Jurídico. Em uma
-recuperação de crédito, o investigador pode partir de uma pessoa, expandir
-relações e revisar sinais patrimoniais. Em um processo de contratação, o RH pode
-trabalhar dentro de finalidade, base legal e escopo previamente definidos.
-
-Os fluxos são diferentes. O que deixa de ser reconstruído é a fundação: acesso,
-entidades, execução, contexto e entrega.
+O objetivo é reduzir dependências sem retirar da empresa o controle sobre onde a
+experiência acontece.
 
 ## O que muda para o diretor de tecnologia
 
-A pergunta deixa de ser “qual software precisamos comprar para esta consulta?” e
-passa a ser “qual capacidade precisamos disponibilizar para esta decisão?”.
+A decisão deixa de ser “qual aplicação precisamos contratar para esta etapa?” e
+passa a ser “qual capacidade desta infraestrutura precisamos ativar?”.
 
-Essa mudança produz quatro efeitos práticos:
+Isso produz cinco efeitos práticos:
 
-1. **Menos dependências por novo fluxo.** A expansão deixa de exigir outra pilha
-   completa na mesma proporção.
+1. **Menos dependências externas.** Cadastro, análise, crédito e monitoramento não
+   precisam criar uma nova pilha completa na mesma proporção.
 2. **Onboarding reutilizável.** O time aprende uma base comum e acrescenta
-   capacidades conforme a necessidade.
-3. **Governança mais consistente.** Identidade, finalidade, consumo, cobertura e
+   capacidades conforme a operação amadurece.
+3. **Integrações mais duráveis.** CPF, CNPJ, estados e resultados deixam de ser
+   reconciliados do zero em cada etapa.
+4. **Governança mais consistente.** Acesso, finalidade, consumo, cobertura e
    artefatos podem seguir controles comuns.
-4. **Custo mais legível.** A empresa reduz a pulverização entre contratos,
-   franquias e unidades de cobrança difíceis de comparar.
-
-Pesquisas ajudam a dimensionar esse problema. A
-[Microsoft](https://www.microsoft.com/en-us/worklab/work-trend-index/breaking-down-infinite-workday)
-encontrou trabalho percebido como caótico e fragmentado; a
-[Harvard Business Review](https://hbr.org/2022/08/how-much-time-and-energy-do-we-waste-toggling-between-applications)
-documentou o custo da alternância constante entre aplicações. O
-[SaaS Management Index 2026](https://zylo.com/2026-saas-management-index)
-mostra como portfólios extensos e formas variáveis de cobrança pressionam a
-governança de tecnologia.
+5. **Continuidade do risco.** A avaliação não termina na entrada: operações e
+   mudanças posteriores continuam dentro da mesma visão operacional.
 
 ## Infraestrutura não elimina responsabilidade
 
 O Sherlocker reduz o trabalho de conectar capacidades, dados e entregas. Ele não
-substitui sistemas de registro, políticas internas, assessoria especializada nem
-toda fonte externa utilizada por um investigador.
+substitui políticas internas, sistemas de registro, assessoria especializada nem
+o julgamento das pessoas responsáveis pela decisão.
 
-Fontes podem estar indisponíveis. A cobertura pode ser parcial. Homônimos,
+Fontes podem estar indisponíveis e a cobertura pode ser parcial. Homônimos,
 divergências e relações indiretas exigem interpretação. A organização continua
-responsável por definir a finalidade, validar as evidências e tomar a decisão.
+responsável por definir a finalidade, validar as evidências e decidir.
 
-O valor da infraestrutura está em permitir que seus especialistas gastem menos
-tempo reconstruindo o caminho e mais tempo avaliando o que ele significa.
+O valor da infraestrutura está em permitir que tecnologia sustente uma jornada
+contínua e que os especialistas gastem menos tempo reconstruindo o caminho.
 
 <Card
   title="Veja como o time trabalha sobre essa base"

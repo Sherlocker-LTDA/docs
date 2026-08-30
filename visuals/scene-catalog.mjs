@@ -114,43 +114,25 @@ function platformScene() {
   return `${grid("platform-grid")}${panel(62, 46, 636, 338, 14)}${icon("network", 90, 72, 34)}<text class="sk-label" x="140" y="88">PLATAFORMA</text><text class="sk-small-label" x="140" y="109">TODAS AS CAPACIDADES, UMA BASE</text><path class="sk-hair" d="M82 130h596" />${capabilities.map(([iconName, label, detail], index) => `<g transform="translate(92 ${142 + index * 54})">${icon(iconName, 0, 5, 28)}<text class="sk-label" x="46" y="24">${label}</text><text class="sk-small-label" x="286" y="22">${detail}</text><circle class="sk-hot" cx="568" cy="18" r="2.5" />${index < capabilities.length - 1 ? '<path class="sk-hair" d="M0 43h586" />' : ""}</g>`).join("")}<text class="sk-small-label" x="92" y="370">UMA OPERAÇÃO · UMA INTEGRAÇÃO · UMA GOVERNANÇA</text>`;
 }
 
-function investigationInfrastructurePainScene() {
-  const questions = [
-    ["users", "PERGUNTA DO RH", "OUTRO SOFTWARE"],
-    ["banknote", "PERGUNTA DO FINANCEIRO", "OUTRO SOFTWARE"],
-    ["gavel", "PERGUNTA DO JURÍDICO", "OUTRO SOFTWARE"],
-  ];
-  const costs = ["INTEGRAÇÃO", "ONBOARDING", "COBRANÇA", "FORMATO DE ENTREGA"];
-
-  return `${grid("vision-infra-pain-grid")}<text class="sk-label" x="46" y="48">A PERGUNTA MUDA</text>${questions.map(([iconName, label, detail], index) => `<g transform="translate(46 ${70 + index * 88})">${panel(0, 0, 424, 72, 10)}${icon(iconName, 18, 20, 30)}<text class="sk-label" x="66" y="30">${label}</text><text class="sk-small-label" x="66" y="51">${detail}</text><circle class="sk-hot" cx="394" cy="36" r="3" /></g>`).join("")}${panel(504, 70, 210, 248, 12)}<text class="sk-label" x="528" y="101">A PILHA CRESCE</text>${costs.map((label, index) => `<g transform="translate(528 ${126 + index * 43})"><text class="sk-small-label" x="0" y="11">${label}</text><path class="sk-line" d="M0 25h${82 + index * 24}" /></g>`).join("")}<text class="sk-small-label" x="46" y="374">3 PERGUNTAS · 3 PILHAS · 1 TIME RECONCILIANDO</text>`;
-}
-
 function investigationInfrastructureFoundationScene() {
   const capabilities = [
-    ["search", "CONSULTAR", "DADOS"],
-    ["checklist", "AUTOMATIZAR", "REGRAS"],
-    ["file", "INVESTIGAR", "EXCEÇÕES"],
-    ["alert", "ACOMPANHAR", "MUDANÇAS"],
+    ["checklist", "1. ANTES DE ENTRAR", "O MOTOR VALIDA O CADASTRO COM AS REGRAS DO FIDC."],
+    ["map", "2. QUANDO HÁ DÚVIDA", "OC E MAPA APROFUNDAM A ANÁLISE INTERNA."],
+    ["banknote", "3. A CADA OPERAÇÃO", "O BORDERÔ VERIFICA CEDENTE, SACADOS E TÍTULOS."],
+    ["refresh", "4. DEPOIS DA ENTRADA", "O MONITORAMENTO SINALIZA O QUE MUDOU."],
   ];
 
-  return `${grid("vision-infra-foundation-grid")}${panel(40, 52, 680, 326, 14)}${icon("network", 68, 76, 34)}<text class="sk-label" x="118" y="91">UMA BASE PARA INVESTIGAR</text><text class="sk-small-label" x="118" y="112">CAPACIDADES SOB DEMANDA, SEM RECONSTRUIR A OPERAÇÃO</text><path class="sk-hair" d="M64 140h632" />${capabilities.map(([iconName, label, detail], index) => `<g transform="translate(${72 + index * 158} 172)">${icon(iconName, 40, 0, 42)}<text class="sk-label" x="0" y="76">${label}</text><text class="sk-small-label" x="0" y="99">${detail}</text>${index < capabilities.length - 1 ? '<path class="sk-hair" d="M142-10v136" />' : ""}</g>`).join("")}<rect class="sk-row-bg" x="64" y="304" width="632" height="48" rx="8" /><text class="sk-small-label" x="88" y="334">UMA IDENTIDADE · UM CONTEXTO · UMA GOVERNANÇA</text>`;
+  return `<style>.vision-editorial .sk-label{font-size:22px}.vision-editorial .sk-small-label{font-size:14px;letter-spacing:.08em}.vision-editorial .vision-total{font-size:24px}</style><g class="vision-editorial"><text class="sk-label" x="46" y="48">DO CADASTRO AO MONITORAMENTO</text><text class="sk-small-label" x="46" y="72">UMA ÚNICA JORNADA DE RISCO PARA O FIDC</text>${capabilities.map(([iconName, label, detail], index) => `<g transform="translate(46 ${106 + index * 66})">${icon(iconName, 0, 4, 36)}<text class="sk-label" x="58" y="20">${label}</text><text class="sk-small-label" x="58" y="44">${detail}</text></g>`).join("")}<text class="sk-label vision-total" x="46" y="398">UMA ESTEIRA · UMA BASE · MENOS APLICATIVOS</text></g>`;
 }
 
 function teamFragmentedPainScene() {
-  const sources = [
-    ["search", "CONSULTAS"],
-    ["file", "PLANILHA"],
-    ["message", "MENSAGENS"],
+  const intervals = [
+    ["40 MIN", "ABRIR SOFTWARES", "E TROCAR ACESSOS"],
+    ["45 MIN", "COPIAR DADOS", "E CONSOLIDAR"],
+    ["60 MIN", "ESCREVER", "O RELATÓRIO"],
   ];
-  const invisibleWork = ["COPIAR", "CONFERIR VERSÕES", "REDIGIR"];
 
-  return `${grid("vision-team-pain-grid")}<text class="sk-label" x="46" y="50">O TIME INVESTIGA</text>${sources.map(([iconName, label], index) => `<g transform="translate(46 ${78 + index * 82})">${panel(0, 0, 212, 66, 9)}${icon(iconName, 18, 18, 30)}<text class="sk-label" x="64" y="38">${label}</text></g>`).join("")}${panel(286, 78, 202, 230, 12)}<text class="sk-small-label" x="310" y="107">TRABALHO INVISÍVEL</text>${invisibleWork.map((label, index) => `<g transform="translate(310 ${132 + index * 54})"><circle class="sk-hot" cx="5" cy="5" r="3" /><text class="sk-label" x="24" y="11">${label}</text><path class="sk-hair" d="M0 27h152" /></g>`).join("")}${panel(516, 78, 198, 230, 12)}${icon("file", 584, 107, 62)}<text class="sk-label" x="566" y="205">PDF FINAL</text><path class="sk-line" d="M548 232h134M548 252h112M548 272h124" /><text class="sk-small-label" x="46" y="374">A INVESTIGAÇÃO TERMINA. A CONSOLIDAÇÃO MANUAL CONTINUA.</text>`;
-}
-
-function teamSharedCaseScene() {
-  const reviewers = ["ANALISTA", "RISCO", "JURÍDICO"];
-
-  return `${grid("vision-team-shared-grid")}${panel(50, 54, 660, 320, 14)}${icon("users", 78, 78, 34)}<text class="sk-label" x="128" y="93">UM CASO COMPARTILHADO</text><path class="sk-hair" d="M74 120h612" /><rect class="sk-row-bg" x="78" y="142" width="222" height="44" rx="8" />${icon("network", 94, 152, 24)}<text class="sk-small-label" x="132" y="168">NO SHERLOCKER</text><rect class="sk-row-bg" x="318" y="142" width="364" height="44" rx="8" />${icon("globe", 334, 152, 24)}<text class="sk-small-label" x="372" y="160">NA PLATAFORMA PRÓPRIA</text><text class="sk-small-label" x="372" y="176">VIA API</text>${panel(78, 208, 292, 126, 10)}<text class="sk-small-label" x="98" y="234">CONTEXTO DO CASO</text><text class="sk-label" x="98" y="262">ALVO E FOCO</text><text class="sk-label" x="98" y="288">EVIDÊNCIAS</text><text class="sk-label" x="98" y="314">COBERTURA E ESTADO</text>${reviewers.map((label, index) => `<g transform="translate(404 ${208 + index * 42})"><rect class="sk-row-bg" width="278" height="34" rx="7" />${icon("user", 10, 7, 20)}<text class="sk-small-label" x="44" y="21">${label}</text>${icon("check", 244, 7, 20)}</g>`).join("")}<text class="sk-small-label" x="78" y="360">MESMO CONTEXTO · MENOS HANDOFFS · MENOS RECONSTRUÇÃO</text>`;
+  return `<style>.vision-editorial .sk-label{font-size:22px}.vision-editorial .sk-small-label{font-size:14px;letter-spacing:.08em}.vision-editorial .vision-total{font-size:24px}</style><g class="vision-editorial"><text class="sk-label" x="46" y="48">ONDE O TEMPO DO ANALISTA SE PERDE</text><text class="sk-small-label" x="46" y="72">CENÁRIO ILUSTRATIVO · TEMPO DE TOQUE</text>${icon("user", 48, 96, 36)}<text class="sk-small-label" x="100" y="120">ALÉM DE INVESTIGAR, UMA PESSOA PRECISA:</text>${intervals.map(([time, line1, line2], index) => `<g transform="translate(46 ${154 + index * 64})">${icon(index === 0 ? "globe" : index === 1 ? "database" : "file", 0, 2, 34)}<text class="sk-label" x="54" y="20">${time}</text><text class="sk-small-label" x="166" y="13">${line1}</text><text class="sk-small-label" x="166" y="36">${line2}</text></g>`).join("")}<text class="sk-label vision-total" x="46" y="370">145 MIN SÓ PARA COSTURAR O PROCESSO</text><text class="sk-small-label" x="46" y="402">+ 90 MIN DE CONSULTAS + 30 MIN DE REVISÃO = 265 MIN DE TOQUE</text></g>`;
 }
 
 function boardScene() {
@@ -221,10 +203,8 @@ register("identity-match", "Documento e nome", "O documento cria um vínculo exa
 register("motors-overview", "Motores de Análise", "Pessoas, empresas e borderôs seguem por triagens diferentes até seus resultados.", motorsOverviewScene);
 register("credit-bordero", "Motor de Borderô", "Títulos e notas fiscais são pareados e atravessam a validação.", creditScene);
 register("platform-overview", "Plataforma", "Dossiê, Rastro, Board e Mapa e Lente fazem parte de uma única Plataforma, com operação, integração e governança compartilhadas.", platformScene);
-register("vision-infra-pain", "A pilha cresce", "Uma nova pergunta cria outro software, outra integração, outro onboarding e outro formato de entrega.", investigationInfrastructurePainScene);
-register("vision-infra-foundation", "Uma base para investigar", "Consultas, regras, exceções e monitoramento operam sobre uma base comum de identidade, contexto e governança.", investigationInfrastructureFoundationScene);
-register("vision-team-pain", "Consolidação manual", "O time investiga em consultas, planilhas e mensagens e ainda precisa copiar, conferir versões e redigir um PDF.", teamFragmentedPainScene);
-register("vision-team-shared", "Um caso compartilhado", "O mesmo caso pode ser trabalhado no Sherlocker ou na plataforma da empresa via API, preservando contexto para todo o time.", teamSharedCaseScene);
+register("vision-infra-foundation", "Infraestrutura para a esteira inteira", "Motor, OC e Mapa, Motor de Borderô e Monitoramento acompanham o mesmo ciclo antes, durante e depois da entrada.", investigationInfrastructureFoundationScene);
+register("vision-team-pain", "Tempo perdido nos intervalos", "Um analista atravessa vários softwares e gasta tempo abrindo sistemas, consolidando dados e escrevendo o relatório antes da entrega.", teamFragmentedPainScene);
 register("board-map", "Board e Mapa", "Pessoas e empresas são organizadas num canvas investigativo sobre uma planta.", boardScene);
 register("lente", "Lente", "Uma imagem pode originar uma estimativa de localização ou uma comparação facial.", lensScene);
 register("integration-rest", "Integração via API", "Uma aplicação envia uma solicitação e recebe um resultado estruturado.", () => integrationScene("globe"));
@@ -299,4 +279,4 @@ const reusedPages = [
 ].map(([path, title, scene, group]) => ({ path, title, scene, group, reuse: true }));
 
 export const PAGE_SCENES = [...primaryPages, ...reusedPages];
-export const SUPPLEMENTAL_SCENES = ["vision-infra-pain", "vision-infra-foundation", "vision-team-pain", "vision-team-shared"];
+export const SUPPLEMENTAL_SCENES = ["vision-infra-foundation", "vision-team-pain"];
