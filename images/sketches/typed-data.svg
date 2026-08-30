@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="430" viewBox="0 0 760 430" role="img" aria-labelledby="title description"><title id="title">Padrão de dados</title><desc id="description">Uma entidade tipada se conecta a identidade, contato, patrimônio e jurídico.</desc><style>
+  :host{display:block;color:#f0a121}
+  svg{display:block;width:100%;height:auto;aspect-ratio:16/9;background:transparent;overflow:hidden}
+  .sk-grid{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.07}
+  .sk-line,.sk-icon,.sk-flow,.sk-hair,.sk-ghost{fill:none;stroke:#f0a121;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .sk-line,.sk-icon{stroke-width:1.55}
+  .sk-hair{stroke-width:.85;stroke-opacity:.3}
+  .sk-ghost{stroke-width:1;stroke-opacity:.28;stroke-dasharray:5 7}
+  .sk-flow{stroke-width:1.1;stroke-opacity:.42;stroke-dasharray:7 8;animation:flow 2.2s linear infinite}
+  .sk-plane,.sk-row-bg,.sk-icon-box{fill:rgba(240,161,33,.024);stroke:#f0a121;stroke-width:1.15;stroke-opacity:.68;vector-effect:non-scaling-stroke}
+  .sk-row-bg{fill:rgba(240,161,33,.018);stroke-opacity:.24}
+  .sk-icon-box{stroke-opacity:.34}
+  .sk-hot{fill:#f0a121;filter:url(#soft-glow)}
+  .sk-label{fill:#f0a121;font:500 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.08em}
+  .sk-small-label{fill:#f0a121;fill-opacity:.58;font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.13em}
+  .is-muted{opacity:.45}
+  .sk-corner{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.35}
+  .sk-node-ring,.sk-timeline-dot{fill:rgba(240,161,33,.018);stroke:#f0a121;stroke-width:1.4;vector-effect:non-scaling-stroke}
+  .sk-timeline-dot{fill:#f0a121;stroke-width:0;filter:url(#soft-glow)}
+  @keyframes flow{to{stroke-dashoffset:-30}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style><defs>
+    <pattern id="typed-data-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" class="sk-grid" /></pattern>
+    <filter id="soft-glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs><rect width="760" height="430" fill="url(#typed-data-grid)" /><g class="sk-entity-node is-active" transform="translate(380 215)">
+    <circle class="sk-node-ring" r="32" />
+    <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+  </g><path class="sk-ghost" d="M348 215C270 215 270 86 182 86M348 215C270 215 270 344 182 344M412 215C490 215 490 86 578 86M412 215C490 215 490 344 578 344" /><g class="sk-stage " transform="translate(52 47)"><rect class="sk-plane" x="0" y="0" width="260" height="78" rx="10" /><g class="sk-icon" transform="translate(16 22) scale(1.25)"><path d="M16 10h2M16 14h2M6.17 15a3 3 0 0 1 5.66 0" /><circle cx="9" cy="11" r="2" /><rect x="2" y="5" width="20" height="14" rx="2" /></g><path class="sk-line" d="M62 28h178M62 46h152" /></g><g class="sk-stage " transform="translate(52 305)"><rect class="sk-plane" x="0" y="0" width="260" height="78" rx="10" /><g class="sk-icon" transform="translate(16 22) scale(1.25)"><path d="M16 2v2M7 22v-2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2M8 2v2" /><circle cx="12" cy="11" r="3" /><rect x="3" y="4" width="18" height="18" rx="2" /></g><path class="sk-line" d="M62 28h178M62 46h152" /></g><g class="sk-stage " transform="translate(448 47)"><rect class="sk-plane" x="0" y="0" width="260" height="78" rx="10" /><g class="sk-icon" transform="translate(16 22) scale(1.25)"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2M3 11h3c.8 0 1.6.3 2.1.9l1.1.9c1.6 1.6 4.1 1.6 5.7 0l1.1-.9c.5-.5 1.3-.9 2.1-.9H21" /></g><path class="sk-line" d="M62 28h178M62 46h152" /></g><g class="sk-stage " transform="translate(448 305)"><rect class="sk-plane" x="0" y="0" width="260" height="78" rx="10" /><g class="sk-icon" transform="translate(16 22) scale(1.25)"><path d="m14 13-8.381 8.38a1 1 0 0 1-3.001-3l8.384-8.381" /><path d="m16 16 6-6" /><path d="m21.5 10.5-8-8" /><path d="m8 8 6-6" /><path d="m8.5 7.5 8 8" /></g><path class="sk-line" d="M62 28h178M62 46h152" /></g><circle class="sk-hot" r="3"><animateMotion dur="4.8s" begin="0s" repeatCount="indefinite" path="M412 215C490 215 490 86 578 86" /></circle></svg>
