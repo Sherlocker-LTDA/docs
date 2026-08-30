@@ -1,0 +1,253 @@
+---
+title: "Monitoramento na prática"
+description: "Da análise pontual ao acompanhamento contínuo de pessoas e empresas"
+icon: "radar"
+---
+
+Uma consulta ou um Dossiê responde **como uma pessoa ou empresa está agora**. O
+Monitoramento entra quando essa resposta tem prazo de validade e a decisão depende
+de saber **o que mudou depois**.
+
+Este guia acompanha uma jornada concreta: sua empresa aprovou um fornecedor
+estratégico depois da análise inicial. Enquanto o contrato estiver vigente, uma
+alteração societária, uma nova dívida ou um processo relevante pode exigir outra
+avaliação. Em vez de repetir toda a investigação manualmente, você transforma essa
+contraparte em um acompanhamento contínuo.
+
+## Quando uma análise pontual deve virar acompanhamento
+
+Crie um Monitoramento quando as três condições abaixo forem verdadeiras:
+
+1. existe uma pessoa ou empresa cuja mudança pode afetar uma decisão;
+2. essa relação continua depois da análise inicial;
+3. alguém sabe o que fazer quando uma alteração for detectada.
+
+Exemplos comuns incluem fornecedores críticos, clientes com crédito recorrente,
+parceiros comerciais, devedores em recuperação e contrapartes sujeitas a revisão de
+compliance.
+
+<Tip>
+  Se a pergunta ainda for “quem é esta contraparte e quais riscos existem?”, comece
+  por uma investigação ou um [Dossiê](/plataforma/dossie). Quando a pergunta passar
+  a ser “o que mudou desde a última avaliação?”, use Monitoramento.
+</Tip>
+
+Monitorar tudo indiscriminadamente aumenta o ruído. Antes de cadastrar o alvo,
+defina a decisão que uma mudança poderá reabrir: manter o contrato, revisar um
+limite, pedir novos documentos ou encaminhar o caso para análise humana.
+
+## 1. Escolha o alvo e os temas
+
+O alvo é um CPF ou CNPJ. Os temas determinam quais dimensões serão comparadas ao
+longo do tempo.
+
+| Tema | Pergunta que ajuda a responder |
+| --- | --- |
+| Dados da empresa | A identificação, a situação cadastral, o endereço ou o capital mudou? |
+| Dívidas | Surgiu uma dívida ou houve alteração relevante em um registro conhecido? |
+| Processos | Apareceu um processo ou uma movimentação que merece nova análise? |
+| Sócios e vínculos | Alguém entrou ou saiu do quadro societário ou de uma empresa relacionada? |
+
+Escolha somente o que pode mudar sua decisão. Para o fornecedor do exemplo, dados
+da empresa, processos e sócios formam um recorte mais útil do que selecionar todos
+os temas disponíveis.
+
+<Note>
+  Os temas exibidos na plataforma dependem do tipo do documento e das capacidades
+  habilitadas. O contrato da API aceita até cinco valores em `listen_items`. Veja a
+  lista completa em [Temas monitorados](/monitoramento/temas-monitorados).
+</Note>
+
+## 2. Entenda o primeiro ciclo
+
+O primeiro ciclo cria a **referência inicial** do acompanhamento. Ele registra o
+estado conhecido para que as verificações seguintes tenham com o que comparar.
+Por isso, o cadastro de um Monitoramento não significa que os dados já existentes
+serão apresentados como mudanças novas.
+
+Depois da referência inicial, cada ciclo compara a nova observação com a anterior.
+Quando existe uma diferença relevante, o Sherlocker cria uma mudança com contexto
+para revisão.
+
+```text
+Estado inicial → nova observação → comparação → mudança detectada
+```
+
+## 3. Leia situação, saúde e mudanças separadamente
+
+Esses três sinais respondem a perguntas diferentes:
+
+| Sinal | Pergunta | Como interpretar |
+| --- | --- | --- |
+| Situação | O acompanhamento deve continuar executando? | `active`, `paused` ou `cancelled` |
+| Saúde | As verificações recentes foram confiáveis? | `unknown`, `healthy`, `degraded` ou `failing` |
+| Mudanças | O que foi diferente desde a observação anterior? | conteúdo anterior e posterior, severidade e momento da detecção |
+
+A distinção evita a conclusão errada de que “nada mudou” quando, na verdade, uma
+fonte não pôde ser consultada.
+
+- **Ativo + saudável + nenhuma mudança:** as verificações ocorreram e não
+  encontraram diferença relevante.
+- **Ativo + degradado:** parte da coleta ficou indisponível; use os resultados
+  disponíveis, mas não trate o silêncio como confirmação completa.
+- **Ativo + falhando:** falhas consecutivas impedem uma observação confiável.
+- **Pausado:** novas verificações estão suspensas por escolha operacional.
+- **Cancelado:** o acompanhamento foi encerrado e não pode ser retomado pela API.
+
+Na plataforma, o alvo mostra se está ativo ou pausado, a última checagem e sua
+linha do tempo. Na API, leia também `health.status`, `execution_allowed` e
+`blocking_reason` para distinguir pausa, encerramento, pendência financeira e
+funcionalidade não habilitada.
+
+## 4. Trate a mudança, não apenas o alerta
+
+Cada mudança traz o momento da detecção e pode incluir o valor anterior e o novo.
+A severidade ajuda a ordenar a fila:
+
+| Severidade | Uso recomendado |
+| --- | --- |
+| `critical` | revisar primeiro; pode alterar imediatamente a decisão atual |
+| `warn` | analisar no fluxo normal da equipe |
+| `info` | registrar contexto ou acompanhar sem urgência |
+
+Se o fornecedor ganhar um novo processo, por exemplo, a mudança informa **que** o
+registro apareceu. A equipe ainda precisa interpretar relevância, materialidade e
+efeito sobre o contrato. Monitoramento detecta e organiza a alteração; ele não
+substitui a política de decisão da empresa.
+
+Depois de tratar o caso, reconheça a mudança. Na plataforma, use **Marcar como
+visto**. Pela API, use o endpoint de reconhecimento. O estado passa de `open` para
+`acknowledged`, mas o histórico permanece disponível.
+
+<Warning>
+  Reconhecer uma mudança significa “já tratamos este alerta”. Não significa que o
+  risco desapareceu, que o dado voltou ao estado anterior ou que o Sherlocker tomou
+  uma decisão em nome da sua empresa.
+</Warning>
+
+## 5. Pause, retome ou encerre com intenção
+
+- **Pausar** interrompe novas verificações sem encerrar definitivamente o
+  acompanhamento.
+- **Retomar** devolve um acompanhamento pausado ao estado ativo.
+- **Encerrar ou excluir** é a ação final. Pela API, `cancelled` não retorna para
+  `active`; na plataforma, a exclusão é apresentada como irreversível.
+
+Pausar é adequado para uma relação temporariamente suspensa. Encerrar faz sentido
+quando não existe mais fundamento operacional para acompanhar o alvo. Antes de
+encerrar, confirme as regras de retenção e cobrança do seu workspace.
+
+## Usar pela plataforma
+
+<Steps>
+  <Step title="Abra Monitoramento e cadastre o alvo">
+    Informe o CPF ou CNPJ. Se você chegou a partir de um Dossiê, o documento pode
+    aparecer previamente preenchido.
+  </Step>
+  <Step title="Selecione o que acompanhar">
+    Marque apenas os temas ligados à decisão. A plataforma oferece dados da empresa,
+    dívidas, processos e vínculos conforme o tipo do documento.
+  </Step>
+  <Step title="Acompanhe o painel e a última checagem">
+    Use a visão geral para priorizar alertas e a lista de alvos para consultar o
+    estado de cada acompanhamento.
+  </Step>
+  <Step title="Abra a linha do tempo">
+    Revise as alterações do alvo, incluindo os valores comparáveis antes e depois
+    quando estiverem disponíveis.
+  </Step>
+  <Step title="Marque o alerta como visto">
+    Faça isso somente depois da análise ou do encaminhamento necessário. O registro
+    continua no histórico.
+  </Step>
+  <Step title="Administre o ciclo de vida">
+    Pause ou reative alvos individualmente ou em lote. Exclua apenas quando o
+    acompanhamento não precisar mais continuar.
+  </Step>
+</Steps>
+
+## Integrar pela API (preview)
+
+Use a API quando o acompanhamento precisar nascer no onboarding, alimentar uma fila
+interna ou ser conciliado com o sistema de risco da empresa.
+
+<Warning>
+  Esta seção descreve o contrato em preview. Antes de implementar, confirme com
+  o time Sherlocker se as rotas e os escopos de Monitoramento estão publicados e
+  habilitados no ambiente do seu workspace.
+</Warning>
+
+### Crie o acompanhamento
+
+Uma chave `slhk_` precisa de `monitors:write` para criar ou alterar e
+`monitors:read` para consultar. A criação exige uma `Idempotency-Key`, que deve ser
+reutilizada somente ao repetir a mesma intenção.
+
+```bash
+curl -X POST https://221b-api.sherlocker.com.br/api/v1/monitors \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Idempotency-Key: 123e4567-e89b-42d3-a456-426614174000" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Fornecedor estratégico",
+    "identifier": "12345678000195",
+    "identifier_type": "cnpj",
+    "listen_items": ["company", "processes", "partners"],
+    "emails": ["risco@empresa.example"],
+    "frequency_hours": 24
+  }'
+```
+
+Guarde o `id` retornado e leia `status`, `health`, `subscription` e
+`execution_allowed` em conjunto.
+
+### Consulte mudanças abertas
+
+```bash
+curl "https://221b-api.sherlocker.com.br/api/v1/monitors/{monitor_id}/changes?status=open" \
+  -H "Authorization: Bearer slhk_sua_chave_aqui"
+```
+
+Você pode filtrar também por `severity`. A listagem usa cursor: quando
+`page.has_more` for `true`, envie `page.next_cursor` na próxima requisição.
+
+### Reconheça uma mudança tratada
+
+```bash
+curl -X POST \
+  https://221b-api.sherlocker.com.br/api/v1/monitors/{monitor_id}/changes/{change_id}/ack \
+  -H "Authorization: Bearer slhk_sua_chave_aqui"
+```
+
+### Administre o ciclo de vida
+
+| Intenção | Endpoint |
+| --- | --- |
+| ajustar nome, temas, e-mails ou frequência | `PATCH /monitors/{monitor_id}` |
+| pausar novas verificações | `POST /monitors/{monitor_id}/pause` |
+| retomar um acompanhamento pausado | `POST /monitors/{monitor_id}/resume` |
+| encerrar definitivamente | `POST /monitors/{monitor_id}/cancel` |
+
+Implemente a integração como uma fila de trabalho: consulte mudanças abertas,
+priorize pela severidade, encaminhe ao responsável e só então reconheça o item.
+Não dependa de ciclos, filas ou tentativas internas do Sherlocker; eles não fazem
+parte do contrato público.
+
+## Limites e expectativas
+
+- cada Monitoramento acompanha um CPF ou CNPJ;
+- `listen_items` aceita até cinco temas;
+- `frequency_hours` aceita valores entre 1 e 720 horas;
+- a API aceita até 20 e-mails de notificação por acompanhamento;
+- uma frequência menor reduz o intervalo entre verificações, mas não antecipa a
+  publicação do dado pela fonte observada;
+- limites incluídos e acompanhamentos extras dependem do plano do workspace;
+- `past_due`, `payment_required` ou `feature_disabled` podem impedir novas
+  verificações mesmo quando o acompanhamento aparece como ativo;
+- Monitoramento detecta diferenças entre observações; ele não garante que toda
+  mudança do mundo real estará disponível imediatamente nas fontes consultadas.
+
+Para detalhes operacionais, consulte [Ciclo de vida](/monitoramento/ciclo-de-vida),
+[Cobrança](/monitoramento/cobranca),
+[Idempotência](/monitoramento/idempotencia) e o
+[Início rápido da API](/monitoramento/quickstart).

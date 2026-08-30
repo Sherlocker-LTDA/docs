@@ -1,0 +1,66 @@
+---
+title: "Início rápido"
+description: "Crie e acompanhe seu primeiro recurso da Plataforma"
+icon: "rocket"
+---
+
+<img src="/images/sketches/dossie.svg" alt="Um grafo de pessoas e empresas é consolidado em um documento estruturado." />
+
+Este exemplo cria um Dossiê e acompanha seu processamento. O mesmo padrão — criar,
+guardar o identificador e consultar o recurso — também aparece em Rastro e Lente.
+
+<Warning>
+  Este início rápido descreve um contrato em preview. Antes de executar os
+  exemplos, confirme com o time Sherlocker se as rotas e os escopos estão
+  publicados e habilitados no ambiente do seu workspace.
+</Warning>
+
+## Antes de começar
+
+Você precisa de uma chave `slhk_` com `dossies:write` para criar e
+`dossies:read` para consultar. Veja [Autenticação](/plataforma/autenticacao).
+
+## 1. Crie o Dossiê
+
+```bash
+curl -X POST https://221b-api.sherlocker.com.br/api/v1/dossies \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Idempotency-Key: 123e4567-e89b-42d3-a456-426614174000" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "document": "52998224725",
+    "subject_type": "cpf",
+    "kind": "basic"
+  }'
+```
+
+A resposta `202 Accepted` contém o `id` do Dossiê e seu estado atual. Guarde esse
+identificador; ele será usado nas próximas consultas.
+
+## 2. Consulte o andamento
+
+```bash
+curl https://221b-api.sherlocker.com.br/api/v1/dossies/{dossie_id} \
+  -H "Authorization: Bearer slhk_sua_chave_aqui"
+```
+
+Enquanto o trabalho estiver em andamento, respeite `poll_after_seconds`. Pare as
+consultas quando o estado for terminal e interprete o resultado junto com a
+cobertura. Veja [Ciclo de vida e resultados](/plataforma/estados-resultados).
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Dossiê" icon="file-lines" href="/plataforma/dossie">
+    Entenda a visão consolidada de pessoas e empresas
+  </Card>
+  <Card title="Rastro" icon="route" href="/plataforma/rastro">
+    Investigue identificadores digitais
+  </Card>
+  <Card title="Board e Mapa" icon="diagram-project" href="/plataforma/board-mapa">
+    Organize entidades, vínculos e lugares
+  </Card>
+  <Card title="Lente" icon="camera" href="/plataforma/lente">
+    Analise evidências visuais
+  </Card>
+</CardGroup>

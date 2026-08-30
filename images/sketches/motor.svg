@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="430" viewBox="0 0 760 430" role="img" aria-labelledby="title description"><title id="title">Motor de Análise</title><desc id="description">Uma lista de empresas antes e outra depois da análise, com uma empresa atravessando a triagem.</desc><style>
+  :host{display:block;color:#f0a121}
+  svg{display:block;width:100%;height:auto;aspect-ratio:16/9;background:transparent;overflow:hidden}
+  .sk-grid{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.07}
+  .sk-line,.sk-icon,.sk-flow,.sk-hair,.sk-ghost{fill:none;stroke:#f0a121;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .sk-line,.sk-icon{stroke-width:1.55}
+  .sk-hair{stroke-width:.85;stroke-opacity:.3}
+  .sk-ghost{stroke-width:1;stroke-opacity:.28;stroke-dasharray:5 7}
+  .sk-flow{stroke-width:1.1;stroke-opacity:.42;stroke-dasharray:7 8;animation:flow 2.2s linear infinite}
+  .sk-plane,.sk-row-bg,.sk-icon-box{fill:rgba(240,161,33,.024);stroke:#f0a121;stroke-width:1.15;stroke-opacity:.68;vector-effect:non-scaling-stroke}
+  .sk-row-bg{fill:rgba(240,161,33,.018);stroke-opacity:.24}
+  .sk-icon-box{stroke-opacity:.34}
+  .sk-hot{fill:#f0a121;filter:url(#soft-glow)}
+  .sk-label{fill:#f0a121;font:500 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.08em}
+  .sk-small-label{fill:#f0a121;fill-opacity:.58;font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.13em}
+  .is-muted{opacity:.45}
+  .sk-corner{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.35}
+  .sk-node-ring,.sk-timeline-dot{fill:rgba(240,161,33,.018);stroke:#f0a121;stroke-width:1.4;vector-effect:non-scaling-stroke}
+  .sk-timeline-dot{fill:#f0a121;stroke-width:0;filter:url(#soft-glow)}
+  @keyframes flow{to{stroke-dashoffset:-30}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+    <defs>
+    <pattern id="motor-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" class="sk-grid" /></pattern>
+    <filter id="soft-glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs><rect width="760" height="430" fill="url(#motor-grid)" />
+    <g class="sk-entity-list">
+    <rect class="sk-plane" x="28" y="74" width="250" height="256" rx="13" />
+
+    <g class="sk-row" transform="translate(40 86)">
+      <rect class="sk-row-bg" width="226" height="54" rx="8" />
+      <rect class="sk-icon-box" x="10" y="9" width="36" height="36" rx="8" />
+      <g class="sk-icon" transform="translate(18 17) scale(0.8333333333333334)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+      <path class="sk-line" d="M62 20h106M62 35h68" />
+
+    </g>
+    <g class="sk-row is-active" transform="translate(40 144)">
+      <rect class="sk-row-bg" width="226" height="54" rx="8" />
+      <rect class="sk-icon-box" x="10" y="9" width="36" height="36" rx="8" />
+      <g class="sk-icon" transform="translate(18 17) scale(0.8333333333333334)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+      <path class="sk-line" d="M62 20h126M62 35h82" />
+
+    </g>
+    <g class="sk-row" transform="translate(40 202)">
+      <rect class="sk-row-bg" width="226" height="54" rx="8" />
+      <rect class="sk-icon-box" x="10" y="9" width="36" height="36" rx="8" />
+      <g class="sk-icon" transform="translate(18 17) scale(0.8333333333333334)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+      <path class="sk-line" d="M62 20h94M62 35h62" />
+
+    </g>
+    <g class="sk-row" transform="translate(40 260)">
+      <rect class="sk-row-bg" width="226" height="54" rx="8" />
+      <rect class="sk-icon-box" x="10" y="9" width="36" height="36" rx="8" />
+      <g class="sk-icon" transform="translate(18 17) scale(0.8333333333333334)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+      <path class="sk-line" d="M62 20h112M62 35h76" />
+
+    </g>
+  </g>
+    <g class="sk-entity-list">
+    <rect class="sk-plane" x="482" y="106" width="250" height="198" rx="13" />
+
+    <g class="sk-row" transform="translate(494 118)">
+      <rect class="sk-row-bg" width="226" height="54" rx="8" />
+      <rect class="sk-icon-box" x="10" y="9" width="36" height="36" rx="8" />
+      <g class="sk-icon" transform="translate(18 17) scale(0.8333333333333334)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+      <path class="sk-line" d="M62 20h104M62 35h70" />
+      <g class="sk-icon sk-row-status " transform="translate(190 16) scale(0.9166666666666666)"><path d="M21.801 10A10 10 0 1 1 17 3.335" /><path d="m9 11 3 3L22 4" /></g>
+    </g>
+    <g class="sk-row" transform="translate(494 176)">
+      <rect class="sk-row-bg" width="226" height="54" rx="8" />
+      <rect class="sk-icon-box" x="10" y="9" width="36" height="36" rx="8" />
+      <g class="sk-icon" transform="translate(18 17) scale(0.8333333333333334)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+      <path class="sk-line" d="M62 20h92M62 35h61" />
+      <g class="sk-icon sk-row-status " transform="translate(190 16) scale(0.9166666666666666)"><path d="M21.801 10A10 10 0 1 1 17 3.335" /><path d="m9 11 3 3L22 4" /></g>
+    </g>
+    <g class="sk-row is-muted" transform="translate(494 234)">
+      <rect class="sk-row-bg" width="226" height="54" rx="8" />
+      <rect class="sk-icon-box" x="10" y="9" width="36" height="36" rx="8" />
+      <g class="sk-icon" transform="translate(18 17) scale(0.8333333333333334)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+      <path class="sk-line" d="M62 20h108M62 35h72" />
+      <g class="sk-icon sk-row-status sk-check-arrival" transform="translate(190 16) scale(0.9166666666666666)"><path d="M21.801 10A10 10 0 1 1 17 3.335" /><path d="m9 11 3 3L22 4" /></g>
+    </g>
+  </g>
+    <g transform="translate(314 92)">
+      <rect class="sk-plane" x="0" y="0" width="132" height="246" rx="14" />
+      <path class="sk-line" d="M18 46V18h28M114 46V18H86M18 200v28h28M114 200v28H86" />
+      <path class="sk-hair" d="M66 18v210M18 123h96" />
+      <rect class="sk-scan" x="19" y="44" width="94" height="16" />
+    </g>
+    <path class="sk-flow" d="M278 161h36M446 263h36" />
+    <g class="sk-candidate" transform="translate(40 144)">
+      <rect class="sk-row-bg" width="226" height="54" rx="8" />
+      <rect class="sk-icon-box" x="8" y="7" width="34" height="34" rx="8" />
+      <g class="sk-icon" transform="translate(15 14) scale(0.8333333333333334)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+      <path class="sk-line" d="M56 20h126M56 35h82" />
+    </g>
+    <style>
+      .sk-scan{fill:#f0a121;opacity:.05;animation:scan 7s ease-in-out infinite}
+      .sk-candidate{opacity:0;animation:candidate 7s ease-in-out infinite}
+      .sk-row-status{stroke-width:1.8}.sk-check-arrival{opacity:0;animation:approved 7s ease-in-out infinite}
+      @keyframes scan{0%,30%,68%,100%{transform:translateY(0);opacity:.04}42%{opacity:.32}60%{transform:translateY(146px);opacity:.18}}
+      @keyframes candidate{0%,18%{opacity:0;transform:translate(40px,144px)}24%{opacity:1;transform:translate(40px,144px)}44%,57%{opacity:1;transform:translate(267px,190px)}76%,88%{opacity:1;transform:translate(494px,234px)}94%,100%{opacity:0;transform:translate(494px,234px)}}
+      @keyframes approved{0%,69%,100%{opacity:0}78%,91%{opacity:1}}
+    </style></svg>

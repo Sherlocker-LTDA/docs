@@ -1,0 +1,70 @@
+---
+title: "Erros"
+description: "Formato, códigos e tratamento de falhas nas APIs"
+icon: "triangle-exclamation"
+---
+
+Erros usam `Content-Type: application/problem+json` e incluem um código estável para
+tratamento programático.
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/validation_error",
+  "title": "Validation Error",
+  "status": 400,
+  "code": "validation_error",
+  "detail": "One or more fields failed validation.",
+  "instance": "/api/v1/dossies",
+  "request_id": "req_01JEXEMPLO",
+  "retryable": false,
+  "errors": [
+    {
+      "field": "document",
+      "code": "invalid_cpf",
+      "message": "document must be a valid CPF"
+    }
+  ]
+}
+```
+
+## Campos
+
+| Campo        | Uso                                           |
+| ------------ | --------------------------------------------- |
+| `status`     | status HTTP da resposta                       |
+| `code`       | identificador estável do erro                 |
+| `detail`     | explicação legível da ocorrência              |
+| `request_id` | identificador para diagnóstico e suporte      |
+| `retryable`  | informa se uma nova tentativa pode ser segura |
+| `errors`     | detalhes por campo quando a validação falha   |
+
+## Erros comuns
+
+|  HTTP | Códigos                                                                                           | Ação recomendada                                            |
+| ----: | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `400` | `validation_error`, `invalid_cursor`, `invalid_path`, `invalid_content_length`                    | corrija a requisição antes de reenviar                      |
+| `401` | `missing_api_key`, `invalid_api_key`, `revoked_api_key`                                           | corrija ou substitua a credencial                           |
+| `402` | `insufficient_balance`, `payment_required`                                                        | regularize saldo ou assinatura                              |
+| `403` | `scoped_key_required`, `key_entitlement_missing`, `insufficient_scope`, `entitlement_not_enabled` | ajuste os escopos e a habilitação da área                   |
+| `404` | `resource_not_found`                                                                              | confira o ID no workspace atual                             |
+| `405` | `method_not_allowed`                                                                              | use um dos métodos informados no header `Allow`             |
+| `409` | `invalid_state_transition`, `result_not_ready`                                                    | consulte o recurso e respeite as ações permitidas           |
+| `409` | `idempotency_in_progress`, `idempotency_conflict`                                                 | aguarde ou corrija o uso da chave de idempotência           |
+| `409` | `refund_pending`, `prior_refund_pending`                                                          | aguarde a conclusão do reembolso                            |
+| `413` | `payload_too_large`                                                                               | reduza o corpo ou arquivo                                   |
+| `415` | `unsupported_media_type`                                                                          | envie um formato aceito                                     |
+| `422` | `unsupported_subject`, `unsupported_mode`                                                         | ajuste o tipo de alvo ou modo                               |
+| `429` | `rate_limit_exceeded`, `quota_exceeded`                                                           | respeite `Retry-After` e aplique backoff                    |
+| `502` | `bad_gateway`                                                                                     | repita apenas operações seguras, preservando a idempotência |
+| `503` | `service_unavailable`                                                                             | aguarde o intervalo recomendado                             |
+| `504` | `gateway_timeout`                                                                                 | repita apenas operações seguras, preservando a idempotência |
+
+Respostas temporárias podem incluir `Retry-After` no header e
+`retry_after_seconds` no corpo. Não repita automaticamente uma requisição quando
+`retryable` for `false`.
+
+## Falha do trabalho não é erro HTTP
+
+Depois que um trabalho assíncrono foi aceito, falhas de coleta ou processamento são
+registradas no próprio recurso. A consulta continua retornando `200` para que você
+possa ler o estado, a cobertura, a cobrança e a causa da falha.

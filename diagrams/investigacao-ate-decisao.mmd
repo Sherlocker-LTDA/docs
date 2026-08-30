@@ -1,0 +1,12 @@
+graph TD
+  PERGUNTA["Pergunta"] --> SHERLOCKER["Sherlocker"]
+  SHERLOCKER --> EVIDENCIAS["Evidências organizadas"]
+  EVIDENCIAS --> REVISAO["Revisão humana"]
+  REVISAO --> DECISAO["Decisão"]
+
+  classDef start fill:#F0EFFF,stroke:#6C63FF,color:#1A1A2E
+  classDef core fill:#4F46E5,stroke:#3730A3,color:#FFFFFF
+  classDef evidence fill:#EAF7F0,stroke:#2D9D68,color:#1A1A2E
+  class PERGUNTA start
+  class SHERLOCKER core
+  class EVIDENCIAS,REVISAO,DECISAO evidence

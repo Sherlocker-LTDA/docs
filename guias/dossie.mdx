@@ -1,0 +1,224 @@
+---
+title: "Dossiê: da pergunta à decisão"
+description: "Aprenda a iniciar, acompanhar e interpretar uma investigação consolidada no Sherlocker"
+icon: "file-magnifying-glass"
+---
+
+O Dossiê é a jornada indicada quando a pergunta não cabe em uma verificação isolada.
+Ele parte de uma pessoa ou empresa, reúne evidências de diferentes dimensões e organiza
+o resultado para revisão e tomada de decisão.
+
+O objetivo não é substituir o julgamento de quem decide. É evitar que essa pessoa
+precise começar pela coleta, conciliar respostas dispersas e redigir um relatório do
+zero antes de conseguir analisar o caso.
+
+## Quando usar o Dossiê
+
+Use o Dossiê quando você precisa formar uma visão ampla e documentada sobre um CPF ou
+CNPJ, por exemplo em:
+
+- onboarding e revisão de clientes, fornecedores ou parceiros;
+- análise de crédito, risco ou compliance;
+- due diligence antes de contratar, investir ou fechar uma parceria;
+- cobrança e execução fiscal;
+- apuração de um caso que precisa ser revisado ou entregue a outra área.
+
+Se a pergunta puder ser respondida por uma verificação única, uma capacidade menor da
+plataforma ou da API pode ser suficiente. Se o objetivo for acompanhar mudanças depois
+da análise inicial, use [Monitoramento](/monitoramento/introducao).
+
+## O que acontece durante a investigação
+
+Uma jornada de Dossiê tem cinco momentos:
+
+1. você define o alvo e o foco da análise;
+2. o Sherlocker consulta e cruza as capacidades adequadas ao caso;
+3. a investigação organiza achados, relações e alertas relevantes;
+4. o resultado é apresentado em seções para revisão;
+5. o material pode ser entregue como artefato, sem reconstruir a investigação em outro software.
+
+<Info>
+  O Dossiê representa uma fotografia investigativa de um momento. Para saber o que
+  mudou depois dessa fotografia, combine-o com Monitoramento.
+</Info>
+
+## Usar na plataforma
+
+Esta jornada é indicada para analistas e áreas de negócio que querem conduzir o caso
+pela interface do Sherlocker.
+
+### 1. Inicie uma nova investigação
+
+Abra **Dossiê** e selecione **Criar Dossiê**. Escolha se o alvo é uma empresa ou uma
+pessoa e informe o CNPJ ou CPF.
+
+A plataforma valida o formato do documento e procura o alvo antes de liberar a
+geração. Confira o nome apresentado: essa confirmação simples evita iniciar uma análise
+válida sobre a pessoa ou empresa errada.
+
+### 2. Escolha o foco
+
+Escolha o recorte que melhor representa a decisão que você precisa tomar:
+
+- **Investigação Geral** para conexões empresariais, sócios, presença pública e reputação;
+- **Cobrança e Execução Fiscal** para localizar o devedor e identificar sinais úteis à recuperação;
+- **Análise de Crédito** para examinar solvência, dívidas e risco de inadimplência;
+- **Due Diligence** para avaliar sócios, passivos e reputação antes de uma relação relevante.
+
+O foco orienta a investigação e a forma de organizar o relatório. Ele não transforma
+um achado em decisão automática: a política da sua empresa continua determinando o que
+é aceitável, inconclusivo ou impeditivo.
+
+### 3. Confirme e acompanhe
+
+Antes de confirmar, a plataforma mostra o custo vigente da geração. Depois do início,
+uma linha do tempo apresenta as etapas relevantes enquanto o trabalho está em andamento.
+
+Você pode fechar a janela sem cancelar a investigação. O processamento continua em
+segundo plano e o caso permanece na lista de Dossiês. Os estados ajudam a separar:
+
+- **Investigando**, quando o trabalho continua em processamento;
+- **Concluído**, quando o conteúdo está disponível para leitura;
+- **Em revisão**, quando o resultado ainda não deve ser tratado como entregue;
+- **Falhou** ou **Tempo esgotado**, quando não há resultado final disponível e o caso exige tratamento.
+
+<Warning>
+  “Em revisão” não significa que um analista da sua empresa já aprovou o caso. Significa
+  que o Dossiê ainda não possui conteúdo liberado para ser usado como resultado final.
+</Warning>
+
+### 4. Leia antes de concluir
+
+Ao abrir um Dossiê concluído, use o índice para percorrer as seções e avalie três
+dimensões em conjunto:
+
+- **estado**: a investigação realmente terminou ou ainda requer tratamento?
+- **cobertura**: quais dimensões e fontes produziram informação, ficaram sem resposta ou apresentaram limitações?
+- **evidências**: o que foi observado e qual conclusão é razoável diante dessa cobertura?
+
+Na plataforma, o andamento aparece na linha do tempo e na lista de Dossiês. No
+relatório final, confira as fontes, ressalvas e limitações apresentadas em cada seção;
+não converta ausência de achado em ausência de risco sem verificar a cobertura.
+
+### 5. Revise, entregue e continue o caso
+
+Depois da revisão, você pode baixar o PDF e entregá-lo à área responsável sem reescrever
+toda a investigação. O resultado também oferece atalhos para iniciar uma análise
+relacionada ou colocar o alvo em Monitoramento quando o caso exigir continuidade.
+
+O PDF é um artefato de comunicação, não uma aprovação automática. Registre fora dele a
+decisão, o responsável e a política aplicada sempre que seu processo exigir essa trilha.
+
+### Começar pelo resultado do Motor
+
+Na experiência em preview do Motor colaborativo, o resultado de uma análise
+oferece o atalho **Abrir dossiê**.
+
+O atalho leva o documento analisado para a área de Dossiês. Se houver um Dossiê
+utilizável para aquele documento, a plataforma o abre. Se não houver, a janela de
+criação aparece com o CPF ou CNPJ preenchido para que a pessoa confirme o alvo,
+escolha o foco e inicie a investigação.
+
+Esse fluxo reduz a troca de contexto, mas continua explícito: o Motor não cria um
+Dossiê automaticamente nem mantém hoje um vínculo reverso durável entre as duas
+execuções.
+
+## Usar via API (preview)
+
+Esta jornada é indicada quando o Dossiê deve ser iniciado pelo seu sistema, portal,
+esteira ou operação interna. A API preserva o mesmo conceito de investigação, mas sua
+interface não é uma cópia da tela.
+
+<Warning>
+  Esta seção descreve o contrato em preview. Antes de implementar, confirme com
+  o time Sherlocker se as rotas e os escopos de Dossiê estão publicados e
+  habilitados no ambiente do seu workspace.
+</Warning>
+
+### 1. Crie com segurança
+
+Envie o CPF ou CNPJ para `POST /dossies`, escolha `basic` ou `advanced` e, se necessário,
+adicione um contexto curto sobre o caso. A criação é assíncrona e exige:
+
+- um token com o escopo `dossies:write`;
+- uma `Idempotency-Key` estável para aquela tentativa de criação;
+- tratamento da resposta `202`, que confirma a aceitação, não a conclusão.
+
+```bash
+curl --request POST \
+  --url https://221b-api.sherlocker.com.br/api/v1/dossies \
+  --header "Authorization: Bearer $SHERLOCKER_TOKEN" \
+  --header "Content-Type: application/json" \
+  --header "Idempotency-Key: caso-8472-dossie-v1" \
+  --data '{
+    "document": "00000000000000",
+    "subject_type": "cnpj",
+    "kind": "advanced",
+    "context": "Revisão de fornecedor antes da renovação contratual"
+  }'
+```
+
+<Note>
+  Use documentos fictícios nos exemplos e proteja CPF, CNPJ, resultados e artefatos
+  conforme as regras de acesso e retenção da sua empresa.
+</Note>
+
+### 2. Acompanhe sem bloquear sua aplicação
+
+Guarde o `id` retornado e consulte `GET /dossies/{dossie_id}/status`. Respeite
+`poll_after_seconds` quando esse campo estiver presente, em vez de consultar em um
+laço contínuo.
+
+Os estados públicos são `queued`, `running`, `completed`, `needs_review`, `failed` e
+`cancelled`. `completed` entrega a cobertura integral prevista pelo contrato.
+`needs_review` é terminal e entrega resultado parcial útil, que deve seguir para
+revisão humana. Não descarte esse conteúdo nem o trate como aprovado
+automaticamente.
+
+### 3. Recupere cobertura, resultado e artefatos
+
+Use `GET /dossies/{dossie_id}` para recuperar a visão atual do Dossiê:
+
+- `coverage` informa o alcance e as limitações observadas;
+- `result` contém os achados estruturados disponíveis;
+- `artifacts` lista documentos como PDF ou DOCX e sua disponibilidade;
+- `stale` sinaliza que a representação pode não refletir o estado mais recente.
+
+URLs de download podem expirar. Consuma `expires_at` ou `available_until` e obtenha uma
+resposta atualizada quando precisar entregar o artefato depois desse prazo.
+
+### 4. Trate exceções como parte do fluxo
+
+Seu sistema deve encaminhar `needs_review` para uma fila humana em vez de convertê-lo
+em aprovação ou reprovação. Para trabalhos elegíveis, `POST /dossies/{dossie_id}/retry`
+cria uma nova tentativa e preserva o identificador do Dossiê. O cancelamento só é
+aceito enquanto o estado permitir a transição.
+
+Consulte a [visão geral e a referência do Dossiê](/plataforma/dossie) para ver os
+campos, respostas e erros de cada operação.
+
+## Limites que protegem a decisão
+
+- O Dossiê organiza evidências; ele não garante que toda fonte possível respondeu.
+- Uma fonte indisponível não equivale a “nada encontrado”.
+- Uma relação, correspondência ou alerta precisa ser interpretado no contexto do caso.
+- Um resultado concluído não substitui a política, a revisão e a responsabilidade de quem decide.
+- A plataforma não deve ser descrita como edição colaborativa em tempo real: compartilhe o artefato e preserve a responsabilidade pela revisão.
+- O atalho em preview do Motor reaproveita o documento, mas a pessoa ainda confirma a criação e o foco do Dossiê.
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Entender o Dossiê" icon="file-lines" href="/plataforma/dossie">
+    Conheça o conceito, os usos e como interpretar uma análise.
+  </Card>
+  <Card title="Acompanhar mudanças" icon="radar" href="/monitoramento/introducao">
+    Transforme uma fotografia inicial em acompanhamento contínuo.
+  </Card>
+  <Card title="Investigar relações" icon="diagram-project" href="/plataforma/board-mapa">
+    Organize entidades, vínculos, lugares e evidências em uma visão conectada.
+  </Card>
+  <Card title="Investigar presença digital" icon="fingerprint" href="/plataforma/rastro">
+    Use identificadores digitais como ponto de partida para novos sinais.
+  </Card>
+</CardGroup>

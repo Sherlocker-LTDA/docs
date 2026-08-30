@@ -4,10 +4,15 @@ description: "Analise seu primeiro borderô CNAB 400 com a API do Motor de Borde
 icon: "rocket"
 ---
 
+<img src="/images/sketches/credit-bordero.svg" alt="Títulos e notas fiscais são pareados e atravessam a validação." />
+
 Neste guia você envia um borderô CNAB 400, acompanha o processamento até a conclusão e busca o resultado hierárquico da análise — cedente, sacados, títulos e as violações de regra (issues) de cada nó. É a mesma esteira de análise da interface web do Sherlocker, agora acessível por API.
 
 <Note>
-  Não confunda com o **Motor de Análise** ([documentado aqui](/motor-analise/introducao)), que avalia o risco de um CNPJ ou CPF individual. O Motor de Borderô analisa o borderô inteiro — e usa o Motor de Análise por baixo para cada entidade.
+  Não confunda com o **Motor de Análise** ([documentado
+  aqui](/motor-analise/introducao)), que avalia o risco de um CNPJ ou CPF
+  individual. O Motor de Borderô analisa o borderô inteiro — e usa o Motor de
+  Análise por baixo para cada entidade.
 </Note>
 
 ## Pré-requisitos
@@ -15,13 +20,15 @@ Neste guia você envia um borderô CNAB 400, acompanha o processamento até a co
 - **Acesso ao beta**: a feature `analysis_engine` precisa estar habilitada no seu workspace. Solicite em [Solicitar acesso](/api/access).
 - **Chave de API**: criada no app Sherlocker em **Settings → API Keys**. As chaves têm prefixo `slhk_` e são exibidas uma única vez — guarde em local seguro.
 - **Saldo de tokens**: a operação consome tokens do mesmo pool do workspace usado no app — um débito por entidade única do borderô (veja [Cobrança](/motores/cobranca)).
-- **Arquivo CNAB 400 remessa** (`.rem`) — Banco Paulista 611, 444 colunas, Windows-1252 — com no máximo 16 MB.
+- **Arquivo CNAB 400 remessa** (`.rem`) — Banco Paulista 611, 444 colunas, Windows-1252 — com no máximo 128 MiB.
 - **CNPJ do cedente** da operação (14 dígitos, com ou sem formatação).
 
 A base URL de todos os exemplos é `https://221b-api.sherlocker.com.br/api/v1`.
 
 <Note>
-  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
+  Os Motores usam a **mesma base** da API 221b
+  (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via
+  `Authorization: Bearer slhk_…` — **não** via `?token=`.
 </Note>
 
 <Steps>
@@ -29,14 +36,14 @@ A base URL de todos os exemplos é `https://221b-api.sherlocker.com.br/api/v1`.
 
 Envie um `POST /operations` como **`multipart/form-data`** — o arquivo vai direto no form, sem base64:
 
-| Parte | Tipo | Obrigatória | Descrição |
-|---|---|---|---|
-| `file` | arquivo | **Sim** | CNAB 400 remessa (`.rem`). Máx. 16 MB |
-| `xmls` | arquivo | Não | ZIP com os XMLs de NFe (`nfeProc`) dos títulos. Máx. 32 MB |
-| `cedente_cnpj` | texto | **Sim** | CNPJ do cedente, 14 dígitos ou formatado (dígito verificador validado) |
-| `engine_id` | texto | Não | ID da engine; omitido ou `template-padrao` → template do sistema |
-| `purpose` | texto | Não | Finalidade da análise (auditoria LGPD) |
-| `legal_basis` | texto | Não | Base legal LGPD para os sacados PF |
+| Parte          | Tipo    | Obrigatória | Descrição                                                              |
+| -------------- | ------- | ----------- | ---------------------------------------------------------------------- |
+| `file`         | arquivo | **Sim**     | CNAB 400 remessa (`.rem`). Máx. 128 MiB                                |
+| `xmls`         | arquivo | Não         | ZIP com os XMLs de NFe (`nfeProc`) dos títulos. Máx. 512 MiB           |
+| `cedente_cnpj` | texto   | **Sim**     | CNPJ do cedente, 14 dígitos ou formatado (dígito verificador validado) |
+| `engine_id`    | texto   | Não         | ID da engine; omitido ou `template-padrao` → template do sistema       |
+| `purpose`      | texto   | Não         | Finalidade da análise (auditoria LGPD)                                 |
+| `legal_basis`  | texto   | Não         | Base legal LGPD para os sacados PF                                     |
 
 <CodeGroup>
 ```bash cURL
@@ -72,15 +79,19 @@ form.append("xmls", await openAsBlob("nfes.zip"), "nfes.zip");
 form.append("cedente_cnpj", "12345678000195");
 form.append("engine_id", "template-padrao");
 
-const resp = await fetch("https://221b-api.sherlocker.com.br/api/v1/operations", {
-  method: "POST",
-  headers: { Authorization: "Bearer slhk_sua_chave_aqui" },
-  body: form,
-});
+const resp = await fetch(
+  "https://221b-api.sherlocker.com.br/api/v1/operations",
+  {
+    method: "POST",
+    headers: { Authorization: "Bearer slhk_sua_chave_aqui" },
+    body: form,
+  },
+);
 console.log(resp.status); // 202
 const operation = await resp.json();
 const operation_id = operation.operation_id;
 ```
+
 </CodeGroup>
 
 **Resposta (202 Accepted):**
@@ -96,7 +107,11 @@ const operation_id = operation.operation_id;
 Guarde o `operation_id`: é com ele que você consulta o status e o resultado. A cobrança (uma por entidade única do borderô — cedente + sacados únicos) acontece normalmente na criação, mas **não aparece no payload**: acompanhe débitos e estornos no extrato de tokens do workspace, no app Sherlocker.
 
 <Tip>
-  O header `Idempotency-Key` é **opcional**. Se você enviá-lo, reenviar o mesmo payload com a mesma key devolve `200` com o body original (sem nova operação nem nova cobrança); a mesma key com payload diferente devolve `409 idempotency_conflict`. Sem o header, cada POST cria uma operação nova. Veja [Idempotência](/motores/idempotencia).
+  O header `Idempotency-Key` é **opcional**. Se você enviá-lo, reenviar o mesmo
+  payload com a mesma key devolve `200` com o body original (sem nova operação
+  nem nova cobrança); a mesma key com payload diferente devolve `409
+  idempotency_conflict`. Sem o header, cada POST cria uma operação nova. Veja
+  [Idempotência](/motores/idempotencia).
 </Tip>
 
 </Step>
@@ -109,19 +124,20 @@ Consulte `GET /operations/{id}` até o status ficar terminal (`completed` ou `fa
 OPERATION_ID="b2c3d4e5-0000-0000-0000-000000000001"
 
 while true; do
-  RESP=$(curl -s "https://221b-api.sherlocker.com.br/api/v1/operations/$OPERATION_ID" \
-    -H "Authorization: Bearer slhk_sua_chave_aqui")
-  STATUS=$(echo "$RESP" | jq -r '.status')
-  echo "status: $STATUS"
+RESP=$(curl -s "https://221b-api.sherlocker.com.br/api/v1/operations/$OPERATION_ID" \
+ -H "Authorization: Bearer slhk_sua_chave_aqui")
+STATUS=$(echo "$RESP" | jq -r '.status')
+echo "status: $STATUS"
 
-  if [ "$STATUS" = "completed" ] || [ "$STATUS" = "failed" ]; then
-    echo "$RESP" | jq .
-    break
-  fi
+if [ "$STATUS" = "completed" ] || [ "$STATUS" = "failed" ]; then
+echo "$RESP" | jq .
+break
+fi
 
-  sleep 2
+sleep 2
 done
-```
+
+````
 
 ```python Python
 import time
@@ -138,14 +154,17 @@ while True:
         break
 
     time.sleep(2)
-```
+````
 
 ```javascript Node.js
 let op;
 while (true) {
-  const resp = await fetch(`https://221b-api.sherlocker.com.br/api/v1/operations/${operation_id}`, {
-    headers: { Authorization: "Bearer slhk_sua_chave_aqui" },
-  });
+  const resp = await fetch(
+    `https://221b-api.sherlocker.com.br/api/v1/operations/${operation_id}`,
+    {
+      headers: { Authorization: "Bearer slhk_sua_chave_aqui" },
+    },
+  );
   op = await resp.json();
   console.log(`status: ${op.status}`);
 
@@ -154,6 +173,7 @@ while (true) {
   await new Promise((r) => setTimeout(r, 2000));
 }
 ```
+
 </CodeGroup>
 
 **Resposta (200) — o envelope de status traz sempre todos os campos:**
@@ -210,7 +230,11 @@ curl "https://221b-api.sherlocker.com.br/api/v1/operations/$OPERATION_ID/result"
         "message": "Cedente: Protestos encontrados",
         "detail": { "field": "protestos", "actual": "3", "expected": "0" },
         "data_sources": [
-          { "name": "cenprot", "fetched_at": "2026-07-06T09:00:00.000Z", "age_days": 3 }
+          {
+            "name": "cenprot",
+            "fetched_at": "2026-07-06T09:00:00.000Z",
+            "age_days": 3
+          }
         ]
       }
     ],
@@ -237,9 +261,17 @@ curl "https://221b-api.sherlocker.com.br/api/v1/operations/$OPERATION_ID/result"
                 "category": "alert",
                 "status": "alerted",
                 "message": "Título: valor diverge da NFe",
-                "detail": { "field": "valor", "actual": "1234.56", "expected": "1230.00" },
+                "detail": {
+                  "field": "valor",
+                  "actual": "1234.56",
+                  "expected": "1230.00"
+                },
                 "data_sources": [
-                  { "name": "nfe", "fetched_at": "2026-07-09T12:01:00.000Z", "age_days": 0 }
+                  {
+                    "name": "nfe",
+                    "fetched_at": "2026-07-09T12:01:00.000Z",
+                    "age_days": 0
+                  }
                 ]
               }
             ]
@@ -264,7 +296,12 @@ curl "https://221b-api.sherlocker.com.br/api/v1/operations/$OPERATION_ID/result"
   "engine_name": "Motor Borderô",
   "timestamp": "2026-07-09T12:02:15.000Z",
   "coverage": [
-    { "provider": "rfb", "requested": 6, "succeeded": 5, "failed_keys": ["98765432000188"] }
+    {
+      "provider": "rfb",
+      "requested": 6,
+      "succeeded": 5,
+      "failed_keys": ["98765432000188"]
+    }
   ],
   "degraded_rules": [
     { "rule_id": "SACADO_SERASA", "provider": "serasa", "titulos_affected": 2 }
@@ -279,7 +316,8 @@ Variações do endpoint:
 - Chamar o `/result` antes de a operação chegar a `completed` retorna [`409 conflict`](/problems/conflict) com detail no formato `Operation has not completed yet. Current status: processing`.
 
 <Note>
-  O `summary` **sempre** reflete o dataset completo — ele não muda com `?filter`.
+  O `summary` **sempre** reflete o dataset completo — ele não muda com
+  `?filter`.
 </Note>
 
 </Step>
@@ -287,18 +325,21 @@ Variações do endpoint:
 
 O resultado é uma árvore: **cedente → sacados → títulos**, cada nó com um `status` e uma lista de `issues` (violações de regra).
 
-| Conceito | Como ler |
-|---|---|
-| `status` de qualquer nó | `approved` \| `blocked` \| `alerted` |
-| Rollup (worst-of) | O status do título deriva das issues do título; o do sacado é o pior entre as issues próprias e os títulos; o do cedente é o pior entre as issues próprias e os sacados |
-| `issues[]` | Cada issue traz `rule_id`, `rule_name`, `category` (`blocking` \| `alert`), `status` (`blocked` \| `alerted`), `message`, `detail` (`{field, actual, expected}`) e `data_sources` (`{name, fetched_at, age_days}`) |
-| `summary` | Contagens e valores do dataset **completo**: `total_titulos`, `approved`/`blocked`/`alerted`, `total_value`/`approved_value`/`blocked_value`/`alerted_value`, `sacados.total`/`sacados.with_issues` e `cedente.status` |
-| `coverage[]` | Por provider consultado: `requested`, `succeeded` e `failed_keys` (documentos que falharam) |
-| `degraded_rules[]` | Regras que não puderam ser avaliadas por fonte indisponível: `rule_id`, `provider`, `titulos_affected` |
-| `titulo.nfe_chave` | Chave da NFe vinculada ao título (`null` se não houver); problemas de NFe aparecem como issues do título |
+| Conceito                | Como ler                                                                                                                                                                                                               |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `status` de qualquer nó | `approved` \| `blocked` \| `alerted`                                                                                                                                                                                   |
+| Rollup (worst-of)       | O status do título deriva das issues do título; o do sacado é o pior entre as issues próprias e os títulos; o do cedente é o pior entre as issues próprias e os sacados                                                |
+| `issues[]`              | Cada issue traz `rule_id`, `rule_name`, `category` (`blocking` \| `alert`), `status` (`blocked` \| `alerted`), `message`, `detail` (`{field, actual, expected}`) e `data_sources` (`{name, fetched_at, age_days}`)     |
+| `summary`               | Contagens e valores do dataset **completo**: `total_titulos`, `approved`/`blocked`/`alerted`, `total_value`/`approved_value`/`blocked_value`/`alerted_value`, `sacados.total`/`sacados.with_issues` e `cedente.status` |
+| `coverage[]`            | Por provider consultado: `requested`, `succeeded` e `failed_keys` (documentos que falharam)                                                                                                                            |
+| `degraded_rules[]`      | Regras que não puderam ser avaliadas por fonte indisponível: `rule_id`, `provider`, `titulos_affected`                                                                                                                 |
+| `titulo.nfe_chave`      | Chave da NFe vinculada ao título (`null` se não houver); problemas de NFe aparecem como issues do título                                                                                                               |
 
 <Warning>
-  Fonte de dados indisponível **não vira issue** — vira `degraded_rules` (e aparece em `coverage`). No `summary`, os títulos afetados contam como `alerted`. Se a sua esteira exige cobertura total, trate `degraded_rules` não-vazio na sua regra de aprovação.
+  Fonte de dados indisponível **não vira issue** — vira `degraded_rules` (e
+  aparece em `coverage`). No `summary`, os títulos afetados contam como
+  `alerted`. Se a sua esteira exige cobertura total, trate `degraded_rules`
+  não-vazio na sua regra de aprovação.
 </Warning>
 
 Um filtro típico — listar as issues bloqueantes da operação:
@@ -341,7 +382,7 @@ Todos os erros seguem RFC 7807 (`Content-Type: application/problem+json`). Use o
 }
 ```
 
-Outras mensagens comuns: `Invalid CNPJ format` (dígito verificador do `cedente_cnpj`), falha de parse do CNAB e arquivos acima do teto (16 MB para `file`, 32 MB para `xmls`). Como nada foi parseado, **nada é cobrado**. Os demais códigos: `401 unauthorized`, `402 insufficient_tokens`, `403 feature_not_enabled`, `409 idempotency_conflict` e `422 no_engine` — registro completo em [Erros](/motor-analise/erros).
+Outras mensagens comuns: `Invalid CNPJ format` (dígito verificador do `cedente_cnpj`), falha de parse do CNAB e arquivos acima do teto (128 MiB para `file`, 512 MiB para `xmls`). O gateway limita o multipart completo a 768 MiB, incluindo campos e framing. Como nada foi parseado, **nada é cobrado**. Os demais códigos: `401 unauthorized`, `402 insufficient_tokens`, `403 feature_not_enabled`, `409 idempotency_conflict` e `422 no_engine` — registro completo em [Erros](/motor-analise/erros).
 
 ## O que você construiu
 
@@ -352,7 +393,11 @@ Outras mensagens comuns: `Invalid CNPJ format` (dígito verificador do `cedente_
 ## Próximos passos
 
 <CardGroup cols={2}>
-  <Card title="Ciclo de vida" icon="arrows-rotate" href="/motores/ciclo-de-vida">
+  <Card
+    title="Ciclo de vida"
+    icon="arrows-rotate"
+    href="/motores/ciclo-de-vida"
+  >
     Estados da operação, envelope de status e o endpoint /result
   </Card>
   <Card title="Idempotência" icon="repeat" href="/motores/idempotencia">

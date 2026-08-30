@@ -1,0 +1,195 @@
+---
+title: "Investigação como infraestrutura"
+description: "Por que ampliar a capacidade de investigação não deveria exigir uma nova ferramenta para cada problema."
+icon: "layer-group"
+---
+
+Quando aparece uma nova pergunta dentro da empresa, o caminho costuma parecer
+óbvio: procurar uma ferramenta que consiga respondê-la.
+
+O RH precisa conhecer melhor um candidato. O Financeiro precisa avaliar uma
+contraparte. O Jurídico precisa localizar relações ou patrimônio. Cada demanda
+parece diferente e, por isso, cada uma acaba criando seu próprio software, seu
+próprio fornecedor e sua própria forma de trabalhar.
+
+É assim que a operação se fragmenta. Não porque a empresa decidiu construir uma
+pilha complexa, mas porque resolveu cada problema separadamente.
+
+## Uma nova pergunta não deveria criar uma nova pilha
+
+O ciclo normalmente começa pequeno. Uma área pede uma consulta. Tecnologia
+contrata uma solução. Depois vêm a integração, os acessos, o treinamento e a
+necessidade de transformar mais um formato de resultado em algo que a empresa
+consiga usar.
+
+<Frame>
+  <img
+    src="/images/visao/cada-nova-pergunta.svg"
+    alt="Sequência em que uma nova pergunta leva a outro software, outra integração, outro onboarding e outro relatório"
+  />
+</Frame>
+
+O software pode resolver a consulta. A dependência criada ao redor dele continua
+com a empresa.
+
+Com o tempo, o diretor de tecnologia deixa de administrar apenas capacidades e
+passa a administrar uma coleção de exceções:
+
+- contratos e modelos de cobrança incompatíveis;
+- credenciais, permissões e regras de acesso diferentes;
+- integrações que entregam estruturas diferentes para a mesma entidade;
+- pessoas treinadas em ferramentas que não conversam entre si;
+- relatórios reconstruídos sempre que o caso muda de mão.
+
+O custo da fragmentação não está apenas nas licenças. Está no esforço permanente
+de fazer a pilha funcionar como se fosse uma só.
+
+## A diferença entre ferramenta e infraestrutura
+
+Uma ferramenta começa pelo método que executa. Uma infraestrutura começa pela
+capacidade que precisa estar disponível.
+
+Quando um time de desenvolvimento precisa de computação ou armazenamento, ele
+não precisa iniciar uma nova seleção de fornecedor para cada aplicação. Ele
+provisiona o recurso dentro de uma fundação comum. A
+[AWS descreve esse modelo](https://aws.amazon.com/what-is-cloud-computing/) como
+acesso sob demanda a diferentes recursos, com consumo conforme o uso.
+
+A analogia do Sherlocker com a AWS termina no modelo operacional. Não é uma
+comparação de escala, arquitetura ou maturidade.
+
+Investigar como infraestrutura significa partir de uma pergunta, acionar as
+capacidades necessárias e devolver evidências organizadas para revisão e
+decisão, dentro de uma base comum.
+
+<Frame>
+  <img
+    src="/images/visao/investigacao-ate-decisao.svg"
+    alt="Fluxo de uma pergunta até a decisão, passando pelo Sherlocker, pela organização das evidências e pela revisão humana"
+  />
+</Frame>
+
+Cada parte do fluxo tem uma função clara:
+
+**A pergunta define o trabalho.** O ponto de partida é o que a empresa precisa
+decidir, não a lista de ferramentas disponíveis.
+
+**O Sherlocker reúne capacidades.** Dados cadastrais, processos, patrimônio,
+relações e outras dimensões contratadas podem participar da mesma investigação.
+
+**As evidências chegam organizadas.** Entidades, vínculos, cronologia, cobertura
+e exceções permanecem conectados ao contexto do caso.
+
+**A revisão continua humana.** Um sinal pode orientar uma análise, mas não deve
+ser tratado isoladamente como prova de identidade ou decisão automática.
+
+## Do manual ao automático, sem trocar de base
+
+Infraestrutura também significa permitir que um processo amadureça sem obrigar a
+empresa a reconstruí-lo em outra ferramenta. O mesmo conjunto de capacidades
+pode apoiar uma investigação manual, preparar etapas para revisão ou executar
+critérios reproduzíveis de forma automática.
+
+<Frame>
+  <img
+    src="/images/visao/maturidade-da-automacao.svg"
+    alt="Evolução gradual de uma investigação manual para uma investigação assistida e, depois, para um processo automatizado"
+  />
+</Frame>
+
+Na investigação manual, uma pessoa escolhe os caminhos. Na investigação
+assistida, coleta, expansão, organização e síntese inicial podem chegar prontas
+para revisão. Quando os critérios ficam estáveis, o Motor de Análise transforma
+essas regras em uma triagem reproduzível.
+
+O Motor funciona melhor no que pode ser expresso como política, regra ou limiar:
+satisfazer um critério, produzir um alerta ou impedir um encaminhamento. Ele não
+deve inventar uma resposta quando faltam dados, evidências divergem ou a decisão
+depende de interpretação.
+
+### A exceção continua na infraestrutura
+
+Um caso excepcional não deveria sair da automação para uma planilha, uma troca de
+mensagens ou outra ferramenta contratada apenas para completar a análise.
+
+<Frame>
+  <img
+    src="/images/visao/excecao-continua-no-fluxo.svg"
+    alt="Fluxo em que o Motor sinaliza um limite, um atalho leva o documento ao Dossiê, a investigação é aprofundada e uma pessoa revisa e decide"
+  />
+</Frame>
+
+Na experiência em preview do Motor colaborativo, o resultado oferece o atalho
+**Abrir dossiê**. Se já existir um Dossiê utilizável para o documento analisado,
+ele é aberto; caso contrário, a criação começa com CPF ou CNPJ preenchido. A
+pessoa ainda escolhe o foco e confirma a investigação.
+
+Hoje, esse atalho reaproveita o identificador do documento. Ele não transfere
+automaticamente o resultado, o motivo ou as evidências do Motor para o Dossiê.
+A empresa ainda define como preservar esse contexto no seu processo. O ganho
+atual é reduzir a reentrada de dados e manter um caminho para aprofundar o caso
+sem fingir que toda exceção cabe em “sim” ou “não”.
+
+O Dossiê pode automatizar partes abertas da investigação e organizar o resultado
+para revisão. O julgamento e a decisão continuam com as pessoas responsáveis.
+
+## Uma base, diferentes perguntas
+
+A infraestrutura não exige que todas as áreas investiguem do mesmo jeito. Ela
+permite que perguntas diferentes utilizem a mesma fundação operacional.
+
+Em uma avaliação de contraparte, o Financeiro pode começar por uma empresa,
+compreender seu quadro societário e encaminhar exceções ao Jurídico. Em uma
+recuperação de crédito, o investigador pode partir de uma pessoa, expandir
+relações e revisar sinais patrimoniais. Em um processo de contratação, o RH pode
+trabalhar dentro de finalidade, base legal e escopo previamente definidos.
+
+Os fluxos são diferentes. O que deixa de ser reconstruído é a fundação: acesso,
+entidades, execução, contexto e entrega.
+
+## O que muda para o diretor de tecnologia
+
+A pergunta deixa de ser “qual software precisamos comprar para esta consulta?” e
+passa a ser “qual capacidade precisamos disponibilizar para esta decisão?”.
+
+Essa mudança produz quatro efeitos práticos:
+
+1. **Menos dependências por novo fluxo.** A expansão deixa de exigir outra pilha
+   completa na mesma proporção.
+2. **Onboarding reutilizável.** O time aprende uma base comum e acrescenta
+   capacidades conforme a necessidade.
+3. **Governança mais consistente.** Identidade, finalidade, consumo, cobertura e
+   artefatos podem seguir controles comuns.
+4. **Custo mais legível.** A empresa reduz a pulverização entre contratos,
+   franquias e unidades de cobrança difíceis de comparar.
+
+Pesquisas ajudam a dimensionar esse problema. A
+[Microsoft](https://www.microsoft.com/en-us/worklab/work-trend-index/breaking-down-infinite-workday)
+encontrou trabalho percebido como caótico e fragmentado; a
+[Harvard Business Review](https://hbr.org/2022/08/how-much-time-and-energy-do-we-waste-toggling-between-applications)
+documentou o custo da alternância constante entre aplicações. O
+[SaaS Management Index 2026](https://zylo.com/2026-saas-management-index)
+mostra como portfólios extensos e formas variáveis de cobrança pressionam a
+governança de tecnologia.
+
+## Infraestrutura não elimina responsabilidade
+
+O Sherlocker reduz o trabalho de conectar capacidades, dados e entregas. Ele não
+substitui sistemas de registro, políticas internas, assessoria especializada nem
+toda fonte externa utilizada por um investigador.
+
+Fontes podem estar indisponíveis. A cobertura pode ser parcial. Homônimos,
+divergências e relações indiretas exigem interpretação. A organização continua
+responsável por definir a finalidade, validar as evidências e tomar a decisão.
+
+O valor da infraestrutura está em permitir que seus especialistas gastem menos
+tempo reconstruindo o caminho e mais tempo avaliando o que ele significa.
+
+<Card
+  title="Veja como o time trabalha sobre essa base"
+  icon="people-group"
+  href="/visao/integracao-do-time"
+>
+  Entenda como a investigação preserva contexto até a revisão, o dossiê e a
+  decisão.
+</Card>

@@ -1,0 +1,11 @@
+graph TD
+  CASO["Motor sinaliza um limite"] --> INICIAR["Atalho reaproveita o documento"]
+  INICIAR --> PESQUISAR["Dossiê aprofunda o caso"]
+  PESQUISAR --> DECIDIR["Pessoa revisa e decide"]
+
+  classDef start fill:#F0EFFF,stroke:#6C63FF,color:#1A1A2E
+  classDef core fill:#4F46E5,stroke:#3730A3,color:#FFFFFF
+  classDef result fill:#EAF7F0,stroke:#2D9D68,color:#1A1A2E
+  class CASO start
+  class INICIAR,PESQUISAR core
+  class DECIDIR result

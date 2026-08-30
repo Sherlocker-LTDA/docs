@@ -4,6 +4,8 @@ description: "Como cada motor decide o que verificar: resolução da engine (eng
 icon: "gears"
 ---
 
+<img src="/images/sketches/engine-rules.svg" alt="Empresas atravessam regras e apenas os resultados aprovados seguem adiante." />
+
 Uma **engine** é a configuração de uma análise: ela define quais blocos de verificação rodam e a **ação** aplicada quando um bloco é acionado — bloqueio, alerta ou ignorar. Todo `POST /analyses` e todo `POST /operations` roda com exatamente uma engine, e é ela que determina o resultado — os verdicts no Motor de CPF/CNPJ, os `status` e as `issues` no Motor de Borderô.
 
 ## Ações e efeito no resultado

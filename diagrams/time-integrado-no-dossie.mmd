@@ -1,0 +1,11 @@
+graph TD
+  ANALISTA["Analista abre a investigação"] --> DOSSIE["Dossiê consolida o resultado"]
+  DOSSIE --> EQUIPE["Especialistas revisam a mesma base"]
+  EQUIPE --> DECISAO["Decisão"]
+
+  classDef start fill:#F0EFFF,stroke:#6C63FF,color:#1A1A2E
+  classDef core fill:#4F46E5,stroke:#3730A3,color:#FFFFFF
+  classDef result fill:#EAF7F0,stroke:#2D9D68,color:#1A1A2E
+  class ANALISTA start
+  class DOSSIE,EQUIPE core
+  class DECISAO result

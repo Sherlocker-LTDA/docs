@@ -1,0 +1,42 @@
+---
+title: "Idempotência"
+description: "Como repetir operações com segurança sem duplicar recursos ou cobrança"
+icon: "repeat"
+---
+
+Falhas de rede podem acontecer depois que a API já aceitou uma operação. Use
+`Idempotency-Key` para repetir a mesma intenção sem criar outro recurso ou gerar
+uma segunda cobrança.
+
+## Operações protegidas
+
+- criação e nova tentativa de Dossiê;
+- criação de busca no Rastro;
+- criação de Board e solicitação de exportação;
+- criação e envio de análise da Lente.
+
+Gere uma chave única para cada intenção e reutilize-a somente ao repetir exatamente
+a mesma operação.
+
+```bash
+curl -X POST https://221b-api.sherlocker.com.br/api/v1/rastro/searches \
+  -H "Authorization: Bearer slhk_sua_chave_aqui" \
+  -H "Idempotency-Key: 123e4567-e89b-42d3-a456-426614174000" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "email",
+    "target": "contato@example.com",
+    "strategy": "all"
+  }'
+```
+
+| Situação | Comportamento |
+| --- | --- |
+| primeira requisição | cria ou inicia a operação |
+| mesma chave e mesmo conteúdo | devolve a intenção anterior sem duplicar recurso ou cobrança |
+| mesma chave enquanto a primeira requisição termina | retorna conflito temporário; aguarde antes de consultar novamente |
+| mesma chave com conteúdo diferente | retorna conflito de idempotência |
+| chave ausente quando obrigatória | rejeita a chamada antes de criar ou cobrar |
+
+Duas chaves diferentes representam duas intenções diferentes, ainda que o conteúdo
+seja igual.

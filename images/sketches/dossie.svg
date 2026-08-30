@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="430" viewBox="0 0 760 430" role="img" aria-labelledby="title description"><title id="title">Dossiê</title><desc id="description">Um grafo de pessoas e empresas é consolidado em um documento estruturado.</desc><style>
+  :host{display:block;color:#f0a121}
+  svg{display:block;width:100%;height:auto;aspect-ratio:16/9;background:transparent;overflow:hidden}
+  .sk-grid{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.07}
+  .sk-line,.sk-icon,.sk-flow,.sk-hair,.sk-ghost{fill:none;stroke:#f0a121;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .sk-line,.sk-icon{stroke-width:1.55}
+  .sk-hair{stroke-width:.85;stroke-opacity:.3}
+  .sk-ghost{stroke-width:1;stroke-opacity:.28;stroke-dasharray:5 7}
+  .sk-flow{stroke-width:1.1;stroke-opacity:.42;stroke-dasharray:7 8;animation:flow 2.2s linear infinite}
+  .sk-plane,.sk-row-bg,.sk-icon-box{fill:rgba(240,161,33,.024);stroke:#f0a121;stroke-width:1.15;stroke-opacity:.68;vector-effect:non-scaling-stroke}
+  .sk-row-bg{fill:rgba(240,161,33,.018);stroke-opacity:.24}
+  .sk-icon-box{stroke-opacity:.34}
+  .sk-hot{fill:#f0a121;filter:url(#soft-glow)}
+  .sk-label{fill:#f0a121;font:500 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.08em}
+  .sk-small-label{fill:#f0a121;fill-opacity:.58;font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.13em}
+  .is-muted{opacity:.45}
+  .sk-corner{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.35}
+  .sk-node-ring,.sk-timeline-dot{fill:rgba(240,161,33,.018);stroke:#f0a121;stroke-width:1.4;vector-effect:non-scaling-stroke}
+  .sk-timeline-dot{fill:#f0a121;stroke-width:0;filter:url(#soft-glow)}
+  @keyframes flow{to{stroke-dashoffset:-30}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+    <defs>
+    <pattern id="dossier-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" class="sk-grid" /></pattern>
+    <filter id="soft-glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs><rect width="760" height="430" fill="url(#dossier-grid)" />
+    <g class="sk-graph-links"><path class="sk-ghost" d="M90 112L220 76 334 134 235 214 108 278 282 332M90 112l145 102M220 76l15 138M334 134l-52 198M108 278l127-64" /></g>
+    <g class="sk-entity-node" transform="translate(90 112)">
+    <circle class="sk-node-ring" r="32" />
+    <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g>
+  </g>
+    <g class="sk-entity-node" transform="translate(220 76)">
+    <circle class="sk-node-ring" r="32" />
+    <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+  </g>
+    <g class="sk-entity-node" transform="translate(334 134)">
+    <circle class="sk-node-ring" r="32" />
+    <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g>
+  </g>
+    <g class="sk-entity-node is-active" transform="translate(235 214)">
+    <circle class="sk-node-ring" r="32" />
+    <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+  </g>
+    <g class="sk-entity-node" transform="translate(108 278)">
+    <circle class="sk-node-ring" r="32" />
+    <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g>
+  </g>
+    <g class="sk-entity-node" transform="translate(282 332)">
+    <circle class="sk-node-ring" r="32" />
+    <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g>
+  </g>
+    <path class="sk-flow" d="M267 214C348 214 382 214 430 214" />
+    <circle class="sk-hot" r="3"><animateMotion dur="4.8s" repeatCount="indefinite" path="M267 214C348 214 382 214 430 214" /></circle>
+    <g class="sk-document" transform="translate(430 42)">
+    <path class="sk-plane" d="M0 0h244l38 38v306H0z" />
+    <path class="sk-hair" d="M244 0v38h38M24 88h234M24 165h234M24 242h234M24 319h170" />
+    <g class="sk-icon" transform="translate(24 24) scale(1.5833333333333333)"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5M10 9H8M16 13H8M16 17H8" /></g>
+    <path class="sk-line" d="M80 36h170M80 53h136" />
+    <g class="sk-document-section section-1"><g class="sk-icon" transform="translate(26 107) scale(1.1666666666666667)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g><path class="sk-line" d="M74 118h179M74 136h141" /></g>
+    <g class="sk-document-section section-2"><g class="sk-icon" transform="translate(26 184) scale(1.1666666666666667)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g><path class="sk-line" d="M74 195h159M74 213h188" /></g>
+    <g class="sk-document-section section-3"><g class="sk-icon" transform="translate(26 261) scale(1.1666666666666667)"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" /></g><path class="sk-line" d="M74 272h181M74 290h126" /></g>
+    <g class="sk-document-complete"><g class="sk-icon" transform="translate(223 286) scale(1.5)"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></g></g>
+  </g>
+    <style>
+      .sk-entity-node.is-active .sk-node-ring{animation:graph-focus 4.8s ease-in-out infinite}.sk-document-section{opacity:.2;animation:section-arrive 4.8s ease-in-out infinite}.section-2{animation-delay:.9s}.section-3{animation-delay:1.8s}.sk-document-complete{opacity:.2;animation:complete 4.8s ease-in-out infinite}
+      @keyframes graph-focus{0%,15%,100%{fill:#080806;stroke-opacity:.6}30%,68%{fill:rgba(240,161,33,.08);stroke-opacity:1}}
+      @keyframes section-arrive{0%,14%,100%{opacity:.2}28%,82%{opacity:1}}
+      @keyframes complete{0%,70%,100%{opacity:.2}82%,94%{opacity:1}}
+    </style></svg>

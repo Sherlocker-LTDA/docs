@@ -1,0 +1,53 @@
+---
+title: "Ciclo de vida"
+description: "Como interpretar situação, saúde e mudanças sem acessar a execução interna"
+icon: "arrows-rotate"
+---
+
+<img src="/images/sketches/monitor-lifecycle.svg" alt="Um acompanhamento percorre estados e produz alertas." />
+
+Monitoramento separa três dimensões: a situação escolhida pelo cliente, a saúde das
+verificações e as mudanças de negócio encontradas.
+
+## Situação do acompanhamento
+
+| Estado | Significado |
+| --- | --- |
+| `active` | novas verificações podem ocorrer conforme a frequência configurada |
+| `paused` | novas verificações ficam suspensas até a retomada |
+| `cancelled` | o acompanhamento foi encerrado definitivamente |
+
+```mermaid
+stateDiagram-v2
+    [*] --> active
+    active --> paused
+    paused --> active
+    active --> cancelled
+    paused --> cancelled
+    cancelled --> [*]
+```
+
+## Saúde
+
+| Estado | Significado |
+| --- | --- |
+| `unknown` | ainda não há informação suficiente para avaliar a saúde |
+| `healthy` | as verificações recentes ocorreram normalmente |
+| `degraded` | parte das verificações recentes ficou indisponível |
+| `failing` | falhas consecutivas impedem uma observação confiável |
+
+Ausência de mudança não significa falha. Leia `health.status` antes de concluir que
+nada mudou.
+
+## Mudanças detectadas
+
+Cada mudança pode estar `open` ou `acknowledged` e ter severidade `info`, `warn` ou
+`critical`. O reconhecimento registra tratamento, mas preserva o conteúdo anterior,
+o conteúdo posterior e `detected_at`.
+
+## Execução permitida
+
+Quando `execution_allowed` for `false`, `blocking_reason` informa o motivo público:
+Monitoramento pausado ou encerrado, pagamento necessário ou funcionalidade não
+habilitada. Ciclos, filas, tentativas e eventos técnicos não fazem parte da API do
+cliente.

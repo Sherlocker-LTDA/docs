@@ -1,212 +1,118 @@
 ---
-title: "Introdução"
-description: "Sherlocker: Plataforma de Inteligência Investigativa"
+title: "Conheça o Sherlocker"
+description: "Entenda os valores da infraestrutura de investigação, aprenda a plataforma e integre suas capacidades por API."
 icon: "house"
 ---
 
-Plataforma de inteligência investigativa que conecta dados de pessoas, empresas, patrimônio, processos judiciais e dezenas de outras fontes em uma API unificada.
+O Sherlocker é uma infraestrutura para investigação e tomada de decisão.
 
-## Tipos de entidade
+Ele reúne capacidades que normalmente ficam espalhadas entre consultas, mapas,
+planilhas, motores, relatórios e monitoramentos. O time pode trabalhar diretamente
+na plataforma ou a empresa pode integrar essas capacidades aos próprios sistemas
+por API.
 
-Os dados do Sherlocker são organizados em **3 categorias**. Cada categoria agrupa entidades do mesmo domínio:
+Esta documentação começa pelo motivo de o Sherlocker existir, ensina como usar o
+produto e, depois, aprofunda cada integração técnica.
 
-```mermaid
-graph LR
-    CAD["👤 Cadastral"]
-    PAT["🏠 Patrimonial"]
-    JUR["⚖️ Jurídico"]
+## 1. Comece pelos diferenciais
 
-    CAD --> PAT
-    CAD --> JUR
+Os dois artigos abaixo apresentam os valores que orientam o produto.
 
-    style CAD fill:#6C63FF33,stroke:#6C63FF,color:#ccc
-    style PAT fill:#4CAF5033,stroke:#4CAF50,color:#ccc
-    style JUR fill:#FF980033,stroke:#FF9800,color:#ccc
-```
+<CardGroup cols={2}>
+  <Card
+    title="Investigação como infraestrutura"
+    icon="layer-group"
+    href="/visao/investigacao-como-infraestrutura"
+  >
+    Por que uma nova pergunta não deveria criar outra pilha de software,
+    onboarding e cobrança.
+  </Card>
+  <Card
+    title="Integração do time"
+    icon="people-group"
+    href="/visao/integracao-do-time"
+  >
+    Como preservar o contexto e permitir que o time trabalhe no Sherlocker ou
+    nos sistemas da empresa via API.
+  </Card>
+</CardGroup>
 
-| Categoria | Entidades | Identificadores |
-|-----------|-----------|----------------|
-| **Cadastral** | Pessoa, Empresa, Telefone, Email, Endereço, Dívida, Benefício Social | CPF, CNPJ |
-| **Patrimonial** | Propriedade Urbana, Propriedade Rural, Veículo, Aeronave, Patente | CPF, CNPJ, Placa, NIRF |
-| **Jurídico** | Processo | CPF, CNPJ, Número CNJ |
+O Sherlocker é modular por design. Uma empresa pode começar com uma consulta
+pequena, automatizar uma política com o Motor e utilizar a plataforma apenas
+quando o caso exigir investigação. Cada capacidade pode participar sozinha ou
+compor uma jornada maior, conforme os acessos habilitados no workspace.
 
-## Entidades
+## 2. Aprenda o produto por uma jornada
 
-Cada entidade representa um tipo de registro com sua própria estrutura. Clique para ver a tipagem completa:
-
-### Cadastrais
+Estes tutoriais explicam o trabalho como ele acontece na plataforma. Quando o
+mesmo recurso possui API, o tutorial aponta para a referência correspondente.
 
 <CardGroup cols={3}>
-  <Card title="Pessoa" icon="user" href="/entidades/pessoa">
-    Identidade, contatos, familia
+  <Card title="Mapa de investigação" icon="diagram-project" href="/guias/mapa-de-investigacao">
+    Organize entidades, vínculos, lugares e evidências para explicar uma rede.
   </Card>
-  <Card title="Empresa" icon="building" href="/entidades/empresa">
-    Cadastro, socios, funcionarios
+  <Card title="Dossiê" icon="file-lines" href="/guias/dossie">
+    Inicie uma investigação, acompanhe a cobertura e revise uma análise
+    consolidada.
   </Card>
-  <Card title="Telefone" icon="phone" href="/entidades/telefone">
-    DDD, operadora, estado
-  </Card>
-  <Card title="Email" icon="envelope" href="/entidades/email">
-    Domínio, corporativo
-  </Card>
-  <Card title="Endereço" icon="location-dot" href="/entidades/endereco">
-    Logradouro, cidade, CEP
-  </Card>
-  <Card title="Dívida" icon="file-invoice-dollar" href="/entidades/divida">
-    Dívida Ativa, FGTS
-  </Card>
-  <Card title="Benefício" icon="hand-holding-dollar" href="/entidades/beneficio">
-    Auxílio Brasil, BPC
+  <Card title="Monitoramento" icon="radar" href="/guias/monitoramento">
+    Transforme uma fotografia pontual em acompanhamento contínuo de mudanças.
   </Card>
 </CardGroup>
 
-### Patrimoniais
+## 3. Parta de um caso de uso
+
+Se você já sabe qual decisão precisa apoiar, comece por uma jornada aplicada.
 
 <CardGroup cols={3}>
-  <Card title="Propriedade Urbana" icon="house" href="/entidades/propriedade-urbana">
-    IPTU, área, valor venal
+  <Card title="Background check" icon="shield-check" href="/casos-de-uso/background-check">
+    Cruze dimensões relevantes antes de uma contratação ou relacionamento.
   </Card>
-  <Card title="Propriedade Rural" icon="tractor" href="/entidades/propriedade-rural">
-    SNCR, CAFIR, IBAMA
+  <Card title="Due diligence" icon="building-magnifying-glass" href="/casos-de-uso/due-diligence">
+    Avalie uma empresa e seus vínculos antes de fechar um negócio.
   </Card>
-  <Card title="Veículo" icon="car" href="/entidades/veiculo">
-    Placa, marca, modelo
+  <Card title="Levantamento patrimonial" icon="landmark" href="/casos-de-uso/levantamento-patrimonial">
+    Localize bens e relações patrimoniais para apoiar uma investigação.
   </Card>
-  <Card title="Aeronave" icon="plane" href="/entidades/aeronave">
-    Aviões e drones
+  <Card title="Localização de partes" icon="magnifying-glass-location" href="/casos-de-uso/localizacao-partes">
+    Encontre contatos e endereços associados a uma pessoa ou empresa.
   </Card>
-  <Card title="Propriedade Intelectual" icon="lightbulb" href="/entidades/patente">
-    Propriedade intelectual
+  <Card title="Enriquecimento de leads" icon="bullseye" href="/casos-de-uso/enriquecimento-leads">
+    Parta de poucos identificadores para compreender melhor um contato.
   </Card>
-</CardGroup>
-
-### Juridicas
-
-<CardGroup cols={2}>
-  <Card title="Processo" icon="gavel" href="/entidades/processo">
-    Número CNJ, tribunal, partes
-  </Card>
-  <Card title="Documento Público" icon="file-lines" href="/entidades/documento">
-    Diário Oficial, publicações
+  <Card title="Graus de conexão" icon="share-nodes" href="/casos-de-uso/graus-de-conexao">
+    Expanda relações e controle a profundidade de uma rede investigada.
   </Card>
 </CardGroup>
 
+## 4. Explore as capacidades e suas APIs
 
-## Perfis agregados
+Cada área aprofunda entidades, contratos, autenticação e exemplos de integração.
 
-Os **perfis** são endpoints que combinam múltiplas entidades de uma categoria em uma única chamada. Em vez de consultar veículos, imóveis e patentes separadamente, use o perfil patrimonial para obter tudo de uma vez:
-
-<CardGroup cols={2}>
-  <Card title="Perfil Cadastral" icon="users" href="/areas/contatos">
-    `GET /perfil/cadastral/cpf/{cpf}` — identidade + contatos + vinculos + dividas + beneficios + dominios
+<CardGroup cols={3}>
+  <Card title="Cadastro" icon="users" href="/areas/contatos">
+    Pessoas, empresas, contatos, endereços e vínculos cadastrais.
   </Card>
-  <Card title="Perfil Patrimonial" icon="landmark" href="/areas/patrimonio">
-    `GET /perfil/patrimonial/cpf/{cpf}` — todos os bens
+  <Card title="Patrimônio" icon="landmark" href="/areas/patrimonio">
+    Imóveis, veículos, aeronaves e propriedade intelectual.
   </Card>
-  <Card title="Perfil Juridico" icon="scale-balanced" href="/areas/juridico">
-    `GET /perfil/juridico/cpf/{cpf}` — processos + regularidade
+  <Card title="Jurídico" icon="scale-balanced" href="/areas/juridico">
+    Processos, partes, classes, documentos e sinais jurídicos.
   </Card>
-</CardGroup>
-
-Todos os perfis também aceitam CNPJ para consultas de empresas.
-
-## Como as entidades se conectam
-
-A **Pessoa** (CPF) e a **Empresa** (CNPJ) são as entidades centrais — todas as outras se vinculam a elas:
-
-```mermaid
-graph LR
-    P["👤 Pessoa"] --> E["🏢 Empresa"]
-    E --> P
-    P --> IU["🏠 Imovel"]
-    P --> V["🚗 Veiculo"]
-    P --> A["✈️ Aeronave"]
-    P --> PR["⚖️ Processo"]
-    P --> D["💳 Divida"]
-    P --> RD["🌐 Registro"]
-    E --> IU
-    E --> V
-    E --> PR
-    E --> D
-
-    style P fill:#6C63FF33,stroke:#6C63FF,color:#ccc
-    style E fill:#FF6B6B33,stroke:#FF6B6B,color:#ccc
-    style IU fill:#4CAF5033,stroke:#4CAF50,color:#ccc
-    style V fill:#4CAF5033,stroke:#4CAF50,color:#ccc
-    style A fill:#4CAF5033,stroke:#4CAF50,color:#ccc
-    style PR fill:#FF980033,stroke:#FF9800,color:#ccc
-    style D fill:#FF6B6B33,stroke:#FF6B6B,color:#ccc
-    style RD fill:#00BCD433,stroke:#00BCD4,color:#ccc
-```
-
-### Buscas reversas
-
-| Dado inicial | Resultado | Rota |
-|---|---|---|
-| Telefone | CPFs associados | `GET /pessoas/telefone/{telefone}` |
-| Email | CPFs associados | `GET /emails/email/{email}` |
-| Placa | Proprietário | `GET /veiculos/placa/{placa}` |
-| CPF do socio | Empresas | `GET /empresas/cpf/{cpf}` |
-
-## Casos de uso
-
-<CardGroup cols={2}>
-  <Card title="Background Check" icon="shield-check" href="/casos-de-uso/background-check">
-    Verificação de antecedentes cruzando 7 dimensões
+  <Card title="Motores de Análise" icon="gears" href="/motores/introducao">
+    Políticas automatizadas para CPF, CNPJ e operações de crédito.
   </Card>
-  <Card title="Enriquecimento de Leads" icon="bullseye-arrow" href="/casos-de-uso/enriquecimento-leads">
-    Telefone ou email para perfil completo
+  <Card title="APIs da Plataforma (preview)" icon="layer-group" href="/plataforma/introducao">
+    Contratos de Dossiê, Rastro, Board e Mapa e Lente em preparação para
+    workspaces habilitados.
   </Card>
-  <Card title="Due Diligence" icon="building-magnifying-glass" href="/casos-de-uso/due-diligence">
-    Investigação completa antes de fechar negócio
-  </Card>
-  <Card title="Levantamento Patrimonial" icon="landmark" href="/casos-de-uso/levantamento-patrimonial">
-    Localizar bens para penhora e execução judicial
-  </Card>
-  <Card title="Localização de Partes" icon="magnifying-glass-location" href="/casos-de-uso/localizacao-partes">
-    Encontrar endereço e telefone para citação judicial
-  </Card>
-  <Card title="Scoring de Renda" icon="chart-pyramid" href="/casos-de-uso/segmentacao-patrimonial">
-    Classificar contatos por faixa de renda
+  <Card title="Monitoramento" icon="radar" href="/monitoramento/introducao">
+    Configuração, ciclo de vida, mudanças e saúde do acompanhamento.
   </Card>
 </CardGroup>
 
-## Motor de Análise (beta)
-
-Além das consultas de dados, o Sherlocker oferece o **Motor de Análise**: uma API que roda uma análise de risco automatizada e completa de um CNPJ ou CPF — situação cadastral, sanções, processos, óbito, Serasa e mais — e devolve um veredito (`aprovado`, `alerta`, `reprovado` ou `incompleto`) com o resultado bloco a bloco. É uma API separada, com host e autenticação próprios.
-
-<CardGroup cols={2}>
-  <Card title="Motor de Análise" icon="gauge-high" href="/motor-analise/introducao">
-    O que é, como funciona e como pedir acesso ao beta
-  </Card>
-  <Card title="Quickstart do Motor" icon="rocket" href="/motor-analise/quickstart">
-    Da chave de API ao primeiro veredito em 3 passos
-  </Card>
-</CardGroup>
-
-## Começando
-
-### Base URL
-
-```
-https://221b-api.sherlocker.com.br/api/v1
-```
-
-Consulte [Autenticação](/authentication) para configurar seu token.
-
-### Importar no Postman
-
-<Steps>
-  <Step title="Importar no Postman">
-    Abra o Postman, clique **Import**, cole a URL abaixo:
-    ```
-    https://221b-api.sherlocker.com.br/api/v1/postman/collection.json
-    ```
-    Ou veja o guia completo em [Testando com Postman](/guias/postman).
-  </Step>
-  <Step title="Configurar token">
-    Collection Sherlocker API, aba Variables, preencha `token`.
-  </Step>
-</Steps>
-
-A collection está organizada em 4 pastas: Perfis Agregados, Cadastro, Patrimônio e Jurídico.
+<Tip>
+  Se sua primeira dúvida é técnica, comece por [Autenticação](/authentication),
+  [Integração da API](/guias/integracao-api) ou pela
+  [visão da Plataforma](/plataforma/introducao).
+</Tip>

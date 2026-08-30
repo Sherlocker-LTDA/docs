@@ -1,0 +1,183 @@
+---
+title: "Integração do time"
+description: "Como preservar o contexto da investigação e reduzir handoffs, consolidação manual e relatórios escritos do zero."
+icon: "people-group"
+---
+
+Uma investigação raramente termina com a pessoa que fez a primeira consulta.
+
+Um analista encontra dados cadastrais. Outro pesquisa processos. Um especialista
+aprofunda relações ou patrimônio. No final, alguém precisa reunir tudo, entender
+o que cada pessoa fez e transformar fragmentos em uma conclusão que possa ser
+revisada ou entregue.
+
+Quando o time trabalha em várias ferramentas, a última pessoa do fluxo não atua
+apenas como investigadora. Ela se torna a integradora manual de todo o caso.
+
+## O trabalho se perde nos intervalos
+
+O problema não é somente alternar entre sistemas. É o que acontece entre uma
+etapa e a próxima.
+
+<Frame>
+  <img
+    src="/images/visao/trabalho-fragmentado.svg"
+    alt="Sequência de trabalho fragmentado: coletar em vários sistemas, copiar resultados, reconciliar versões, redigir e entregar"
+  />
+</Frame>
+
+Cada passagem acrescenta trabalho que não aumenta a qualidade da investigação:
+copiar resultados, eliminar duplicidades, descobrir qual versão está correta,
+reconstruir a linha de raciocínio e explicar novamente o que foi consultado.
+
+Se o caso muda de responsável, parte desse esforço recomeça. Se surgem novas
+perguntas, o relatório precisa ser refeito. Se um terceiro recebe apenas o PDF,
+o contexto que levou à conclusão pode ficar separado da entrega.
+
+## Integrar o time é preservar o caso
+
+O Sherlocker organiza a investigação para que o resultado possa ser revisado
+sem reconstrução. O primeiro analista inicia o Dossiê. Quando a investigação é
+concluída, os especialistas autorizados localizam, abrem e leem o mesmo artefato,
+com alvo, foco, estado, cobertura e evidências disponíveis para a decisão.
+
+<Frame>
+  <img
+    src="/images/visao/time-integrado-no-dossie.svg"
+    alt="Fluxo de integração do time: um analista abre a investigação, o Dossiê consolida o resultado, especialistas revisam a mesma base e chegam à decisão"
+  />
+</Frame>
+
+Hoje, integração do time significa continuidade dentro do workspace: membros
+autorizados podem localizar, abrir e revisar dossiês produzidos por colegas. Não
+significa coedição do Dossiê em tempo real, comentários ou atribuição de
+responsáveis dentro do dossiê.
+
+Quando uma lacuna exige aprofundamento, o especialista pode iniciar uma
+investigação complementar nas capacidades habilitadas. Essa complementação não
+edita nem retorna automaticamente ao Dossiê original; a empresa ainda define
+como registrar a nova análise e incorporá-la à decisão.
+
+Essa distinção importa. O ganho não depende de transformar a investigação em um
+documento colaborativo genérico. Ele vem de manter evidências e contexto unidos
+ao caso que o time precisa compreender.
+
+## O time pode trabalhar no Sherlocker ou na própria plataforma
+
+Preservar o caso não exige que todas as pessoas trabalhem na mesma interface. A
+empresa pode escolher onde cada etapa acontece sem voltar a fragmentar dados,
+estados e resultados entre fornecedores diferentes.
+
+**Diretamente no Sherlocker.** É o caminho mais simples quando a investigação
+exige exploração e julgamento. Membros autorizados usam Dossiê, Board e Mapa,
+Rastro, Lente ou Monitoramento conforme as capacidades habilitadas e começam sem
+precisar desenvolver uma interface própria.
+
+**Dentro da plataforma da empresa.** Quando a jornada já existe em um ERP, CRM,
+portal ou sistema interno, a empresa pode integrar por API as capacidades
+publicadas para o seu workspace. Seu sistema inicia ações, consulta estados e
+recupera resultados; o usuário continua no fluxo que já conhece.
+
+**Em um modelo híbrido.** Regras objetivas podem rodar por API e os casos que
+exigem pesquisa podem seguir para uma pessoa no Sherlocker. Tecnologia escolhe o
+que integrar, a operação escolhe onde investigar e a governança define quem pode
+executar cada ação.
+
+<Warning>
+  Os contratos de API de Dossiê, Rastro, Board e Mapa e Lente documentados na
+  área de Plataforma estão em preview e rollout. Antes de implementar, confirme
+  com o time Sherlocker quais rotas e escopos estão publicados e habilitados para
+  o seu workspace.
+</Warning>
+
+O produto continua modular nos dois modos. Uma integração pode consumir uma
+consulta pequena, uma política do Motor ou um recurso completo da Plataforma sem
+obrigar a empresa a adotar todo o conjunto de uma vez.
+
+## Um caso, do começo à mesa
+
+Imagine uma análise de contraparte que precisa passar por Financeiro, Risco e
+Jurídico.
+
+1. O Financeiro abre a investigação com a empresa e o objetivo da análise.
+2. As capacidades contratadas organizam cadastro, relações e sinais disponíveis.
+3. Um membro autorizado revisa o resultado e identifica uma exceção jurídica.
+4. O Jurídico abre o mesmo dossiê, compreende o resultado e inicia uma
+   investigação complementar apenas para a lacuna relevante.
+5. O time registra essa complementação conforme seu processo, porque ela não
+   reescreve automaticamente o Dossiê original.
+6. A mesa recebe uma base comum de evidências e a análise complementar necessária.
+
+Sem essa continuidade, cada área recebe arquivos e começa reconstruindo o caso.
+Com ela, cada especialista começa a revisão sobre o mesmo resultado, sem refazer
+a investigação inicial.
+
+## Quanto tempo essa integração pode devolver
+
+O ganho deve ser calculado com os tempos da operação, separando duas medidas:
+
+- **tempo de toque:** minutos efetivamente trabalhados por pessoas;
+- **tempo de ciclo:** tempo decorrido entre abertura e entrega, incluindo espera
+  e processamento automático.
+
+<Warning>
+  O cenário abaixo é uma simulação com premissas editáveis. Não representa
+  benchmark, SLA ou resultado observado de um cliente do Sherlocker.
+</Warning>
+
+| Etapa | Processo fragmentado | Com Sherlocker |
+| --- | ---: | ---: |
+| Acessos e troca entre ferramentas | 40 min | — |
+| Consultas e extração | 90 min | execução automática separada do toque humano |
+| Cópia e normalização | 45 min | incluída no resultado, quando aplicável |
+| Abrir e configurar o caso | — | 10 min |
+| Revisão humana | 30 min | 45 min |
+| Tratamento de exceções | incluído no retrabalho | 15 min |
+| Preparação ou ajuste da entrega | 60 min | 15 min |
+| **Tempo de toque** | **265 min** | **85 min** |
+
+Neste exemplo:
+
+```text
+Tempo poupado por caso = 265 - 85 = 180 min
+Redução do tempo de toque = 180 / 265 = 68%
+Capacidade teórica = 265 / 85 = 3,1 vezes
+```
+
+Em 40 casos equivalentes, a simulação devolveria 120 horas por mês ao time. Uma
+execução automática de 30 minutos levaria o ciclo simplificado a 115 minutos,
+mas o toque humano continuaria em 85 minutos.
+
+Para medir o fluxo real, registre os mesmos tipos de caso antes e depois:
+
+```text
+Tempo atual = acessos + coleta + normalização + handoffs + redação + revisão + retrabalho
+
+Tempo com Sherlocker = configuração + revisão + exceções + ajuste da entrega
+
+Redução percentual = (tempo atual - tempo com Sherlocker) / tempo atual
+
+Aceleração da capacidade = tempo atual / tempo com Sherlocker
+```
+
+## O valor não é produzir um PDF mais rápido
+
+O relatório é a última manifestação do trabalho, não o trabalho inteiro.
+
+O diferencial está em permitir que pessoas e áreas revisem a mesma base sem
+refazer a coleta que sustenta a conclusão. Quando uma exceção exige uma nova
+investigação, essa complementação ainda precisa ser registrada e incorporada ao
+processo pela empresa.
+
+Para o diretor de tecnologia, isso significa menos ferramentas funcionando como
+ilhas. Para a operação, menos tempo gasto em handoffs e consolidação. Para quem
+decide, uma conclusão que ainda está conectada às evidências que a produziram.
+
+<Card
+  title="Entenda a infraestrutura por trás do fluxo"
+  icon="layer-group"
+  href="/visao/investigacao-como-infraestrutura"
+>
+  Veja por que o Sherlocker começa pela capacidade de investigar, não por uma
+  ferramenta isolada.
+</Card>
