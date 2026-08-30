@@ -1,0 +1,10 @@
+graph TD
+  PERGUNTA["Nova pergunta"] --> SOFTWARE["Outro software"]
+  SOFTWARE --> INTEGRACAO["Outra integração"]
+  INTEGRACAO --> ONBOARDING["Outro onboarding"]
+  ONBOARDING --> RELATORIO["Outro relatório"]
+
+  classDef start fill:#F0EFFF,stroke:#6C63FF,color:#1A1A2E
+  classDef burden fill:#FFF7E8,stroke:#D79A2B,color:#1A1A2E
+  class PERGUNTA start
+  class SOFTWARE,INTEGRACAO,ONBOARDING,RELATORIO burden

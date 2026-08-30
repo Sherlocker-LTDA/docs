@@ -64,7 +64,7 @@ Ela não entra quando a página é predominantemente configuração, preço, err
 | `motor-analise/introducao.mdx` | Triagem cadastral | `CompanyList → Scanner → CompanyList`, com uma empresa sendo analisada |
 | `credito/introducao.mdx` | Triagem de borderô | títulos e NFe entrando numa validação cruzada e chegando a um resultado |
 | `monitoramento/introducao.mdx` | Mudança detectada | `MixedEntityList + Timeline`, com o alerta aparecendo no evento e no item correspondente |
-| `plataforma/introducao.mdx` | Visão da Plataforma | quatro composições conectadas: Dossiê, Rastro, Board/Mapa e Lente |
+| `plataforma/introducao.mdx` | Visão da Plataforma | uma única moldura de Plataforma contendo Dossiê, Rastro, Board/Mapa e Lente, sem conexões cruzadas |
 | `plataforma/dossie.mdx` | Consolidação | grafo de pessoas e empresas convergindo para um `Document` estruturado |
 | `plataforma/rastro.mdx` | Presença digital | pessoa, `ChannelGrid` e `MaskedValue` de telefone, email, IP e identificadores |
 | `plataforma/board-mapa.mdx` | Investigação visual | nós de pessoa e empresa organizados num canvas que alterna entre rede e mapa |
@@ -187,8 +187,8 @@ Todas as páginas geradas para `GET`, `POST`, `PATCH` e `DELETE` devem continuar
 - os SVGs usam fundo transparente, sem grade e com enquadramento compacto para se integrar ao tema da documentação;
 - as cenas de fluxo nomeiam cada etapa e usam setas direcionais; as cenas de relação identificam os tipos de entidade;
 - os casos de uso dividem o desenho em entrada, análise e resultado com títulos curtos sobre cada parte;
-- os 21 grafos Mermaid foram substituídos por desenhos que explicam sequência, transformação ou vínculo;
-- 79 cenas foram renderizadas para 82 páginas elegíveis;
+- os 20 grafos Mermaid foram substituídos por desenhos que explicam sequência, transformação ou vínculo;
+- 78 cenas foram renderizadas para 82 páginas elegíveis;
 - as 37 páginas editoriais excluídas e as 91 páginas OpenAPI permanecem sem desenho.
 
 Para reconstruir todos os SVGs e reaplicar o catálogo:

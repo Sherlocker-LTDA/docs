@@ -5,7 +5,7 @@
     "default": "dark"
   },
   "name": "Sherlocker",
-  "description": "Plataforma de inteligência investigativa - Documentação da API",
+  "description": "Sherlocker - documentação do produto e das APIs",
   "colors": {
     "primary": "#6C63FF",
     "light": "#F0EFFF",
@@ -34,9 +34,36 @@
         "icon": "book",
         "groups": [
           {
-            "group": "Início",
+            "group": "Conheça o Sherlocker",
             "pages": [
               "introduction",
+              "visao/investigacao-como-infraestrutura",
+              "visao/integracao-do-time"
+            ]
+          },
+          {
+            "group": "Tutoriais do produto",
+            "pages": [
+              "guias/mapa-de-investigacao",
+              "guias/dossie",
+              "guias/monitoramento"
+            ]
+          },
+          {
+            "group": "Casos de uso",
+            "pages": [
+              "casos-de-uso/background-check",
+              "casos-de-uso/enriquecimento-leads",
+              "casos-de-uso/segmentacao-patrimonial",
+              "casos-de-uso/due-diligence",
+              "casos-de-uso/levantamento-patrimonial",
+              "casos-de-uso/localizacao-partes",
+              "casos-de-uso/graus-de-conexao"
+            ]
+          },
+          {
+            "group": "Integração e dados",
+            "pages": [
               "custos",
               "authentication",
               "guias/integracao-api",
@@ -47,23 +74,11 @@
             ]
           },
           {
-            "group": "Perfis",
+            "group": "Áreas da API",
             "pages": [
               "areas/contatos",
               "areas/patrimonio",
               "areas/juridico"
-            ]
-          },
-          {
-            "group": "Casos de Uso",
-            "pages": [
-              "casos-de-uso/background-check",
-              "casos-de-uso/enriquecimento-leads",
-              "casos-de-uso/segmentacao-patrimonial",
-              "casos-de-uso/due-diligence",
-              "casos-de-uso/levantamento-patrimonial",
-              "casos-de-uso/localizacao-partes",
-              "casos-de-uso/graus-de-conexao"
             ]
           }
         ]
@@ -426,9 +441,7 @@
           {
             "group": "Começando",
             "pages": [
-              "plataforma/introducao",
-              "plataforma/quickstart",
-              "plataforma/autenticacao"
+              "plataforma/introducao"
             ]
           },
           {
