@@ -402,13 +402,6 @@
             ]
           },
           {
-            "group": "Acesso e suporte",
-            "pages": [
-              "api/access",
-              "support"
-            ]
-          },
-          {
             "group": "Erros",
             "pages": [
               "plataforma/erros",
@@ -497,13 +490,6 @@
               "GET /lente/analyses/{analysis_id}",
               "POST /lente/analyses/{analysis_id}/submit",
               "POST /lente/analyses/{analysis_id}/cancel"
-            ]
-          },
-          {
-            "group": "Acesso e suporte",
-            "pages": [
-              "api/access",
-              "support"
             ]
           },
           {
