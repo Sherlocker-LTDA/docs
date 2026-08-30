@@ -193,13 +193,13 @@ function platformScene() {
 
 function investigationInfrastructureFoundationScene() {
   const stages = [
-    [92, "01", "checklist", "VALIDAR", "CADASTRO", "REGRAS DO FIDC"],
-    [282, "02", "map", "APROFUNDAR", "EXCEÇÃO", "OC E MAPA"],
-    [472, "03", "banknote", "VERIFICAR", "OPERAÇÃO", "CEDENTE · SACADOS · TÍTULOS"],
-    [662, "04", "refresh", "ACOMPANHAR", "MUDANÇAS", "ALERTAS CONTÍNUOS"],
+    [92, "checklist", "CADASTRO", "Motor"],
+    [282, "map", "ANÁLISE", "OC + Mapa"],
+    [472, "banknote", "OPERAÇÃO", "Borderô"],
+    [662, "refresh", "ALERTA", "Monitoramento"],
   ];
 
-  return `<style>.vision-journey .journey-number{font-size:13px;letter-spacing:.12em;text-anchor:middle}.vision-journey .journey-title{font-size:18px;text-anchor:middle}.vision-journey .journey-detail{font-size:12px;letter-spacing:.06em;text-anchor:middle}.vision-journey .journey-footer{font-size:18px}</style><g class="vision-journey"><text class="sk-label" x="46" y="38">DO CADASTRO AO MONITORAMENTO</text><text class="sk-small-label" x="46" y="62">UMA ÚNICA JORNADA DE RISCO PARA O FIDC</text><path class="sk-hair" d="M46 80H714" />${arrows("M122 148H252", "M312 148H442", "M502 148H632")}${stages.map(([x, number, iconName, title, secondLine, detail]) => `<g transform="translate(${x} 148)"><text class="sk-small-label journey-number" x="0" y="-58">${number}</text>${icon(iconName, -17, -43, 34)}<circle class="sk-hot" cx="0" cy="0" r="3.5" /><text class="sk-label journey-title" x="0" y="48">${title}</text><text class="sk-label journey-title" x="0" y="72">${secondLine}</text><text class="sk-small-label journey-detail" x="0" y="102">${detail}</text></g>`).join("")}${connectionDot("M122 148H632", "6s")}<path class="sk-hair" d="M46 282H714" /><text class="sk-label journey-footer" x="46" y="326">UMA ESTEIRA · UMA BASE · UM CONTEXTO · MENOS APLICATIVOS</text></g>`;
+  return `<style>.vision-journey text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.vision-journey .journey-heading{font-size:17px;font-weight:600;letter-spacing:.04em}.vision-journey .journey-title{font-size:18px;font-weight:600;letter-spacing:.04em;text-anchor:middle}.vision-journey .journey-product{font-size:13px;font-weight:400;letter-spacing:0;text-anchor:middle}</style><g class="vision-journey"><text class="sk-label journey-heading" x="46" y="62">UMA ESTEIRA CONTÍNUA</text><path class="sk-hair" d="M46 86H714" />${arrows("M126 172H248", "M316 172H438", "M506 172H628")}${stages.map(([x, iconName, title, product]) => `<g transform="translate(${x} 172)">${icon(iconName, -20, -62, 40)}<circle class="sk-hot" cx="0" cy="0" r="4" /><text class="sk-label journey-title" x="0" y="54">${title}</text><text class="sk-small-label journey-product" x="0" y="82">${product}</text></g>`).join("")}${connectionDot("M126 172H628", "6s")}</g>`;
 }
 
 function teamFragmentedPainScene() {
