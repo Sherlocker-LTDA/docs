@@ -162,28 +162,31 @@ function socialTile(name, x, y) {
   return `<g class="sk-social" transform="translate(${x} ${y})"><rect class="sk-plane" width="58" height="58" rx="10" />${icon(name, 17, 17, 24)}</g>`;
 }
 
-function grid(id) {
+function grid() {
   return `<defs>
-    <pattern id="${id}" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" class="sk-grid" /></pattern>
     <filter id="soft-glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-  </defs><rect width="760" height="430" fill="url(#${id})" />`;
+    <marker id="sk-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8z" fill="#f0a121" fill-opacity=".72" /></marker>
+  </defs>`;
 }
 
 const sharedStyles = `
   :host{display:block;color:${ORANGE}}
-  svg{display:block;width:100%;height:auto;aspect-ratio:16/9;background:transparent;overflow:hidden}
-  .sk-grid{fill:none;stroke:${ORANGE};stroke-width:1;stroke-opacity:.07}
+  svg{display:block;width:100%;height:auto;aspect-ratio:2/1;background:transparent;overflow:hidden}
   .sk-line,.sk-icon,.sk-flow,.sk-hair,.sk-ghost{fill:none;stroke:${ORANGE};stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
   .sk-line,.sk-icon{stroke-width:1.55}
   .sk-hair{stroke-width:.85;stroke-opacity:.3}
   .sk-ghost{stroke-width:1;stroke-opacity:.28;stroke-dasharray:5 7}
   .sk-flow{stroke-width:1.1;stroke-opacity:.42;stroke-dasharray:7 8;animation:flow 2.2s linear infinite}
+  .sk-arrow{fill:none;stroke:${ORANGE};stroke-width:1.15;stroke-opacity:.7;marker-end:url(#sk-arrow);vector-effect:non-scaling-stroke}
   .sk-plane,.sk-row-bg,.sk-icon-box{fill:rgba(240,161,33,.024);stroke:${ORANGE};stroke-width:1.15;stroke-opacity:.68;vector-effect:non-scaling-stroke}
   .sk-row-bg{fill:rgba(240,161,33,.018);stroke-opacity:.24}
   .sk-icon-box{stroke-opacity:.34}
   .sk-hot{fill:${ORANGE};filter:url(#soft-glow)}
   .sk-label{fill:${ORANGE};font:500 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.08em}
   .sk-small-label{fill:${ORANGE};fill-opacity:.58;font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.13em}
+  .sk-node-label{fill:${ORANGE};fill-opacity:.74;font:500 11px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.04em}
+  .sk-flow-label{fill:${ORANGE};fill-opacity:.9;font:500 17px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.01em}
+  .sk-flow-caption{fill:${ORANGE};fill-opacity:.62;font:500 13px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.07em}
   .is-muted{opacity:.45}
   .sk-corner{fill:none;stroke:${ORANGE};stroke-width:1;stroke-opacity:.35}
   .sk-node-ring,.sk-timeline-dot{fill:rgba(240,161,33,.018);stroke:${ORANGE};stroke-width:1.4;vector-effect:non-scaling-stroke}
@@ -304,9 +307,9 @@ const SCENES = {
   rastro: { title: "Rastro", description: "Uma pessoa é associada às suas redes e a identificadores mascarados.", render: rastroScene },
 };
 
-function renderSceneSvg(name, { width = 760, height = 430 } = {}) {
+function renderSceneSvg(name, { width = 760, height = 380 } = {}) {
   const scene = SCENES[name] || SCENES.monitoramento;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 760 430" role="img" aria-labelledby="title description"><title id="title">${escapeXml(scene.title)}</title><desc id="description">${escapeXml(scene.description)}</desc><style>${sharedStyles}</style>${scene.render()}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 760 380" role="img" aria-labelledby="title description"><title id="title">${escapeXml(scene.title)}</title><desc id="description">${escapeXml(scene.description)}</desc><style>${sharedStyles}</style><g transform="translate(-15.2 -25) scale(1.04 1)">${scene.render()}</g></svg>`;
 }
 
 const HTMLElementBase = typeof HTMLElement === "undefined" ? class {} : HTMLElement;

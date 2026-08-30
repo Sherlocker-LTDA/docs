@@ -184,8 +184,11 @@ Todas as páginas geradas para `GET`, `POST`, `PATCH` e `DELETE` devem continuar
 - `sketch-system.mjs` concentra os componentes-base, estilos, animações e exportação SVG;
 - `scene-catalog.mjs` compõe as cenas e mantém o vínculo entre página e desenho;
 - `scripts/render-sketches.mjs` gera os arquivos em `images/sketches` e os inclui nas páginas;
-- os SVGs usam fundo transparente para se integrar ao tema da documentação sem moldura;
-- 73 cenas foram renderizadas para 82 páginas elegíveis;
+- os SVGs usam fundo transparente, sem grade e com enquadramento compacto para se integrar ao tema da documentação;
+- as cenas de fluxo nomeiam cada etapa e usam setas direcionais; as cenas de relação identificam os tipos de entidade;
+- os casos de uso dividem o desenho em entrada, análise e resultado com títulos curtos sobre cada parte;
+- os 21 grafos Mermaid foram substituídos por desenhos que explicam sequência, transformação ou vínculo;
+- 79 cenas foram renderizadas para 82 páginas elegíveis;
 - as 37 páginas editoriais excluídas e as 91 páginas OpenAPI permanecem sem desenho.
 
 Para reconstruir todos os SVGs e reaplicar o catálogo:

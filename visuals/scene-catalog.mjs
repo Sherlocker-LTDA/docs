@@ -33,18 +33,60 @@ Object.assign(ICONS, {
   wallet: [["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2" }], ["path", { d: "M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2M3 11h3c.8 0 1.6.3 2.1.9l1.1.9c1.6 1.6 4.1 1.6 5.7 0l1.1-.9c.5-.5 1.3-.9 2.1-.9H21" }]],
   receipt: [["path", { d: "M13 16H8M14 8H8M16 12H8M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6A1.3 1.3 0 0 1 4 21z" }]],
   briefcase: [["path", { d: "M12 12h.01M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2M22 13a18.15 18.15 0 0 1-20 0" }], ["rect", { width: "20", height: "14", x: "2", y: "6", rx: "2" }]],
-  "scan-face": [["path", { d: "M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" }]],
+  "scan-face": [["path", { d: "M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M8 14s1.5 2 4 2 4-2M9 9h.01M15 9h.01" }]],
+  pause: [["path", { d: "M8 5v14M16 5v14" }]],
 });
 
 const stage = (iconName, x, y, width = 126, height = 76, className = "") => `<g class="sk-stage ${className}" transform="translate(${x} ${y})">${panel(0, 0, width, height, 10)}${icon(iconName, 16, 22, 30)}<path class="sk-line" d="M62 28h${width - 82}M62 46h${Math.max(28, width - 108)}" /></g>`;
+const labeledStage = (iconName, label, x, y, width = 270, height = 78) => `<g class="sk-stage" transform="translate(${x} ${y})">${panel(0, 0, width, height, 10)}${icon(iconName, 18, 24, 30)}<text class="sk-label" x="66" y="47">${label}</text></g>`;
+const flowStep = (iconName, label, x, y, width = 154, height = 96) => `<g class="sk-flow-step" transform="translate(${x} ${y})">${panel(0, 0, width, height, 11)}${icon(iconName, width / 2 - 17, 14, 34)}<text class="sk-flow-label" x="${width / 2}" y="78">${label}</text></g>`;
+const arrows = (...paths) => paths.map((path) => `<path class="sk-arrow" d="${path}" />`).join("");
+const sectionLabel = (label, x, y = 38, anchor = "start") => `<text class="sk-small-label" x="${x}" y="${y}" text-anchor="${anchor}">${label}</text>`;
 const compactResult = (x, y, iconName = "shield") => `<g class="sk-result" transform="translate(${x} ${y})">${panel(0, 0, 132, 112, 12)}${icon(iconName, 42, 18, 48)}<path class="sk-line" d="M24 84h84" /></g>`;
 const connectionDot = (path, duration = "4.8s", begin = "0s") => `<circle class="sk-hot" r="3"><animateMotion dur="${duration}" begin="${begin}" repeatCount="indefinite" path="${path}" /></circle>`;
 const assetNode = (iconName, x, y) => `<g transform="translate(${x} ${y})"><circle class="sk-node-ring" r="29" />${icon(iconName, -12, -12, 24)}</g>`;
 const scanner = (x, y, width = 116, height = 236) => `<g class="sk-scanner" transform="translate(${x} ${y})">${panel(0, 0, width, height, 13)}<path class="sk-line" d="M17 44V17h27M${width - 17} 44V17h-27M17 ${height - 44}v27h27M${width - 17} ${height - 44}v27h-27" /><path class="sk-hair" d="M${width / 2} 17v${height - 34}M17 ${height / 2}h${width - 34}" /><rect class="catalog-scan" x="18" y="46" width="${width - 36}" height="14" /></g>`;
 const sharedSceneAnimation = `<style>.catalog-scan{fill:#f0a121;opacity:.05;animation:catalog-scan 5.8s ease-in-out infinite}.catalog-focus{animation:catalog-focus 5.8s ease-in-out infinite}.catalog-arrive{opacity:.25;animation:catalog-arrive 5.8s ease-in-out infinite}@keyframes catalog-scan{0%,24%,76%,100%{transform:translateY(0);opacity:.04}42%{opacity:.28}66%{transform:translateY(126px);opacity:.14}}@keyframes catalog-focus{0%,25%,100%{opacity:.28}42%,78%{opacity:1}}@keyframes catalog-arrive{0%,60%,100%{opacity:.25}76%,90%{opacity:1}}</style>`;
 
+function linearFlowScene(steps, caption = "") {
+  const positions = [[58, 54], [502, 54], [502, 250], [58, 250]];
+  return `${grid()}${steps.map(([iconName, label], index) => flowStep(iconName, label, ...positions[index], 200, 96)).join("")}${arrows("M258 102H492", "M602 150V240", "M502 298H268")}${caption ? `<text class="sk-flow-caption" x="380" y="214">${caption}</text>` : ""}${connectionDot("M258 102H492", "5.4s")}`;
+}
+
+function analysisRequestFlowScene() {
+  return linearFlowScene([["send", "Enviar análise"], ["refresh", "Processar"], ["search", "Consultar status"], ["shield", "Veredito"]], "CONSULTAR NOVAMENTE ENQUANTO PENDENTE");
+}
+
+function creditRequestFlowScene() {
+  return linearFlowScene([["receipt", "Enviar borderô"], ["checklist", "Validar títulos"], ["refresh", "Consultar operação"], ["file", "Baixar resultado"]], "O RESULTADO FICA DISPONÍVEL APÓS A CONCLUSÃO");
+}
+
+function motorsOrchestrationFlowScene() {
+  return linearFlowScene([["send", "Seu sistema"], ["receipt", "Motor Borderô"], ["users", "Motor CPF/CNPJ"], ["shield", "Resultado único"]], "CADA ENTIDADE ÚNICA PASSA PELA TRIAGEM");
+}
+
+function connectionLookupFlowScene() {
+  return linearFlowScene([["company", "Consultar empresa"], ["users", "Extrair sócios"], ["search", "Buscar vínculos"], ["network", "Próximo grau"]], "O RESULTADO ALIMENTA A PRÓXIMA CONSULTA");
+}
+
+function candidateNetworkScene() {
+  return `${grid()}${flowStep("user", "Candidato", 42, 142, 154, 96)}${flowStep("users", "Parentes", 300, 54, 154, 96)}${flowStep("company", "Empresas", 300, 238, 154, 96)}${flowStep("briefcase", "Sócios", 558, 238, 154, 96)}${arrows("M196 190C242 190 250 102 290 102", "M196 190C242 190 250 286 290 286", "M454 286H548")}${connectionDot("M196 190C242 190 250 286 290 286", "4.8s")}`;
+}
+
+function entityEcosystemScene() {
+  return `${grid()}${flowStep("user", "Pessoa", 40, 142, 140, 96)}${flowStep("company", "Empresa", 220, 142, 140, 96)}${flowStep("wallet", "Patrimônio", 400, 48, 140, 96)}${flowStep("gavel", "Processos", 400, 236, 140, 96)}${flowStep("network", "Registros", 580, 142, 140, 96)}${arrows("M180 190H210", "M360 190C386 190 378 96 390 96", "M360 190C386 190 378 284 390 284", "M360 190H570")}${connectionDot("M360 190C386 190 378 96 390 96", "5s")}`;
+}
+
+function jobLifecycleFlowScene() {
+  return `${grid()}${flowStep("send", "Aguardando", 54, 84, 156, 96)}${flowStep("refresh", "Executando", 302, 84, 156, 96)}${flowStep("check", "Concluído", 550, 84, 156, 96)}${flowStep("alert", "Falhou", 302, 250, 156, 96)}${arrows("M210 132H292", "M458 132H540", "M380 180V240", "M132 180C132 226 246 298 292 298")}${connectionDot("M210 132H292", "5s")}`;
+}
+
+function monitorLifecycleFlowScene() {
+  return `${grid()}${flowStep("play", "Ativo", 82, 84, 170, 96)}${flowStep("pause", "Pausado", 508, 84, 170, 96)}${flowStep("alert", "Encerrado", 295, 250, 170, 96)}${arrows("M252 116C342 62 418 62 498 116", "M508 148C418 202 342 202 262 148", "M167 180C167 228 248 298 285 298", "M593 180C593 228 512 298 475 298")}${connectionDot("M252 116C342 62 418 62 498 116", "5s")}`;
+}
+
 function ecosystemScene() {
-  return `${grid("ecosystem-grid")}<path class="sk-ghost" d="M96 108l108 72 92-94M96 108l-8 190 116-118 75 133M204 180l92-94M204 180l75 133" />${entityNode({ x: 96, y: 108, kind: "user" })}${entityNode({ x: 204, y: 180, kind: "company", active: true })}${entityNode({ x: 88, y: 298, kind: "user" })}${entityNode({ x: 296, y: 86, kind: "company" })}${entityNode({ x: 279, y: 313, kind: "user" })}<path class="sk-flow" d="M236 180C330 180 340 93 414 93M236 180C342 180 345 215 414 215M236 180C340 180 340 337 414 337" />${stage("contact", 414, 54, 270, 78)}${stage("wallet", 414, 176, 270, 78)}${stage("gavel", 414, 298, 270, 78)}${connectionDot("M236 180C330 180 340 93 414 93")}${connectionDot("M236 180C342 180 345 215 414 215", "4.8s", "1.6s")}${connectionDot("M236 180C340 180 340 337 414 337", "4.8s", "3.2s")}`;
+  return `${grid("ecosystem-grid")}<path class="sk-ghost" d="M96 108l108 72 92-94M96 108l-8 190 116-118 75 133M204 180l92-94M204 180l75 133" />${entityNode({ x: 96, y: 108, kind: "user" })}${entityNode({ x: 204, y: 180, kind: "company", active: true })}${entityNode({ x: 88, y: 298, kind: "user" })}${entityNode({ x: 296, y: 86, kind: "company" })}${entityNode({ x: 279, y: 313, kind: "user" })}<path class="sk-flow" d="M236 180C330 180 340 93 414 93M236 180C342 180 345 215 414 215M236 180C340 180 340 337 414 337" />${labeledStage("contact", "Cadastral", 414, 54)}${labeledStage("wallet", "Patrimonial", 414, 176)}${labeledStage("gavel", "Jurídico", 414, 298)}${connectionDot("M236 180C330 180 340 93 414 93")}${connectionDot("M236 180C342 180 345 215 414 215", "4.8s", "1.6s")}${connectionDot("M236 180C340 180 340 337 414 337", "4.8s", "3.2s")}`;
 }
 
 function profileScene(kind) {
@@ -64,31 +106,31 @@ function certificateScene() {
 
 function stagedDecisionScene(input = "user", steps = ["id", "gavel", "banknote"], output = "shield") {
   const points = [142, 286, 430];
-  return `${grid(`decision-${input}-${steps.join("-")}`)}${entityNode({ x: 62, y: 215, kind: input, active: true })}<path class="sk-flow" d="M94 215h48M260 215h26M404 215h26M548 215h30" />${steps.map((name, index) => stage(name, points[index], 177, 118, 76, index === 1 ? "catalog-focus" : "")).join("")}${compactResult(578, 159, output)}${connectionDot("M94 215h48")}${sharedSceneAnimation}`;
+  return `${grid(`decision-${input}-${steps.join("-")}`)}${sectionLabel("PESSOA ANALISADA", 28, 118)}${sectionLabel("IDENTIDADE · JURÍDICO · FINANCEIRO", 345, 118, "middle")}${sectionLabel("RESULTADO", 590, 118)}${entityNode({ x: 62, y: 215, kind: input, active: true })}<path class="sk-flow" d="M94 215h48M260 215h26M404 215h26M548 215h30" />${steps.map((name, index) => stage(name, points[index], 177, 118, 76, index === 1 ? "catalog-focus" : "")).join("")}${compactResult(578, 159, output)}${connectionDot("M94 215h48")}${sharedSceneAnimation}`;
 }
 
 function leadEnrichmentScene() {
-  return `${grid("lead-grid")}${stage("phone", 42, 52, 146, 78)}${stage("mail", 42, 176, 146, 78)}${stage("id", 42, 300, 146, 78)}<path class="sk-flow" d="M188 91C292 91 286 215 388 215M188 215h200M188 339C292 339 286 215 388 215" />${connectionDot("M188 339C292 339 286 215 388 215")}${panel(388, 76, 308, 278, 14)}${entityNode({ x: 466, y: 154, kind: "user", active: true })}<path class="sk-line" d="M528 135h128M528 154h92M424 235h228M424 265h164M424 295h194" />${icon("network", 610, 292, 36)}`;
+  return `${grid("lead-grid")}${sectionLabel("IDENTIFICADOR INICIAL", 42, 36)}${sectionLabel("PERFIL ENRIQUECIDO", 388, 60)}${stage("phone", 42, 52, 146, 78)}${stage("mail", 42, 176, 146, 78)}${stage("id", 42, 300, 146, 78)}<path class="sk-flow" d="M188 91C292 91 286 215 388 215M188 215h200M188 339C292 339 286 215 388 215" />${connectionDot("M188 339C292 339 286 215 388 215")}${panel(388, 76, 308, 278, 14)}${entityNode({ x: 466, y: 154, kind: "user", active: true })}<path class="sk-line" d="M528 135h128M528 154h92M424 235h228M424 265h164M424 295h194" />${icon("network", 610, 292, 36)}`;
 }
 
 function segmentationScene() {
-  return `${grid("segment-grid")}${entityList({ x: 38, y: 70, width: 270, entities: [{ kind: "user", line: 112, detail: 65 }, { kind: "user", line: 95, detail: 72 }, { kind: "user", line: 124, detail: 80 }, { kind: "user", line: 104, detail: 68 }] })}<path class="sk-flow" d="M308 212h54M480 212h42" />${scanner(362, 94, 118, 236)}<g transform="translate(522 72)">${panel(0, 0, 198, 286, 13)}${[0, 1, 2].map((i) => `<g transform="translate(20 ${34 + i * 82})"><rect class="sk-row-bg" width="158" height="62" rx="8" />${icon(i === 0 ? "chart" : "user", 13, 19, 24)}<path class="sk-line" d="M52 23h${88 - i * 16}M52 40h${48 + i * 14}" />${icon("check", 132, 19, 24)}</g>`).join("")}</g>${sharedSceneAnimation}`;
+  return `${grid("segment-grid")}<text class="sk-small-label" x="38" y="52">LISTA DE CPFS</text><text class="sk-small-label" x="362" y="76">CRUZAR PATRIMÔNIO</text><text class="sk-small-label" x="522" y="54">SEGMENTOS PRIORIZADOS</text>${entityList({ x: 38, y: 70, width: 270, entities: [{ kind: "user", line: 112, detail: 65 }, { kind: "user", line: 95, detail: 72 }, { kind: "user", line: 124, detail: 80 }, { kind: "user", line: 104, detail: 68 }] })}${arrows("M308 212h44", "M480 212h32")}${scanner(362, 94, 118, 236)}<g transform="translate(522 72)">${panel(0, 0, 198, 286, 13)}${[0, 1, 2].map((i) => `<g transform="translate(20 ${34 + i * 82})"><rect class="sk-row-bg" width="158" height="62" rx="8" />${icon(i === 0 ? "chart" : "user", 13, 19, 24)}<path class="sk-line" d="M52 23h${88 - i * 16}M52 40h${48 + i * 14}" />${icon("check", 132, 19, 24)}</g>`).join("")}</g>${sharedSceneAnimation}`;
 }
 
 function dueDiligenceScene() {
-  return `${grid("due-grid")}<path class="sk-ghost" d="M88 88l104 90 104-90M88 318l104-140 104 140" />${entityNode({ x: 88, y: 88, kind: "user" })}${entityNode({ x: 192, y: 178, kind: "company", active: true })}${entityNode({ x: 296, y: 88, kind: "user" })}${entityNode({ x: 88, y: 318, kind: "company" })}${entityNode({ x: 296, y: 318, kind: "user" })}<path class="sk-flow" d="M224 178h78M428 92C470 92 466 153 508 153M428 215h80M428 338C470 338 466 277 508 277" />${stage("gavel", 302, 54, 126, 76)}${stage("banknote", 302, 177, 126, 76)}${stage("landmark", 302, 300, 126, 76)}${documentCard(508, 43, 204, 344)}${connectionDot("M224 178h78")}`;
+  return `${grid("due-grid")}${sectionLabel("GRUPO ECONÔMICO", 48, 48)}${sectionLabel("ANÁLISES DE RISCO", 302, 48)}${sectionLabel("RELATÓRIO CONSOLIDADO", 508, 48)}<path class="sk-ghost" d="M88 88l104 90 104-90M88 318l104-140 104 140" />${entityNode({ x: 88, y: 88, kind: "user" })}${entityNode({ x: 192, y: 178, kind: "company", active: true })}${entityNode({ x: 296, y: 88, kind: "user" })}${entityNode({ x: 88, y: 318, kind: "company" })}${entityNode({ x: 296, y: 318, kind: "user" })}<path class="sk-flow" d="M224 178h78M428 92C470 92 466 153 508 153M428 215h80M428 338C470 338 466 277 508 277" />${stage("gavel", 302, 54, 126, 76)}${stage("banknote", 302, 177, 126, 76)}${stage("landmark", 302, 300, 126, 76)}${documentCard(508, 52, 204, 344)}${connectionDot("M224 178h78")}`;
 }
 
 function assetInvestigationScene() {
-  return `${grid("asset-investigation-grid")}<path class="sk-ghost" d="M64 110l112 92 112-92M64 320l112-118 112 118" />${entityNode({ x: 64, y: 110, kind: "user" })}${entityNode({ x: 176, y: 202, kind: "company", active: true })}${entityNode({ x: 288, y: 110, kind: "user" })}${entityNode({ x: 64, y: 320, kind: "user" })}${entityNode({ x: 288, y: 320, kind: "company" })}<path class="sk-flow" d="M208 202C326 202 326 88 410 88M208 202h202M208 202C326 202 326 316 410 316M468 88C500 88 504 138 528 138M468 202h60M468 316C500 316 504 276 528 276" />${assetNode("house", 439, 88)}${assetNode("car", 439, 202)}${assetNode("tractor", 439, 316)}${documentCard(528, 43, 184, 344)}${connectionDot("M208 202h202")}`;
+  return `${grid("asset-investigation-grid")}${sectionLabel("REDE DE RELAÇÕES", 42, 48)}${sectionLabel("ATIVOS ENCONTRADOS", 382, 48)}${sectionLabel("RELATÓRIO PATRIMONIAL", 528, 48)}<path class="sk-ghost" d="M64 110l112 92 112-92M64 320l112-118 112 118" />${entityNode({ x: 64, y: 110, kind: "user" })}${entityNode({ x: 176, y: 202, kind: "company", active: true })}${entityNode({ x: 288, y: 110, kind: "user" })}${entityNode({ x: 64, y: 320, kind: "user" })}${entityNode({ x: 288, y: 320, kind: "company" })}<path class="sk-flow" d="M208 202C326 202 326 88 410 88M208 202h202M208 202C326 202 326 316 410 316M468 88C500 88 504 138 528 138M468 202h60M468 316C500 316 504 276 528 276" />${assetNode("house", 439, 88)}${assetNode("car", 439, 202)}${assetNode("tractor", 439, 316)}${documentCard(528, 52, 184, 344)}${connectionDot("M208 202h202")}`;
 }
 
 function locationScene() {
-  return `${grid("location-grid")}${entityNode({ x: 88, y: 215, kind: "user", active: true })}<path class="sk-ghost" d="M120 215C210 215 214 92 314 92M120 215h194M120 215C210 215 214 338 314 338M372 92C438 92 438 135 494 135M372 215h122M372 338C438 338 438 295 494 295" />${assetNode("phone", 343, 92)}${assetNode("company", 343, 215)}${assetNode("mail", 343, 338)}<g transform="translate(494 62)">${panel(0, 0, 218, 306, 14)}<path class="sk-hair" d="M0 76h218M0 152h218M0 228h218M55 0v306M109 0v306M164 0v306M0 258l218-176" />${icon("location", 83, 116, 54)}<circle class="sk-hot" cx="110" cy="142" r="5" /></g>${connectionDot("M120 215C210 215 214 92 314 92")}`;
+  return `${grid("location-grid")}${sectionLabel("PESSOA CONSULTADA", 42, 60)}${sectionLabel("PISTAS CADASTRAIS", 286, 48)}${sectionLabel("LOCALIZAÇÃO PROVÁVEL", 494, 48)}${entityNode({ x: 88, y: 215, kind: "user", active: true })}<path class="sk-ghost" d="M120 215C210 215 214 92 314 92M120 215h194M120 215C210 215 214 338 314 338M372 92C438 92 438 135 494 135M372 215h122M372 338C438 338 438 295 494 295" />${assetNode("phone", 343, 92)}${assetNode("company", 343, 215)}${assetNode("mail", 343, 338)}<g transform="translate(494 62)">${panel(0, 0, 218, 306, 14)}<path class="sk-hair" d="M0 76h218M0 152h218M0 228h218M55 0v306M109 0v306M164 0v306M0 258l218-176" />${icon("location", 83, 116, 54)}<circle class="sk-hot" cx="110" cy="142" r="5" /></g>${connectionDot("M120 215C210 215 214 92 314 92")}`;
 }
 
 function degreeScene() {
-  return `${grid("degree-grid")}<circle class="sk-ghost catalog-ring ring-1" cx="380" cy="215" r="82" /><circle class="sk-ghost catalog-ring ring-2" cx="380" cy="215" r="154" /><path class="sk-ghost" d="M380 215L380 84M380 215l128-72M380 215l132 92M380 215l-126 88M380 215L244 126M380 84l128 59M508 143l4 164M512 307l-258-4M254 303l-10-177M244 126l136-42" />${entityNode({ x: 380, y: 215, kind: "company", active: true })}${entityNode({ x: 380, y: 84, kind: "user" })}${entityNode({ x: 508, y: 143, kind: "company" })}${entityNode({ x: 512, y: 307, kind: "user" })}${entityNode({ x: 254, y: 303, kind: "company" })}${entityNode({ x: 244, y: 126, kind: "user" })}<style>.catalog-ring{transform-box:fill-box;transform-origin:center;animation:ring-grow 5.5s ease-in-out infinite}.ring-2{animation-delay:.8s}@keyframes ring-grow{0%,18%,100%{opacity:.12;transform:scale(.88)}42%,76%{opacity:.55;transform:scale(1)}}</style>`;
+  return `${grid("degree-grid")}<text class="sk-node-label" x="380" y="268">Alvo · grau 0</text><text class="sk-small-label" x="450" y="82">VÍNCULOS · GRAU 1</text><text class="sk-small-label" x="534" y="354">NOVAS RELAÇÕES · GRAU 2</text><circle class="sk-ghost catalog-ring ring-1" cx="380" cy="215" r="82" /><circle class="sk-ghost catalog-ring ring-2" cx="380" cy="215" r="154" /><path class="sk-ghost" d="M380 215L380 84M380 215l128-72M380 215l132 92M380 215l-126 88M380 215L244 126M380 84l128 59M508 143l4 164M512 307l-258-4M254 303l-10-177M244 126l136-42" />${entityNode({ x: 380, y: 215, kind: "company", active: true })}${entityNode({ x: 380, y: 84, kind: "user" })}${entityNode({ x: 508, y: 143, kind: "company" })}${entityNode({ x: 512, y: 307, kind: "user" })}${entityNode({ x: 254, y: 303, kind: "company" })}${entityNode({ x: 244, y: 126, kind: "user" })}<style>.catalog-ring{transform-box:fill-box;transform-origin:center;animation:ring-grow 5.5s ease-in-out infinite}.ring-2{animation-delay:.8s}@keyframes ring-grow{0%,18%,100%{opacity:.12;transform:scale(.88)}42%,76%{opacity:.55;transform:scale(1)}}</style>`;
 }
 
 function identityMatchScene() {
@@ -127,12 +169,16 @@ function typedDataScene() {
   return `${grid("typed-data-grid")}${entityNode({ x: 380, y: 215, kind: "company", active: true })}<path class="sk-ghost" d="M348 215C270 215 270 86 182 86M348 215C270 215 270 344 182 344M412 215C490 215 490 86 578 86M412 215C490 215 490 344 578 344" />${stage("id", 52, 47, 260, 78)}${stage("contact", 52, 305, 260, 78)}${stage("wallet", 448, 47, 260, 78)}${stage("gavel", 448, 305, 260, 78)}${connectionDot("M412 215C490 215 490 86 578 86")}`;
 }
 
-function entityReferenceScene(mainIcon, related = ["user", "company", "file", "network"]) {
+const iconLabels = { user: "Pessoa", company: "Empresa", file: "Documento", network: "Rede", phone: "Telefone", mail: "Email", location: "Endereço", banknote: "Financeiro", landmark: "Registro", receipt: "Registro", house: "Imóvel", tractor: "Rural", trees: "Rural", car: "Veículo", plane: "Aeronave", gavel: "Processo", scale: "Jurídico", route: "Timeline", globe: "Domínio", at: "Identificador", id: "Documento", wallet: "Patrimônio", refresh: "Atualização", check: "Resultado", checklist: "Análise", briefcase: "Vínculo", trophy: "Licitação", benefit: "Benefício", users: "Pessoas", search: "Consulta" };
+
+function entityReferenceScene(mainIcon, mainLabel, related = ["user", "company", "file", "network"]) {
   const coords = [[190, 82], [568, 82], [190, 348], [568, 348]];
-  return `${grid(`entity-${mainIcon}-${related.join("-")}`)}<circle class="sk-node-ring" cx="380" cy="215" r="68" />${icon(mainIcon, 350, 185, 60)}${related.map((name, index) => `<path class="sk-ghost" d="M380 215L${coords[index][0]} ${coords[index][1]}" />${assetNode(name, coords[index][0], coords[index][1])}`).join("")}${connectionDot(`M380 215L${coords[0][0]} ${coords[0][1]}`, "4.8s")}`;
+  return `${grid(`entity-${mainIcon}-${related.join("-")}`)}<circle class="sk-node-ring" cx="380" cy="215" r="68" />${icon(mainIcon, 350, 174, 60)}<text class="sk-node-label" x="380" y="264">${mainLabel}</text>${related.map((name, index) => `<path class="sk-ghost" d="M380 215L${coords[index][0]} ${coords[index][1]}" />${assetNode(name, coords[index][0], coords[index][1])}<text class="sk-node-label" x="${coords[index][0]}" y="${coords[index][1] + 48}">${iconLabels[name] || name}</text>`).join("")}${connectionDot(`M380 215L${coords[0][0]} ${coords[0][1]}`, "4.8s")}`;
 }
 
 function statusScene(kind = "job") {
+  if (kind === "job") return jobLifecycleFlowScene();
+  if (kind === "monitor") return monitorLifecycleFlowScene();
   const endIcon = kind === "monitor" ? "alert" : kind === "platform" ? "file" : "check";
   return `${grid(`status-${kind}`)}<path class="sk-hair" d="M86 215h588" />${[0, 1, 2, 3, 4].map((i) => `<g class="${i === 2 ? "catalog-focus" : ""}" transform="translate(${98 + i * 142} 215)"><circle class="sk-node-ring" r="28" />${icon(i === 0 ? "send" : i === 1 ? "refresh" : i === 2 ? "search" : i === 3 ? endIcon : "shield", -12, -12, 24)}<path class="sk-line" d="M-32 58h64M-22 74h44" /></g>`).join("")}${sharedSceneAnimation}`;
 }
@@ -183,6 +229,12 @@ register("integration-mcp", "MCP", "Um assistente usa o MCP como canal para cheg
 register("integration-sdk", "SDK", "O SDK organiza a passagem entre aplicação e API.", () => integrationScene("briefcase"));
 register("typed-data", "Padrão de dados", "Uma entidade tipada se conecta a identidade, contato, patrimônio e jurídico.", typedDataScene);
 register("async-job", "Trabalho assíncrono", "Uma solicitação percorre estados até disponibilizar o resultado.", asyncScene);
+register("analysis-request-flow", "Fluxo de uma análise", "Uma solicitação é enviada, processada e consultada até devolver um veredito.", analysisRequestFlowScene);
+register("credit-request-flow", "Fluxo de um borderô", "Um borderô é enviado, validado e consultado até o resultado ficar disponível.", creditRequestFlowScene);
+register("motors-orchestration-flow", "Orquestração dos motores", "O Motor de Borderô aciona a triagem de cada entidade e consolida o resultado.", motorsOrchestrationFlowScene);
+register("connection-lookup-flow", "Expansão de vínculos", "Uma consulta encontra sócios e alimenta a busca do próximo grau.", connectionLookupFlowScene);
+register("candidate-network", "Rede do candidato", "O candidato se conecta a parentes, empresas e sócios que ampliam a verificação.", candidateNetworkScene);
+register("entity-ecosystem", "Como as entidades se conectam", "Pessoa e empresa se conectam a patrimônio, processos e registros.", entityEcosystemScene);
 register("behavior-profile", "Perfil comportamental", "Uma pessoa se conecta a presença digital, padrões e deslocamentos.", behaviorScene);
 register("financial-profile", "Perfil financeiro", "Pessoas e empresas se conectam a registros financeiros e obrigações.", financialScene);
 register("engine-rules", "Regras de análise", "Empresas atravessam regras e apenas os resultados aprovados seguem adiante.", engineScene);
@@ -222,7 +274,7 @@ const entityDefinitions = [
   ["engine-credito", "Engine de crédito", "checklist", ["company", "scanner", "banknote", "check"]],
 ];
 
-for (const [slug, title, mainIcon, related] of entityDefinitions) register(`entity-${slug}`, title, `${title} e suas principais relações.`, () => entityReferenceScene(mainIcon === "scanner" ? "search" : mainIcon, related.map((name) => name === "scanner" ? "search" : name)));
+for (const [slug, title, mainIcon, related] of entityDefinitions) register(`entity-${slug}`, title, `${title} e suas principais relações.`, () => entityReferenceScene(mainIcon === "scanner" ? "search" : mainIcon, title, related.map((name) => name === "scanner" ? "search" : name)));
 
 const legalCategories = ["recuperacao-judicial", "falencia", "execucao-fiscal", "execucao-civel", "trabalhista", "criminal", "familia-sucessoes"];
 for (const [index, slug] of legalCategories.entries()) register(`legal-${slug}`, slug.replaceAll("-", " "), "Um processo é classificado e a categoria correspondente é destacada.", () => legalCategoryScene(index));
@@ -239,7 +291,7 @@ const primaryPages = [
 
 const reusedPages = [
   ["guias/integracao-api.mdx", "Integração via API", "integration-rest", "Integração"], ["guias/postman.mdx", "Postman", "integration-postman", "Integração"], ["guias/mcp.mdx", "MCP Server", "integration-mcp", "Integração"], ["guias/sdk.mdx", "SDK TypeScript", "integration-sdk", "Fora da navegação"], ["padrao-de-dados.mdx", "Padrão de dados", "typed-data", "Integração"], ["async-jobs.mdx", "Jobs assíncronos", "async-job", "Fora da navegação"],
-  ["areas/comportamento.mdx", "Perfil comportamental", "behavior-profile", "Fora da navegação"], ["areas/credito.mdx", "Motor de Borderô", "credit-bordero", "Fora da navegação"], ["areas/financeiro.mdx", "Perfil financeiro", "financial-profile", "Fora da navegação"], ["perfis/rh-candidato.mdx", "Candidato RH", "background-check", "Fora da navegação"],
+  ["areas/comportamento.mdx", "Perfil comportamental", "behavior-profile", "Fora da navegação"], ["areas/credito.mdx", "Motor de Borderô", "credit-bordero", "Fora da navegação"], ["areas/financeiro.mdx", "Perfil financeiro", "financial-profile", "Fora da navegação"], ["perfis/rh-candidato.mdx", "Candidato RH", "candidate-network", "Fora da navegação"],
   ...entityDefinitions.map(([slug, title]) => [`entidades/${slug}.mdx`, title, `entity-${slug}`, "Entidades"]),
   ...legalCategories.map((slug) => [`categorias/${slug}.mdx`, slug.replaceAll("-", " "), `legal-${slug}`, "Categorias jurídicas"]),
   ["guias/recuperacoes-falencias.mdx", "Recuperações e falências", "legal-recovery-guide", "Fora da navegação"],
@@ -249,3 +301,26 @@ const reusedPages = [
 ].map(([path, title, scene, group]) => ({ path, title, scene, group, reuse: true }));
 
 export const PAGE_SCENES = [...primaryPages, ...reusedPages];
+export const INLINE_SCENES = [
+  ["introduction.mdx", "entity-ecosystem"],
+  ["motor-analise/introducao.mdx", "analysis-request-flow"],
+  ["perfis/rh-candidato.mdx", "candidate-network"],
+  ["motores/ciclo-de-vida.mdx", "job-lifecycle"],
+  ["credito/introducao.mdx", "credit-request-flow"],
+  ["motores/introducao.mdx", "motors-orchestration-flow"],
+  ["casos-de-uso/segmentacao-patrimonial.mdx", "asset-segmentation"],
+  ["casos-de-uso/graus-de-conexao.mdx", "connection-degrees"],
+  ["casos-de-uso/graus-de-conexao.mdx", "connection-lookup-flow"],
+  ["entidades/patente.mdx", "entity-patente"],
+  ["entidades/propriedade-urbana.mdx", "entity-propriedade-urbana"],
+  ["entidades/patrimonio.mdx", "entity-patrimonio"],
+  ["entidades/pessoa.mdx", "entity-pessoa"],
+  ["entidades/aeronave.mdx", "entity-aeronave"],
+  ["entidades/registro-digital.mdx", "entity-registro-digital"],
+  ["entidades/registro-bancario.mdx", "entity-registro-bancario"],
+  ["entidades/registro-comercial.mdx", "entity-registro-comercial"],
+  ["entidades/nfe.mdx", "entity-nfe"],
+  ["entidades/propriedade-rural.mdx", "entity-propriedade-rural"],
+  ["entidades/divida.mdx", "entity-divida"],
+  ["monitoramento/ciclo-de-vida.mdx", "monitor-lifecycle"],
+].map(([path, scene]) => ({ path, scene }));

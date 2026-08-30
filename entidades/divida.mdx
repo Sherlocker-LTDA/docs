@@ -4,7 +4,6 @@ description: "Dívida inscrita na dívida ativa federal"
 icon: "file-invoice-dollar"
 ---
 
-<img src="/images/sketches/entity-divida.svg" alt="Dívida e suas principais relações." />
 
 Uma **Dívida** representa uma inscrição na dívida ativa federal. Existem três tipos: Dívida Ativa da União, FGTS e Previdenciária. Inscrições com o mesmo `numero_inscricao` são agrupadas como histórico de uma única dívida.
 
@@ -75,12 +74,7 @@ Uma **Dívida** representa uma inscrição na dívida ativa federal. Existem tr�
 
 ## Conexões
 
-```mermaid
-graph LR
-  D[Dívida] --> P[Pessoa<br/>devedor]
-  D --> E[Empresa<br/>devedor]
-  D --> PR[Processo<br/>execução fiscal]
-```
+<img src="/images/sketches/entity-divida.svg" alt="Dívida e suas principais relações." />
 
 - **Pessoa** — como devedor (CPF)
 - **Empresa** — como devedor (CNPJ)

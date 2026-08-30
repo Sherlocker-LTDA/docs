@@ -4,27 +4,13 @@ description: "Sherlocker: Plataforma de Inteligência Investigativa"
 icon: "house"
 ---
 
-<img src="/images/sketches/docs-home.svg" alt="Pessoas e empresas se conectam a perfis cadastral, patrimonial e jurídico." />
-
 Plataforma de inteligência investigativa que conecta dados de pessoas, empresas, patrimônio, processos judiciais e dezenas de outras fontes em uma API unificada.
 
 ## Tipos de entidade
 
 Os dados do Sherlocker são organizados em **3 categorias**. Cada categoria agrupa entidades do mesmo domínio:
 
-```mermaid
-graph LR
-    CAD["👤 Cadastral"]
-    PAT["🏠 Patrimonial"]
-    JUR["⚖️ Jurídico"]
-
-    CAD --> PAT
-    CAD --> JUR
-
-    style CAD fill:#6C63FF33,stroke:#6C63FF,color:#ccc
-    style PAT fill:#4CAF5033,stroke:#4CAF50,color:#ccc
-    style JUR fill:#FF980033,stroke:#FF9800,color:#ccc
-```
+<img src="/images/sketches/docs-home.svg" alt="Pessoas e empresas se conectam aos tipos Cadastral, Patrimonial e Jurídico." />
 
 | Categoria | Entidades | Identificadores |
 |-----------|-----------|----------------|
@@ -116,30 +102,7 @@ Todos os perfis também aceitam CNPJ para consultas de empresas.
 
 A **Pessoa** (CPF) e a **Empresa** (CNPJ) são as entidades centrais — todas as outras se vinculam a elas:
 
-```mermaid
-graph LR
-    P["👤 Pessoa"] --> E["🏢 Empresa"]
-    E --> P
-    P --> IU["🏠 Imovel"]
-    P --> V["🚗 Veiculo"]
-    P --> A["✈️ Aeronave"]
-    P --> PR["⚖️ Processo"]
-    P --> D["💳 Divida"]
-    P --> RD["🌐 Registro"]
-    E --> IU
-    E --> V
-    E --> PR
-    E --> D
-
-    style P fill:#6C63FF33,stroke:#6C63FF,color:#ccc
-    style E fill:#FF6B6B33,stroke:#FF6B6B,color:#ccc
-    style IU fill:#4CAF5033,stroke:#4CAF50,color:#ccc
-    style V fill:#4CAF5033,stroke:#4CAF50,color:#ccc
-    style A fill:#4CAF5033,stroke:#4CAF50,color:#ccc
-    style PR fill:#FF980033,stroke:#FF9800,color:#ccc
-    style D fill:#FF6B6B33,stroke:#FF6B6B,color:#ccc
-    style RD fill:#00BCD433,stroke:#00BCD4,color:#ccc
-```
+<img src="/images/sketches/entity-ecosystem.svg" alt="Pessoa e empresa se conectam a patrimônio, processos e registros." />
 
 ### Buscas reversas
 

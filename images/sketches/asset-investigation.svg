@@ -1,28 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="430" viewBox="0 0 760 430" role="img" aria-labelledby="title description"><title id="title">Levantamento patrimonial</title><desc id="description">Um grafo familiar e empresarial se conecta a ativos e forma um relatório.</desc><style>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="380" viewBox="0 0 760 380" role="img" aria-labelledby="title description"><title id="title">Levantamento patrimonial</title><desc id="description">Um grafo familiar e empresarial se conecta a ativos e forma um relatório.</desc><style>
   :host{display:block;color:#f0a121}
-  svg{display:block;width:100%;height:auto;aspect-ratio:16/9;background:transparent;overflow:hidden}
-  .sk-grid{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.07}
+  svg{display:block;width:100%;height:auto;aspect-ratio:2/1;background:transparent;overflow:hidden}
   .sk-line,.sk-icon,.sk-flow,.sk-hair,.sk-ghost{fill:none;stroke:#f0a121;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
   .sk-line,.sk-icon{stroke-width:1.55}
   .sk-hair{stroke-width:.85;stroke-opacity:.3}
   .sk-ghost{stroke-width:1;stroke-opacity:.28;stroke-dasharray:5 7}
   .sk-flow{stroke-width:1.1;stroke-opacity:.42;stroke-dasharray:7 8;animation:flow 2.2s linear infinite}
+  .sk-arrow{fill:none;stroke:#f0a121;stroke-width:1.15;stroke-opacity:.7;marker-end:url(#sk-arrow);vector-effect:non-scaling-stroke}
   .sk-plane,.sk-row-bg,.sk-icon-box{fill:rgba(240,161,33,.024);stroke:#f0a121;stroke-width:1.15;stroke-opacity:.68;vector-effect:non-scaling-stroke}
   .sk-row-bg{fill:rgba(240,161,33,.018);stroke-opacity:.24}
   .sk-icon-box{stroke-opacity:.34}
   .sk-hot{fill:#f0a121;filter:url(#soft-glow)}
   .sk-label{fill:#f0a121;font:500 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.08em}
   .sk-small-label{fill:#f0a121;fill-opacity:.58;font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.13em}
+  .sk-node-label{fill:#f0a121;fill-opacity:.74;font:500 11px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.04em}
+  .sk-flow-label{fill:#f0a121;fill-opacity:.9;font:500 17px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.01em}
+  .sk-flow-caption{fill:#f0a121;fill-opacity:.62;font:500 13px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.07em}
   .is-muted{opacity:.45}
   .sk-corner{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.35}
   .sk-node-ring,.sk-timeline-dot{fill:rgba(240,161,33,.018);stroke:#f0a121;stroke-width:1.4;vector-effect:non-scaling-stroke}
   .sk-timeline-dot{fill:#f0a121;stroke-width:0;filter:url(#soft-glow)}
   @keyframes flow{to{stroke-dashoffset:-30}}
   @media(prefers-reduced-motion:reduce){*{animation:none!important}}
-</style><defs>
-    <pattern id="asset-investigation-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" class="sk-grid" /></pattern>
+</style><g transform="translate(-15.2 -25) scale(1.04 1)"><defs>
     <filter id="soft-glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-  </defs><rect width="760" height="430" fill="url(#asset-investigation-grid)" /><path class="sk-ghost" d="M64 110l112 92 112-92M64 320l112-118 112 118" /><g class="sk-entity-node" transform="translate(64 110)">
+    <marker id="sk-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8z" fill="#f0a121" fill-opacity=".72" /></marker>
+  </defs><text class="sk-small-label" x="42" y="48" text-anchor="start">REDE DE RELAÇÕES</text><text class="sk-small-label" x="382" y="48" text-anchor="start">ATIVOS ENCONTRADOS</text><text class="sk-small-label" x="528" y="48" text-anchor="start">RELATÓRIO PATRIMONIAL</text><path class="sk-ghost" d="M64 110l112 92 112-92M64 320l112-118 112 118" /><g class="sk-entity-node" transform="translate(64 110)">
     <circle class="sk-node-ring" r="32" />
     <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g>
   </g><g class="sk-entity-node is-active" transform="translate(176 202)">
@@ -37,7 +40,7 @@
   </g><g class="sk-entity-node" transform="translate(288 320)">
     <circle class="sk-node-ring" r="32" />
     <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
-  </g><path class="sk-flow" d="M208 202C326 202 326 88 410 88M208 202h202M208 202C326 202 326 316 410 316M468 88C500 88 504 138 528 138M468 202h60M468 316C500 316 504 276 528 276" /><g transform="translate(439 88)"><circle class="sk-node-ring" r="29" /><g class="sk-icon" transform="translate(-12 -12) scale(1)"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></g></g><g transform="translate(439 202)"><circle class="sk-node-ring" r="29" /><g class="sk-icon" transform="translate(-12 -12) scale(1)"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2M9 17h6" /><circle cx="7" cy="17" r="2" /><circle cx="17" cy="17" r="2" /></g></g><g transform="translate(439 316)"><circle class="sk-node-ring" r="29" /><g class="sk-icon" transform="translate(-12 -12) scale(1)"><path d="m10 11 11 .9a1 1 0 0 1 .8 1.1l-.665 4.158A1 1 0 0 1 20 18h-2M16 18h-5M18 5a1 1 0 0 0-1 1v5.573M3 4h8.129a1 1 0 0 1 .99.863L13 11.246M4 11V4M8 10.1V4" /><circle cx="18" cy="18" r="2" /><circle cx="7" cy="15" r="5" /></g></g><g class="sk-document" transform="translate(528 43)">
+  </g><path class="sk-flow" d="M208 202C326 202 326 88 410 88M208 202h202M208 202C326 202 326 316 410 316M468 88C500 88 504 138 528 138M468 202h60M468 316C500 316 504 276 528 276" /><g transform="translate(439 88)"><circle class="sk-node-ring" r="29" /><g class="sk-icon" transform="translate(-12 -12) scale(1)"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></g></g><g transform="translate(439 202)"><circle class="sk-node-ring" r="29" /><g class="sk-icon" transform="translate(-12 -12) scale(1)"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2M9 17h6" /><circle cx="7" cy="17" r="2" /><circle cx="17" cy="17" r="2" /></g></g><g transform="translate(439 316)"><circle class="sk-node-ring" r="29" /><g class="sk-icon" transform="translate(-12 -12) scale(1)"><path d="m10 11 11 .9a1 1 0 0 1 .8 1.1l-.665 4.158A1 1 0 0 1 20 18h-2M16 18h-5M18 5a1 1 0 0 0-1 1v5.573M3 4h8.129a1 1 0 0 1 .99.863L13 11.246M4 11V4M8 10.1V4" /><circle cx="18" cy="18" r="2" /><circle cx="7" cy="15" r="5" /></g></g><g class="sk-document" transform="translate(528 52)">
     <path class="sk-plane" d="M0 0h146l38 38v306H0z" />
     <path class="sk-hair" d="M146 0v38h38M24 88h136M24 165h136M24 242h136M24 319h72" />
     <g class="sk-icon" transform="translate(24 24) scale(1.5833333333333333)"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5M10 9H8M16 13H8M16 17H8" /></g>
@@ -46,4 +49,4 @@
     <g class="sk-document-section section-2"><g class="sk-icon" transform="translate(26 184) scale(1.1666666666666667)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g><path class="sk-line" d="M74 195h61M74 213h90" /></g>
     <g class="sk-document-section section-3"><g class="sk-icon" transform="translate(26 261) scale(1.1666666666666667)"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" /></g><path class="sk-line" d="M74 272h83M74 290h28" /></g>
     <g class="sk-document-complete"><g class="sk-icon" transform="translate(125 286) scale(1.5)"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></g></g>
-  </g><circle class="sk-hot" r="3"><animateMotion dur="4.8s" begin="0s" repeatCount="indefinite" path="M208 202h202" /></circle></svg>
+  </g><circle class="sk-hot" r="3"><animateMotion dur="4.8s" begin="0s" repeatCount="indefinite" path="M208 202h202" /></circle></g></svg>

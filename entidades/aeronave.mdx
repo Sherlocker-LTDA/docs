@@ -4,7 +4,6 @@ description: "Aeronave ou drone registrado na ANAC"
 icon: "plane"
 ---
 
-<img src="/images/sketches/entity-aeronave.svg" alt="Aeronave e suas principais relações." />
 
 Uma **Aeronave** representa uma aeronave (avião, helicóptero) ou drone registrado na Agência Nacional de Aviação Civil. São dois subtipos com estruturas diferentes.
 
@@ -75,11 +74,7 @@ Campos adicionais retornados: `outros_proprietarios`, `outros_operadores`, `uf_o
 
 ## Conexões
 
-```mermaid
-graph LR
-  A[Aeronave/Drone] --> P[Pessoa<br/>proprietário]
-  A --> E[Empresa<br/>operador]
-```
+<img src="/images/sketches/entity-aeronave.svg" alt="Aeronave e suas principais relações." />
 
 - **Pessoa** — como proprietário ou operador
 - **Empresa** — como operador comercial

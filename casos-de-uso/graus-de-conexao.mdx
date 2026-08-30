@@ -4,7 +4,6 @@ description: "Percorrer a rede societária a partir de uma empresa ou pessoa —
 icon: "share-nodes"
 ---
 
-<img src="/images/sketches/connection-degrees.svg" alt="Uma rede cresce do vínculo direto para relações de segundo grau." />
 
 A rede societária brasileira é um **grafo**: empresas se conectam a pessoas (e a outras empresas) pelo quadro de sócios. A partir de um único CNPJ ou CPF você consegue mapear toda a vizinhança — sócios diretos, as outras empresas desses sócios, os sócios dessas empresas, e assim por diante.
 
@@ -14,21 +13,7 @@ Cada salto nesse caminho é um **grau de conexão**.
 
 Pense em dois tipos de nó que se alternam: **empresas** (CNPJ) e **pessoas** (CPF). Uma aresta liga uma empresa a quem é sócio dela.
 
-```mermaid
-graph LR
-  E0["🏢 Empresa Alvo<br/>(grau 0)"]
-  P1["👤 Sócio A"]
-  P2["👤 Sócio B"]
-  E1["🏢 Outra empresa<br/>do Sócio A (grau 1)"]
-  E2["🏢 Outra empresa<br/>do Sócio B (grau 1)"]
-  P3["👤 Sócio C<br/>(grau 2)"]
-
-  E0 --> P1
-  E0 --> P2
-  P1 --> E1
-  P2 --> E2
-  E1 --> P3
-```
+<img src="/images/sketches/connection-degrees.svg" alt="Uma rede cresce do vínculo direto para relações de segundo grau." />
 
 - **Grau 0** — a empresa de onde você parte.
 - **Grau 1** — as outras empresas dos sócios diretos.
@@ -58,19 +43,7 @@ Como o `/empresas/cpf` **já devolve os sócios de cada empresa**, ao expandir a
 
 ### Como o retorno encadeia
 
-```mermaid
-sequenceDiagram
-  participant App
-  participant API as Sherlocker API
-
-  App->>API: GET /empresas/cnpj/33000167000101
-  API-->>App: { razao_social, socios: [ {documento, tipo}, ... ] }
-  Note over App: extrai CPFs dos sócios PF
-
-  App->>API: GET /empresas/cpf/40607712015
-  API-->>App: { empresas: [ { documento, razao_social, socios: [...] }, ... ] }
-  Note over App: cada empresa já vem com sócios →<br/>próximo grau sem nova chamada
-```
+<img src="/images/sketches/connection-lookup-flow.svg" alt="Uma consulta encontra sócios e alimenta a busca do próximo grau." />
 
 ## Formato da resposta
 
