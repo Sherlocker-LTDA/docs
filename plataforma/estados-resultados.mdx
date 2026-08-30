@@ -1,0 +1,79 @@
+---
+title: "Ciclo de vida e resultados"
+description: "Como interpretar estados, resultados e cobertura nas APIs da Plataforma"
+---
+
+As APIs separam quatro dimensões que não devem ser tratadas como sinônimos:
+
+- **estado** indica em que etapa o recurso está;
+- **resultado** descreve o que a operação encontrou;
+- **cobertura** informa quanto da execução foi conclusivo;
+- **cobrança** registra o efeito financeiro da operação.
+
+Uma execução pode, por exemplo, estar `completed` e ainda retornar `no_match`.
+Isso é um resultado válido, não uma falha técnica.
+
+## Formatos de sucesso
+
+| Formato | Quando aparece | Como interpretar |
+| --- | --- | --- |
+| recurso direto | criação, consulta ou mutação síncrona | o corpo traz a representação atual do recurso |
+| aceito para processamento | criação ou comando assíncrono com HTTP `202` | consulte o recurso respeitando `poll_after_seconds` até um estado terminal |
+| coleção paginada | listagens | `data` contém os itens e `page.next_cursor` indica a próxima página |
+| sem conteúdo | remoção concluída com HTTP `204` | a operação terminou e não há corpo de resposta |
+
+Os códigos e exemplos específicos de cada operação aparecem na página da
+própria rota. O formato comum de falhas está na seção **Erros**, ao final da
+documentação.
+
+## Dossiê
+
+| Dimensão | Valores possíveis |
+| --- | --- |
+| estado | `queued`, `running`, `completed`, `needs_review`, `failed`, `cancelled` |
+| resultado | `full`, `partial_useful`, `unavailable` |
+| cobertura | `complete`, `partial`, `insufficient` |
+| fase da cobertura | `pending`, `running`, `completed`, `unavailable`, `error`, `skipped`, `unsupported` |
+| artefato | `available`, `temporarily_unavailable` |
+
+`completed` representa cobertura integral. `needs_review` é terminal e entrega
+um resultado parcial útil. `failed` indica que a execução não atingiu a
+cobertura mínima do contrato.
+
+## Rastro
+
+| Dimensão | Valores possíveis |
+| --- | --- |
+| estado | `queued`, `running`, `completed`, `failed`, `cancelled` |
+| resultado por fonte | `found`, `not_found`, `blocked`, `unavailable`, `error`, `unknown`, `skipped`, `unsupported` |
+| cobertura parcial | `partial: true` ou `partial: false` |
+
+Somente `found` e `not_found` são conclusivos. Bloqueio, indisponibilidade,
+erro ou resposta ambígua nunca significam que o dado não existe.
+
+## Board e Mapa
+
+| Dimensão | Valores possíveis |
+| --- | --- |
+| estado do Board | `active`, `archived` |
+| resultado de alteração | `applied`, `no_op` |
+| exportação | `queued`, `running`, `available`, `failed` |
+
+`no_op` é uma alteração válida que não modificou o conteúdo, normalmente porque
+o mesmo comando já havia sido aplicado.
+
+## Lente
+
+| Dimensão | Valores possíveis |
+| --- | --- |
+| estado | `awaiting_upload`, `queued`, `running`, `completed`, `failed`, `cancelled`, `expired` |
+| upload | `pending`, `verified`, `rejected`, `expired` |
+| resultado geográfico | `located`, `low_confidence`, `no_result` |
+| resultado facial | `match`, `low_confidence`, `no_match`, `no_face` |
+| artefato | `available`, `temporarily_unavailable` |
+
+`no_result`, `no_match` e `no_face` são resultados de negócio: a análise termina
+como `completed`, e a dimensão financeira informa se houve reembolso.
+
+O estado financeiro não substitui o estado da execução. Consulte
+[Cobrança](/plataforma/cobranca) para interpretar débito, confirmação e reembolso.

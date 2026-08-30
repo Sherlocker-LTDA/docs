@@ -1,0 +1,268 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Rastro API",
+    "description": "Buscas duráveis de presença pública por identificador digital.",
+    "version": "1.0"
+  },
+  "servers": [{ "url": "https://221b-api.sherlocker.com.br/api/v1" }],
+  "security": [{ "bearerAuth": [] }],
+  "components": {
+    "securitySchemes": { "bearerAuth": { "type": "http", "scheme": "bearer" } },
+    "parameters": {
+      "SearchId": {
+        "name": "search_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": { "type": "string", "maxLength": 255 }
+      },
+      "Cursor": {
+        "name": "cursor",
+        "in": "query",
+        "schema": { "type": "string" }
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        }
+      }
+    },
+    "schemas": {
+      "Search": {
+        "type": "object",
+        "required": [
+          "id",
+          "object",
+          "status",
+          "type",
+          "target",
+          "strategy",
+          "partial",
+          "coverage",
+          "billing",
+          "artifacts",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "object": { "type": "string", "enum": ["rastro_search"] },
+          "status": {
+            "type": "string",
+            "enum": ["queued", "running", "completed", "failed", "cancelled"]
+          },
+          "type": {
+            "type": "string",
+            "enum": ["email", "phone", "username", "wallet"]
+          },
+          "target": { "type": "string" },
+          "strategy": { "type": "string", "enum": ["all", "first_match"] },
+          "partial": { "type": "boolean" },
+          "coverage": {
+            "type": "object",
+            "description": "Situação de cada fonte consultada.",
+            "additionalProperties": true
+          },
+          "result": { "type": "object", "additionalProperties": true },
+          "failure": { "type": "object", "additionalProperties": true },
+          "billing": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "not_charged",
+                  "charge_pending",
+                  "charged",
+                  "refund_pending",
+                  "refunded"
+                ]
+              },
+              "amount": { "type": "integer" },
+              "unit": { "type": "string", "enum": ["tokens"] }
+            }
+          },
+          "artifacts": {
+            "type": "array",
+            "items": { "type": "object", "additionalProperties": true }
+          },
+          "poll_after_seconds": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "started_at": { "type": "string", "format": "date-time" },
+          "completed_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Page": {
+        "type": "object",
+        "properties": {
+          "next_cursor": { "type": "string", "nullable": true },
+          "has_more": { "type": "boolean" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["status", "code", "detail", "request_id", "retryable"],
+        "properties": {
+          "status": { "type": "integer" },
+          "code": { "type": "string" },
+          "detail": { "type": "string" },
+          "request_id": { "type": "string" },
+          "retryable": { "type": "boolean" }
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Erro no formato application/problem+json",
+        "content": {
+          "application/problem+json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/rastro/searches": {
+      "post": {
+        "summary": "Criar busca do Rastro",
+        "description": "Inicia uma busca pública por email, telefone, usuário ou carteira digital.",
+        "operationId": "createRastroSearch",
+        "parameters": [{ "$ref": "#/components/parameters/IdempotencyKey" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["type", "target"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["email", "phone", "username", "wallet"]
+                  },
+                  "target": { "type": "string", "maxLength": 320 },
+                  "strategy": {
+                    "type": "string",
+                    "enum": ["all", "first_match"],
+                    "default": "all"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Busca aceita",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Search" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "402": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" },
+          "422": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "get": {
+        "summary": "Listar buscas do Rastro",
+        "description": "Lista buscas por cursor, estado e tipo de identificador.",
+        "operationId": "listRastroSearches",
+        "parameters": [
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Cursor" },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["queued", "running", "completed", "failed", "cancelled"]
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["email", "phone", "username", "wallet"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Página de buscas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Search" }
+                    },
+                    "page": { "$ref": "#/components/schemas/Page" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/rastro/searches/{search_id}": {
+      "get": {
+        "summary": "Consultar busca do Rastro",
+        "description": "Retorna andamento, cobertura, correspondências, cobrança e artefatos.",
+        "operationId": "getRastroSearch",
+        "parameters": [{ "$ref": "#/components/parameters/SearchId" }],
+        "responses": {
+          "200": {
+            "description": "Busca encontrada",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Search" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/rastro/searches/{search_id}/cancel": {
+      "post": {
+        "summary": "Cancelar busca do Rastro",
+        "description": "Solicita cancelamento enquanto a busca ainda permite essa transição.",
+        "operationId": "cancelRastroSearch",
+        "parameters": [{ "$ref": "#/components/parameters/SearchId" }],
+        "responses": {
+          "202": {
+            "description": "Cancelamento aceito",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Search" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    }
+  }
+}

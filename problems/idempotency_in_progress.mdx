@@ -1,0 +1,29 @@
+---
+title: "idempotency_in_progress"
+description: "Erro 409: a mesma Idempotency-Key ainda está sendo persistida"
+icon: "clock"
+---
+
+**Status HTTP:** `409`
+
+Outra requisição com a mesma `Idempotency-Key` e o mesmo conteúdo ainda está em
+andamento. Aguarde o intervalo indicado em `Retry-After` e repita a operação com
+a **mesma key**. Não gere uma key nova para esse retry, pois isso criaria outra
+operação.
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/idempotency_in_progress",
+  "title": "Request In Progress",
+  "status": 409,
+  "code": "idempotency_in_progress",
+  "detail": "A request with this Idempotency-Key is still being persisted.",
+  "instance": "/api/v1/dossies",
+  "request_id": "req_01JEXEMPLO",
+  "retryable": true
+}
+```
+
+## Relacionado
+
+- [Autenticação, idempotência e erros](/plataforma/autenticacao-erros)

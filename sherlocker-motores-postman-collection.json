@@ -209,7 +209,7 @@
                   "key": "file",
                   "type": "file",
                   "src": [],
-                  "description": "Arquivo CNAB 400 remessa (.REM) — Banco Paulista 611, 444 colunas, Windows-1252. Obrigatorio. Maximo 16 MB."
+                  "description": "Arquivo CNAB 400 remessa (.REM) — Banco Paulista 611, 444 colunas, Windows-1252. Obrigatorio. Maximo 128 MiB."
                 },
                 {
                   "key": "cedente_cnpj",
@@ -221,7 +221,7 @@
                   "key": "xmls",
                   "type": "file",
                   "src": [],
-                  "description": "ZIP com os XMLs de NFe (nfeProc) dos titulos, para validacao cruzada. Opcional. Maximo 32 MB.",
+                  "description": "ZIP com os XMLs de NFe (nfeProc) dos titulos, para validacao cruzada. Opcional. Maximo 512 MiB; multipart completo maximo de 768 MiB no gateway.",
                   "disabled": true
                 },
                 {

@@ -7,7 +7,9 @@ icon: "triangle-exclamation"
 Toda resposta de erro da API `/v1` segue o [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) e é retornada com `Content-Type: application/problem+json`. Isso vale para os **dois motores** — Motor de CPF/CNPJ (`POST /analyses`, `GET /analyses/{id}`) e Motor de Borderô (`POST /operations`, `GET /operations/{id}`, `GET /operations/{id}/result`): mesmo formato, mesmos códigos.
 
 <Note>
-  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
+  Os Motores usam a **mesma base** da API 221b
+  (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via
+  `Authorization: Bearer slhk_…` — **não** via `?token=`.
 </Note>
 
 ## Formato base
@@ -31,17 +33,19 @@ curl -i "https://221b-api.sherlocker.com.br/api/v1/analyses/a1b2c3d4-0000-0000-0
 
 Todo body de erro contém, no mínimo:
 
-| Campo | Descrição |
-|---|---|
-| `type` | URI que identifica o tipo do problema (`https://docs.sherlocker.com.br/problems/<code>`) |
-| `title` | Descrição curta do tipo do problema |
-| `status` | Status HTTP da resposta |
-| `code` | Slug estável do erro. Use este campo para branching no seu código |
-| `detail` | Explicação legível do que deu errado nesta requisição |
-| `instance` | `/v1?request_id=<request_id>` — identifica a requisição; inclua ao acionar o suporte |
+| Campo      | Descrição                                                                                |
+| ---------- | ---------------------------------------------------------------------------------------- |
+| `type`     | URI que identifica o tipo do problema (`https://docs.sherlocker.com.br/problems/<code>`) |
+| `title`    | Descrição curta do tipo do problema                                                      |
+| `status`   | Status HTTP da resposta                                                                  |
+| `code`     | Slug estável do erro. Use este campo para branching no seu código                        |
+| `detail`   | Explicação legível do que deu errado nesta requisição                                    |
+| `instance` | `/v1?request_id=<request_id>` — identifica a requisição; inclua ao acionar o suporte     |
 
 <Warning>
-  `type` é um **identificador**, não um endpoint: não faça dereferência dele em código de produção. Para decidir o que fazer programaticamente, use sempre o campo `code`.
+  `type` é um **identificador**, não um endpoint: não faça dereferência dele em
+  código de produção. Para decidir o que fazer programaticamente, use sempre o
+  campo `code`.
 </Warning>
 
 O `request_id` em `instance` é o mesmo que você enviou no header opcional `x-request-id` (ou um UUID gerado pelo servidor, se você não enviou). Ele também é ecoado no header da resposta e no campo `request_id` dos bodies de sucesso.
@@ -50,23 +54,30 @@ O `request_id` em `instance` é o mesmo que você enviou no header opcional `x-r
 
 Cada código tem uma página própria em `/problems/<code>`, válida para os dois motores. A coluna "quando acontece" indica os gatilhos em cada um:
 
-| `code` | HTTP | Quando acontece | Campos extras |
-|---|---|---|---|
-| [`validation_error`](/problems/validation_error) | 400 | **CPF/CNPJ:** campo do body com tipo/enum inválido. **Borderô:** parte `file` ausente, `cedente_cnpj` ausente ou inválido, CNAB que não parseia, arquivo acima do teto; `filter` inválido no `GET /result` | `errors[]` |
-| [`bad_request`](/problems/bad_request) | 400 | **CPF/CNPJ:** `Idempotency-Key` ausente (no borderô a key é opcional); `document` sem dígitos, tamanho errado ou dígito verificador inválido | — |
-| [`unauthorized`](/problems/unauthorized) | 401 | **Ambos:** header `Authorization` ausente/malformado; chave inválida ou revogada | — |
-| [`insufficient_tokens`](/problems/insufficient_tokens) | 402 | **Ambos:** saldo do workspace insuficiente — no borderô, o custo é por entidade única (cedente + sacados únicos) | `required`, `balance` |
-| [`feature_not_enabled`](/problems/feature_not_enabled) | 403 | **Ambos:** feature `analysis_engine` desabilitada. **CPF/CNPJ:** `analysis_engine_pf` para análises de CPF | `request_access_url` |
-| [`forbidden`](/problems/forbidden) | 403 | **Ambos:** 403 genérico, não relacionado a feature | — |
-| [`not_found`](/problems/not_found) | 404 | **Ambos:** análise/operação inexistente ou de outro workspace; `engine_id` inexistente ou de outro workspace | — |
-| [`idempotency_conflict`](/problems/idempotency_conflict) | 409 | **Ambos:** mesma `Idempotency-Key` em andamento, ou reutilizada com conteúdo diferente — no CPF/CNPJ a comparação cobre o body; no borderô, o payload multipart (arquivos + campos). No borderô a key é opcional: sem ela, não há deduplicação | — |
-| [`conflict`](/problems/conflict) | 409 | **Borderô:** `GET /operations/{id}/result` antes de a operação chegar a `completed` | — |
-| [`no_engine`](/problems/no_engine) | 422 | **Ambos:** engine arquivada, incompatível ou não utilizável; nenhuma engine disponível | — |
-| [`http_error`](/problems/http_error) | varia | **Ambos:** fallback genérico para HTTP não mapeado em um código mais específico | — |
-| [`server_error`](/problems/server_error) | 500 | **Ambos:** erro inesperado no servidor; use o `instance` (request_id) ao acionar o suporte | — |
+| `code`                                                       | HTTP  | Quando acontece                                                                                                                                                                                                                                | Campos extras         |
+| ------------------------------------------------------------ | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
+| [`validation_error`](/problems/validation_error)             | 400   | **CPF/CNPJ:** campo do body com tipo/enum inválido. **Borderô:** parte `file` ausente, `cedente_cnpj` ausente ou inválido, CNAB que não parseia, arquivo acima do teto; `filter` inválido no `GET /result`                                     | `errors[]`            |
+| [`bad_request`](/problems/bad_request)                       | 400   | **CPF/CNPJ:** `Idempotency-Key` ausente (no borderô a key é opcional); `document` sem dígitos, tamanho errado ou dígito verificador inválido                                                                                                   | —                     |
+| [`invalid_path`](/problems/invalid_path)                     | 400   | **Ambos:** path externo contém dot-segments ou barras invertidas                                                                                                                                                                               | —                     |
+| [`invalid_content_length`](/problems/invalid_content_length) | 400   | **Ambos:** header `Content-Length` não é um inteiro não negativo válido                                                                                                                                                                        | —                     |
+| [`unauthorized`](/problems/unauthorized)                     | 401   | **Ambos:** header `Authorization` ausente/malformado; chave inválida ou revogada                                                                                                                                                               | —                     |
+| [`insufficient_tokens`](/problems/insufficient_tokens)       | 402   | **Ambos:** saldo do workspace insuficiente — no borderô, o custo é por entidade única (cedente + sacados únicos)                                                                                                                               | `required`, `balance` |
+| [`feature_not_enabled`](/problems/feature_not_enabled)       | 403   | **Ambos:** feature `analysis_engine` desabilitada. **CPF/CNPJ:** `analysis_engine_pf` para análises de CPF                                                                                                                                     | `request_access_url`  |
+| [`forbidden`](/problems/forbidden)                           | 403   | **Ambos:** 403 genérico, não relacionado a feature                                                                                                                                                                                             | —                     |
+| [`not_found`](/problems/not_found)                           | 404   | **Ambos:** análise/operação inexistente ou de outro workspace; `engine_id` inexistente ou de outro workspace                                                                                                                                   | —                     |
+| [`method_not_allowed`](/problems/method_not_allowed)         | 405   | **Ambos:** verbo HTTP não publicado para o path; consulte o header `Allow`                                                                                                                                                                     | —                     |
+| [`idempotency_conflict`](/problems/idempotency_conflict)     | 409   | **Ambos:** mesma `Idempotency-Key` em andamento, ou reutilizada com conteúdo diferente — no CPF/CNPJ a comparação cobre o body; no borderô, o payload multipart (arquivos + campos). No borderô a key é opcional: sem ela, não há deduplicação | —                     |
+| [`conflict`](/problems/conflict)                             | 409   | **Borderô:** `GET /operations/{id}/result` antes de a operação chegar a `completed`                                                                                                                                                            | —                     |
+| [`no_engine`](/problems/no_engine)                           | 422   | **Ambos:** engine arquivada, incompatível ou não utilizável; nenhuma engine disponível                                                                                                                                                         | —                     |
+| [`payload_too_large`](/problems/payload_too_large)           | 413   | **Borderô:** multipart completo ultrapassa 768 MiB; o gateway aborta o stream                                                                                                                                                                  | `context.max_bytes`   |
+| [`http_error`](/problems/http_error)                         | varia | **Ambos:** fallback genérico para HTTP não mapeado em um código mais específico                                                                                                                                                                | —                     |
+| [`server_error`](/problems/server_error)                     | 500   | **Ambos:** erro inesperado no servidor; use o `instance` (request_id) ao acionar o suporte                                                                                                                                                     | —                     |
+| [`bad_gateway`](/problems/bad_gateway)                       | 502   | **Ambos:** upstream indisponível ou resposta de transporte inválida                                                                                                                                                                            | —                     |
+| [`gateway_timeout`](/problems/gateway_timeout)               | 504   | **Ambos:** upstream excedeu o timeout do gateway                                                                                                                                                                                               | —                     |
 
 <Note>
-  O limite global da API é de 100 requisições por minuto por IP. Exceder o limite retorna `429` — honre o header `Retry-After` antes de tentar de novo.
+  O limite global da API é de 100 requisições por minuto por IP. Exceder o
+  limite retorna `429` — honre o header `Retry-After` antes de tentar de novo.
 </Note>
 
 ## Campos extras por tipo
@@ -86,7 +97,10 @@ Lista cada campo que falhou e a mensagem da restrição:
   "detail": "One or more fields failed validation.",
   "errors": [
     { "field": "document", "message": "document should not be empty" },
-    { "field": "subject_type", "message": "subject_type must be one of the following values: pj, pf" }
+    {
+      "field": "subject_type",
+      "message": "subject_type must be one of the following values: pj, pf"
+    }
   ],
   "instance": "/v1?request_id=req-uuid-here"
 }
@@ -141,21 +155,19 @@ Faça o branching pelo campo `code` — o tratamento é o mesmo nos dois motores
 ```python Python
 import requests
 
-
 class SherlockerApiError(Exception):
-    def __init__(self, problem: dict):
-        self.code = problem.get("code")
-        self.status = problem.get("status")
-        self.detail = problem.get("detail")
-        self.instance = problem.get("instance")
-        self.problem = problem
-        super().__init__(f"{self.code}: {self.detail}")
-
+def **init**(self, problem: dict):
+self.code = problem.get("code")
+self.status = problem.get("status")
+self.detail = problem.get("detail")
+self.instance = problem.get("instance")
+self.problem = problem
+super().**init**(f"{self.code}: {self.detail}")
 
 def handle_sherlocker_error(resp: requests.Response) -> None:
-    """Tratamento unico para /analyses e /operations."""
-    problem = resp.json()
-    code = problem.get("code")
+"""Tratamento unico para /analyses e /operations."""
+problem = resp.json()
+code = problem.get("code")
 
     if code == "validation_error":
         # Corrija a requisicao: veja problem["errors"]; key NOVA no reenvio
@@ -193,7 +205,8 @@ def handle_sherlocker_error(resp: requests.Response) -> None:
     # server_error / http_error / desconhecido:
     # retry com a MESMA key e back-off; inclua problem["instance"] no suporte
     raise SherlockerApiError(problem)
-```
+
+````
 
 ```javascript Node.js
 /**
@@ -253,7 +266,8 @@ async function handleSherlockerError(res) {
       throw new Error(`Erro no servidor (instance: ${problem.instance})`);
   }
 }
-```
+````
+
 </CodeGroup>
 
 ## Relacionado

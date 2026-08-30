@@ -364,6 +364,151 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Monitoramento",
+        "icon": "radar",
+        "groups": [
+          {
+            "group": "Começando",
+            "pages": [
+              "monitoramento/introducao",
+              "monitoramento/quickstart",
+              "monitoramento/autenticacao"
+            ]
+          },
+          {
+            "group": "Conceitos",
+            "pages": [
+              "monitoramento/ciclo-de-vida",
+              "monitoramento/idempotencia",
+              "monitoramento/cobranca",
+              "monitoramento/temas-monitorados"
+            ]
+          },
+          {
+            "group": "Monitoramento",
+            "openapi": "/openapi/plataforma-monitoramento.json",
+            "pages": [
+              "POST /monitors",
+              "GET /monitors",
+              "GET /monitors/{monitor_id}",
+              "PATCH /monitors/{monitor_id}",
+              "POST /monitors/{monitor_id}/pause",
+              "POST /monitors/{monitor_id}/resume",
+              "POST /monitors/{monitor_id}/cancel",
+              "GET /monitors/{monitor_id}/changes",
+              "POST /monitors/{monitor_id}/changes/{change_id}/ack"
+            ]
+          },
+          {
+            "group": "Erros",
+            "pages": [
+              "plataforma/erros",
+              "problems/invalid_path",
+              "problems/invalid_content_length",
+              "problems/idempotency_in_progress",
+              "problems/method_not_allowed",
+              "problems/payload_too_large",
+              "problems/bad_gateway",
+              "problems/gateway_timeout",
+              "problems/scoped_key_required",
+              "problems/key_entitlement_missing",
+              "problems/entitlement_not_enabled"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Plataforma",
+        "icon": "layer-group",
+        "groups": [
+          {
+            "group": "Começando",
+            "pages": [
+              "plataforma/introducao",
+              "plataforma/quickstart",
+              "plataforma/autenticacao"
+            ]
+          },
+          {
+            "group": "Conceitos",
+            "pages": [
+              "plataforma/estados-resultados",
+              "plataforma/idempotencia",
+              "plataforma/cobranca"
+            ]
+          },
+          {
+            "group": "Dossiê",
+            "openapi": "/openapi/plataforma-dossie.json",
+            "pages": [
+              "plataforma/dossie",
+              "POST /dossies",
+              "GET /dossies",
+              "GET /dossies/{dossie_id}",
+              "GET /dossies/{dossie_id}/status",
+              "POST /dossies/{dossie_id}/cancel",
+              "POST /dossies/{dossie_id}/retry"
+            ]
+          },
+          {
+            "group": "Rastro",
+            "openapi": "/openapi/plataforma-rastro.json",
+            "pages": [
+              "plataforma/rastro",
+              "POST /rastro/searches",
+              "GET /rastro/searches",
+              "GET /rastro/searches/{search_id}",
+              "POST /rastro/searches/{search_id}/cancel"
+            ]
+          },
+          {
+            "group": "Board e Mapa",
+            "openapi": "/openapi/plataforma-board.json",
+            "pages": [
+              "plataforma/board-mapa",
+              "POST /boards",
+              "GET /boards",
+              "GET /boards/{board_id}",
+              "PATCH /boards/{board_id}",
+              "PATCH /boards/{board_id}/delta",
+              "POST /boards/{board_id}/archive",
+              "POST /boards/{board_id}/unarchive",
+              "DELETE /boards/{board_id}",
+              "POST /boards/{board_id}/exports",
+              "GET /boards/{board_id}/exports/{export_id}"
+            ]
+          },
+          {
+            "group": "Lente",
+            "openapi": "/openapi/plataforma-lente.json",
+            "pages": [
+              "plataforma/lente",
+              "POST /lente/analyses",
+              "GET /lente/analyses",
+              "GET /lente/analyses/{analysis_id}",
+              "POST /lente/analyses/{analysis_id}/submit",
+              "POST /lente/analyses/{analysis_id}/cancel"
+            ]
+          },
+          {
+            "group": "Erros",
+            "pages": [
+              "plataforma/erros",
+              "problems/invalid_path",
+              "problems/invalid_content_length",
+              "problems/idempotency_in_progress",
+              "problems/method_not_allowed",
+              "problems/payload_too_large",
+              "problems/bad_gateway",
+              "problems/gateway_timeout",
+              "problems/scoped_key_required",
+              "problems/key_entitlement_missing",
+              "problems/entitlement_not_enabled"
+            ]
+          }
+        ]
       }
     ]
   }

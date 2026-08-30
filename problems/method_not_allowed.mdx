@@ -1,0 +1,27 @@
+---
+title: "method_not_allowed"
+description: "Erro 405: verbo HTTP não publicado para o recurso"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `405`
+
+O path existe na API pública, mas não aceita o verbo HTTP enviado. Consulte o
+header `Allow` e a tabela de endpoints do produto antes de reenviar.
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/method_not_allowed",
+  "title": "Method Not Allowed",
+  "status": 405,
+  "code": "method_not_allowed",
+  "detail": "Method DELETE is not allowed for this resource.",
+  "instance": "/api/v1/dossies/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "request_id": "req_01JEXEMPLO",
+  "retryable": false
+}
+```
+
+## Relacionado
+
+- [Autenticação e erros](/plataforma/autenticacao-erros)
