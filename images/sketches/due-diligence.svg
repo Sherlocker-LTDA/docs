@@ -13,6 +13,7 @@
   .sk-hot{fill:#f0a121;filter:url(#soft-glow)}
   .sk-label{fill:#f0a121;font:500 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.08em}
   .sk-small-label{fill:#f0a121;fill-opacity:.58;font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.13em}
+  .sk-section-label{fill:#f0a121;fill-opacity:.76;font:600 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.04em}
   .sk-node-label{fill:#f0a121;fill-opacity:.74;font:500 11px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.04em}
   .sk-flow-label{fill:#f0a121;fill-opacity:.9;font:500 17px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.01em}
   .sk-flow-caption{fill:#f0a121;fill-opacity:.62;font:500 13px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.07em}
@@ -25,7 +26,7 @@
 </style><g transform="translate(-15.2 -25) scale(1.04 1)"><defs>
     <filter id="soft-glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     <marker id="sk-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8z" fill="#f0a121" fill-opacity=".72" /></marker>
-  </defs><text class="sk-small-label" x="48" y="48" text-anchor="start">GRUPO ECONÔMICO</text><text class="sk-small-label" x="302" y="48" text-anchor="start">ANÁLISES DE RISCO</text><text class="sk-small-label" x="508" y="48" text-anchor="start">RELATÓRIO CONSOLIDADO</text><path class="sk-ghost" d="M88 88l104 90 104-90M88 318l104-140 104 140" /><g class="sk-entity-node" transform="translate(88 88)">
+  </defs><text class="sk-section-label" x="48" y="48" text-anchor="start">GRUPO ECONÔMICO</text><text class="sk-section-label" x="302" y="48" text-anchor="start">ANÁLISES DE RISCO</text><text class="sk-section-label" x="508" y="48" text-anchor="start">RELATÓRIO CONSOLIDADO</text><path class="sk-ghost" d="M88 88l104 90 104-90M88 318l104-140 104 140" /><g class="sk-entity-node" transform="translate(88 88)">
     <circle class="sk-node-ring" r="32" />
     <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g>
   </g><g class="sk-entity-node is-active" transform="translate(192 178)">

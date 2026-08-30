@@ -41,7 +41,7 @@ const stage = (iconName, x, y, width = 126, height = 76, className = "") => `<g 
 const labeledStage = (iconName, label, x, y, width = 270, height = 78) => `<g class="sk-stage" transform="translate(${x} ${y})">${panel(0, 0, width, height, 10)}${icon(iconName, 18, 24, 30)}<text class="sk-label" x="66" y="47">${label}</text></g>`;
 const flowStep = (iconName, label, x, y, width = 154, height = 96) => `<g class="sk-flow-step" transform="translate(${x} ${y})">${panel(0, 0, width, height, 11)}${icon(iconName, width / 2 - 17, 14, 34)}<text class="sk-flow-label" x="${width / 2}" y="78">${label}</text></g>`;
 const arrows = (...paths) => paths.map((path) => `<path class="sk-arrow" d="${path}" />`).join("");
-const sectionLabel = (label, x, y = 38, anchor = "start") => `<text class="sk-small-label" x="${x}" y="${y}" text-anchor="${anchor}">${label}</text>`;
+const sectionLabel = (label, x, y = 38, anchor = "start") => `<text class="sk-section-label" x="${x}" y="${y}" text-anchor="${anchor}">${label}</text>`;
 const compactResult = (x, y, iconName = "shield") => `<g class="sk-result" transform="translate(${x} ${y})">${panel(0, 0, 132, 112, 12)}${icon(iconName, 42, 18, 48)}<path class="sk-line" d="M24 84h84" /></g>`;
 const connectionDot = (path, duration = "4.8s", begin = "0s") => `<circle class="sk-hot" r="3"><animateMotion dur="${duration}" begin="${begin}" repeatCount="indefinite" path="${path}" /></circle>`;
 const assetNode = (iconName, x, y) => `<g transform="translate(${x} ${y})"><circle class="sk-node-ring" r="29" />${icon(iconName, -12, -12, 24)}</g>`;
@@ -114,7 +114,7 @@ function leadEnrichmentScene() {
 }
 
 function segmentationScene() {
-  return `${grid("segment-grid")}<text class="sk-small-label" x="38" y="52">LISTA DE CPFS</text><text class="sk-small-label" x="362" y="76">CRUZAR PATRIMÔNIO</text><text class="sk-small-label" x="522" y="54">SEGMENTOS PRIORIZADOS</text>${entityList({ x: 38, y: 70, width: 270, entities: [{ kind: "user", line: 112, detail: 65 }, { kind: "user", line: 95, detail: 72 }, { kind: "user", line: 124, detail: 80 }, { kind: "user", line: 104, detail: 68 }] })}${arrows("M308 212h44", "M480 212h32")}${scanner(362, 94, 118, 236)}<g transform="translate(522 72)">${panel(0, 0, 198, 286, 13)}${[0, 1, 2].map((i) => `<g transform="translate(20 ${34 + i * 82})"><rect class="sk-row-bg" width="158" height="62" rx="8" />${icon(i === 0 ? "chart" : "user", 13, 19, 24)}<path class="sk-line" d="M52 23h${88 - i * 16}M52 40h${48 + i * 14}" />${icon("check", 132, 19, 24)}</g>`).join("")}</g>${sharedSceneAnimation}`;
+  return `${grid("segment-grid")}${sectionLabel("LISTA DE CPFS", 38, 52)}${sectionLabel("CRUZAR PATRIMÔNIO", 362, 76)}${sectionLabel("SEGMENTOS PRIORIZADOS", 522, 54)}${entityList({ x: 38, y: 70, width: 270, entities: [{ kind: "user", line: 112, detail: 65 }, { kind: "user", line: 95, detail: 72 }, { kind: "user", line: 124, detail: 80 }, { kind: "user", line: 104, detail: 68 }] })}${arrows("M308 212h44", "M480 212h32")}${scanner(362, 94, 118, 236)}<g transform="translate(522 72)">${panel(0, 0, 198, 286, 13)}${[0, 1, 2].map((i) => `<g transform="translate(20 ${34 + i * 82})"><rect class="sk-row-bg" width="158" height="62" rx="8" />${icon(i === 0 ? "chart" : "user", 13, 19, 24)}<path class="sk-line" d="M52 23h${88 - i * 16}M52 40h${48 + i * 14}" />${icon("check", 132, 19, 24)}</g>`).join("")}</g>${sharedSceneAnimation}`;
 }
 
 function dueDiligenceScene() {

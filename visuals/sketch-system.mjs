@@ -184,6 +184,7 @@ const sharedStyles = `
   .sk-hot{fill:${ORANGE};filter:url(#soft-glow)}
   .sk-label{fill:${ORANGE};font:500 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.08em}
   .sk-small-label{fill:${ORANGE};fill-opacity:.58;font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.13em}
+  .sk-section-label{fill:${ORANGE};fill-opacity:.76;font:600 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.04em}
   .sk-node-label{fill:${ORANGE};fill-opacity:.74;font:500 11px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.04em}
   .sk-flow-label{fill:${ORANGE};fill-opacity:.9;font:500 17px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.01em}
   .sk-flow-caption{fill:${ORANGE};fill-opacity:.62;font:500 13px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.07em}
