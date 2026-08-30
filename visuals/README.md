@@ -64,7 +64,7 @@ Ela não entra quando a página é predominantemente configuração, preço, err
 | `motor-analise/introducao.mdx` | Triagem cadastral | `CompanyList → Scanner → CompanyList`, com uma empresa sendo analisada |
 | `credito/introducao.mdx` | Triagem de borderô | títulos e NFe entrando numa validação cruzada e chegando a um resultado |
 | `monitoramento/introducao.mdx` | Mudança detectada | `MixedEntityList + Timeline`, com o alerta aparecendo no evento e no item correspondente |
-| `plataforma/introducao.mdx` | Visão da Plataforma | uma única moldura de Plataforma contendo Dossiê, Rastro, Board/Mapa e Lente, sem conexões cruzadas |
+| `plataforma/introducao.mdx` | Visão da Plataforma | uma única moldura de Plataforma contendo Dossiê, Rastro, Mapa Investigativo e Lente, sem conexões cruzadas |
 | `plataforma/dossie.mdx` | Consolidação | grafo de pessoas e empresas convergindo para um `Document` estruturado |
 | `plataforma/rastro.mdx` | Presença digital | pessoa, `ChannelGrid` e `MaskedValue` de telefone, email, IP e identificadores |
 | `plataforma/board-mapa.mdx` | Investigação visual | nós de pessoa e empresa organizados num canvas que alterna entre rede e mapa |

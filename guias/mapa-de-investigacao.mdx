@@ -1,5 +1,5 @@
 ---
-title: "Mapa de investigação"
+title: "Mapa Investigativo"
 description: "Como transformar identificadores e achados em uma visão conectada do caso"
 icon: "diagram-project"
 ---
@@ -8,16 +8,16 @@ O **Mapa Investigativo** é o espaço visual do Sherlocker para organizar um cas
 cada entidade ocupa um bloco e cada vínculo explica como dois elementos se
 relacionam. Em vez de consultar uma pessoa, depois uma empresa e tentar reconstruir
 a história fora do sistema, você mantém o caminho da investigação visível no mesmo
-Board.
+mapa.
 
 Este guia acompanha um exemplo concreto: uma análise de fornecedor que começa pelo
 CNPJ, encontra pessoas relacionadas e precisa mostrar quais relações merecem uma
 verificação mais profunda.
 
 <Note>
-  **Board** é o contêiner da investigação. **Mapa Investigativo** é a visualização
-  das entidades e relações desse Board. **Mapa Geográfico** é outra visualização
-  do mesmo caso, limitada aos elementos que possuem coordenadas válidas.
+  Na API, cada Mapa Investigativo é identificado por um `board_id`. O Mapa
+  Geográfico é outra visualização do mesmo caso, limitada aos elementos que
+  possuem coordenadas válidas.
 </Note>
 
 ## O que o Mapa resolve
@@ -42,8 +42,8 @@ parte da resposta.
     Na página inicial do Sherlocker, escolha **CNPJ**, **CPF**, **E-mail** ou
     **Telefone**, informe o valor e inicie a busca.
 
-    O aplicativo cria um Board e coloca o primeiro identificador no Mapa
-    Investigativo. Para CPF e CNPJ, o bloco inicial pode chegar com dados cadastrais
+    O aplicativo inicia um Mapa Investigativo com o primeiro identificador. Para
+    CPF e CNPJ, o bloco inicial pode chegar com dados cadastrais
     da pessoa ou empresa. E-mail e telefone começam como identificadores que podem
     ser investigados a partir dali.
 
@@ -52,7 +52,7 @@ parte da resposta.
   </Step>
 
   <Step title="Dê ao caso um nome que preserve o objetivo">
-    No cabeçalho do Board, selecione o título para renomeá-lo. Prefira um nome que
+    No cabeçalho do mapa, selecione o título para renomeá-lo. Prefira um nome que
     registre alvo e finalidade, como `Fornecedor Atlas — homologação 2026`, em vez
     de manter apenas o documento.
 
@@ -120,7 +120,7 @@ parte da resposta.
   </Step>
 
   <Step title="Use a visão geográfica somente quando ela acrescentar contexto">
-    Abra a aba **Mapa Geográfico** para visualizar os elementos do Board que possuem
+    Abra a aba **Mapa Geográfico** para visualizar os elementos do caso que possuem
     coordenadas válidas. Essa visão pode ajudar a comparar sedes, imóveis ou outros
     pontos presentes na investigação.
 
@@ -134,7 +134,7 @@ parte da resposta.
     Confirme se cada conexão importante tem contexto suficiente e se as notas estão
     claramente separadas das evidências.
 
-    O aplicativo salva as alterações do Board e informa o estado como
+    O aplicativo salva as alterações do mapa e informa o estado como
     **salvando**, **salvo** ou **falha ao salvar**. Em caso de falha, use
     **Tentar de novo** antes de encerrar o trabalho.
 
@@ -169,46 +169,40 @@ de contexto, não como prova isolada de identidade. Veja a diferença entre
 
 ## Limites práticos
 
-- **O Board não coleta tudo sozinho.** As expansões e os módulos produzem achados;
+- **O Mapa não coleta tudo sozinho.** As expansões e os módulos produzem achados;
   o Mapa organiza o que foi acrescentado ao caso.
 - **Ausência no mapa não é resultado negativo.** Um elemento pode não ter sido
-  consultado, retornado, promovido ao Board ou geocodificado.
+  consultado, retornado, promovido ao mapa ou geocodificado.
 - **Uma conexão precisa de contexto.** Registre origem e significado suficientes
   para que outra pessoa consiga revisar a mesma afirmação.
 - **Mais blocos não significam mais certeza.** Interrompa a expansão quando a
   pergunta do caso já estiver respondida ou quando faltar uma fonte adequada.
 - **Mesclar exige confirmação de identidade.** Se usar a ação de mesclar duas
-  entidades, revise primeiro os identificadores: o Board mantém a entidade
+  entidades, revise primeiro os identificadores: o mapa mantém a entidade
   principal, remove a secundária e reorganiza suas conexões.
 
-## Uso no app e integração via API (preview)
+## Uso no app e integração via API
 
 O aplicativo é a experiência indicada para a investigação visual: nele você abre
 detalhes, executa módulos, adiciona resultados ao mapa, organiza a rede e registra
 notas.
 
-A API de Board serve para integrar essa estrutura aos sistemas da empresa. Ela
-permite criar e listar Boards, consultar a versão atual, aplicar alterações em
+A API do Mapa Investigativo serve para integrar essa estrutura aos sistemas da
+empresa. Ela permite criar e listar mapas, consultar a versão atual, aplicar alterações em
 entidades e relações, arquivar casos e solicitar uma exportação em PDF.
 
-<Warning>
-  Esta seção descreve o contrato em preview. Antes de implementar, confirme com
-  o time Sherlocker se as rotas e os escopos de Board estão publicados e
-  habilitados no ambiente do seu workspace.
-</Warning>
-
 <Note>
-  Criar uma entidade pela API do Board **não executa uma consulta investigativa**.
-  A chamada registra o elemento e suas relações no Board. A coleta deve vir de um
+  Criar uma entidade pela API do Mapa Investigativo **não executa uma consulta investigativa**.
+  A chamada registra o elemento e suas relações no mapa. A coleta deve vir de um
   recurso do Sherlocker apropriado — como Dossiê, Rastro ou outra consulta — ou de
   uma fonte autorizada pela sua empresa.
 </Note>
 
 Um fluxo de integração seguro segue esta ordem:
 
-1. crie o Board com `POST /boards` e uma chave de idempotência;
+1. crie o Mapa Investigativo com `POST /boards` e uma chave de idempotência;
 2. guarde o `id` e o `ETag` devolvidos;
-3. consulte o Board e monte a alteração sobre a versão atual;
+3. consulte o mapa e monte a alteração sobre a versão atual;
 4. envie inclusões, atualizações e remoções com `PATCH /boards/{board_id}/delta`
    e `If-Match`;
 5. se receber `412`, recarregue a versão mais recente e reconcilie as mudanças em
@@ -220,8 +214,8 @@ A exportação da API é assíncrona e, atualmente, aceita o formato PDF. As op�
 e XLSX descritas neste guia pertencem ao aplicativo.
 
 <CardGroup cols={2}>
-  <Card title="Board e Mapa" icon="diagram-project" href="/plataforma/board-mapa">
-    Consulte conceitos, operações e o contrato da API de Board
+  <Card title="Mapa Investigativo" icon="diagram-project" href="/plataforma/board-mapa">
+    Consulte conceitos, operações e o contrato da API do mapa
   </Card>
   <Card title="Autenticação da Plataforma" icon="key" href="/plataforma/autenticacao">
     Entenda chaves e escopos de leitura e escrita

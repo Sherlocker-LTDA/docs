@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Board e Mapa API",
-    "description": "Boards investigativos versionados, relações, colaboração e exportação.",
+    "title": "Mapa Investigativo API",
+    "description": "Mapas investigativos versionados, relações, colaboração e exportação.",
     "version": "1.0"
   },
   "servers": [{ "url": "https://221b-api.sherlocker.com.br/api/v1" }],
@@ -207,8 +207,8 @@
   "paths": {
     "/boards": {
       "post": {
-        "summary": "Criar Board",
-        "description": "Cria um Board com sua primeira versão de entidades e relações.",
+        "summary": "Criar Mapa Investigativo",
+        "description": "Cria um Mapa Investigativo com sua primeira versão de entidades e relações.",
         "operationId": "createBoard",
         "parameters": [{ "$ref": "#/components/parameters/IdempotencyKey" }],
         "requestBody": {
@@ -242,7 +242,7 @@
         },
         "responses": {
           "201": {
-            "description": "Board criado; o header ETag identifica a versão.",
+            "description": "Mapa criado; o header ETag identifica a versão.",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Board" }
@@ -255,8 +255,8 @@
         }
       },
       "get": {
-        "summary": "Listar Boards",
-        "description": "Lista Boards por cursor e estado.",
+        "summary": "Listar Mapas Investigativos",
+        "description": "Lista Mapas Investigativos por cursor e estado.",
         "operationId": "listBoards",
         "parameters": [
           { "$ref": "#/components/parameters/Limit" },
@@ -269,7 +269,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Página de Boards",
+            "description": "Página de Mapas Investigativos",
             "content": {
               "application/json": {
                 "schema": {
@@ -291,7 +291,7 @@
     },
     "/boards/{board_id}": {
       "get": {
-        "summary": "Consultar Board",
+        "summary": "Consultar Mapa Investigativo",
         "description": "Retorna o snapshot atual e seu ETag. Aceita If-None-Match para leitura condicional.",
         "operationId": "getBoard",
         "parameters": [
@@ -304,19 +304,19 @@
         ],
         "responses": {
           "200": {
-            "description": "Board encontrado",
+            "description": "Mapa encontrado",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Board" }
               }
             }
           },
-          "304": { "description": "O Board não mudou desde o ETag enviado." },
+          "304": { "description": "O mapa não mudou desde o ETag enviado." },
           "404": { "$ref": "#/components/responses/Error" }
         }
       },
       "patch": {
-        "summary": "Atualizar dados do Board",
+        "summary": "Atualizar dados do Mapa Investigativo",
         "description": "Altera nome ou propriedades usando controle de versão por ETag.",
         "operationId": "updateBoard",
         "parameters": [
@@ -342,7 +342,7 @@
         },
         "responses": {
           "200": {
-            "description": "Board atualizado",
+            "description": "Mapa atualizado",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Board" }
@@ -354,15 +354,15 @@
         }
       },
       "delete": {
-        "summary": "Excluir Board",
-        "description": "Exclui o Board indicado quando o ETag corresponde à versão atual.",
+        "summary": "Excluir Mapa Investigativo",
+        "description": "Exclui o mapa indicado quando o ETag corresponde à versão atual.",
         "operationId": "deleteBoard",
         "parameters": [
           { "$ref": "#/components/parameters/BoardId" },
           { "$ref": "#/components/parameters/IfMatch" }
         ],
         "responses": {
-          "204": { "description": "Board excluído" },
+          "204": { "description": "Mapa excluído" },
           "404": { "$ref": "#/components/responses/Error" },
           "412": { "$ref": "#/components/responses/Error" }
         }
@@ -370,7 +370,7 @@
     },
     "/boards/{board_id}/delta": {
       "patch": {
-        "summary": "Aplicar alterações ao Board",
+        "summary": "Aplicar alterações ao Mapa Investigativo",
         "description": "Aplica inclusões, atualizações e remoções de entidades e relações de forma atômica.",
         "operationId": "applyBoardDelta",
         "parameters": [
@@ -440,8 +440,8 @@
     },
     "/boards/{board_id}/archive": {
       "post": {
-        "summary": "Arquivar Board",
-        "description": "Arquiva o Board sem excluir seu conteúdo.",
+        "summary": "Arquivar Mapa Investigativo",
+        "description": "Arquiva o mapa sem excluir seu conteúdo.",
         "operationId": "archiveBoard",
         "parameters": [
           { "$ref": "#/components/parameters/BoardId" },
@@ -449,7 +449,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Board arquivado",
+            "description": "Mapa arquivado",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Board" }
@@ -463,8 +463,8 @@
     },
     "/boards/{board_id}/unarchive": {
       "post": {
-        "summary": "Reativar Board",
-        "description": "Torna ativo um Board arquivado.",
+        "summary": "Reativar Mapa Investigativo",
+        "description": "Torna ativo um mapa arquivado.",
         "operationId": "unarchiveBoard",
         "parameters": [
           { "$ref": "#/components/parameters/BoardId" },
@@ -472,7 +472,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Board reativado",
+            "description": "Mapa reativado",
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Board" }
@@ -486,8 +486,8 @@
     },
     "/boards/{board_id}/exports": {
       "post": {
-        "summary": "Criar exportação do Board",
-        "description": "Gera um PDF assíncrono da versão atual do Board.",
+        "summary": "Criar exportação do Mapa Investigativo",
+        "description": "Gera um PDF assíncrono da versão atual do mapa.",
         "operationId": "createBoardExport",
         "parameters": [
           { "$ref": "#/components/parameters/BoardId" },
@@ -523,7 +523,7 @@
     },
     "/boards/{board_id}/exports/{export_id}": {
       "get": {
-        "summary": "Consultar exportação do Board",
+        "summary": "Consultar exportação do Mapa Investigativo",
         "description": "Retorna andamento e, quando disponível, o link temporário do PDF.",
         "operationId": "getBoardExport",
         "parameters": [
