@@ -23,38 +23,28 @@
   .sk-timeline-dot{fill:#f0a121;stroke-width:0;filter:url(#soft-glow)}
   @keyframes flow{to{stroke-dashoffset:-30}}
   @media(prefers-reduced-motion:reduce){*{animation:none!important}}
-</style><g transform="translate(-15.2 -25) scale(1.04 1)"><defs>
-    <filter id="soft-glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <marker id="sk-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8z" fill="#f0a121" fill-opacity=".72" /></marker>
-  </defs><text class="sk-section-label" x="38" y="52" text-anchor="start">LISTA DE CPFS</text><text class="sk-section-label" x="362" y="76" text-anchor="start">CRUZAR PATRIMÔNIO</text><text class="sk-section-label" x="522" y="54" text-anchor="start">SEGMENTOS PRIORIZADOS</text><g class="sk-entity-list">
-    <rect class="sk-plane" x="38" y="70" width="270" height="256" rx="13" />
+</style><g transform="translate(-15.2 -25) scale(1.04 1)"><style>.segment-scene text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.segment-scene .segment-heading{font-size:14px;font-weight:600;letter-spacing:.03em}.segment-scene .segment-grade{font-size:18px;font-weight:700}.segment-scene .segment-detail{font-size:12px;font-weight:500;letter-spacing:.02em}</style><g class="segment-scene"><text class="sk-label segment-heading" x="40" y="58">BASE DE CPFS</text><text class="sk-label segment-heading" x="390" y="58" text-anchor="middle">SINAIS PATRIMONIAIS</text><text class="sk-label segment-heading" x="526" y="58">PRIORIDADE</text><g class="sk-entity-list">
+    <rect class="sk-plane" x="40" y="84" width="238" height="198" rx="13" />
 
-    <g class="sk-row" transform="translate(50 82)">
-      <rect class="sk-row-bg" width="246" height="54" rx="8" />
+    <g class="sk-row" transform="translate(52 96)">
+      <rect class="sk-row-bg" width="214" height="54" rx="8" />
       <rect class="sk-icon-box" x="10" y="9" width="36" height="36" rx="8" />
       <g class="sk-icon" transform="translate(18 17) scale(0.8333333333333334)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g>
-      <path class="sk-line" d="M62 20h112M62 35h65" />
+      <path class="sk-line" d="M62 20h98M62 35h62" />
 
     </g>
-    <g class="sk-row" transform="translate(50 140)">
-      <rect class="sk-row-bg" width="246" height="54" rx="8" />
+    <g class="sk-row" transform="translate(52 154)">
+      <rect class="sk-row-bg" width="214" height="54" rx="8" />
       <rect class="sk-icon-box" x="10" y="9" width="36" height="36" rx="8" />
       <g class="sk-icon" transform="translate(18 17) scale(0.8333333333333334)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g>
-      <path class="sk-line" d="M62 20h95M62 35h72" />
+      <path class="sk-line" d="M62 20h112M62 35h72" />
 
     </g>
-    <g class="sk-row" transform="translate(50 198)">
-      <rect class="sk-row-bg" width="246" height="54" rx="8" />
+    <g class="sk-row" transform="translate(52 212)">
+      <rect class="sk-row-bg" width="214" height="54" rx="8" />
       <rect class="sk-icon-box" x="10" y="9" width="36" height="36" rx="8" />
       <g class="sk-icon" transform="translate(18 17) scale(0.8333333333333334)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g>
-      <path class="sk-line" d="M62 20h124M62 35h80" />
+      <path class="sk-line" d="M62 20h88M62 35h58" />
 
     </g>
-    <g class="sk-row" transform="translate(50 256)">
-      <rect class="sk-row-bg" width="246" height="54" rx="8" />
-      <rect class="sk-icon-box" x="10" y="9" width="36" height="36" rx="8" />
-      <g class="sk-icon" transform="translate(18 17) scale(0.8333333333333334)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g>
-      <path class="sk-line" d="M62 20h104M62 35h68" />
-
-    </g>
-  </g><path class="sk-arrow" d="M308 212h44" /><path class="sk-arrow" d="M480 212h32" /><g class="sk-scanner" transform="translate(362 94)"><rect class="sk-plane" x="0" y="0" width="118" height="236" rx="13" /><path class="sk-line" d="M17 44V17h27M101 44V17h-27M17 192v27h27M101 192v27h-27" /><path class="sk-hair" d="M59 17v202M17 118h84" /><rect class="catalog-scan" x="18" y="46" width="82" height="14" /></g><g transform="translate(522 72)"><rect class="sk-plane" x="0" y="0" width="198" height="286" rx="13" /><g transform="translate(20 34)"><rect class="sk-row-bg" width="158" height="62" rx="8" /><g class="sk-icon" transform="translate(13 19) scale(1)"><path d="M5 21v-6M12 21V9M19 21V3" /></g><path class="sk-line" d="M52 23h88M52 40h48" /><g class="sk-icon" transform="translate(132 19) scale(1)"><path d="M21.801 10A10 10 0 1 1 17 3.335" /><path d="m9 11 3 3L22 4" /></g></g><g transform="translate(20 116)"><rect class="sk-row-bg" width="158" height="62" rx="8" /><g class="sk-icon" transform="translate(13 19) scale(1)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g><path class="sk-line" d="M52 23h72M52 40h62" /><g class="sk-icon" transform="translate(132 19) scale(1)"><path d="M21.801 10A10 10 0 1 1 17 3.335" /><path d="m9 11 3 3L22 4" /></g></g><g transform="translate(20 198)"><rect class="sk-row-bg" width="158" height="62" rx="8" /><g class="sk-icon" transform="translate(13 19) scale(1)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g><path class="sk-line" d="M52 23h56M52 40h76" /><g class="sk-icon" transform="translate(132 19) scale(1)"><path d="M21.801 10A10 10 0 1 1 17 3.335" /><path d="m9 11 3 3L22 4" /></g></g></g><style>.catalog-scan{fill:#f0a121;opacity:.05;animation:catalog-scan 5.8s ease-in-out infinite}.catalog-focus{animation:catalog-focus 5.8s ease-in-out infinite}.catalog-arrive{opacity:.25;animation:catalog-arrive 5.8s ease-in-out infinite}@keyframes catalog-scan{0%,24%,76%,100%{transform:translateY(0);opacity:.04}42%{opacity:.28}66%{transform:translateY(126px);opacity:.14}}@keyframes catalog-focus{0%,25%,100%{opacity:.28}42%,78%{opacity:1}}@keyframes catalog-arrive{0%,60%,100%{opacity:.25}76%,90%{opacity:1}}</style></g></svg>
+  </g><path class="sk-arrow" d="M278 215h48" /><path class="sk-arrow" d="M454 215h52" /><g class="sk-scanner" transform="translate(326 112)"><rect class="sk-plane" x="0" y="0" width="128" height="206" rx="13" /><path class="sk-line" d="M17 44V17h27M111 44V17h-27M17 162v27h27M111 162v27h-27" /><path class="sk-hair" d="M64 17v172M17 103h94" /><rect class="catalog-scan" x="18" y="46" width="92" height="14" /></g><g transform="translate(506 92)"><rect class="sk-plane" x="0" y="0" width="214" height="246" rx="13" /><g transform="translate(18 28)"><rect class="sk-row-bg" width="178" height="82" rx="9" /><g class="sk-icon" transform="translate(14 25) scale(1.1666666666666667)"><path d="M5 21v-6M12 21V9M19 21V3" /></g><text class="sk-label segment-grade" x="58" y="35">FAIXA A</text><text class="sk-small-label segment-detail" x="58" y="58">MAIOR PRIORIDADE</text><g class="sk-icon" transform="translate(146 25) scale(1.0833333333333333)"><path d="M21.801 10A10 10 0 1 1 17 3.335" /><path d="m9 11 3 3L22 4" /></g></g><g transform="translate(18 132)"><rect class="sk-row-bg" width="178" height="82" rx="9" /><g class="sk-icon" transform="translate(14 25) scale(1.1666666666666667)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g><text class="sk-label segment-grade" x="58" y="35">FAIXA B</text><text class="sk-small-label segment-detail" x="58" y="58">REVISAR</text><g class="sk-icon" transform="translate(146 25) scale(1.0833333333333333)"><path d="M21.801 10A10 10 0 1 1 17 3.335" /><path d="m9 11 3 3L22 4" /></g></g></g><circle class="sk-hot" r="3"><animateMotion dur="5s" begin="0s" repeatCount="indefinite" path="M278 215h48" /></circle><style>.catalog-scan{fill:#f0a121;opacity:.05;animation:catalog-scan 5.8s ease-in-out infinite}.catalog-focus{animation:catalog-focus 5.8s ease-in-out infinite}.catalog-arrive{opacity:.25;animation:catalog-arrive 5.8s ease-in-out infinite}@keyframes catalog-scan{0%,24%,76%,100%{transform:translateY(0);opacity:.04}42%{opacity:.28}66%{transform:translateY(126px);opacity:.14}}@keyframes catalog-focus{0%,25%,100%{opacity:.28}42%,78%{opacity:1}}@keyframes catalog-arrive{0%,60%,100%{opacity:.25}76%,90%{opacity:1}}</style></g></g></svg>

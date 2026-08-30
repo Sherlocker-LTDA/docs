@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="380" viewBox="0 0 760 380" role="img" aria-labelledby="title description"><title id="title">Board e Mapa</title><desc id="description">Pessoas e empresas são organizadas num canvas investigativo sobre uma planta.</desc><style>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="380" viewBox="0 0 760 380" role="img" aria-labelledby="title description"><title id="title">Mapa Investigativo</title><desc id="description">Pessoas, empresas e lugares são organizados em uma visão investigativa conectada.</desc><style>
   :host{display:block;color:#f0a121}
   svg{display:block;width:100%;height:auto;aspect-ratio:2/1;background:transparent;overflow:hidden}
   .sk-line,.sk-icon,.sk-flow,.sk-hair,.sk-ghost{fill:none;stroke:#f0a121;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}

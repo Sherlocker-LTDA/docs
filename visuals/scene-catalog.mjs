@@ -91,7 +91,16 @@ function ecosystemScene() {
 
 function profileScene(kind) {
   if (kind === "contacts") return `${grid("contacts-grid")}<path class="sk-ghost" d="M150 215h120M270 215C380 215 392 82 506 82M270 215C400 215 412 174 604 174M270 215C400 215 410 286 506 286M270 215C390 215 412 354 604 354" />${entityNode({ x: 150, y: 215, kind: "user", active: true })}${entityNode({ x: 270, y: 215, kind: "company" })}${assetNode("phone", 506, 82)}${assetNode("mail", 604, 174)}${assetNode("location", 506, 286)}${assetNode("briefcase", 604, 354)}${connectionDot("M270 215C400 215 410 286 506 286")}`;
-  if (kind === "assets") return `${grid("assets-grid")}<path class="sk-ghost" d="M106 184l126 62M106 184l126-62M232 246C355 246 358 74 500 74M232 246C355 246 370 166 620 166M232 246C355 246 368 276 500 276M232 246C355 246 365 358 620 358" />${entityNode({ x: 106, y: 184, kind: "user" })}${entityNode({ x: 232, y: 246, kind: "company", active: true })}${assetNode("house", 500, 74)}${assetNode("tractor", 620, 166)}${assetNode("car", 500, 276)}${assetNode("plane", 620, 358)}${connectionDot("M232 246C355 246 368 276 500 276")}`;
+  if (kind === "assets") {
+    const assets = [
+      [500, 110, "house", "IMÓVEL"],
+      [650, 110, "tractor", "RURAL"],
+      [500, 300, "car", "VEÍCULO"],
+      [650, 300, "plane", "AERONAVE"],
+    ];
+
+    return `<style>.profile-assets text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.profile-assets .asset-label{font-size:13px;font-weight:600;letter-spacing:.04em;text-anchor:middle}</style><g class="profile-assets"><path class="sk-flow" d="M112 215H198" /><path class="sk-ghost" d="M262 215C360 215 390 110 471 110M262 215C390 215 470 110 621 110M262 215C360 215 390 300 471 300M262 215C390 215 470 300 621 300" />${entityNode({ x: 80, y: 215, kind: "user" })}${entityNode({ x: 230, y: 215, kind: "company", active: true })}<text class="sk-label asset-label" x="80" y="270">PESSOA</text><text class="sk-label asset-label" x="230" y="270">EMPRESA</text>${assets.map(([x, y, iconName, label]) => `${assetNode(iconName, x, y)}<text class="sk-label asset-label" x="${x}" y="${y + 52}">${label}</text>`).join("")}${connectionDot("M262 215C360 215 390 110 471 110", "5.2s")}</g>`;
+  }
   return `${grid("legal-grid")}${entityList({ x: 42, y: 70, width: 294, entities: [{ kind: "company", line: 114, detail: 72 }, { kind: "user", line: 98, detail: 64 }, { kind: "company", line: 126, detail: 82 }, { kind: "user", line: 105, detail: 70 }] })}<path class="sk-flow" d="M336 212h64M516 212h44" />${scanner(400, 94, 116, 236)}<g transform="translate(560 54)">${panel(0, 0, 158, 320, 12)}<path class="sk-hair" d="M36 42v238" />${[0, 1, 2, 3].map((i) => `<g transform="translate(0 ${54 + i * 70})"><circle class="sk-timeline-dot" cx="36" r="6" />${icon(i === 2 ? "alert" : "gavel", 58, -13, 26)}<path class="sk-line" d="M98-4h38M98 12h24" /></g>`).join("")}</g>${sharedSceneAnimation}`;
 }
 
@@ -114,11 +123,21 @@ function leadEnrichmentScene() {
 }
 
 function segmentationScene() {
-  return `${grid("segment-grid")}${sectionLabel("LISTA DE CPFS", 38, 52)}${sectionLabel("CRUZAR PATRIMÔNIO", 362, 76)}${sectionLabel("SEGMENTOS PRIORIZADOS", 522, 54)}${entityList({ x: 38, y: 70, width: 270, entities: [{ kind: "user", line: 112, detail: 65 }, { kind: "user", line: 95, detail: 72 }, { kind: "user", line: 124, detail: 80 }, { kind: "user", line: 104, detail: 68 }] })}${arrows("M308 212h44", "M480 212h32")}${scanner(362, 94, 118, 236)}<g transform="translate(522 72)">${panel(0, 0, 198, 286, 13)}${[0, 1, 2].map((i) => `<g transform="translate(20 ${34 + i * 82})"><rect class="sk-row-bg" width="158" height="62" rx="8" />${icon(i === 0 ? "chart" : "user", 13, 19, 24)}<path class="sk-line" d="M52 23h${88 - i * 16}M52 40h${48 + i * 14}" />${icon("check", 132, 19, 24)}</g>`).join("")}</g>${sharedSceneAnimation}`;
+  const segments = [
+    ["A", "MAIOR PRIORIDADE", "chart"],
+    ["B", "REVISAR", "user"],
+  ];
+
+  return `<style>.segment-scene text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.segment-scene .segment-heading{font-size:14px;font-weight:600;letter-spacing:.03em}.segment-scene .segment-grade{font-size:18px;font-weight:700}.segment-scene .segment-detail{font-size:12px;font-weight:500;letter-spacing:.02em}</style><g class="segment-scene"><text class="sk-label segment-heading" x="40" y="58">BASE DE CPFS</text><text class="sk-label segment-heading" x="390" y="58" text-anchor="middle">SINAIS PATRIMONIAIS</text><text class="sk-label segment-heading" x="526" y="58">PRIORIDADE</text>${entityList({ x: 40, y: 84, width: 238, entities: [{ kind: "user", line: 98, detail: 62 }, { kind: "user", line: 112, detail: 72 }, { kind: "user", line: 88, detail: 58 }] })}${arrows("M278 215h48", "M454 215h52")}${scanner(326, 112, 128, 206)}<g transform="translate(506 92)">${panel(0, 0, 214, 246, 13)}${segments.map(([grade, detail, iconName], index) => `<g transform="translate(18 ${28 + index * 104})"><rect class="sk-row-bg" width="178" height="82" rx="9" />${icon(iconName, 14, 25, 28)}<text class="sk-label segment-grade" x="58" y="35">FAIXA ${grade}</text><text class="sk-small-label segment-detail" x="58" y="58">${detail}</text>${icon("check", 146, 25, 26)}</g>`).join("")}</g>${connectionDot("M278 215h48", "5s")}${sharedSceneAnimation}</g>`;
 }
 
 function dueDiligenceScene() {
-  return `${grid("due-grid")}${sectionLabel("GRUPO ECONÔMICO", 48, 48)}${sectionLabel("ANÁLISES DE RISCO", 330, 48)}${sectionLabel("RELATÓRIO CONSOLIDADO", 520, 48)}<path class="sk-ghost" d="M70 95l90 95 96-95M70 315l90-125 96 125" />${entityNode({ x: 70, y: 95, kind: "user" })}${entityNode({ x: 160, y: 190, kind: "company", active: true })}${entityNode({ x: 256, y: 95, kind: "user" })}${entityNode({ x: 70, y: 315, kind: "company" })}${entityNode({ x: 256, y: 315, kind: "user" })}<path class="sk-flow" d="M192 190h138M456 92C490 92 486 153 520 153M456 215h64M456 338C490 338 486 277 520 277" />${stage("gavel", 330, 54, 126, 76)}${stage("banknote", 330, 177, 126, 76)}${stage("landmark", 330, 300, 126, 76)}${documentCard(520, 52, 192, 344)}${connectionDot("M192 190h138")}`;
+  const checks = [
+    ["gavel", "JURÍDICO", 118],
+    ["banknote", "FINANCEIRO", 250],
+  ];
+
+  return `<style>.due-scene text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.due-scene .due-heading{font-size:14px;font-weight:600;letter-spacing:.03em;text-anchor:middle}.due-scene .due-check{font-size:13px;font-weight:600;letter-spacing:.03em}</style><g class="due-scene"><text class="sk-label due-heading" x="135" y="54">GRUPO ECONÔMICO</text><text class="sk-label due-heading" x="390" y="54">ANÁLISES DE RISCO</text><text class="sk-label due-heading" x="625" y="54">RELATÓRIO</text><path class="sk-ghost" d="M76 126L144 215 76 304M144 215l74-89M144 215l74 89" />${entityNode({ x: 76, y: 126, kind: "user" })}${entityNode({ x: 144, y: 215, kind: "company", active: true })}${entityNode({ x: 76, y: 304, kind: "company" })}${entityNode({ x: 218, y: 126, kind: "user" })}${entityNode({ x: 218, y: 304, kind: "user" })}<path class="sk-flow" d="M176 215H304M476 158C512 158 512 178 540 178M476 290C512 290 512 252 540 252" />${checks.map(([iconName, label, y]) => `<g transform="translate(304 ${y})">${panel(0, 0, 172, 80, 10)}${icon(iconName, 18, 25, 30)}<text class="sk-label due-check" x="66" y="47">${label}</text></g>`).join("")}<g transform="translate(540 92)">${panel(0, 0, 170, 238, 10)}${icon("file", 22, 24, 34)}<path class="sk-line" d="M76 38h62M22 92h116M22 126h92M22 160h116" />${icon("shield", 110, 184, 36)}</g>${connectionDot("M176 215H304", "5.4s")}</g>`;
 }
 
 function assetInvestigationScene() {
@@ -184,7 +203,7 @@ function platformScene() {
   const capabilities = [
     ["file", "DOSSIÊ", "CONSOLIDAÇÃO"],
     ["search", "RASTRO", "SINAIS DIGITAIS"],
-    ["map", "BOARD E MAPA", "RELAÇÕES E CONTEXTO"],
+    ["map", "MAPA INVESTIGATIVO", "RELAÇÕES E CONTEXTO"],
     ["image", "LENTE", "EVIDÊNCIA VISUAL"],
   ];
 
@@ -202,14 +221,41 @@ function investigationInfrastructureFoundationScene() {
   return `<style>.vision-journey text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.vision-journey .journey-heading{font-size:17px;font-weight:600;letter-spacing:.04em}.vision-journey .journey-title{font-size:18px;font-weight:600;letter-spacing:.04em;text-anchor:middle}.vision-journey .journey-product{font-size:13px;font-weight:400;letter-spacing:0;text-anchor:middle}</style><g class="vision-journey"><text class="sk-label journey-heading" x="46" y="62">UMA ESTEIRA CONTÍNUA</text><path class="sk-hair" d="M46 86H714" />${arrows("M126 172H248", "M316 172H438", "M506 172H628")}${stages.map(([x, iconName, title, product]) => `<g transform="translate(${x} 172)">${icon(iconName, -20, -62, 40)}<circle class="sk-hot" cx="0" cy="0" r="4" /><text class="sk-label journey-title" x="0" y="54">${title}</text><text class="sk-small-label journey-product" x="0" y="82">${product}</text></g>`).join("")}${connectionDot("M126 172H628", "6s")}</g>`;
 }
 
-function teamFragmentedPainScene() {
-  const intervals = [
-    ["40 MIN", "ABRIR SOFTWARES", "E TROCAR ACESSOS"],
-    ["45 MIN", "COPIAR DADOS", "E CONSOLIDAR"],
-    ["60 MIN", "ESCREVER", "O RELATÓRIO"],
+function investigationInfrastructureHeroScene() {
+  const capabilities = [
+    [150, "checklist", "CADASTRO"],
+    [380, "banknote", "OPERAÇÃO"],
+    [610, "refresh", "MONITORAMENTO"],
   ];
 
-  return `<style>.vision-editorial .sk-label{font-size:22px}.vision-editorial .sk-small-label{font-size:14px;letter-spacing:.08em}.vision-editorial .vision-total{font-size:24px}</style><g class="vision-editorial"><text class="sk-label" x="46" y="48">ONDE O TEMPO DO ANALISTA SE PERDE</text><text class="sk-small-label" x="46" y="72">CENÁRIO ILUSTRATIVO · TEMPO DE TOQUE</text>${icon("user", 48, 96, 36)}<text class="sk-small-label" x="100" y="120">ALÉM DE INVESTIGAR, UMA PESSOA PRECISA:</text>${intervals.map(([time, line1, line2], index) => `<g transform="translate(46 ${154 + index * 64})">${icon(index === 0 ? "globe" : index === 1 ? "database" : "file", 0, 2, 34)}<text class="sk-label" x="54" y="20">${time}</text><text class="sk-small-label" x="166" y="13">${line1}</text><text class="sk-small-label" x="166" y="36">${line2}</text></g>`).join("")}<text class="sk-label vision-total" x="46" y="370">145 MIN SÓ PARA COSTURAR O PROCESSO</text><text class="sk-small-label" x="46" y="402">+ 90 MIN DE CONSULTAS + 30 MIN DE REVISÃO = 265 MIN DE TOQUE</text></g>`;
+  return `<style>.infra-hero text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.infra-hero .infra-label{font-size:14px;font-weight:600;letter-spacing:.03em;text-anchor:middle}.infra-hero .infra-base{font-size:17px;font-weight:650;letter-spacing:.03em;text-anchor:middle}</style><g class="infra-hero">${capabilities.map(([x, iconName, label]) => `<g transform="translate(${x} 92)"><circle class="sk-node-ring" r="30" />${icon(iconName, -13, -13, 26)}<text class="sk-label infra-label" x="0" y="58">${label}</text><path class="sk-hair" d="M0 72v42" /></g>`).join("")}<path class="sk-line" d="M92 206H668" />${icon("network", 363, 218, 34)}<text class="sk-label infra-base" x="380" y="278">UMA FUNDAÇÃO</text></g>`;
+}
+
+function teamFragmentedPainScene() {
+  const stages = [
+    [72, "user", "ANALISTA"],
+    [276, "globe", "CONSULTAS"],
+    [484, "database", "CONSOLIDAÇÃO"],
+    [688, "file", "RELATÓRIO"],
+  ];
+
+  const gaps = [
+    [174, "TROCA DE ACESSO"],
+    [380, "CÓPIA MANUAL"],
+    [586, "REESCRITA"],
+  ];
+
+  return `<style>.vision-intervals text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.vision-intervals .interval-title{font-size:16px;font-weight:600;letter-spacing:.02em;text-anchor:middle}.vision-intervals .interval-gap{font-size:11px;font-weight:500;letter-spacing:.03em;text-anchor:middle}.vision-intervals .interval-path{fill:none;stroke:#f0a121;stroke-width:1.5;stroke-dasharray:8 10;opacity:.68}</style><g class="vision-intervals"><path class="interval-path" d="M104 190H656" />${stages.map(([x, iconName, label]) => `<g transform="translate(${x} 190)"><circle class="sk-node-ring" r="34" />${icon(iconName, -14, -14, 28)}<text class="sk-label interval-title" x="0" y="68">${label}</text></g>`).join("")}${gaps.map(([x, label]) => `<g transform="translate(${x} 190)"><circle class="sk-hot" r="4" /><path class="sk-hair" d="M0-12v-26" /><text class="sk-small-label interval-gap" x="0" y="-46">${label}</text></g>`).join("")}${connectionDot("M104 190H656", "7s")}</g>`;
+}
+
+function teamSharedCaseHeroScene() {
+  const teams = [
+    [150, 104, "FINANCEIRO"],
+    [150, 258, "JURÍDICO"],
+    [610, 181, "RISCO"],
+  ];
+
+  return `<style>.team-hero text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.team-hero .team-label{font-size:13px;font-weight:600;letter-spacing:.03em;text-anchor:middle}.team-hero .case-label{font-size:17px;font-weight:650;letter-spacing:.03em;text-anchor:middle}</style><g class="team-hero"><path class="sk-ghost" d="M182 104C274 104 270 181 338 181M182 258C274 258 270 181 338 181M422 181H578" />${teams.map(([x, y, label]) => `<g transform="translate(${x} ${y})"><circle class="sk-node-ring" r="31" />${icon("user", -13, -13, 26)}<text class="sk-label team-label" x="0" y="56">${label}</text></g>`).join("")}<g transform="translate(380 181)"><circle class="sk-node-ring" r="42" />${icon("file", -16, -16, 32)}<text class="sk-label case-label" x="0" y="76">MESMO CASO</text></g>${connectionDot("M182 104C274 104 270 181 338 181", "5.6s")}</g>`;
 }
 
 function boardScene() {
@@ -262,8 +308,8 @@ function financialScene() {
   return `${grid("financial-grid")}${entityNode({ x: 134, y: 176, kind: "user" })}${entityNode({ x: 226, y: 256, kind: "company", active: true })}<path class="sk-ghost" d="M166 176l60 80M258 256C352 256 354 82 492 82M258 256C360 256 364 215 602 215M258 256C352 256 354 348 492 348" />${assetNode("banknote", 492, 82)}${assetNode("landmark", 602, 215)}${assetNode("wallet", 492, 348)}${connectionDot("M258 256C352 256 354 82 492 82")}`;
 }
 
-function register(id, title, description, render) {
-  SCENES[id] = { title, description, render };
+function register(id, title, description, render, options = {}) {
+  SCENES[id] = { title, description, render, ...options };
 }
 
 register("docs-home", "Ecossistema Sherlocker", "Pessoas e empresas se conectam a perfis cadastral, patrimonial e jurídico.", ecosystemScene);
@@ -287,10 +333,12 @@ register("analysis-quickstart", "Primeira análise de CPF/CNPJ", "Um documento �
 register("analysis-block-catalog", "Catálogo de blocos", "Um documento passa por blocos configurados de cadastro, sanções, processos e crédito antes do veredito.", analysisBlockCatalogScene);
 register("credit-quickstart", "Primeira análise de borderô", "Um arquivo CNAB 400 percorre o processamento e devolve o resultado de cada título.", creditQuickstartScene);
 register("titles-nfe", "Títulos e notas fiscais", "Cada título é comparado ao XML de sua nota fiscal para confirmar os dados ou apontar divergências.", titlesNfeScene);
-register("platform-overview", "Plataforma", "Dossiê, Rastro, Board e Mapa e Lente fazem parte de uma única Plataforma, com operação, integração e governança compartilhadas.", platformScene);
-register("vision-infra-foundation", "Infraestrutura para a esteira inteira", "Motor, OC e Mapa, Motor de Borderô e Monitoramento acompanham o mesmo ciclo antes, durante e depois da entrada.", investigationInfrastructureFoundationScene);
-register("vision-team-pain", "Tempo perdido nos intervalos", "Um analista atravessa vários softwares e gasta tempo abrindo sistemas, consolidando dados e escrevendo o relatório antes da entrega.", teamFragmentedPainScene);
-register("board-map", "Board e Mapa", "Pessoas e empresas são organizadas num canvas investigativo sobre uma planta.", boardScene);
+register("platform-overview", "Plataforma", "Dossiê, Rastro, Mapa Investigativo e Lente fazem parte de uma única Plataforma, com operação, integração e governança compartilhadas.", platformScene);
+register("vision-infra-hero", "Uma fundação para capacidades diferentes", "Cadastro, operação e monitoramento compartilham a mesma fundação.", investigationInfrastructureHeroScene, { height: 300 });
+register("vision-infra-foundation", "Infraestrutura para a esteira inteira", "Motor, Mapa Investigativo, Motor de Borderô e Monitoramento acompanham o mesmo ciclo antes, durante e depois da entrada.", investigationInfrastructureFoundationScene, { height: 300 });
+register("vision-team-hero", "Um caso compartilhado entre áreas", "Financeiro, Risco e Jurídico trabalham sobre o mesmo caso.", teamSharedCaseHeroScene, { height: 300 });
+register("vision-team-pain", "Tempo perdido nos intervalos", "Uma pessoa atravessa consultas, consolidação e relatório, com trabalho manual entre cada etapa.", teamFragmentedPainScene, { height: 300 });
+register("board-map", "Mapa Investigativo", "Pessoas, empresas e lugares são organizados em uma visão investigativa conectada.", boardScene);
 register("lente", "Lente", "Uma imagem pode originar uma estimativa de localização ou uma comparação facial.", lensScene);
 register("integration-rest", "Integração via API", "Uma aplicação envia uma solicitação e recebe um resultado estruturado.", () => integrationScene("globe"));
 register("integration-postman", "Postman", "O Postman funciona como canal de entrada para a mesma API.", () => integrationScene("send"));
@@ -355,7 +403,7 @@ const primaryPages = [
   ["casos-de-uso/background-check.mdx", "Background check", "background-check"], ["casos-de-uso/enriquecimento-leads.mdx", "Enriquecimento de leads", "lead-enrichment"], ["casos-de-uso/segmentacao-patrimonial.mdx", "Segmentação patrimonial", "asset-segmentation"], ["casos-de-uso/due-diligence.mdx", "Due diligence", "due-diligence"], ["casos-de-uso/levantamento-patrimonial.mdx", "Levantamento patrimonial", "asset-investigation"], ["casos-de-uso/localizacao-partes.mdx", "Localização de partes", "locate-party"], ["casos-de-uso/graus-de-conexao.mdx", "Graus de conexão", "connection-degrees"],
   ["processos/base-vs-tempo-real.mdx", "Base x tempo real", "process-sources"], ["processos/vinculo-nome-documento.mdx", "Documento x nome", "identity-match"],
   ["motores/introducao.mdx", "Motores de Análise", "motors-overview"], ["motor-analise/introducao.mdx", "Motor de CPF/CNPJ", "motor"], ["credito/introducao.mdx", "Motor de Borderô", "credit-bordero"], ["monitoramento/introducao.mdx", "Monitoramento", "monitoramento"],
-  ["plataforma/introducao.mdx", "Plataforma", "platform-overview"], ["plataforma/dossie.mdx", "Dossiê", "dossie"], ["plataforma/rastro.mdx", "Rastro", "rastro"], ["plataforma/board-mapa.mdx", "Board e Mapa", "board-map"], ["plataforma/lente.mdx", "Lente", "lente"],
+  ["plataforma/introducao.mdx", "Plataforma", "platform-overview"], ["plataforma/dossie.mdx", "Dossiê", "dossie"], ["plataforma/rastro.mdx", "Rastro", "rastro"], ["plataforma/board-mapa.mdx", "Mapa Investigativo", "board-map"], ["plataforma/lente.mdx", "Lente", "lente"],
 ].map(([path, title, scene]) => ({ path, title, scene, group: "Cenas principais", reuse: false }));
 
 const reusedPages = [
@@ -392,4 +440,4 @@ export const INLINE_SCENES = [
   ["entidades/divida.mdx", "entity-divida"],
   ["monitoramento/ciclo-de-vida.mdx", "monitor-lifecycle"],
 ].map(([path, scene]) => ({ path, scene }));
-export const SUPPLEMENTAL_SCENES = ["vision-infra-foundation", "vision-team-pain"];
+export const SUPPLEMENTAL_SCENES = ["vision-infra-hero", "vision-infra-foundation", "vision-team-hero", "vision-team-pain"];

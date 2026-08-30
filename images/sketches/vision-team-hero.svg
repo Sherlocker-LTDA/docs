@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300" role="img" aria-labelledby="title description"><title id="title">Um caso compartilhado entre áreas</title><desc id="description">Financeiro, Risco e Jurídico trabalham sobre o mesmo caso.</desc><style>
+  :host{display:block;color:#f0a121}
+  svg{display:block;width:100%;height:auto;aspect-ratio:2/1;background:transparent;overflow:hidden}
+  .sk-line,.sk-icon,.sk-flow,.sk-hair,.sk-ghost{fill:none;stroke:#f0a121;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .sk-line,.sk-icon{stroke-width:1.55}
+  .sk-hair{stroke-width:.85;stroke-opacity:.3}
+  .sk-ghost{stroke-width:1;stroke-opacity:.28;stroke-dasharray:5 7}
+  .sk-flow{stroke-width:1.1;stroke-opacity:.42;stroke-dasharray:7 8;animation:flow 2.2s linear infinite}
+  .sk-arrow{fill:none;stroke:#f0a121;stroke-width:1.15;stroke-opacity:.7;marker-end:url(#sk-arrow);vector-effect:non-scaling-stroke}
+  .sk-plane,.sk-row-bg,.sk-icon-box{fill:rgba(240,161,33,.024);stroke:#f0a121;stroke-width:1.15;stroke-opacity:.68;vector-effect:non-scaling-stroke}
+  .sk-row-bg{fill:rgba(240,161,33,.018);stroke-opacity:.24}
+  .sk-icon-box{stroke-opacity:.34}
+  .sk-hot{fill:#f0a121;filter:url(#soft-glow)}
+  .sk-label{fill:#f0a121;font:500 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.08em}
+  .sk-small-label{fill:#f0a121;fill-opacity:.58;font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.13em}
+  .sk-section-label{fill:#f0a121;fill-opacity:.76;font:600 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.04em}
+  .sk-node-label{fill:#f0a121;fill-opacity:.74;font:500 11px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.04em}
+  .sk-flow-label{fill:#f0a121;fill-opacity:.9;font:500 17px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.01em}
+  .sk-flow-caption{fill:#f0a121;fill-opacity:.62;font:500 13px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.07em}
+  .is-muted{opacity:.45}
+  .sk-corner{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.35}
+  .sk-node-ring,.sk-timeline-dot{fill:rgba(240,161,33,.018);stroke:#f0a121;stroke-width:1.4;vector-effect:non-scaling-stroke}
+  .sk-timeline-dot{fill:#f0a121;stroke-width:0;filter:url(#soft-glow)}
+  @keyframes flow{to{stroke-dashoffset:-30}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+svg{aspect-ratio:760/300}</style><g transform="translate(-15.2 -25) scale(1.04 1)"><style>.team-hero text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.team-hero .team-label{font-size:13px;font-weight:600;letter-spacing:.03em;text-anchor:middle}.team-hero .case-label{font-size:17px;font-weight:650;letter-spacing:.03em;text-anchor:middle}</style><g class="team-hero"><path class="sk-ghost" d="M182 104C274 104 270 181 338 181M182 258C274 258 270 181 338 181M422 181H578" /><g transform="translate(150 104)"><circle class="sk-node-ring" r="31" /><g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g><text class="sk-label team-label" x="0" y="56">FINANCEIRO</text></g><g transform="translate(150 258)"><circle class="sk-node-ring" r="31" /><g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g><text class="sk-label team-label" x="0" y="56">JURÍDICO</text></g><g transform="translate(610 181)"><circle class="sk-node-ring" r="31" /><g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g><text class="sk-label team-label" x="0" y="56">RISCO</text></g><g transform="translate(380 181)"><circle class="sk-node-ring" r="42" /><g class="sk-icon" transform="translate(-16 -16) scale(1.3333333333333333)"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5M10 9H8M16 13H8M16 17H8" /></g><text class="sk-label case-label" x="0" y="76">MESMO CASO</text></g><circle class="sk-hot" r="3"><animateMotion dur="5.6s" begin="0s" repeatCount="indefinite" path="M182 104C274 104 270 181 338 181" /></circle></g></g></svg>

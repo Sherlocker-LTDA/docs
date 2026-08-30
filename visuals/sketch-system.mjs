@@ -308,9 +308,13 @@ const SCENES = {
   rastro: { title: "Rastro", description: "Uma pessoa é associada às suas redes e a identificadores mascarados.", render: rastroScene },
 };
 
-function renderSceneSvg(name, { width = 760, height = 380 } = {}) {
+function renderSceneSvg(name, options = {}) {
   const scene = SCENES[name] || SCENES.monitoramento;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 760 380" role="img" aria-labelledby="title description"><title id="title">${escapeXml(scene.title)}</title><desc id="description">${escapeXml(scene.description)}</desc><style>${sharedStyles}</style><g transform="translate(-15.2 -25) scale(1.04 1)">${scene.render()}</g></svg>`;
+  const width = options.width ?? 760;
+  const height = options.height ?? scene.height ?? 380;
+  const viewBoxHeight = options.viewBoxHeight ?? scene.viewBoxHeight ?? height;
+  const intrinsicRatio = scene.height ? `svg{aspect-ratio:${width}/${height}}` : "";
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 760 ${viewBoxHeight}" role="img" aria-labelledby="title description"><title id="title">${escapeXml(scene.title)}</title><desc id="description">${escapeXml(scene.description)}</desc><style>${sharedStyles}${intrinsicRatio}</style><g transform="translate(-15.2 -25) scale(1.04 1)">${scene.render()}</g></svg>`;
 }
 
 const HTMLElementBase = typeof HTMLElement === "undefined" ? class {} : HTMLElement;
