@@ -1,0 +1,185 @@
+---
+title: "Automação que não perde a exceção"
+description: "Como combinar decisões objetivas, investigação e revisão humana sem romper o fluxo quando o caso deixa de ser binário."
+icon: "gears"
+---
+
+Automatizar um processo é relativamente simples enquanto todas as respostas
+cabem em regras objetivas.
+
+O problema aparece quando falta uma informação, duas evidências divergem ou o
+caso exige interpretação. Nesse momento, muitas automações terminam exatamente
+onde o trabalho fica mais caro: a exceção sai do sistema, entra em uma fila
+manual e precisa ser reconstruída por uma pessoa em outras ferramentas.
+
+O Sherlocker foi pensado para que automação e investigação possam operar na
+mesma infraestrutura. O Motor executa o que pode ser expresso como política,
+regra ou limiar. Quando o caso precisa de pesquisa aberta, o time pode iniciar
+um Dossiê dentro do Sherlocker para aprofundá-lo. A intervenção humana permanece
+onde existe julgamento, não onde existe apenas trabalho de coleta e
+consolidação.
+
+## A automação pode amadurecer sem reconstruir a operação
+
+Nem todo processo começa pronto para ser automatizado. Frequentemente, a
+empresa primeiro precisa compreender como seus especialistas investigam,
+identificar o que se repete e transformar apenas os critérios estáveis em
+regras.
+
+Uma infraestrutura modular permite percorrer esse caminho sobre a mesma base.
+
+<Frame>
+  <img
+    src="/images/visao/maturidade-da-automacao.svg"
+    alt="Evolução gradual de uma investigação manual para uma investigação assistida e, depois, para um processo automatizado"
+  />
+</Frame>
+
+Na investigação manual, uma pessoa escolhe e executa as capacidades necessárias.
+Na investigação assistida, coleta, expansão e organização podem ser preparadas
+para revisão. Quando os critérios se tornam reproduzíveis, o Motor passa a
+orquestrar essas verificações automaticamente.
+
+Não é necessário escolher entre uma ferramenta apenas manual e outra apenas
+automática. A forma de execução muda conforme o processo amadurece; as
+capacidades investigativas e o contexto do caso continuam na mesma fundação.
+
+## O Motor resolve o que pode ser estrito
+
+O Motor transforma critérios de negócio em um fluxo reproduzível de triagem,
+verificação e encaminhamento. Ele é mais valioso quando não tenta interpretar o
+que a empresa ainda não transformou em regra.
+
+Em uma análise de contraparte, por exemplo, critérios objetivos podem produzir
+aprovação, alerta ou reprovação. A cobertura também pode mostrar que uma fonte
+ficou indisponível. Alertas, cobertura incompleta ou questões que não foram
+representadas por uma regra podem levar o time a revisar o caso.
+
+Essa necessidade de revisão não é uma falha da automação. É um limite esperado
+de um sistema responsável: a empresa não deve forçar uma resposta automática
+quando a política e as evidências não sustentam a decisão.
+
+## A exceção encontra um caminho de investigação
+
+Quando um resultado exige investigação, o caso não deveria terminar em uma
+planilha, em mensagens ou em outra ferramenta contratada apenas para tratar
+exceções.
+
+<Frame>
+  <img
+    src="/images/visao/excecao-continua-no-fluxo.svg"
+    alt="Fluxo em que o Motor sinaliza um limite, um atalho leva o documento ao Dossiê, a investigação é aprofundada e uma pessoa revisa e decide"
+  />
+</Frame>
+
+Na experiência em preview do Motor colaborativo, o resultado oferece o atalho
+**Abrir dossiê**. O documento analisado acompanha o atalho: se já existir um
+Dossiê utilizável, ele é aberto; caso contrário, a criação começa com o CPF ou
+CNPJ preenchido. A pessoa ainda escolhe o foco e confirma a nova investigação.
+
+Portanto, a passagem é integrada, mas continua deliberada. Hoje, o atalho
+reaproveita o identificador do documento — não transfere o resultado, o motivo
+ou as evidências do Motor. O time ainda precisa preservar e registrar esse
+contexto de acordo com o seu processo. O ganho atual é reduzir a reentrada de
+dados, sem transformar toda exceção em um Dossiê automático.
+
+A partir daí, o Dossiê mantém alvo, foco, cobertura, evidências e estado da nova
+investigação conectados. Etapas de expansão, pesquisa, organização e síntese
+podem ser executadas sobre esse contexto. A pessoa responsável entra para
+interpretar o resultado e tomar a decisão que não deveria ser reduzida
+artificialmente a “sim” ou “não”.
+
+O Dossiê não automatiza julgamento nem transforma toda ambiguidade em uma
+resposta automática. Ele automatiza partes de uma investigação mais aberta e
+reserva a intervenção humana para os pontos que realmente exigem análise.
+
+## Performance é chegar à decisão com menos toque humano
+
+Velocidade de processamento é apenas uma parte da performance operacional. Para
+um diretor de tecnologia, o resultado aparece na combinação de quatro medidas:
+
+- percentual de casos resolvidos diretamente pelo Motor;
+- percentual de casos encaminhados para revisão;
+- tempo de toque humano por exceção;
+- tempo total entre a entrada do caso e a decisão.
+
+Essas medidas mostram dois ganhos diferentes. O primeiro vem de não colocar uma
+pessoa nos casos objetivos. O segundo vem de não obrigar essa pessoa a
+reconstruir os casos que continuam manuais.
+
+Esse desenho é um padrão conhecido de automação responsável. A
+[AWS demonstra fluxos que aguardam aprovação humana](https://docs.aws.amazon.com/step-functions/latest/dg/tutorial-human-approval.html)
+sem perder o estado da execução. O
+[Google SRE](https://sre.google/sre-book/eliminating-toil/) recomenda retirar das
+pessoas o trabalho manual e repetitivo para preservar sua capacidade de lidar
+com problemas que exigem julgamento. No Sherlocker, o princípio é aplicado ao
+trabalho investigativo.
+
+```text
+Tempo humano total = volume × taxa de exceção × tempo médio por exceção
+
+Tempo poupado = tempo do processo atual - tempo com o Sherlocker
+
+Aceleração da capacidade = tempo atual / tempo com o Sherlocker
+```
+
+<Warning>
+  O cenário abaixo é uma simulação com premissas editáveis. Não representa
+  benchmark, SLA ou resultado observado de um cliente do Sherlocker.
+</Warning>
+
+Considere 100 casos que hoje exigem 45 minutos de trabalho humano cada: 75
+horas no total. Se critérios reproduzíveis permitirem ao Motor resolver 70% e
+as 30 exceções consumirem 40 minutos de revisão sobre um Dossiê já organizado,
+o toque humano cairia para 20 horas.
+
+```text
+Processo atual = 100 × 45 min = 75 h
+Com automação = 100 × 30% × 40 min = 20 h
+Redução simulada do toque humano = 73%
+```
+
+Se cada exceção enviada para uma operação externa ainda exigisse 15 minutos
+para reunir arquivos e reconstruir contexto, seriam outras 7,5 horas a cada
+100 casos. Preservar a continuidade não aumenta apenas a taxa de automação; ele
+reduz o custo residual daquilo que continua exigindo pessoas.
+
+## Uma arquitetura para o caso simples e para o caso difícil
+
+O desenho operacional deixa de ser “automação ou investigação manual”. Ele
+passa a ser um fluxo contínuo:
+
+1. o Motor aplica critérios objetivos e reproduzíveis;
+2. os casos conclusivos seguem o encaminhamento definido pela empresa;
+3. uma pessoa usa o atalho para reaproveitar no Dossiê o documento dos casos
+   que exigem pesquisa;
+4. o Dossiê automatiza etapas da investigação mais aberta;
+5. uma pessoa revisa os pontos que exigem julgamento.
+
+Para tecnologia, essa arquitetura cria um caminho comum para evoluir as filas
+de exceção. Na experiência atual, a economia começa pela reentrada do documento;
+a continuidade do resultado e das evidências ainda precisa ser desenhada pela
+empresa. Para a liderança, o modelo torna visível quanto do processo está
+automatizado, onde ele encontra limites e quanto custa resolver o restante.
+
+O diferencial do Sherlocker não é prometer que toda decisão será automática. É
+automatizar o que pode ser reproduzido sem abandonar justamente os casos em que
+a empresa mais precisa investigar.
+
+<CardGroup cols={2}>
+  <Card
+    title="Veja a fundação dessa automação"
+    icon="layer-group"
+    href="/visao/investigacao-como-infraestrutura"
+  >
+    Entenda por que capacidades diferentes podem operar sobre uma infraestrutura
+    investigativa comum.
+  </Card>
+  <Card
+    title="Veja como o time recebe as exceções"
+    icon="people-group"
+    href="/visao/integracao-do-time"
+  >
+    Entenda como o contexto atravessa especialistas, revisão e decisão.
+  </Card>
+</CardGroup>

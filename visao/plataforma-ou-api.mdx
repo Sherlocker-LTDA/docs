@@ -1,0 +1,102 @@
+---
+title: "Uma plataforma, duas formas de operar"
+description: "Como usar o Sherlocker com o time na interface, por trás dos seus sistemas via API ou combinando as duas formas."
+icon: "code-branch"
+---
+
+Uma empresa não deveria precisar escolher entre dar uma boa ferramenta ao time e
+integrar a investigação aos próprios processos.
+
+O Sherlocker pode participar da operação de duas formas. Pessoas podem investigar
+diretamente na plataforma, utilizando recursos como Dossiê, Board e Mapa, Rastro
+e Monitoramento. Sistemas também podem acionar capacidades do Sherlocker por API,
+sem exigir que o usuário final interrompa o fluxo em que já trabalha.
+
+As duas formas partem da mesma ideia: investigação é uma capacidade da empresa,
+não um conjunto de telas isoladas.
+
+## Quando o time trabalha na plataforma
+
+A interface é o melhor ponto de partida quando o processo exige exploração,
+mudança de hipótese e interpretação humana.
+
+Um analista pode iniciar um Dossiê, compreender sua cobertura, aprofundar
+relações em um Board, visualizar lugares no Mapa e acompanhar mudanças relevantes.
+O Sherlocker oferece um ambiente comum para que o trabalho permaneça conectado
+ao caso.
+
+Esse modo é adequado quando:
+
+- o investigador ainda precisa decidir quais caminhos seguir;
+- relações e exceções são mais importantes que uma resposta única;
+- o caso precisa ser compreendido e apresentado por outras pessoas;
+- a empresa quer começar antes de desenvolver uma integração própria.
+
+## Quando o Sherlocker opera por trás dos seus sistemas
+
+A API é mais adequada quando a empresa já possui uma jornada e quer incorporar
+uma capacidade investigativa sem enviar todos os usuários para outra interface.
+
+Uma verificação pode acontecer durante o onboarding. Um Motor pode aplicar a
+política de risco antes de uma contraparte seguir na esteira. Um Monitor pode
+acompanhar mudanças após a aprovação inicial. Board, Dossiê e Rastro também
+possuem contratos de Plataforma em preview. A publicação das rotas e a
+habilitação por workspace precisam ser confirmadas com o time Sherlocker antes
+da implementação.
+
+Esse modo é adequado quando:
+
+- a entrada já nasce em um ERP, CRM, portal ou sistema interno;
+- o volume exige execução reproduzível;
+- a resposta precisa alimentar regras e etapas existentes;
+- tecnologia precisa controlar autenticação, idempotência e consumo.
+
+## Modular não significa monolítico
+
+O Sherlocker é modular por design. A empresa pode consumir apenas a capacidade
+necessária e ampliar a composição conforme o processo amadurece.
+
+| Escopo | Exemplo | Melhor ponto de partida |
+| --- | --- | --- |
+| Uma consulta | Obter dados de um CPF, CNPJ, processo ou bem | APIs de Cadastro, Jurídico ou Patrimônio |
+| Uma política | Aplicar verificações e produzir um resultado consolidado | Motor de Análise |
+| Uma investigação | Reunir cobertura e evidências em um caso | Dossiê |
+| Uma rede | Organizar entidades, vínculos e lugares | Board e Mapa |
+| Uma mudança no tempo | Acompanhar temas de uma pessoa ou empresa | Monitoramento |
+
+Não é preciso contratar uma pilha inteira para responder uma pergunta pequena.
+Também não é preciso abandonar as capacidades menores quando a empresa decide
+automatizar um fluxo mais amplo.
+
+## A arquitetura pode ser híbrida
+
+Na prática, muitos processos combinam as duas formas.
+
+O sistema pode executar verificações objetivas por API. Os casos que exigem
+pesquisa podem ser encaminhados pelo time para uma investigação na plataforma.
+Depois da decisão inicial, o Monitoramento pode continuar acompanhando mudanças.
+
+O encaminhamento entre esses recursos precisa ser desenhado de acordo com o
+processo da empresa. Nem toda transição é automática hoje, e a disponibilidade
+de cada API depende das capacidades e dos escopos habilitados para o workspace.
+
+Essa transparência é parte da modularidade: tecnologia escolhe o que integrar,
+a operação escolhe onde precisa investigar e a governança define quem pode
+executar cada ação.
+
+## Escolha pela pergunta, não pelo produto
+
+Use a plataforma quando a próxima etapa depende de exploração e julgamento. Use
+a API quando a próxima etapa já está definida e precisa ser incorporada ao seu
+processo. Combine as duas quando o caso simples pode seguir automaticamente, mas
+a exceção ainda precisa de um investigador.
+
+<CardGroup cols={2}>
+  <Card title="Aprenda o produto" icon="graduation-cap" href="/guias/dossie">
+    Comece pelo Dossiê e veja como uma investigação ganha contexto e cobertura.
+  </Card>
+  <Card title="Explore as APIs da Plataforma" icon="code" href="/plataforma/introducao">
+    Conheça os contratos em preview de Dossiê, Rastro, Board e Mapa, Lente e
+    Monitoramento.
+  </Card>
+</CardGroup>
