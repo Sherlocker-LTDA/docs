@@ -642,6 +642,19 @@
           "request_access_url": {
             "type": "string",
             "description": "Onde solicitar acesso. Presente apenas em feature_not_enabled (403)."
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Identificador da requisição para suporte e rastreabilidade."
+          },
+          "retryable": {
+            "type": "boolean",
+            "description": "Indica se a mesma requisição pode ser repetida mais tarde."
+          },
+          "context": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Metadados estruturados específicos do erro."
           }
         }
       }

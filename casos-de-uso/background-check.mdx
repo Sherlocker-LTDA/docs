@@ -172,7 +172,7 @@ emails = [e["email"] for e in perfil.get("emails", [])]
 
 perfis_digitais = {}
 for email in emails:
-    perfis_digitais[email] = get(f"/perfis/email/{email}")
+    perfis_digitais[email] = get(f"/registro/email/{email}")
 ```
 
 ### Passo 7 — Check de parentes (opcional)

@@ -164,50 +164,6 @@ async function investigarPessoa(cpf, token) {
 }
 ```
 
-## Endpoints async
-
-Módulos demorados (processos, perfis, bancos, cadastros) oferecem modo async:
-
-```bash
-# 1. Inicia o job
-curl -X POST "https://221b-api.sherlocker.com.br/api/v1/processos/async/cpf/12345678900" \
-  -H "Authorization: Bearer SEU_TOKEN"
-
-# Resposta: { "job_id": "abc123", "status": "processing" }
-
-# 2. Consulta o status (repita ate "completed")
-curl "https://221b-api.sherlocker.com.br/api/v1/processos/jobs/abc123" \
-  -H "Authorization: Bearer SEU_TOKEN"
-
-# Resposta final: { "status": "completed", "results": [...] }
-```
-
-### Polling em Python
-
-```python
-import time
-import requests
-
-def executar_async(endpoint: str, cpf: str, token: str):
-    base = "https://221b-api.sherlocker.com.br/api/v1"
-    headers = {"Authorization": f"Bearer {token}"}
-
-    # Inicia o job
-    resp = requests.post(f"{base}/{endpoint}/async/cpf/{cpf}", headers=headers)
-    job_id = resp.json()["job_id"]
-
-    # Polling
-    while True:
-        result = requests.get(f"{base}/{endpoint}/jobs/{job_id}", headers=headers).json()
-
-        if result["status"] == "completed":
-            return result["results"]
-        elif result["status"] == "error":
-            raise Exception(result.get("error", "Erro desconhecido"))
-
-        time.sleep(2)
-```
-
 ## Rate limits
 
 | Plano | Limite |
@@ -233,4 +189,3 @@ def request_with_retry(url, headers, max_retries=3):
 
     raise Exception("Rate limit excedido após tentativas")
 ```
-

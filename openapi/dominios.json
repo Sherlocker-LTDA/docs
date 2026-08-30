@@ -80,12 +80,16 @@
           "empresa": { "type": "string", "example": "Silva Ltda" },
           "pais": { "type": "string", "example": "Brazil" },
           "telefone": {
-            "nullable": true,
-            "allOf": [{ "$ref": "#/components/schemas/Telefone" }]
+            "oneOf": [
+              { "$ref": "#/components/schemas/Telefone" },
+              { "type": "object", "nullable": true, "enum": [null] }
+            ]
           },
           "email": {
-            "nullable": true,
-            "allOf": [{ "$ref": "#/components/schemas/Email" }]
+            "oneOf": [
+              { "$ref": "#/components/schemas/Email" },
+              { "type": "object", "nullable": true, "enum": [null] }
+            ]
           }
         }
       },

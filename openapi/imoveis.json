@@ -302,16 +302,6 @@
           }
         }
       },
-      "ErroValidacao": {
-        "type": "object",
-        "description": "Erro de validacao de documento. ATENCAO: retornado com HTTP 200 (nao 4xx). Corpo plano com unico campo erro.",
-        "properties": {
-          "erro": {
-            "type": "string",
-            "example": "CPF invalido"
-          }
-        }
-      },
       "ErrorResponse": {
         "type": "object",
         "description": "Envelope de erro para excecoes lancadas (ex: 401/500).",
@@ -331,17 +321,6 @@
           "timestamp": {
             "type": "string",
             "format": "date-time"
-          }
-        }
-      },
-      "AsyncJobCreated": {
-        "type": "object",
-        "properties": {
-          "jobId": {
-            "type": "string"
-          },
-          "statusUrl": {
-            "type": "string"
           }
         }
       }
@@ -512,128 +491,6 @@
                       }
                     }
                   ]
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Token ausente ou invalido",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/imoveis/async/cpf/{cpf}": {
-      "post": {
-        "operationId": "asyncImoveisByCpf",
-        "summary": "Imoveis de pessoa (async)",
-        "tags": [
-          "Imoveis"
-        ],
-        "parameters": [
-          {
-            "name": "cpf",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "uf",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "parentes",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "202": {
-            "description": "Job criado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AsyncJobCreated"
-                },
-                "example": {
-                  "jobId": "abc123",
-                  "statusUrl": "/imoveis/jobs/abc123"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Token ausente ou invalido",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/imoveis/async/cnpj/{cnpj}": {
-      "post": {
-        "operationId": "asyncImoveisByCnpj",
-        "summary": "Imoveis de empresa (async)",
-        "tags": [
-          "Imoveis"
-        ],
-        "parameters": [
-          {
-            "name": "cnpj",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "uf",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "parentes",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "202": {
-            "description": "Job criado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AsyncJobCreated"
-                },
-                "example": {
-                  "jobId": "def456",
-                  "statusUrl": "/imoveis/jobs/def456"
                 }
               }
             }

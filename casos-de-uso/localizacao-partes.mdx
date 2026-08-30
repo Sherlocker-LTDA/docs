@@ -68,7 +68,7 @@ for end in enderecos:
 # Onde a pessoa trabalha ou e socia
 with ThreadPoolExecutor(max_workers=2) as pool:
     fut_soc = pool.submit(get, f"/empresas/cpf/{cpf}")
-    fut_emp = pool.submit(get, f"/empresas/empregos/cpf/{cpf}")
+    fut_emp = pool.submit(get, f"/pessoas/cpf/{cpf}/empregos")
 
 sociedades = fut_soc.result().get("socios", [])
 empregos = fut_emp.result().get("empregos", [])

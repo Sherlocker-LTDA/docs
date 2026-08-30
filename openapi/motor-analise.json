@@ -178,7 +178,7 @@
           },
           "verdict": {
             "type": "string",
-            "enum": ["aprovado", "alerta", "reprovado", "incompleto"],
+            "enum": ["aprovado", "alerta", "reprovado", "incompleto", null],
             "nullable": true,
             "description": "Veredito final de risco; null enquanto pending/running. incompleto = algum bloco ficou unavailable (ver coverage)."
           },
