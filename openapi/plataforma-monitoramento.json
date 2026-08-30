@@ -80,8 +80,7 @@
                 "company",
                 "debts",
                 "processes",
-                "partners",
-                "socialmedias"
+                "partners"
               ]
             }
           },
@@ -213,15 +212,14 @@
                   },
                   "listen_items": {
                     "type": "array",
-                    "maxItems": 5,
+                    "maxItems": 4,
                     "items": {
                       "type": "string",
                       "enum": [
                         "company",
                         "debts",
                         "processes",
-                        "partners",
-                        "socialmedias"
+                        "partners"
                       ]
                     }
                   },
@@ -330,15 +328,14 @@
                   "name": { "type": "string", "maxLength": 255 },
                   "listen_items": {
                     "type": "array",
-                    "maxItems": 5,
+                    "maxItems": 4,
                     "items": {
                       "type": "string",
                       "enum": [
                         "company",
                         "debts",
                         "processes",
-                        "partners",
-                        "socialmedias"
+                        "partners"
                       ]
                     }
                   },
