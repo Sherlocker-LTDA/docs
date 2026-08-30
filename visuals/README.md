@@ -188,8 +188,18 @@ Todas as páginas geradas para `GET`, `POST`, `PATCH` e `DELETE` devem continuar
 - as cenas de fluxo nomeiam cada etapa e usam setas direcionais; as cenas de relação identificam os tipos de entidade;
 - os casos de uso dividem o desenho em entrada, análise e resultado com títulos curtos sobre cada parte;
 - os 20 grafos Mermaid foram substituídos por desenhos que explicam sequência, transformação ou vínculo;
-- 78 cenas foram renderizadas para 82 páginas elegíveis;
+- 78 cenas de catálogo e 4 cenas editoriais foram renderizadas para 82 páginas elegíveis e os artigos de visão;
 - as 37 páginas editoriais excluídas e as 91 páginas OpenAPI permanecem sem desenho.
+
+### Artigos de visão
+
+Os artigos de valor usam quatro cenas editoriais adicionais, sem grafos ou
+conexões entre nós. Cada desenho sustenta uma única ideia:
+
+- `vision-infra-pain`: o custo acumulado de resolver cada pergunta com outra pilha;
+- `vision-infra-foundation`: capacidades diferentes sobre uma base comum;
+- `vision-team-pain`: o trabalho invisível de copiar, reconciliar e redigir;
+- `vision-team-shared`: um caso preservado no Sherlocker ou na plataforma própria via API.
 
 Para reconstruir todos os SVGs e reaplicar o catálogo:
 

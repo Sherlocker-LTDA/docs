@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { INLINE_SCENES, PAGE_SCENES } from "../visuals/scene-catalog.mjs";
+import { INLINE_SCENES, PAGE_SCENES, SUPPLEMENTAL_SCENES } from "../visuals/scene-catalog.mjs";
 import { SCENES, renderSceneSvg } from "../visuals/sketch-system.mjs";
 
 const repositoryRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -16,7 +16,10 @@ const escapeAttribute = (value) => String(value)
 
 await mkdir(outputDirectory, { recursive: true });
 
-const sceneIds = [...new Set([...PAGE_SCENES, ...INLINE_SCENES].map(({ scene }) => scene))];
+const sceneIds = [...new Set([
+  ...[...PAGE_SCENES, ...INLINE_SCENES].map(({ scene }) => scene),
+  ...SUPPLEMENTAL_SCENES,
+])];
 for (const sceneId of sceneIds) {
   const svg = renderSceneSvg(sceneId).replace(/[ \t]+\n/g, "\n");
   await writeFile(join(outputDirectory, `${sceneId}.svg`), svg, "utf8");

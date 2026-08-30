@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="380" viewBox="0 0 760 380" role="img" aria-labelledby="title description"><title id="title">Uma base para investigar</title><desc id="description">Consultas, regras, exceções e monitoramento operam sobre uma base comum de identidade, contexto e governança.</desc><style>
+  :host{display:block;color:#f0a121}
+  svg{display:block;width:100%;height:auto;aspect-ratio:2/1;background:transparent;overflow:hidden}
+  .sk-line,.sk-icon,.sk-flow,.sk-hair,.sk-ghost{fill:none;stroke:#f0a121;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .sk-line,.sk-icon{stroke-width:1.55}
+  .sk-hair{stroke-width:.85;stroke-opacity:.3}
+  .sk-ghost{stroke-width:1;stroke-opacity:.28;stroke-dasharray:5 7}
+  .sk-flow{stroke-width:1.1;stroke-opacity:.42;stroke-dasharray:7 8;animation:flow 2.2s linear infinite}
+  .sk-arrow{fill:none;stroke:#f0a121;stroke-width:1.15;stroke-opacity:.7;marker-end:url(#sk-arrow);vector-effect:non-scaling-stroke}
+  .sk-plane,.sk-row-bg,.sk-icon-box{fill:rgba(240,161,33,.024);stroke:#f0a121;stroke-width:1.15;stroke-opacity:.68;vector-effect:non-scaling-stroke}
+  .sk-row-bg{fill:rgba(240,161,33,.018);stroke-opacity:.24}
+  .sk-icon-box{stroke-opacity:.34}
+  .sk-hot{fill:#f0a121;filter:url(#soft-glow)}
+  .sk-label{fill:#f0a121;font:500 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.08em}
+  .sk-small-label{fill:#f0a121;fill-opacity:.58;font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.13em}
+  .sk-section-label{fill:#f0a121;fill-opacity:.76;font:600 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.04em}
+  .sk-node-label{fill:#f0a121;fill-opacity:.74;font:500 11px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.04em}
+  .sk-flow-label{fill:#f0a121;fill-opacity:.9;font:500 17px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.01em}
+  .sk-flow-caption{fill:#f0a121;fill-opacity:.62;font:500 13px 'DM Mono',ui-monospace,monospace;text-anchor:middle;letter-spacing:.07em}
+  .is-muted{opacity:.45}
+  .sk-corner{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.35}
+  .sk-node-ring,.sk-timeline-dot{fill:rgba(240,161,33,.018);stroke:#f0a121;stroke-width:1.4;vector-effect:non-scaling-stroke}
+  .sk-timeline-dot{fill:#f0a121;stroke-width:0;filter:url(#soft-glow)}
+  @keyframes flow{to{stroke-dashoffset:-30}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style><g transform="translate(-15.2 -25) scale(1.04 1)"><defs>
+    <filter id="soft-glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <marker id="sk-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8z" fill="#f0a121" fill-opacity=".72" /></marker>
+  </defs><rect class="sk-plane" x="40" y="52" width="680" height="326" rx="14" /><g class="sk-icon" transform="translate(68 76) scale(1.4166666666666667)"><rect x="16" y="16" width="6" height="6" rx="1" /><rect x="2" y="16" width="6" height="6" rx="1" /><rect x="9" y="2" width="6" height="6" rx="1" /><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3M12 12V8" /></g><text class="sk-label" x="118" y="91">UMA BASE PARA INVESTIGAR</text><text class="sk-small-label" x="118" y="112">CAPACIDADES SOB DEMANDA, SEM RECONSTRUIR A OPERAÇÃO</text><path class="sk-hair" d="M64 140h632" /><g transform="translate(72 172)"><g class="sk-icon" transform="translate(40 0) scale(1.75)"><path d="m21 21-4.34-4.34" /><circle cx="11" cy="11" r="8" /></g><text class="sk-label" x="0" y="76">CONSULTAR</text><text class="sk-small-label" x="0" y="99">DADOS</text><path class="sk-hair" d="M142-10v136" /></g><g transform="translate(230 172)"><g class="sk-icon" transform="translate(40 0) scale(1.75)"><path d="M13 5h8M13 12h8M13 19h8m-18-2 2 2 4-4M3 7l2 2 4-4" /></g><text class="sk-label" x="0" y="76">AUTOMATIZAR</text><text class="sk-small-label" x="0" y="99">REGRAS</text><path class="sk-hair" d="M142-10v136" /></g><g transform="translate(388 172)"><g class="sk-icon" transform="translate(40 0) scale(1.75)"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5M10 9H8M16 13H8M16 17H8" /></g><text class="sk-label" x="0" y="76">INVESTIGAR</text><text class="sk-small-label" x="0" y="99">EXCEÇÕES</text><path class="sk-hair" d="M142-10v136" /></g><g transform="translate(546 172)"><g class="sk-icon" transform="translate(40 0) scale(1.75)"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /><path d="M12 9v4M12 17h.01" /></g><text class="sk-label" x="0" y="76">ACOMPANHAR</text><text class="sk-small-label" x="0" y="99">MUDANÇAS</text></g><rect class="sk-row-bg" x="64" y="304" width="632" height="48" rx="8" /><text class="sk-small-label" x="88" y="334">UMA IDENTIDADE · UM CONTEXTO · UMA GOVERNANÇA</text></g></svg>
