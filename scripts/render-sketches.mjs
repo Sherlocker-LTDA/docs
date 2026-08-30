@@ -26,21 +26,24 @@ for (const page of PAGE_SCENES) {
   const absolutePath = join(repositoryRoot, page.path);
   const source = await readFile(absolutePath, "utf8");
   const scene = SCENES[page.scene];
-  const marker = `src="/images/sketches/${page.scene}.svg"`;
+  const imageSource = `/images/sketches/${page.scene}.svg`;
+  const marker = `src="${imageSource}"`;
 
   if (!scene) throw new Error(`Cena não registrada: ${page.scene}`);
-  if (source.includes(marker)) continue;
+
+  const image = `<img src="${imageSource}" alt="${escapeAttribute(scene.description)}" />`;
+  if (source.includes(marker)) {
+    const framedImage = new RegExp(`<Frame>\\s*<img src="${imageSource.replaceAll("/", "\\/")}" alt="[^"]*" \\/>\\s*<\\/Frame>`);
+    const updated = source.replace(framedImage, image);
+    if (updated !== source) await writeFile(absolutePath, updated, "utf8");
+    continue;
+  }
 
   const frontmatterEnd = source.indexOf("\n---", 4);
   if (frontmatterEnd === -1) throw new Error(`Frontmatter inválido: ${page.path}`);
 
   const insertionPoint = source.indexOf("\n", frontmatterEnd + 4) + 1;
-  const visual = [
-    "<Frame>",
-    `  <img src="/images/sketches/${page.scene}.svg" alt="${escapeAttribute(scene.description)}" />`,
-    "</Frame>",
-    "",
-  ].join("\n");
+  const visual = `${image}\n`;
 
   const updated = `${source.slice(0, insertionPoint)}\n${visual}${source.slice(insertionPoint)}`;
   await writeFile(absolutePath, updated, "utf8");

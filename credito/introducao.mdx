@@ -4,9 +4,7 @@ description: "Análise de borderôs CNAB 400 para FIDCs via API"
 icon: "file-invoice-dollar"
 ---
 
-<Frame>
-  <img src="/images/sketches/credit-bordero.svg" alt="Títulos e notas fiscais são pareados e atravessam a validação." />
-</Frame>
+<img src="/images/sketches/credit-bordero.svg" alt="Títulos e notas fiscais são pareados e atravessam a validação." />
 
 O **Motor de Borderô** é a API pública para analisar **borderôs CNAB 400** de operações de desconto de duplicatas. Você envia o arquivo remessa como `multipart/form-data`, o motor faz o parse dos títulos, roda uma análise de risco completa do **cedente** e de **cada sacado único**, valida cada título (com cruzamento opcional contra os XMLs de NFe) e devolve um **resultado hierárquico** — cedente → sacados → títulos, cada nó com status consolidado e as violações de regra (issues).
 

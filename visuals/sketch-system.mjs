@@ -171,7 +171,7 @@ function grid(id) {
 
 const sharedStyles = `
   :host{display:block;color:${ORANGE}}
-  svg{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#060605;overflow:hidden}
+  svg{display:block;width:100%;height:auto;aspect-ratio:16/9;background:transparent;overflow:hidden}
   .sk-grid{fill:none;stroke:${ORANGE};stroke-width:1;stroke-opacity:.07}
   .sk-line,.sk-icon,.sk-flow,.sk-hair,.sk-ghost{fill:none;stroke:${ORANGE};stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
   .sk-line,.sk-icon{stroke-width:1.55}
@@ -179,14 +179,14 @@ const sharedStyles = `
   .sk-ghost{stroke-width:1;stroke-opacity:.28;stroke-dasharray:5 7}
   .sk-flow{stroke-width:1.1;stroke-opacity:.42;stroke-dasharray:7 8;animation:flow 2.2s linear infinite}
   .sk-plane,.sk-row-bg,.sk-icon-box{fill:rgba(240,161,33,.024);stroke:${ORANGE};stroke-width:1.15;stroke-opacity:.68;vector-effect:non-scaling-stroke}
-  .sk-row-bg{fill:#080806;stroke-opacity:.24}
+  .sk-row-bg{fill:rgba(240,161,33,.018);stroke-opacity:.24}
   .sk-icon-box{stroke-opacity:.34}
   .sk-hot{fill:${ORANGE};filter:url(#soft-glow)}
   .sk-label{fill:${ORANGE};font:500 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.08em}
   .sk-small-label{fill:${ORANGE};fill-opacity:.58;font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.13em}
   .is-muted{opacity:.45}
   .sk-corner{fill:none;stroke:${ORANGE};stroke-width:1;stroke-opacity:.35}
-  .sk-node-ring,.sk-timeline-dot{fill:#080806;stroke:${ORANGE};stroke-width:1.4;vector-effect:non-scaling-stroke}
+  .sk-node-ring,.sk-timeline-dot{fill:rgba(240,161,33,.018);stroke:${ORANGE};stroke-width:1.4;vector-effect:non-scaling-stroke}
   .sk-timeline-dot{fill:${ORANGE};stroke-width:0;filter:url(#soft-glow)}
   @keyframes flow{to{stroke-dashoffset:-30}}
   @media(prefers-reduced-motion:reduce){*{animation:none!important}}

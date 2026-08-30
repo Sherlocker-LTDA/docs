@@ -4,9 +4,7 @@ description: "Referência dos blocos de análise de CNPJ (PJ) e CPF (PF) do Moto
 icon: "cubes"
 ---
 
-<Frame>
-  <img src="/images/sketches/engine-rules.svg" alt="Empresas atravessam regras e apenas os resultados aprovados seguem adiante." />
-</Frame>
+<img src="/images/sketches/engine-rules.svg" alt="Empresas atravessam regras e apenas os resultados aprovados seguem adiante." />
 
 Cada análise executa um conjunto de **blocos** definidos pela engine. Um bloco verifica um aspecto específico do CNPJ ou CPF (situação cadastral, processos, sanções, sinais de bureau) e aparece no array `blocks[]` da resposta de `GET /analyses/{id}`:
 

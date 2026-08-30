@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="760" height="430" viewBox="0 0 760 430" role="img" aria-labelledby="title description"><title id="title">Base e confirmação atual</title><desc id="description">Uma fonte consolidada e uma fonte atual convergem para a confirmação do dado.</desc><style>
   :host{display:block;color:#f0a121}
-  svg{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#060605;overflow:hidden}
+  svg{display:block;width:100%;height:auto;aspect-ratio:16/9;background:transparent;overflow:hidden}
   .sk-grid{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.07}
   .sk-line,.sk-icon,.sk-flow,.sk-hair,.sk-ghost{fill:none;stroke:#f0a121;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
   .sk-line,.sk-icon{stroke-width:1.55}
@@ -8,14 +8,14 @@
   .sk-ghost{stroke-width:1;stroke-opacity:.28;stroke-dasharray:5 7}
   .sk-flow{stroke-width:1.1;stroke-opacity:.42;stroke-dasharray:7 8;animation:flow 2.2s linear infinite}
   .sk-plane,.sk-row-bg,.sk-icon-box{fill:rgba(240,161,33,.024);stroke:#f0a121;stroke-width:1.15;stroke-opacity:.68;vector-effect:non-scaling-stroke}
-  .sk-row-bg{fill:#080806;stroke-opacity:.24}
+  .sk-row-bg{fill:rgba(240,161,33,.018);stroke-opacity:.24}
   .sk-icon-box{stroke-opacity:.34}
   .sk-hot{fill:#f0a121;filter:url(#soft-glow)}
   .sk-label{fill:#f0a121;font:500 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.08em}
   .sk-small-label{fill:#f0a121;fill-opacity:.58;font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.13em}
   .is-muted{opacity:.45}
   .sk-corner{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.35}
-  .sk-node-ring,.sk-timeline-dot{fill:#080806;stroke:#f0a121;stroke-width:1.4;vector-effect:non-scaling-stroke}
+  .sk-node-ring,.sk-timeline-dot{fill:rgba(240,161,33,.018);stroke:#f0a121;stroke-width:1.4;vector-effect:non-scaling-stroke}
   .sk-timeline-dot{fill:#f0a121;stroke-width:0;filter:url(#soft-glow)}
   @keyframes flow{to{stroke-dashoffset:-30}}
   @media(prefers-reduced-motion:reduce){*{animation:none!important}}

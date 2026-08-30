@@ -184,6 +184,7 @@ Todas as páginas geradas para `GET`, `POST`, `PATCH` e `DELETE` devem continuar
 - `sketch-system.mjs` concentra os componentes-base, estilos, animações e exportação SVG;
 - `scene-catalog.mjs` compõe as cenas e mantém o vínculo entre página e desenho;
 - `scripts/render-sketches.mjs` gera os arquivos em `images/sketches` e os inclui nas páginas;
+- os SVGs usam fundo transparente para se integrar ao tema da documentação sem moldura;
 - 73 cenas foram renderizadas para 82 páginas elegíveis;
 - as 37 páginas editoriais excluídas e as 91 páginas OpenAPI permanecem sem desenho.
 
