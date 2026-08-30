@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="430" viewBox="0 0 760 430" role="img" aria-labelledby="title description"><title id="title">Graus de conexão</title><desc id="description">Uma rede cresce do vínculo direto para relações de segundo grau.</desc><style>
+  :host{display:block;color:#f0a121}
+  svg{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#060605;overflow:hidden}
+  .sk-grid{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.07}
+  .sk-line,.sk-icon,.sk-flow,.sk-hair,.sk-ghost{fill:none;stroke:#f0a121;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .sk-line,.sk-icon{stroke-width:1.55}
+  .sk-hair{stroke-width:.85;stroke-opacity:.3}
+  .sk-ghost{stroke-width:1;stroke-opacity:.28;stroke-dasharray:5 7}
+  .sk-flow{stroke-width:1.1;stroke-opacity:.42;stroke-dasharray:7 8;animation:flow 2.2s linear infinite}
+  .sk-plane,.sk-row-bg,.sk-icon-box{fill:rgba(240,161,33,.024);stroke:#f0a121;stroke-width:1.15;stroke-opacity:.68;vector-effect:non-scaling-stroke}
+  .sk-row-bg{fill:#080806;stroke-opacity:.24}
+  .sk-icon-box{stroke-opacity:.34}
+  .sk-hot{fill:#f0a121;filter:url(#soft-glow)}
+  .sk-label{fill:#f0a121;font:500 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.08em}
+  .sk-small-label{fill:#f0a121;fill-opacity:.58;font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.13em}
+  .is-muted{opacity:.45}
+  .sk-corner{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.35}
+  .sk-node-ring,.sk-timeline-dot{fill:#080806;stroke:#f0a121;stroke-width:1.4;vector-effect:non-scaling-stroke}
+  .sk-timeline-dot{fill:#f0a121;stroke-width:0;filter:url(#soft-glow)}
+  @keyframes flow{to{stroke-dashoffset:-30}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style><defs>
+    <pattern id="degree-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" class="sk-grid" /></pattern>
+    <filter id="soft-glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs><rect width="760" height="430" fill="url(#degree-grid)" /><circle class="sk-ghost catalog-ring ring-1" cx="380" cy="215" r="82" /><circle class="sk-ghost catalog-ring ring-2" cx="380" cy="215" r="154" /><path class="sk-ghost" d="M380 215L380 84M380 215l128-72M380 215l132 92M380 215l-126 88M380 215L244 126M380 84l128 59M508 143l4 164M512 307l-258-4M254 303l-10-177M244 126l136-42" /><g class="sk-entity-node is-active" transform="translate(380 215)">
+    <circle class="sk-node-ring" r="32" />
+    <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+  </g><g class="sk-entity-node" transform="translate(380 84)">
+    <circle class="sk-node-ring" r="32" />
+    <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g>
+  </g><g class="sk-entity-node" transform="translate(508 143)">
+    <circle class="sk-node-ring" r="32" />
+    <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+  </g><g class="sk-entity-node" transform="translate(512 307)">
+    <circle class="sk-node-ring" r="32" />
+    <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g>
+  </g><g class="sk-entity-node" transform="translate(254 303)">
+    <circle class="sk-node-ring" r="32" />
+    <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+  </g><g class="sk-entity-node" transform="translate(244 126)">
+    <circle class="sk-node-ring" r="32" />
+    <g class="sk-icon" transform="translate(-13 -13) scale(1.0833333333333333)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g>
+  </g><style>.catalog-ring{transform-box:fill-box;transform-origin:center;animation:ring-grow 5.5s ease-in-out infinite}.ring-2{animation-delay:.8s}@keyframes ring-grow{0%,18%,100%{opacity:.12;transform:scale(.88)}42%,76%{opacity:.55;transform:scale(1)}}</style></svg>

@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="430" viewBox="0 0 760 430" role="img" aria-labelledby="title description"><title id="title">Monitoramento</title><desc id="description">Uma lista de empresas e pessoas em que uma mudança é identificada e sinalizada no item correspondente.</desc><style>
+  :host{display:block;color:#f0a121}
+  svg{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#060605;overflow:hidden}
+  .sk-grid{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.07}
+  .sk-line,.sk-icon,.sk-flow,.sk-hair,.sk-ghost{fill:none;stroke:#f0a121;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .sk-line,.sk-icon{stroke-width:1.55}
+  .sk-hair{stroke-width:.85;stroke-opacity:.3}
+  .sk-ghost{stroke-width:1;stroke-opacity:.28;stroke-dasharray:5 7}
+  .sk-flow{stroke-width:1.1;stroke-opacity:.42;stroke-dasharray:7 8;animation:flow 2.2s linear infinite}
+  .sk-plane,.sk-row-bg,.sk-icon-box{fill:rgba(240,161,33,.024);stroke:#f0a121;stroke-width:1.15;stroke-opacity:.68;vector-effect:non-scaling-stroke}
+  .sk-row-bg{fill:#080806;stroke-opacity:.24}
+  .sk-icon-box{stroke-opacity:.34}
+  .sk-hot{fill:#f0a121;filter:url(#soft-glow)}
+  .sk-label{fill:#f0a121;font:500 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.08em}
+  .sk-small-label{fill:#f0a121;fill-opacity:.58;font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.13em}
+  .is-muted{opacity:.45}
+  .sk-corner{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.35}
+  .sk-node-ring,.sk-timeline-dot{fill:#080806;stroke:#f0a121;stroke-width:1.4;vector-effect:non-scaling-stroke}
+  .sk-timeline-dot{fill:#f0a121;stroke-width:0;filter:url(#soft-glow)}
+  @keyframes flow{to{stroke-dashoffset:-30}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+    <defs>
+    <pattern id="monitor-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" class="sk-grid" /></pattern>
+    <filter id="soft-glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs><rect width="760" height="430" fill="url(#monitor-grid)" />
+    <g class="sk-entity-list">
+    <rect class="sk-plane" x="48" y="52" width="430" height="314" rx="13" />
+
+    <g class="sk-row" transform="translate(60 64)">
+      <rect class="sk-row-bg" width="406" height="54" rx="8" />
+      <rect class="sk-icon-box" x="10" y="9" width="36" height="36" rx="8" />
+      <g class="sk-icon" transform="translate(18 17) scale(0.8333333333333334)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+      <path class="sk-line" d="M62 20h172M62 35h104" />
+
+    </g>
+    <g class="sk-row" transform="translate(60 122)">
+      <rect class="sk-row-bg" width="406" height="54" rx="8" />
+      <rect class="sk-icon-box" x="10" y="9" width="36" height="36" rx="8" />
+      <g class="sk-icon" transform="translate(18 17) scale(0.8333333333333334)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g>
+      <path class="sk-line" d="M62 20h134M62 35h86" />
+
+    </g>
+    <g class="sk-row is-active" transform="translate(60 180)">
+      <rect class="sk-row-bg" width="406" height="54" rx="8" />
+      <rect class="sk-icon-box" x="10" y="9" width="36" height="36" rx="8" />
+      <g class="sk-icon" transform="translate(18 17) scale(0.8333333333333334)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+      <path class="sk-line" d="M62 20h194M62 35h116" />
+
+    </g>
+    <g class="sk-row" transform="translate(60 238)">
+      <rect class="sk-row-bg" width="406" height="54" rx="8" />
+      <rect class="sk-icon-box" x="10" y="9" width="36" height="36" rx="8" />
+      <g class="sk-icon" transform="translate(18 17) scale(0.8333333333333334)"><circle cx="12" cy="8" r="5" /><path d="M20 21a8 8 0 0 0-16 0" /></g>
+      <path class="sk-line" d="M62 20h160M62 35h95" />
+
+    </g>
+    <g class="sk-row" transform="translate(60 296)">
+      <rect class="sk-row-bg" width="406" height="54" rx="8" />
+      <rect class="sk-icon-box" x="10" y="9" width="36" height="36" rx="8" />
+      <g class="sk-icon" transform="translate(18 17) scale(0.8333333333333334)"><path d="M10 12h4M10 8h4M14 21v-3a2 2 0 0 0-4 0v3" /><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" /></g>
+      <path class="sk-line" d="M62 20h146M62 35h121" />
+
+    </g>
+  </g>
+    <g class="sk-timeline" transform="translate(510 52)">
+    <rect class="sk-plane" x="0" y="0" width="202" height="314" rx="13" />
+    <path class="sk-hair" d="M34 47V267" />
+    <g class="sk-timeline-event" transform="translate(0 47)">
+      <circle class="sk-timeline-dot" cx="34" r="6" />
+      <path class="sk-line" d="M58-7h72M58 9h46" />
+
+    </g><g class="sk-timeline-event" transform="translate(0 120.33333333333333)">
+      <circle class="sk-timeline-dot" cx="34" r="6" />
+      <path class="sk-line" d="M58-7h90M58 9h58" />
+
+    </g><g class="sk-timeline-event is-active" transform="translate(0 193.66666666666666)">
+      <circle class="sk-timeline-dot" cx="34" r="6" />
+      <path class="sk-line" d="M58-7h72M58 9h70" />
+      <g class="sk-icon sk-timeline-alert" transform="translate(160 -11) scale(0.9166666666666666)"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /><path d="M12 9v4M12 17h.01" /></g>
+    </g><g class="sk-timeline-event" transform="translate(0 267)">
+      <circle class="sk-timeline-dot" cx="34" r="6" />
+      <path class="sk-line" d="M58-7h90M58 9h46" />
+
+    </g>
+  </g>
+    <path class="sk-event-connection" d="M466 209C500 209 496 238 544 238" />
+    <circle class="sk-hot sk-event-particle" r="3"><animateMotion dur="5.5s" repeatCount="indefinite" path="M466 209C500 209 496 238 544 238" /></circle>
+    <path class="sk-corner" d="M24 76h24M24 76v24M736 76h-24M736 76v24M24 354h24M24 354v-24M736 354h-24M736 354v-24" />
+    <style>
+      .is-active .sk-row-bg{animation:row-found 5.5s ease-in-out infinite}
+      .sk-timeline-event.is-active,.sk-event-connection{opacity:.28;animation:alert-found 5.5s ease-in-out infinite;transform-box:fill-box;transform-origin:center}.sk-event-connection{fill:none;stroke:#f0a121;stroke-width:1;stroke-dasharray:5 7}
+      @keyframes row-found{0%,28%,100%{fill:#080806;stroke-opacity:.24}42%,76%{fill:rgba(240,161,33,.075);stroke-opacity:.9}}
+      @keyframes alert-found{0%,28%,100%{opacity:.28}40%,78%{opacity:1}}
+    </style></svg>

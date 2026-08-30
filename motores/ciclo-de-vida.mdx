@@ -4,6 +4,10 @@ description: "Estados de uma análise ou operação, semântica dos verdicts e c
 icon: "arrows-rotate"
 ---
 
+<Frame>
+  <img src="/images/sketches/job-lifecycle.svg" alt="Um trabalho percorre criação, processamento e conclusão." />
+</Frame>
+
 Tudo que os motores criam — uma análise (`POST /analyses`) ou uma operação de borderô (`POST /operations`) — é processado de forma assíncrona e passa pela **mesma forma de máquina de estados**: aguardando → executando → terminal. O que muda é o vocabulário público de cada motor. Esta página explica os estados, o polling e, por motor, o que cada campo do resultado significa.
 
 <Note>

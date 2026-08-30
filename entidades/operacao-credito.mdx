@@ -4,6 +4,10 @@ description: "Operação de análise de borderô CNAB 400 no Motor de Borderô"
 icon: "file-circle-check"
 ---
 
+<Frame>
+  <img src="/images/sketches/entity-operacao-credito.svg" alt="Operação de crédito e suas principais relações." />
+</Frame>
+
 Uma **Operação** representa a análise de um borderô CNAB 400 no [Motor de Borderô](/credito/introducao). É criada via `POST /operations` (`multipart/form-data`), processada de forma assíncrona, consultada por polling em `GET /operations/{id}` e tem o resultado hierárquico em `GET /operations/{id}/result`.
 
 ## Ciclo de vida

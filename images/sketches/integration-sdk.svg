@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="430" viewBox="0 0 760 430" role="img" aria-labelledby="title description"><title id="title">SDK</title><desc id="description">O SDK organiza a passagem entre aplicação e API.</desc><style>
+  :host{display:block;color:#f0a121}
+  svg{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#060605;overflow:hidden}
+  .sk-grid{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.07}
+  .sk-line,.sk-icon,.sk-flow,.sk-hair,.sk-ghost{fill:none;stroke:#f0a121;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .sk-line,.sk-icon{stroke-width:1.55}
+  .sk-hair{stroke-width:.85;stroke-opacity:.3}
+  .sk-ghost{stroke-width:1;stroke-opacity:.28;stroke-dasharray:5 7}
+  .sk-flow{stroke-width:1.1;stroke-opacity:.42;stroke-dasharray:7 8;animation:flow 2.2s linear infinite}
+  .sk-plane,.sk-row-bg,.sk-icon-box{fill:rgba(240,161,33,.024);stroke:#f0a121;stroke-width:1.15;stroke-opacity:.68;vector-effect:non-scaling-stroke}
+  .sk-row-bg{fill:#080806;stroke-opacity:.24}
+  .sk-icon-box{stroke-opacity:.34}
+  .sk-hot{fill:#f0a121;filter:url(#soft-glow)}
+  .sk-label{fill:#f0a121;font:500 16px 'DM Mono',ui-monospace,monospace;letter-spacing:.08em}
+  .sk-small-label{fill:#f0a121;fill-opacity:.58;font:500 10px 'DM Mono',ui-monospace,monospace;letter-spacing:.13em}
+  .is-muted{opacity:.45}
+  .sk-corner{fill:none;stroke:#f0a121;stroke-width:1;stroke-opacity:.35}
+  .sk-node-ring,.sk-timeline-dot{fill:#080806;stroke:#f0a121;stroke-width:1.4;vector-effect:non-scaling-stroke}
+  .sk-timeline-dot{fill:#f0a121;stroke-width:0;filter:url(#soft-glow)}
+  @keyframes flow{to{stroke-dashoffset:-30}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style><defs>
+    <pattern id="integration-briefcase" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" class="sk-grid" /></pattern>
+    <filter id="soft-glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs><rect width="760" height="430" fill="url(#integration-briefcase)" /><g class="sk-stage " transform="translate(54 159)"><rect class="sk-plane" x="0" y="0" width="176" height="112" rx="10" /><g class="sk-icon" transform="translate(16 22) scale(1.25)"><path d="M12 12h.01M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2M22 13a18.15 18.15 0 0 1-20 0" /><rect width="20" height="14" x="2" y="6" rx="2" /></g><path class="sk-line" d="M62 28h94M62 46h68" /></g><path class="sk-flow" d="M230 215h90M440 215h90" /><g class="sk-stage catalog-focus" transform="translate(320 159)"><rect class="sk-plane" x="0" y="0" width="120" height="112" rx="10" /><g class="sk-icon" transform="translate(16 22) scale(1.25)"><rect x="16" y="16" width="6" height="6" rx="1" /><rect x="2" y="16" width="6" height="6" rx="1" /><rect x="9" y="2" width="6" height="6" rx="1" /><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3M12 12V8" /></g><path class="sk-line" d="M62 28h38M62 46h28" /></g><g class="sk-stage " transform="translate(530 159)"><rect class="sk-plane" x="0" y="0" width="176" height="112" rx="10" /><g class="sk-icon" transform="translate(16 22) scale(1.25)"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5M10 9H8M16 13H8M16 17H8" /></g><path class="sk-line" d="M62 28h94M62 46h68" /></g><circle class="sk-hot" r="3"><animateMotion dur="4.8s" begin="0s" repeatCount="indefinite" path="M230 215h90" /></circle><style>.catalog-scan{fill:#f0a121;opacity:.05;animation:catalog-scan 5.8s ease-in-out infinite}.catalog-focus{animation:catalog-focus 5.8s ease-in-out infinite}.catalog-arrive{opacity:.25;animation:catalog-arrive 5.8s ease-in-out infinite}@keyframes catalog-scan{0%,24%,76%,100%{transform:translateY(0);opacity:.04}42%{opacity:.28}66%{transform:translateY(126px);opacity:.14}}@keyframes catalog-focus{0%,25%,100%{opacity:.28}42%,78%{opacity:1}}@keyframes catalog-arrive{0%,60%,100%{opacity:.25}76%,90%{opacity:1}}</style></svg>
