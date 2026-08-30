@@ -19,12 +19,25 @@ apenas como investigadora. Ela se torna a integradora manual de todo o caso.
 O problema não é somente alternar entre sistemas. É o que acontece entre uma
 etapa e a próxima.
 
-<Frame>
-  <img
-    src="/images/sketches/vision-team-pain.svg"
-    alt="O time investiga em consultas, planilhas e mensagens e ainda precisa copiar, conferir versões e redigir um PDF"
-  />
-</Frame>
+<Warning>
+  Os tempos desta página formam uma simulação com premissas editáveis. Não
+  representam benchmark, SLA ou resultado observado de um cliente do Sherlocker.
+</Warning>
+
+<img
+  src="/images/sketches/vision-team-pain.svg"
+  alt="Um analista atravessa vários softwares e gasta tempo abrindo sistemas, consolidando dados e escrevendo o relatório antes da entrega"
+/>
+
+No cenário ilustrativo, o trabalho entre as etapas consome:
+
+- **40 minutos** para abrir ferramentas, trocar acessos e localizar o caso;
+- **45 minutos** para copiar, normalizar e consolidar os dados;
+- **60 minutos** para transformar os fragmentos em um relatório.
+
+São **145 minutos apenas nos intervalos**, antes de contar as consultas e a
+revisão humana. Com mais 90 minutos de consultas e extração e 30 minutos de
+revisão, o tempo de toque chega a 265 minutos por caso.
 
 Cada passagem acrescenta trabalho que não aumenta a qualidade da investigação:
 copiar resultados, eliminar duplicidades, descobrir qual versão está correta,
@@ -41,12 +54,10 @@ sem reconstrução. O primeiro analista inicia o Dossiê. Quando a investigaçã
 concluída, os especialistas autorizados localizam, abrem e leem o mesmo artefato,
 com alvo, foco, estado, cobertura e evidências disponíveis para a decisão.
 
-<Frame>
-  <img
-    src="/images/sketches/vision-team-shared.svg"
-    alt="O mesmo caso pode ser trabalhado no Sherlocker ou na plataforma da empresa via API, preservando contexto para todo o time"
-  />
-</Frame>
+Na mesma simulação, abrir o caso leva 10 minutos, revisar leva 45, tratar uma
+exceção leva 15 e ajustar a entrega leva outros 15. O toque humano cai para 85
+minutos: **180 minutos devolvidos por caso** em comparação com o fluxo
+fragmentado.
 
 Hoje, integração do time significa continuidade dentro do workspace: membros
 autorizados podem localizar, abrir e revisar dossiês produzidos por colegas. Não
@@ -119,11 +130,6 @@ O ganho deve ser calculado com os tempos da operação, separando duas medidas:
 - **tempo de toque:** minutos efetivamente trabalhados por pessoas;
 - **tempo de ciclo:** tempo decorrido entre abertura e entrega, incluindo espera
   e processamento automático.
-
-<Warning>
-  O cenário abaixo é uma simulação com premissas editáveis. Não representa
-  benchmark, SLA ou resultado observado de um cliente do Sherlocker.
-</Warning>
 
 | Etapa | Processo fragmentado | Com Sherlocker |
 | --- | ---: | ---: |
