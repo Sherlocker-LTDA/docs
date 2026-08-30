@@ -1,0 +1,24 @@
+---
+title: "Cobrança"
+description: "Como interpretar a assinatura e a permissão de execução do Monitoramento"
+icon: "coins"
+---
+
+Cada acompanhamento retorna um objeto `subscription`. Ele informa se o uso está
+incluído no plano ou se depende de uma contratação adicional.
+
+| Estado | Significado |
+| --- | --- |
+| `included` | acompanhamento coberto pelo limite incluído do workspace |
+| `extra_active` | acompanhamento adicional ativo |
+| `past_due` | cobrança pendente; novas verificações podem ficar bloqueadas |
+| `release_pending` | encerramento financeiro ainda sendo processado |
+| `released` | acompanhamento adicional já liberado da cobrança recorrente |
+
+Quando o limite incluído tiver sido atingido, a criação pode exigir
+`confirm_extra: true` para confirmar a contratação adicional. A API nunca deve tratar
+essa confirmação como implícita.
+
+Leia `subscription.status`, `execution_allowed` e `blocking_reason` em conjunto. O
+estado do acompanhamento (`active`, `paused` ou `cancelled`) não substitui o estado
+financeiro.

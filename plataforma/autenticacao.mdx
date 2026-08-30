@@ -1,6 +1,6 @@
 ---
-title: "Autenticação e fundamentos"
-description: "Chaves com escopo, isolamento por workspace, idempotência e formatos comuns"
+title: "Autenticação"
+description: "Como autenticar chamadas da Plataforma e limitar o acesso por escopo"
 icon: "key"
 ---
 
@@ -29,11 +29,9 @@ Não envie a chave em query string, corpo, logs ou código executado no navegado
 | Área          | Leitura         | Escrita ou execução         |
 | ------------- | --------------- | --------------------------- |
 | Dossiê        | `dossies:read`  | `dossies:write`             |
-| Monitoramento | `monitors:read` | `monitors:write`            |
 | Rastro        | `rastro:read`   | `rastro:search`             |
 | Board e Mapa  | `boards:read`   | `boards:write`              |
 | Lente         | `lente:read`    | `lente:geo` ou `lente:face` |
-| Webhooks      | `webhooks:read` | `webhooks:write`            |
 
 Um escopo de escrita não concede leitura automaticamente. Uma chave com apenas
 `dossies:write`, por exemplo, pode criar um Dossiê, mas não consultar seu resultado.
@@ -49,33 +47,8 @@ Todo recurso pertence ao workspace da chave:
 
 Headers enviados pelo cliente não podem substituir a identidade ou o workspace da chave.
 
-## Idempotência
-
-Criações, reprocessamentos e outras operações que podem gerar cobrança exigem
-`Idempotency-Key`. Gere uma chave única por intenção e guarde o ID retornado.
-
-```bash
-curl -X POST https://221b-api.sherlocker.com.br/api/v1/rastro/searches \
-  -H "Authorization: Bearer slhk_sua_chave_aqui" \
-  -H "Idempotency-Key: 123e4567-e89b-42d3-a456-426614174000" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "type": "email",
-    "target": "contato@example.com",
-    "strategy": "all"
-  }'
-```
-
-| Situação                                           | Comportamento                                                        |
-| -------------------------------------------------- | -------------------------------------------------------------------- |
-| primeira requisição aceita                         | cria o recurso e informa sua localização                             |
-| mesma chave e mesmo conteúdo                       | devolve o resultado lógico anterior sem duplicar recurso ou cobrança |
-| mesma chave enquanto a primeira requisição termina | pede uma nova tentativa após o intervalo informado                   |
-| mesma chave com conteúdo diferente                 | rejeita por conflito de idempotência                                 |
-| chave ausente quando obrigatória                   | rejeita antes de criar ou cobrar                                     |
-
-Duas chaves diferentes representam duas intenções diferentes, mesmo quando o corpo é
-idêntico.
+Operações que criam recursos ou podem gerar cobrança também exigem uma chave de
+idempotência. Veja [Idempotência](/plataforma/idempotencia).
 
 ## Formato das respostas
 
@@ -101,9 +74,8 @@ O andamento, o conteúdo encontrado e a cobrança são dimensões diferentes. Um
 negativo válido não é um erro HTTP; depois que um trabalho foi aceito, uma falha de
 execução aparece no próprio recurso.
 
-Use o intervalo sugerido pela resposta ao consultar o andamento. Para receber mudanças
-sem consultas repetidas, veja
-[Atualizações automáticas](/plataforma/atualizacoes-automaticas).
+Use o intervalo sugerido pela resposta ao consultar o andamento e pare quando o
+recurso atingir um estado terminal.
 
 ## Limites e artefatos
 

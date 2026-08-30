@@ -1,0 +1,33 @@
+---
+title: "Autenticação"
+description: "Como autenticar chamadas do Monitoramento e separar leitura de gestão"
+icon: "key"
+---
+
+Use uma chave `slhk_` no header `Authorization` em todas as chamadas:
+
+```bash
+curl https://221b-api.sherlocker.com.br/api/v1/monitors \
+  -H "Authorization: Bearer slhk_sua_chave_aqui"
+```
+
+Não envie a chave em query string, corpo, logs ou código executado no navegador.
+
+## Escopos
+
+| Escopo | Permite |
+| --- | --- |
+| `monitors:read` | listar e consultar acompanhamentos e mudanças detectadas |
+| `monitors:write` | criar, atualizar, pausar, retomar, encerrar e reconhecer mudanças |
+
+O escopo de escrita não concede leitura automaticamente. Use ambos quando a mesma
+integração precisar administrar e consultar acompanhamentos.
+
+## Isolamento por workspace
+
+Todo Monitoramento pertence ao workspace identificado pela chave. IDs inexistentes
+e IDs de outro workspace recebem a mesma resposta de recurso não encontrado. Outra
+chave do mesmo workspace só acessa o recurso quando possuir o escopo necessário.
+
+Para detalhes comuns sobre formato de respostas, paginação e limites, consulte
+[Autenticação da Plataforma](/plataforma/autenticacao).

@@ -370,10 +370,26 @@
         "icon": "radar",
         "groups": [
           {
+            "group": "Começando",
+            "pages": [
+              "monitoramento/introducao",
+              "monitoramento/quickstart",
+              "monitoramento/autenticacao"
+            ]
+          },
+          {
+            "group": "Conceitos",
+            "pages": [
+              "monitoramento/ciclo-de-vida",
+              "monitoramento/idempotencia",
+              "monitoramento/cobranca",
+              "monitoramento/temas-monitorados"
+            ]
+          },
+          {
             "group": "Monitoramento",
             "openapi": "/openapi/plataforma-monitoramento.json",
             "pages": [
-              "plataforma/monitoramento",
               "POST /monitors",
               "GET /monitors",
               "GET /monitors/{monitor_id}",
@@ -384,6 +400,29 @@
               "GET /monitors/{monitor_id}/changes",
               "POST /monitors/{monitor_id}/changes/{change_id}/ack"
             ]
+          },
+          {
+            "group": "Acesso e suporte",
+            "pages": [
+              "api/access",
+              "support"
+            ]
+          },
+          {
+            "group": "Erros",
+            "pages": [
+              "plataforma/erros",
+              "problems/invalid_path",
+              "problems/invalid_content_length",
+              "problems/idempotency_in_progress",
+              "problems/method_not_allowed",
+              "problems/payload_too_large",
+              "problems/bad_gateway",
+              "problems/gateway_timeout",
+              "problems/scoped_key_required",
+              "problems/key_entitlement_missing",
+              "problems/entitlement_not_enabled"
+            ]
           }
         ]
       },
@@ -392,8 +431,20 @@
         "icon": "layer-group",
         "groups": [
           {
-            "group": "Visão geral",
-            "pages": ["plataforma/introducao"]
+            "group": "Começando",
+            "pages": [
+              "plataforma/introducao",
+              "plataforma/quickstart",
+              "plataforma/autenticacao"
+            ]
+          },
+          {
+            "group": "Conceitos",
+            "pages": [
+              "plataforma/estados-resultados",
+              "plataforma/idempotencia",
+              "plataforma/cobranca"
+            ]
           },
           {
             "group": "Dossiê",
@@ -449,24 +500,10 @@
             ]
           },
           {
-            "group": "Fundamentos",
+            "group": "Acesso e suporte",
             "pages": [
-              "plataforma/autenticacao",
-              "plataforma/estados-resultados",
-              "plataforma/atualizacoes-automaticas"
-            ]
-          },
-          {
-            "group": "Webhooks",
-            "openapi": "/openapi/plataforma-webhooks.json",
-            "pages": [
-              "POST /webhook-endpoints",
-              "GET /webhook-endpoints",
-              "GET /webhook-endpoints/{endpoint_id}",
-              "PATCH /webhook-endpoints/{endpoint_id}",
-              "POST /webhook-endpoints/{endpoint_id}/rotate-secret",
-              "GET /webhook-endpoints/{endpoint_id}/deliveries",
-              "POST /webhook-endpoints/{endpoint_id}/deliveries/{delivery_id}/replay"
+              "api/access",
+              "support"
             ]
           },
           {
