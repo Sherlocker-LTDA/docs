@@ -123,14 +123,16 @@ As sete páginas reutilizam o mesmo processo entrando num classificador; muda ap
 
 ### Motores de Análise
 
-| Página | Cena reutilizada |
+As páginas compartilham os mesmos componentes visuais, mas não repetem a composição final. Cada desenho explica a tarefa específica da página.
+
+| Página | Cena específica |
 | --- | --- |
 | `motores/ciclo-de-vida.mdx` | `StatusRail` de criação, processamento, conclusão e falha |
 | `motores/engines.mdx` | lista de regras alimentando o `Scanner` e compondo um resultado |
 | `motor-analise/blocos.mdx` | lista de blocos com aprovação, reprovação e ausência de cobertura |
-| `motor-analise/quickstart.mdx` | versão reduzida da triagem cadastral, com começo, espera e resultado |
-| `credito/quickstart.mdx` | versão reduzida da triagem de borderô |
-| `credito/titulos-e-nfe.mdx` | títulos ligados às respectivas NFe antes da validação |
+| `motor-analise/quickstart.mdx` | documento → processamento → veredito |
+| `credito/quickstart.mdx` | CNAB 400 → processamento → resultado por título |
+| `credito/titulos-e-nfe.mdx` | cada título ligado à respectiva NFe e ao resultado da validação |
 
 ### Monitoramento
 
@@ -188,7 +190,7 @@ Todas as páginas geradas para `GET`, `POST`, `PATCH` e `DELETE` devem continuar
 - as cenas de fluxo nomeiam cada etapa e usam setas direcionais; as cenas de relação identificam os tipos de entidade;
 - os casos de uso dividem o desenho em entrada, análise e resultado com títulos curtos sobre cada parte;
 - os 20 grafos Mermaid foram substituídos por desenhos que explicam sequência, transformação ou vínculo;
-- 78 cenas de catálogo e 2 cenas editoriais foram renderizadas para 82 páginas elegíveis e os artigos de visão;
+- 82 cenas de catálogo e 2 cenas editoriais foram renderizadas para 82 páginas elegíveis e os artigos de visão;
 - as 37 páginas editoriais excluídas e as 91 páginas OpenAPI permanecem sem desenho.
 
 ### Artigos de visão

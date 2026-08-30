@@ -35,20 +35,23 @@ for (const page of PAGE_SCENES) {
   if (!scene) throw new Error(`Cena não registrada: ${page.scene}`);
 
   const image = `<img src="${imageSource}" alt="${escapeAttribute(scene.description)}" />`;
-  if (source.includes(marker)) {
-    const framedImage = new RegExp(`<Frame>\\s*<img src="${imageSource.replaceAll("/", "\\/")}" alt="[^"]*" \\/>\\s*<\\/Frame>`);
-    const updated = source.replace(framedImage, image);
-    if (updated !== source) await writeFile(absolutePath, updated, "utf8");
-    continue;
-  }
-
   const frontmatterEnd = source.indexOf("\n---", 4);
   if (frontmatterEnd === -1) throw new Error(`Frontmatter inválido: ${page.path}`);
 
   const insertionPoint = source.indexOf("\n", frontmatterEnd + 4) + 1;
-  const visual = `${image}\n`;
+  const pageBody = source.slice(insertionPoint);
+  const heroSketches = /^(?:\s*(?:<Frame>\s*)?<img src="\/images\/sketches\/[^"]+\.svg" alt="[^"]*" \/>(?:\s*<\/Frame>)?)+\s*/;
+  const currentHero = pageBody.match(heroSketches)?.[0];
 
-  const updated = `${source.slice(0, insertionPoint)}\n${visual}${source.slice(insertionPoint)}`;
+  if (currentHero) {
+    const updated = `${source.slice(0, insertionPoint)}\n${image}\n\n${pageBody.slice(currentHero.length)}`;
+    if (updated !== source) await writeFile(absolutePath, updated, "utf8");
+    continue;
+  }
+
+  if (source.includes(marker)) continue;
+
+  const updated = `${source.slice(0, insertionPoint)}\n${image}\n${source.slice(insertionPoint)}`;
   await writeFile(absolutePath, updated, "utf8");
 }
 
