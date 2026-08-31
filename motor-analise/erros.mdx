@@ -156,18 +156,18 @@ Faça o branching pelo campo `code` — o tratamento é o mesmo nos dois motores
 import requests
 
 class SherlockerApiError(Exception):
-def **init**(self, problem: dict):
-self.code = problem.get("code")
-self.status = problem.get("status")
-self.detail = problem.get("detail")
-self.instance = problem.get("instance")
-self.problem = problem
-super().**init**(f"{self.code}: {self.detail}")
+    def __init__(self, problem: dict):
+        self.code = problem.get("code")
+        self.status = problem.get("status")
+        self.detail = problem.get("detail")
+        self.instance = problem.get("instance")
+        self.problem = problem
+        super().__init__(f"{self.code}: {self.detail}")
 
 def handle_sherlocker_error(resp: requests.Response) -> None:
-"""Tratamento unico para /analyses e /operations."""
-problem = resp.json()
-code = problem.get("code")
+    """Tratamento unico para /analyses e /operations."""
+    problem = resp.json()
+    code = problem.get("code")
 
     if code == "validation_error":
         # Corrija a requisicao: veja problem["errors"]; key NOVA no reenvio
