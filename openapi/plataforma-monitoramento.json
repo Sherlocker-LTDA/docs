@@ -1,0 +1,498 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Monitoramento API",
+    "description": "Acompanhamento contínuo e mudanças detectadas.",
+    "version": "1.0"
+  },
+  "servers": [{ "url": "https://221b-api.sherlocker.com.br/api/v1" }],
+  "security": [{ "bearerAuth": [] }],
+  "components": {
+    "securitySchemes": { "bearerAuth": { "type": "http", "scheme": "bearer" } },
+    "parameters": {
+      "MonitorId": {
+        "name": "monitor_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "ChangeId": {
+        "name": "change_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": { "type": "string", "maxLength": 255 }
+      },
+      "Cursor": {
+        "name": "cursor",
+        "in": "query",
+        "schema": { "type": "string" }
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        }
+      }
+    },
+    "schemas": {
+      "Monitor": {
+        "type": "object",
+        "required": [
+          "id",
+          "object",
+          "status",
+          "identifier",
+          "identifier_type",
+          "listen_items",
+          "emails",
+          "frequency_hours",
+          "health",
+          "subscription",
+          "execution_allowed",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "object": { "type": "string", "enum": ["monitor"] },
+          "status": {
+            "type": "string",
+            "enum": ["active", "paused", "cancelled"]
+          },
+          "name": { "type": "string" },
+          "identifier": { "type": "string" },
+          "identifier_type": { "type": "string", "enum": ["cpf", "cnpj"] },
+          "listen_items": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "company",
+                "debts",
+                "processes",
+                "partners"
+              ]
+            }
+          },
+          "emails": {
+            "type": "array",
+            "items": { "type": "string", "format": "email" }
+          },
+          "frequency_hours": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 720
+          },
+          "health": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": ["unknown", "healthy", "degraded", "failing"]
+              },
+              "consecutive_failures": { "type": "integer" },
+              "last_cycle_at": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              }
+            }
+          },
+          "subscription": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "included",
+                  "extra_active",
+                  "past_due",
+                  "release_pending",
+                  "released"
+                ]
+              },
+              "id": { "type": "string" }
+            }
+          },
+          "execution_allowed": { "type": "boolean" },
+          "blocking_reason": {
+            "type": "string",
+            "enum": [
+              "monitor_paused",
+              "monitor_cancelled",
+              "payment_required",
+              "feature_disabled"
+            ],
+            "nullable": true
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Change": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "status": { "type": "string", "enum": ["open", "acknowledged"] },
+          "severity": {
+            "type": "string",
+            "enum": ["info", "warn", "critical"]
+          },
+          "type": { "type": "string" },
+          "before": { "type": "object", "additionalProperties": true },
+          "after": { "type": "object", "additionalProperties": true },
+          "detected_at": { "type": "string", "format": "date-time" },
+          "acknowledged_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "Page": {
+        "type": "object",
+        "properties": {
+          "next_cursor": { "type": "string", "nullable": true },
+          "has_more": { "type": "boolean" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["status", "code", "detail", "request_id", "retryable"],
+        "properties": {
+          "status": { "type": "integer" },
+          "code": { "type": "string" },
+          "detail": { "type": "string" },
+          "request_id": { "type": "string" },
+          "retryable": { "type": "boolean" }
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Erro no formato application/problem+json",
+        "content": {
+          "application/problem+json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/monitors": {
+      "post": {
+        "summary": "Criar Monitoramento",
+        "description": "Cria um acompanhamento contínuo para um CPF ou CNPJ.",
+        "operationId": "createMonitor",
+        "parameters": [{ "$ref": "#/components/parameters/IdempotencyKey" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["identifier", "identifier_type"],
+                "properties": {
+                  "name": { "type": "string", "maxLength": 255 },
+                  "identifier": { "type": "string" },
+                  "identifier_type": {
+                    "type": "string",
+                    "enum": ["cpf", "cnpj"]
+                  },
+                  "listen_items": {
+                    "type": "array",
+                    "maxItems": 4,
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "company",
+                        "debts",
+                        "processes",
+                        "partners"
+                      ]
+                    }
+                  },
+                  "emails": {
+                    "type": "array",
+                    "maxItems": 20,
+                    "items": { "type": "string", "format": "email" }
+                  },
+                  "frequency_hours": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 720
+                  },
+                  "confirm_extra": {
+                    "type": "boolean",
+                    "description": "Confirma a contratação quando o limite incluído foi atingido."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Monitoramento criado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Monitor" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "402": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" },
+          "422": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "get": {
+        "summary": "Listar Monitoramentos",
+        "description": "Lista acompanhamentos do workspace por cursor e estado.",
+        "operationId": "listMonitors",
+        "parameters": [
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Cursor" },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["active", "paused", "cancelled"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Página de Monitoramentos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Monitor" }
+                    },
+                    "page": { "$ref": "#/components/schemas/Page" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/monitors/{monitor_id}": {
+      "get": {
+        "summary": "Consultar Monitoramento",
+        "description": "Retorna configuração, estado, saúde e assinatura do acompanhamento.",
+        "operationId": "getMonitor",
+        "parameters": [{ "$ref": "#/components/parameters/MonitorId" }],
+        "responses": {
+          "200": {
+            "description": "Monitoramento encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Monitor" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "patch": {
+        "summary": "Atualizar Monitoramento",
+        "description": "Altera nome, temas observados, emails ou frequência.",
+        "operationId": "updateMonitor",
+        "parameters": [{ "$ref": "#/components/parameters/MonitorId" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "maxLength": 255 },
+                  "listen_items": {
+                    "type": "array",
+                    "maxItems": 4,
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "company",
+                        "debts",
+                        "processes",
+                        "partners"
+                      ]
+                    }
+                  },
+                  "emails": {
+                    "type": "array",
+                    "maxItems": 20,
+                    "items": { "type": "string", "format": "email" }
+                  },
+                  "frequency_hours": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 720
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Monitoramento atualizado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Monitor" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/monitors/{monitor_id}/pause": {
+      "post": {
+        "summary": "Pausar Monitoramento",
+        "description": "Interrompe novas coletas sem apagar o histórico.",
+        "operationId": "pauseMonitor",
+        "parameters": [{ "$ref": "#/components/parameters/MonitorId" }],
+        "responses": {
+          "200": {
+            "description": "Monitoramento pausado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Monitor" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/monitors/{monitor_id}/resume": {
+      "post": {
+        "summary": "Retomar Monitoramento",
+        "description": "Reativa as coletas de um acompanhamento pausado.",
+        "operationId": "resumeMonitor",
+        "parameters": [{ "$ref": "#/components/parameters/MonitorId" }],
+        "responses": {
+          "200": {
+            "description": "Monitoramento retomado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Monitor" }
+              }
+            }
+          },
+          "402": { "$ref": "#/components/responses/Error" },
+          "404": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/monitors/{monitor_id}/cancel": {
+      "post": {
+        "summary": "Encerrar Monitoramento",
+        "description": "Encerra definitivamente novas coletas e preserva o histórico.",
+        "operationId": "cancelMonitor",
+        "parameters": [{ "$ref": "#/components/parameters/MonitorId" }],
+        "responses": {
+          "202": {
+            "description": "Encerramento aceito",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Monitor" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/monitors/{monitor_id}/changes": {
+      "get": {
+        "summary": "Listar mudanças detectadas",
+        "description": "Lista mudanças por cursor, severidade e situação de tratamento.",
+        "operationId": "listMonitorChanges",
+        "parameters": [
+          { "$ref": "#/components/parameters/MonitorId" },
+          { "$ref": "#/components/parameters/Limit" },
+          { "$ref": "#/components/parameters/Cursor" },
+          {
+            "name": "severity",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["info", "warn", "critical"] }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["open", "acknowledged"] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Página de mudanças",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Change" }
+                    },
+                    "page": { "$ref": "#/components/schemas/Page" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/monitors/{monitor_id}/changes/{change_id}/ack": {
+      "post": {
+        "summary": "Reconhecer mudança",
+        "description": "Marca uma mudança como tratada sem removê-la do histórico.",
+        "operationId": "acknowledgeMonitorChange",
+        "parameters": [
+          { "$ref": "#/components/parameters/MonitorId" },
+          { "$ref": "#/components/parameters/ChangeId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mudança reconhecida",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Change" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    }
+  }
+}

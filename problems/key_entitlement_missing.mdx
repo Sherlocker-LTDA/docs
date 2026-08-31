@@ -1,0 +1,27 @@
+---
+title: "key_entitlement_missing"
+description: "Erro 403: a chave não possui entitlement do produto"
+icon: "key"
+---
+
+**Status HTTP:** `403`
+
+A chave scoped é válida, mas não foi emitida com o entitlement exigido pela rota.
+Emita ou rotacione uma chave autorizada para o produto.
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/key_entitlement_missing",
+  "title": "Key Entitlement Missing",
+  "status": 403,
+  "code": "key_entitlement_missing",
+  "detail": "API key is not entitled to dossies.",
+  "instance": "/api/v1/dossies",
+  "request_id": "req_01JEXEMPLO",
+  "retryable": false
+}
+```
+
+## Relacionado
+
+- [Erros da Plataforma](/plataforma/erros)

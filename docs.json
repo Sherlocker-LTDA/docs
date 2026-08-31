@@ -5,7 +5,7 @@
     "default": "dark"
   },
   "name": "Sherlocker",
-  "description": "Plataforma de inteligência investigativa - Documentação da API",
+  "description": "Sherlocker - documentação do produto e das APIs",
   "colors": {
     "primary": "#6C63FF",
     "light": "#F0EFFF",
@@ -34,9 +34,14 @@
         "icon": "book",
         "groups": [
           {
-            "group": "Início",
+            "group": "Conheça o Sherlocker",
             "pages": [
-              "introduction",
+              "introduction"
+            ]
+          },
+          {
+            "group": "Integração e dados",
+            "pages": [
               "custos",
               "authentication",
               "guias/integracao-api",
@@ -47,7 +52,7 @@
             ]
           },
           {
-            "group": "Perfis",
+            "group": "Áreas da API",
             "pages": [
               "areas/contatos",
               "areas/patrimonio",
@@ -55,7 +60,7 @@
             ]
           },
           {
-            "group": "Casos de Uso",
+            "group": "Casos de uso",
             "pages": [
               "casos-de-uso/background-check",
               "casos-de-uso/enriquecimento-leads",
@@ -355,12 +360,131 @@
               "problems/http_error",
               "problems/server_error"
             ]
+          }
+        ]
+      },
+      {
+        "tab": "Monitoramento",
+        "icon": "bell",
+        "groups": [
+          {
+            "group": "Começando",
+            "pages": [
+              "monitoramento/introducao",
+              "monitoramento/quickstart",
+              "monitoramento/autenticacao"
+            ]
           },
           {
-            "group": "Acesso e suporte",
+            "group": "Conceitos",
             "pages": [
-              "api/access",
-              "support"
+              "monitoramento/ciclo-de-vida",
+              "monitoramento/idempotencia",
+              "monitoramento/cobranca",
+              "monitoramento/temas-monitorados"
+            ]
+          },
+          {
+            "group": "Monitoramento",
+            "openapi": "/openapi/plataforma-monitoramento.json",
+            "pages": [
+              "POST /monitors",
+              "GET /monitors",
+              "GET /monitors/{monitor_id}",
+              "PATCH /monitors/{monitor_id}",
+              "POST /monitors/{monitor_id}/pause",
+              "POST /monitors/{monitor_id}/resume",
+              "POST /monitors/{monitor_id}/cancel",
+              "GET /monitors/{monitor_id}/changes",
+              "POST /monitors/{monitor_id}/changes/{change_id}/ack"
+            ]
+          },
+          {
+            "group": "Erros",
+            "pages": [
+              "plataforma/erros",
+              "problems/invalid_path",
+              "problems/invalid_content_length",
+              "problems/idempotency_in_progress",
+              "problems/method_not_allowed",
+              "problems/payload_too_large",
+              "problems/bad_gateway",
+              "problems/gateway_timeout",
+              "problems/scoped_key_required",
+              "problems/key_entitlement_missing",
+              "problems/entitlement_not_enabled"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Plataforma",
+        "icon": "cubes",
+        "groups": [
+          {
+            "group": "Começando",
+            "pages": [
+              "plataforma/introducao"
+            ]
+          },
+          {
+            "group": "Conceitos",
+            "pages": [
+              "plataforma/estados-resultados",
+              "plataforma/idempotencia",
+              "plataforma/cobranca"
+            ]
+          },
+          {
+            "group": "Dossiê",
+            "openapi": "/openapi/plataforma-dossie.json",
+            "pages": [
+              "plataforma/dossie",
+              "POST /dossies",
+              "GET /dossies",
+              "GET /dossies/{dossie_id}",
+              "GET /dossies/{dossie_id}/status",
+              "POST /dossies/{dossie_id}/cancel",
+              "POST /dossies/{dossie_id}/retry"
+            ]
+          },
+          {
+            "group": "Rastro",
+            "openapi": "/openapi/plataforma-rastro.json",
+            "pages": [
+              "plataforma/rastro",
+              "POST /rastro",
+              "GET /rastro",
+              "GET /rastro/{search_id}",
+              "POST /rastro/{search_id}/cancel"
+            ]
+          },
+          {
+            "group": "Lente",
+            "openapi": "/openapi/plataforma-lente.json",
+            "pages": [
+              "plataforma/lente",
+              "POST /lente/analyses",
+              "GET /lente/analyses",
+              "GET /lente/analyses/{analysis_id}",
+              "POST /lente/analyses/{analysis_id}/submit",
+              "POST /lente/analyses/{analysis_id}/cancel"
+            ]
+          },
+          {
+            "group": "Erros",
+            "pages": [
+              "plataforma/erros",
+              "problems/invalid_path",
+              "problems/invalid_content_length",
+              "problems/idempotency_in_progress",
+              "problems/method_not_allowed",
+              "problems/payload_too_large",
+              "problems/bad_gateway",
+              "problems/gateway_timeout",
+              "problems/scoped_key_required",
+              "problems/key_entitlement_missing",
+              "problems/entitlement_not_enabled"
             ]
           }
         ]

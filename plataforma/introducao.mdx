@@ -1,0 +1,102 @@
+---
+title: "Plataforma"
+description: "Recursos do Sherlocker para consolidar informações, seguir rastros e analisar evidências"
+icon: "layer-group"
+---
+
+A Plataforma reúne recursos que apoiam diferentes etapas de uma investigação:
+**Dossiê** consolida informações sobre pessoas e empresas; **Rastro** busca presença
+pública associada a identificadores digitais; **Lente** analisa evidências visuais.
+Eles podem ser usados sozinhos ou combinados com Monitoramento.
+
+## Da entrada à decisão
+
+Uma investigação pode começar por um identificador ou receber um caso que já
+passou por uma triagem. Na mesma operação, o time consegue aprofundar relações,
+revisar evidências e consolidar o resultado.
+
+### 1. Comece com um identificador
+
+Escolha CNPJ, CPF, e-mail ou telefone e faça a primeira busca sem precisar
+decidir, antes da hora, qual ferramenta será usada em cada etapa seguinte.
+
+<Frame>
+  <img
+    src="/images/plataforma/comecar-com-identificador.png"
+    alt="Tela inicial do Sherlocker com opções de busca por CNPJ, CPF, e-mail ou telefone"
+    width="1028"
+    height="546"
+  />
+</Frame>
+
+### 2. Transforme critérios em triagem
+
+No Motor de Análise, regras operacionais ficam explícitas e repetíveis. O time
+configura critérios como situação cadastral, idade da empresa, capital social e
+número de sócios, enquanto os veredictos deixam visíveis os casos de baixo e alto
+risco.
+
+<Frame>
+  <img
+    src="/images/plataforma/motor-de-analise.png"
+    alt="Configuração de regras no Motor de Análise ao lado dos veredictos de risco"
+    width="912"
+    height="502"
+    loading="lazy"
+  />
+</Frame>
+
+### 3. Consolide o resultado no Dossiê
+
+O Dossiê transforma a investigação em um artefato compartilhável, com resumo
+executivo, achados e rede de conexões. O time revisa a mesma base e reduz o
+trabalho de copiar evidências para montar um relatório separado.
+
+<Frame>
+  <img
+    src="/images/plataforma/dossie.png"
+    alt="Dossiê com resumo executivo, análise textual e rede de conexões da empresa investigada"
+    width="1590"
+    height="1091"
+    loading="lazy"
+  />
+</Frame>
+
+Essa sequência é um exemplo, não uma dependência obrigatória. Cada capacidade
+pode ser usada de forma independente ou combinada conforme o processo da
+empresa.
+
+## Recursos disponíveis
+
+| Recurso                                | O que faz                                                                         | Quando usar                                                                                      |
+| -------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| [Dossiê](/plataforma/dossie)           | Reúne dados, evidências e documentos sobre uma pessoa ou empresa.                 | Quando é preciso construir uma visão consolidada para análise, decisão ou registro.              |
+| [Rastro](/plataforma/rastro)           | Pesquisa sinais públicos associados a e-mail, telefone, usuário ou carteira.      | Quando o ponto de partida é um identificador digital e é preciso entender onde ele aparece.      |
+| [Lente](/plataforma/lente)             | Analisa imagens para levantar hipóteses de localização ou comparar rostos.        | Quando uma imagem é uma evidência relevante e precisa ser examinada de forma estruturada.        |
+
+## Como combinar com outras áreas
+
+- Use Dossiê quando diferentes sinais precisarem formar uma análise consolidada.
+- Use Lente quando uma imagem puder acrescentar contexto geográfico ou apoiar uma
+  verificação facial autorizada.
+- Use [Monitoramento](/monitoramento/introducao) quando a análise inicial precisar
+  continuar acompanhando mudanças ao longo do tempo.
+- Mantenha separados fatos observados, hipóteses produzidas pela análise e
+  interpretações do investigador.
+
+## O que fica disponível para clientes
+
+A API permite iniciar ações, consultar o estado atual e recuperar resultados e
+artefatos das áreas habilitadas para o workspace.
+
+Filas, tentativas de worker, ciclos de execução e históricos técnicos permanecem
+internos. Eles sustentam confiabilidade, auditoria e suporte sem ampliar a
+superfície que uma chave de cliente pode consultar.
+
+## Aprenda pela jornada do produto
+
+<CardGroup cols={2}>
+  <Card title="Dossiê" icon="file-lines" href="/guias/dossie">
+    Inicie uma investigação, acompanhe a cobertura e revise o resultado.
+  </Card>
+</CardGroup>

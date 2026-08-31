@@ -48,6 +48,7 @@
           "data_publicacao": { "type": "string", "nullable": true, "description": "Data de publicacao na RPI" },
           "classificacao_ipc": { "type": "string", "nullable": true, "description": "Classificacao IPC (ex: H04N 7/18)" },
           "ultimo_despacho": {
+            "type": "object",
             "nullable": true,
             "allOf": [{ "$ref": "#/components/schemas/UltimoDespacho" }]
           },

@@ -151,6 +151,7 @@
             "additionalProperties": true
           },
           "evidence": {
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CertidaoEvidence"
@@ -159,6 +160,7 @@
             "nullable": true
           },
           "error": {
+            "type": "object",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CertidaoError"

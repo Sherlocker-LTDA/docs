@@ -46,7 +46,7 @@ Todos os endpoints usam a base `https://221b-api.sherlocker.com.br/api/v1` e aut
   Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
 </Note>
 
-A cobrança é por **entidade única** do borderô (cedente + sacados únicos), não por título: um borderô de 42 títulos com 1 cedente e 11 sacados únicos cobra 12 análises. Operações que terminam em `failed` têm os tokens reembolsados automaticamente. Veja [Cobrança](/motores/cobranca). A API é polling-only por enquanto: não há webhooks nem listagem de operações.
+A cobrança é por **entidade única** do borderô (cedente + sacados únicos), não por título: um borderô de 42 títulos com 1 cedente e 11 sacados únicos cobra 12 análises. Operações que terminam em `failed` têm os tokens reembolsados automaticamente. Veja [Cobrança](/motores/cobranca). As operações são consultadas pelo identificador retornado na criação.
 
 ## E o Motor de CPF/CNPJ?
 

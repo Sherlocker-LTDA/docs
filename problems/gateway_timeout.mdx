@@ -1,0 +1,28 @@
+---
+title: "gateway_timeout"
+description: "Erro 504: o upstream excedeu o timeout do gateway"
+icon: "circle-exclamation"
+---
+
+**Status HTTP:** `504`
+
+O upstream não respondeu dentro do prazo do gateway. A resposta traz
+`retryable: true`. Faça back-off e reutilize a mesma `Idempotency-Key` em escritas
+para não duplicar trabalho ou cobrança.
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/gateway_timeout",
+  "title": "Gateway Timeout",
+  "status": 504,
+  "code": "gateway_timeout",
+  "detail": "Product API upstream unavailable.",
+  "instance": "/api/v1/dossies",
+  "request_id": "req_01JEXEMPLO",
+  "retryable": true
+}
+```
+
+## Relacionado
+
+- [Erros da Plataforma](/plataforma/erros)

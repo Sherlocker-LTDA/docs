@@ -233,17 +233,6 @@
           }
         }
       },
-      "AsyncJobCreated": {
-        "type": "object",
-        "properties": {
-          "jobId": {
-            "type": "string"
-          },
-          "statusUrl": {
-            "type": "string"
-          }
-        }
-      },
       "ErrorResponse": {
         "type": "object",
         "properties": {

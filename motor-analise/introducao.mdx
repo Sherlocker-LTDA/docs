@@ -6,6 +6,15 @@ icon: "user-check"
 
 O **Motor de CPF/CNPJ** (Motor de Análise) é a API pública para rodar análises de risco automatizadas de **CNPJ** e **CPF** — o mesmo motor usado na interface web do Sherlocker. Você envia um documento, o motor consulta as fontes de dados configuradas na sua engine e devolve um veredito consolidado com o detalhamento de cada verificação.
 
+<Frame>
+  <img
+    src="/images/plataforma/motor-de-analise.png"
+    alt="Configuração de regras do Motor de Análise com os veredictos de baixo e alto risco"
+    width="912"
+    height="502"
+  />
+</Frame>
+
 Foi feito para quem precisa de análise cadastral e de risco dentro do próprio fluxo:
 
 - **FIDCs** — análise de cedentes e sacados antes da operação
@@ -44,7 +53,8 @@ Todos os endpoints usam a base `https://221b-api.sherlocker.com.br/api/v1` e aut
   Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
 </Note>
 
-Análises que terminam em `failed` têm os tokens reembolsados automaticamente. A API é polling-only por enquanto: não há webhooks nem listagem de análises.
+Análises que terminam em `failed` têm os tokens reembolsados automaticamente. As
+análises são consultadas pelo identificador retornado na criação.
 
 ## E o Motor de Borderô?
 

@@ -1,0 +1,61 @@
+---
+title: "Lente"
+description: "Análise de imagens para localização e comparação facial"
+icon: "camera"
+---
+
+Lente examina imagens em dois modos. A análise de localização busca sinais visuais que
+ajudem a levantar hipóteses sobre onde a imagem foi produzida. A comparação facial
+mede a similaridade entre rostos para apoiar uma verificação autorizada.
+
+## O que a Lente faz
+
+- recebe imagens por envio privado e controlado;
+- processa a análise de forma assíncrona;
+- retorna hipóteses, evidências e níveis de confiança;
+- preserva a distinção entre inferência visual e fato confirmado;
+- mantém artefatos sensíveis sob acesso restrito e URLs temporárias.
+
+## Quando usar localização
+
+Use o modo de localização quando elementos como arquitetura, paisagem, placas, clima ou
+outros sinais visuais podem ajudar a restringir uma região. O resultado deve orientar
+novas verificações, não ser tratado isoladamente como coordenada comprovada.
+
+<Frame>
+  <img
+    src="/images/plataforma/lente-localizacao.png"
+    alt="Lente analisando pistas visuais para estimar onde uma imagem foi capturada"
+    width="1218"
+    height="681"
+  />
+</Frame>
+
+## Quando usar comparação facial
+
+Use o modo facial em fluxos autorizados de verificação, investigação ou prevenção a
+fraude nos quais exista base adequada para processar as imagens. A pontuação indica
+similaridade e deve ser combinada com outros sinais e com revisão humana proporcional
+ao risco da decisão.
+
+<Frame>
+  <img
+    src="/images/plataforma/lente-face.png"
+    alt="Lente comparando um rosto com correspondências encontradas na internet"
+    width="1184"
+    height="669"
+    loading="lazy"
+  />
+</Frame>
+
+## Quando escolher outro recurso
+
+Se o ponto de partida for email, telefone, usuário ou carteira digital, use
+[Rastro](/plataforma/rastro). Para consolidar os achados visuais com outras
+informações sobre uma pessoa ou empresa, use [Dossiê](/plataforma/dossie).
+
+## Uso responsável
+
+Não use uma hipótese de localização ou uma comparação facial como única prova de
+identidade, presença ou autoria. Defina limites de acesso, retenção e revisão compatíveis
+com a sensibilidade das imagens e com a autorização do seu fluxo.

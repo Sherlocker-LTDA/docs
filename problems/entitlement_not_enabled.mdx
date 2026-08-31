@@ -1,0 +1,27 @@
+---
+title: "entitlement_not_enabled"
+description: "Erro 403: produto não está habilitado no workspace"
+icon: "key"
+---
+
+**Status HTTP:** `403`
+
+A chave possui o entitlement, mas o produto não está habilitado atualmente para
+o workspace. Solicite a habilitação antes de repetir a chamada.
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/entitlement_not_enabled",
+  "title": "Entitlement Not Enabled",
+  "status": 403,
+  "code": "entitlement_not_enabled",
+  "detail": "Workspace is not entitled to dossies.",
+  "instance": "/api/v1/dossies",
+  "request_id": "req_01JEXEMPLO",
+  "retryable": false
+}
+```
+
+## Relacionado
+
+- [Erros da Plataforma](/plataforma/erros)

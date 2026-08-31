@@ -1,0 +1,29 @@
+---
+title: "Cobrança"
+description: "Como interpretar cobrança e reembolso nas funcionalidades da Plataforma"
+icon: "coins"
+---
+
+Dossiê, Rastro e Lente informam o efeito financeiro no objeto `billing`.
+
+## Estados por execução
+
+| Estado | Significado |
+| --- | --- |
+| `not_charged` | nenhuma cobrança foi iniciada |
+| `charge_pending` | a cobrança foi solicitada e ainda está sendo confirmada |
+| `charged` | a cobrança foi confirmada |
+| `refund_pending` | o reembolso foi solicitado e ainda está sendo confirmado |
+| `refunded` | o reembolso foi confirmado |
+
+O estado financeiro e o estado da execução são independentes. Uma execução pode
+terminar antes da confirmação financeira, e um reembolso pendente não muda o
+resultado técnico já registrado.
+
+Quando `billing.unit` for `tokens`, `billing.amount` informa a quantidade associada
+à operação.
+
+<Tip>
+  Preserve a `Idempotency-Key` ao repetir chamadas. Ela evita criar uma nova intenção
+  enquanto a resposta da primeira operação ainda é incerta.
+</Tip>

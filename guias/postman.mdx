@@ -73,38 +73,6 @@ A collection usa variaveis para facilitar os testes. Edite na aba **Variables** 
   </Step>
 </Steps>
 
-## Testando endpoints async
-
-Alguns modulos (processos, perfis, bancos, cadastros, imoveis) possuem modo async para consultas demoradas:
-
-<Steps>
-  <Step title="Iniciar o job">
-    Abra a request **Processos por CPF (async)** na pasta **Processos** e clique **Send**.
-
-    A resposta contera um `jobId`:
-
-    ```json
-    {
-      "job_id": "abc123-def456",
-      "status": "processing"
-    }
-    ```
-  </Step>
-  <Step title="Copiar o jobId">
-    Copie o valor de `job_id` da resposta.
-  </Step>
-  <Step title="Atualizar variavel">
-    Va na aba **Variables** da collection e cole o valor no campo `jobId`. Salve.
-  </Step>
-  <Step title="Consultar status">
-    Abra **Status do job de processos** e clique **Send**. Repita ate o `status` ser `completed`.
-  </Step>
-</Steps>
-
-<Tip>
-  Para automatizar o polling, use o **Collection Runner** do Postman com um teste que verifica se `status === "completed"` e faz retry.
-</Tip>
-
 ## Testando endpoints POST
 
 Os endpoints de **NF-e** requerem body JSON. A collection ja vem com exemplos pre-preenchidos.
@@ -124,5 +92,5 @@ Os endpoints de **NF-e** requerem body JSON. A collection ja vem com exemplos pr
 - **Erros 401**: verifique se o `token` esta preenchido corretamente nas variaveis e se a aba **Authorization** da collection esta configurada como **Bearer Token** com valor `{{token}}`.
 - **Erros 402**: saldo de tokens insuficiente para o modulo consultado.
 - **Erros 404**: o CPF/CNPJ nao foi encontrado ou o endpoint esta incorreto.
-- **Timeout**: para modulos demorados, use o modo async (POST) em vez do sincrono (GET).
+- **Timeout**: repita apenas requisições idempotentes e aplique backoff exponencial.
 - **Console**: use o **Postman Console** (View → Show Postman Console) para debugar headers e payloads enviados.

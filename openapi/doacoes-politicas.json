@@ -179,11 +179,15 @@
             "example": "direta"
           },
           "intermediario": {
-            "nullable": true,
             "description": "Doador direto que repassou o recurso; presente apenas quando origem = originaria",
-            "allOf": [
+            "oneOf": [
               {
                 "$ref": "#/components/schemas/DoacaoIntermediario"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [null]
               }
             ]
           },
@@ -318,11 +322,15 @@
             "example": 0
           },
           "resumo": {
-            "nullable": true,
             "description": "Resumo agregado com os filtros aplicados; null quando total = 0",
-            "allOf": [
+            "oneOf": [
               {
                 "$ref": "#/components/schemas/DoacoesResumo"
+              },
+              {
+                "type": "object",
+                "nullable": true,
+                "enum": [null]
               }
             ]
           },

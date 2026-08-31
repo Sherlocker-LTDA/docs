@@ -35,12 +35,12 @@
           "file": {
             "type": "string",
             "format": "binary",
-            "description": "Arquivo CNAB 400 remessa (.REM) — Banco Paulista 611, 444 colunas, Windows-1252. Obrigatório. Máximo de 16 MB."
+            "description": "Arquivo CNAB 400 remessa (.REM) — Banco Paulista 611, 444 colunas, Windows-1252. Obrigatório. Máximo de 128 MiB."
           },
           "xmls": {
             "type": "string",
             "format": "binary",
-            "description": "ZIP com os XMLs de NFe (nfeProc) dos títulos, para validação cruzada. Opcional. Máximo de 32 MB."
+            "description": "ZIP com os XMLs de NFe (nfeProc) dos títulos, para validação cruzada. Opcional. Máximo de 512 MiB. O multipart completo, incluindo framing, aceita até 768 MiB no gateway."
           },
           "cedente_cnpj": {
             "type": "string",
@@ -642,6 +642,19 @@
           "request_access_url": {
             "type": "string",
             "description": "Onde solicitar acesso. Presente apenas em feature_not_enabled (403)."
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Identificador da requisição para suporte e rastreabilidade."
+          },
+          "retryable": {
+            "type": "boolean",
+            "description": "Indica se a mesma requisição pode ser repetida mais tarde."
+          },
+          "context": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Metadados estruturados específicos do erro."
           }
         }
       }
@@ -721,7 +734,7 @@
             }
           },
           "400": {
-            "description": "Requisição inválida (validation_error, com errors[] field-level para file, xmls e cedente_cnpj): arquivo ausente (\"No file provided\"), cedente_cnpj ausente (\"cedente_cnpj is required\") ou com dígito verificador inválido (\"Invalid CNPJ format\"), CNAB que não parseia, ou arquivo acima do teto (16 MB para file, 32 MB para xmls). Nada é cobrado — o débito só acontece após o parse.",
+            "description": "Requisição inválida (validation_error, com errors[] field-level para file, xmls e cedente_cnpj): arquivo ausente (\"No file provided\"), cedente_cnpj ausente (\"cedente_cnpj is required\") ou com dígito verificador inválido (\"Invalid CNPJ format\"), CNAB que não parseia, ou arquivo acima do teto por parte (128 MiB para file e 512 MiB para xmls). Nada é cobrado — o débito só acontece após o parse.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -740,6 +753,29 @@
                     }
                   ],
                   "instance": "/v1?request_id=3166fb9a-384c-44b7-ab77-90aca3146e0a"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "O multipart completo, incluindo campos e framing, ultrapassa o teto de 768 MiB do gateway (payload_too_large). O stream enviado ao upstream é abortado.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "example": {
+                  "type": "https://docs.sherlocker.com.br/problems/payload_too_large",
+                  "title": "Payload Too Large",
+                  "status": 413,
+                  "code": "payload_too_large",
+                  "detail": "The streamed request body exceeds the limit for this endpoint.",
+                  "instance": "/api/v1/operations",
+                  "request_id": "req_01JEXEMPLO",
+                  "retryable": false,
+                  "context": {
+                    "max_bytes": 805306368
+                  }
                 }
               }
             }

@@ -1,0 +1,86 @@
+---
+title: "Autenticação"
+description: "Como autenticar chamadas da Plataforma e limitar o acesso por escopo"
+icon: "key"
+---
+
+As APIs usam uma chave com escopos. A chave identifica o workspace, limita as ações
+permitidas e registra a origem de cada recurso.
+
+## Base da API
+
+```text
+https://221b-api.sherlocker.com.br/api/v1
+```
+
+## Enviar a chave
+
+Envie a chave no header `Authorization`:
+
+```bash
+curl https://221b-api.sherlocker.com.br/api/v1/dossies \
+  -H "Authorization: Bearer slhk_sua_chave_aqui"
+```
+
+Não envie a chave em query string, corpo, logs ou código executado no navegador.
+
+## Escopos por área
+
+| Área          | Leitura         | Escrita ou execução         |
+| ------------- | --------------- | --------------------------- |
+| Dossiê        | `dossies:read`  | `dossies:write`             |
+| Rastro        | `rastro:read`   | `rastro:search`             |
+| Lente         | `lente:read`    | `lente:geo` ou `lente:face` |
+
+Um escopo de escrita não concede leitura automaticamente. Uma chave com apenas
+`dossies:write`, por exemplo, pode criar um Dossiê, mas não consultar seu resultado.
+
+## Workspace e acesso
+
+Todo recurso pertence ao workspace da chave:
+
+- leituras e alterações são filtradas pelo workspace derivado da credencial;
+- um ID inexistente ou pertencente a outro workspace recebe o mesmo erro de recurso não encontrado;
+- outra chave do mesmo workspace pode acessar o recurso se possuir o escopo necessário;
+- revogar uma chave bloqueia novas chamadas, mas não cancela trabalhos já aceitos.
+
+Headers enviados pelo cliente não podem substituir a identidade ou o workspace da chave.
+
+Operações que criam recursos ou podem gerar cobrança também exigem uma chave de
+idempotência. Veja [Idempotência](/plataforma/idempotencia).
+
+## Formato das respostas
+
+- JSON em `snake_case`, UTF-8 e timestamps ISO 8601 em UTC;
+- toda resposta inclui `x-request-id` para suporte e rastreamento;
+- recursos singulares são retornados diretamente;
+- coleções usam `data` e `page`, com cursor opaco;
+- a paginação aceita até 100 itens por chamada.
+
+```json
+{
+  "data": [],
+  "page": {
+    "next_cursor": null,
+    "has_more": false
+  }
+}
+```
+
+## Trabalhos assíncronos
+
+O andamento, o conteúdo encontrado e a cobrança são dimensões diferentes. Um resultado
+negativo válido não é um erro HTTP; depois que um trabalho foi aceito, uma falha de
+execução aparece no próprio recurso.
+
+Use o intervalo sugerido pela resposta ao consultar o andamento e pare quando o
+recurso atingir um estado terminal.
+
+## Limites e artefatos
+
+Corpos JSON aceitam até 2 MiB, salvo quando a referência de uma operação informa outro
+limite. Artefatos ficam em armazenamento privado e usam URLs assinadas de curta duração.
+Uma nova leitura autorizada pode emitir outra URL sem alterar o artefato.
+
+Recursos, resultados e artefatos permanecem armazenados sem prazo de expiração.
+A expiração de uma URL assinada afeta apenas aquele link de acesso.

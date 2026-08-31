@@ -135,7 +135,8 @@
             "enum": [
               "OK",
               "STALE",
-              "FAILED"
+              "FAILED",
+              null
             ],
             "nullable": true,
             "description": "Saude da fonte; null quando nao consultada"

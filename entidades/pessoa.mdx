@@ -20,7 +20,7 @@ Uma **Pessoa** é a entidade central do Sherlocker. A partir de um CPF, você ac
 |----------------|----------|-----------|
 | CPF | `GET /pessoas/cpf/{cpf}` | Perfil completo |
 | Telefone | `GET /pessoas/telefone/{telefone}` | CPFs associados |
-| Email | `GET /perfis/email/{email}` | Perfis digitais |
+| Email | `GET /pessoas/email/{email}` | CPFs associados |
 | Email | `GET /empresas/email/{email}` | Empresas associadas |
 
 <Tip>
@@ -53,19 +53,19 @@ O endpoint principal `GET /pessoas/cpf/{cpf}` retorna em uma única chamada:
 Também é possível consultar cada dimensão isoladamente para chamadas mais rápidas:
 
 <CardGroup cols={2}>
-  <Card title="Nome rápido" icon="id-card" href="/api-reference/pessoas/nome-e-genero">
-    Apenas nome, nascimento e sexo
+  <Card title="Dados básicos" icon="id-card" href="/api-reference/pessoas/informacoes-basicas">
+    Nome, nascimento, sexo e vínculos familiares
   </Card>
   <Card title="Endereços" icon="location-dot" href="/api-reference/pessoas/enderecos">
     Histórico de endereços
   </Card>
-  <Card title="Telefones" icon="phone" href="/api-reference/pessoas/telefones">
+  <Card title="Telefones" icon="phone" href="/api-reference/telefones/telefones-por-cpf">
     Telefones fixos e móveis
   </Card>
-  <Card title="Emails" icon="envelope" href="/api-reference/pessoas/emails">
+  <Card title="Emails" icon="envelope" href="/api-reference/emails/emails-por-cpf">
     Emails com score de confiabilidade
   </Card>
-  <Card title="Parentes" icon="people-arrows" href="/api-reference/pessoas/parentes">
+  <Card title="Parentes" icon="people-arrows" href="/api-reference/pessoas/informacoes-basicas">
     Rede familiar completa
   </Card>
 </CardGroup>
@@ -76,7 +76,7 @@ Também é possível consultar cada dimensão isoladamente para chamadas mais r�
   <Card title="Sociedades" icon="building" href="/api-reference/busca-reversa/vinculos-societarios">
     Empresas onde a pessoa é sócia ou administradora
   </Card>
-  <Card title="Empregos" icon="briefcase" href="/api-reference/busca-reversa/historico-profissional">
+  <Card title="Empregos" icon="briefcase" href="/api-reference/pessoas/empregos">
     Histórico profissional via RAIS, CAGED e servidores públicos
   </Card>
 </CardGroup>
@@ -107,7 +107,7 @@ Também é possível consultar cada dimensão isoladamente para chamadas mais r�
   <Card title="Benefícios" icon="hand-holding-dollar" href="/api-reference/beneficios/beneficios-sociais-de-uma-pessoa">
     Auxílio Brasil, BPC, Bolsa Família, Auxílio Emergencial
   </Card>
-  <Card title="Dívidas" icon="file-invoice-dollar" href="/api-reference/dividas/dividas-federais-por-cpf">
+  <Card title="Dívidas" icon="file-invoice-dollar" href="/api-reference/dívidas/dívidas-federais-por-cpf">
     Dívida Ativa da União, FGTS, Previdenciária
   </Card>
   <Card title="Listas Restritivas" icon="shield-check" href="/api-reference/listas-restritivas/listas-restritivas-de-uma-pessoa">
@@ -117,8 +117,8 @@ Também é possível consultar cada dimensão isoladamente para chamadas mais r�
 
 ### Presença digital
 
-<Card title="Perfis online" icon="globe" href="/api-reference/perfis/presenca-digital-por-email">
-  GitHub, Gravatar, Duolingo, Medium, Nike, Apple, Google, Pinterest e mais
+<Card title="Rastro" icon="globe" href="/plataforma/rastro">
+  Presença pública associada a email, telefone ou nome de usuário
 </Card>
 
 ### Processos judiciais

@@ -1,0 +1,21 @@
+---
+title: "Idempotência"
+description: "Como repetir a criação de um acompanhamento sem contratar duas vezes"
+icon: "repeat"
+---
+
+`POST /monitors` exige o header `Idempotency-Key`. Ele protege contra duplicação
+quando a conexão falha depois que a API já criou ou contratou o acompanhamento.
+
+Gere uma chave única por intenção. Se precisar repetir a mesma criação, preserve a
+chave e todo o conteúdo original, inclusive `confirm_extra`.
+
+| Situação | Comportamento |
+| --- | --- |
+| primeira requisição | cria o acompanhamento |
+| mesma chave e mesmo conteúdo | devolve a intenção anterior sem duplicar a contratação |
+| mesma chave ainda em processamento | retorna conflito temporário |
+| mesma chave com conteúdo diferente | retorna conflito de idempotência |
+| chave ausente | rejeita a criação |
+
+Não reutilize a chave para outro CPF, CNPJ, conjunto de temas ou frequência.

@@ -1,0 +1,27 @@
+---
+title: "scoped_key_required"
+description: "Erro 403: a rota exige uma chave scoped de produto"
+icon: "key"
+---
+
+**Status HTTP:** `403`
+
+A credencial é uma chave legada sem workspace, scopes e entitlements explícitos.
+Emita uma chave scoped para o produto antes de repetir a chamada.
+
+```json
+{
+  "type": "https://docs.sherlocker.com.br/problems/scoped_key_required",
+  "title": "Scoped API Key Required",
+  "status": 403,
+  "code": "scoped_key_required",
+  "detail": "A scoped API key is required for product routes.",
+  "instance": "/api/v1/dossies",
+  "request_id": "req_01JEXEMPLO",
+  "retryable": false
+}
+```
+
+## Relacionado
+
+- [Erros da Plataforma](/plataforma/erros)
