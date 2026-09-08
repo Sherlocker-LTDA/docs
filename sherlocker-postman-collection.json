@@ -49,6 +49,31 @@
       "key": "jobId",
       "value": "",
       "description": "ID do job para consultas assincronas"
+    },
+    {
+      "key": "analysis_document",
+      "value": "12345678000195",
+      "description": "CNPJ (14 digitos) a analisar no Motor de CPF/CNPJ (analise PJ)"
+    },
+    {
+      "key": "analysis_cpf",
+      "value": "111.444.777-35",
+      "description": "CPF a analisar no Motor de CPF/CNPJ (analise PF)"
+    },
+    {
+      "key": "analysis_id",
+      "value": "",
+      "description": "UUID da analise (preenchido automaticamente pelo POST /analyses)"
+    },
+    {
+      "key": "cedente_cnpj",
+      "value": "12345678000195",
+      "description": "CNPJ do cedente do bordero"
+    },
+    {
+      "key": "operation_id",
+      "value": "",
+      "description": "UUID da operacao de bordero (preenchido automaticamente pelo POST /operations)"
     }
   ],
   "item": [
@@ -973,6 +998,267 @@
               "query": []
             },
             "description": "Retorna perfil patrimonial completo de uma empresa (imoveis, veiculos, aeronaves, rural)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Motor de CPF/CNPJ",
+      "description": "Analise de risco de um CNPJ (PJ) ou CPF (PF) individual. Assincrono: crie a analise e faca polling ate o status ser `completed` ou `failed`. Requer a feature `analysis_engine`; analises de CPF tambem exigem `analysis_engine_pf`.",
+      "item": [
+        {
+          "name": "Criar analise - CNPJ (PJ)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.id) {",
+                  "  pm.collectionVariables.set('analysis_id', res.id);",
+                  "  console.log('analysis_id =', res.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Obrigatorio. UUID unico por requisicao logica; reenviar a mesma chave com o mesmo body em ate 24h devolve a resposta original sem nova cobranca."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"document\": \"{{analysis_document}}\",\n  \"subject_type\": \"pj\",\n  \"purpose\": \"due diligence de fornecedor\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/analyses",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "analyses"
+              ]
+            },
+            "description": "Cria uma analise de risco assincrona para um CNPJ. Retorna 202 com o `id` da analise (salvo automaticamente na variavel `analysis_id`). Os tokens sao debitados na criacao; analises que terminam em `failed` sao reembolsadas."
+          },
+          "response": []
+        },
+        {
+          "name": "Criar analise - CPF (PF)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.id) {",
+                  "  pm.collectionVariables.set('analysis_id', res.id);",
+                  "  console.log('analysis_id =', res.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Obrigatorio. UUID unico por requisicao logica."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"document\": \"{{analysis_cpf}}\",\n  \"subject_type\": \"pf\",\n  \"legal_basis\": \"protecao_credito\",\n  \"purpose\": \"onboarding KYC\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/analyses",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "analyses"
+              ]
+            },
+            "description": "Cria uma analise de risco assincrona para um CPF. Exige a feature `analysis_engine_pf`. Retorna 202 com o `id` da analise (salvo automaticamente na variavel `analysis_id`)."
+          },
+          "response": []
+        },
+        {
+          "name": "Consultar analise",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/analyses/{{analysis_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "analyses",
+                "{{analysis_id}}"
+              ]
+            },
+            "description": "Retorna o estado atual e o resultado da analise. Enquanto `pending`/`running`, a resposta traz `poll_after_seconds` e o header `Retry-After`: aguarde esse intervalo antes do proximo poll. Quando `completed`/`failed`, traz `verdict`, `blocks` e `coverage`."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Motor de Bordero (CNAB 400)",
+      "description": "Analise de uma operacao de desconto de duplicatas a partir de um arquivo CNAB 400. Assincrono: crie a operacao, faca polling em `GET /operations/{id}` a cada ~2s e, quando concluida, consulte `GET /operations/{id}/result`. Requer a feature `analysis_engine`.",
+      "item": [
+        {
+          "name": "Criar operacao",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.operation_id) {",
+                  "  pm.collectionVariables.set('operation_id', res.operation_id);",
+                  "  console.log('operation_id =', res.operation_id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Opcional. UUID unico por requisicao logica; reenviar a mesma chave com o mesmo body em ate 24h devolve a resposta original sem nova cobranca."
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "Arquivo CNAB 400 remessa (.REM) — Banco Paulista 611, 444 colunas, Windows-1252. Obrigatorio. Maximo 128 MiB."
+                },
+                {
+                  "key": "cedente_cnpj",
+                  "value": "{{cedente_cnpj}}",
+                  "type": "text",
+                  "description": "CNPJ do cedente, 14 digitos ou formatado. Obrigatorio."
+                },
+                {
+                  "key": "xmls",
+                  "type": "file",
+                  "src": [],
+                  "description": "ZIP com os XMLs de NFe (nfeProc) dos titulos, para validacao cruzada. Opcional. Maximo 512 MiB; multipart completo maximo de 768 MiB no gateway.",
+                  "disabled": true
+                },
+                {
+                  "key": "engine_id",
+                  "value": "template-padrao",
+                  "type": "text",
+                  "description": "ID da engine de bordero. Omitido ou \"template-padrao\": usa a engine template do sistema.",
+                  "disabled": true
+                },
+                {
+                  "key": "purpose",
+                  "value": "",
+                  "type": "text",
+                  "description": "Finalidade da analise (auditoria LGPD). Opcional.",
+                  "disabled": true
+                },
+                {
+                  "key": "legal_basis",
+                  "value": "",
+                  "type": "text",
+                  "description": "Base legal LGPD para os sacados PF. Opcional.",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/operations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "operations"
+              ]
+            },
+            "description": "Cria uma operacao de bordero a partir de um arquivo CNAB 400. Selecione o arquivo `.REM` no campo `file` da aba Body. Retorna 202 com o `operation_id` (salvo automaticamente na variavel `operation_id`) e `status: queued`."
+          },
+          "response": []
+        },
+        {
+          "name": "Consultar operacao",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/operations/{{operation_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "operations",
+                "{{operation_id}}"
+              ]
+            },
+            "description": "Retorna o estado da operacao. Faca polling a cada ~2s ate o `status` ser terminal (`completed`/`failed`). Consulte o resultado detalhado em `GET /operations/{id}/result`."
+          },
+          "response": []
+        },
+        {
+          "name": "Consultar resultado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/operations/{{operation_id}}/result?filter=issues",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "operations",
+                "{{operation_id}}",
+                "result"
+              ],
+              "query": [
+                {
+                  "key": "filter",
+                  "value": "issues",
+                  "description": "issues (padrao): poda titulos aprovados e sacados sem problemas. all: arvore completa."
+                },
+                {
+                  "key": "include",
+                  "value": "execution_plan",
+                  "description": "Blocos extras, separados por virgula. Suportado: execution_plan.",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Retorna a arvore cedente → sacados → titulos com `issues` por no, `summary`, `coverage` e `degraded_rules`. Use `filter=all` para a arvore completa."
           },
           "response": []
         }

@@ -34,12 +34,10 @@ Cada título aparece dentro de `cedente.sacados[].titulos[]`:
 
 O documento e a razão social do sacado estão no **nó pai** (`sacados[].cnpj_cpf`, `sacados[].razao_social`, `sacados[].tipo`). O detalhamento de risco do cedente e de cada sacado está nas `issues` dos próprios nós `cedente` e `sacados[]` da árvore — não existem mais IDs de análise separados por título.
 
-<Note>
-  Com o filtro padrão do `/result` (`?filter=issues`), títulos aprovados e
-  sacados sem problemas são **podados** da árvore. Use `?filter=all` para
-  receber todos os títulos. O `summary` sempre reflete o dataset completo,
-  independentemente do filtro.
-</Note>
+Com o filtro padrão do `/result` (`?filter=issues`), títulos aprovados e
+sacados sem problemas são **podados** da árvore. Use `?filter=all` para
+receber todos os títulos. O `summary` sempre reflete o dataset completo,
+independentemente do filtro.
 
 ## Validação cruzada com NFe
 
@@ -88,18 +86,14 @@ console.log(resp.status, await resp.json());
 
 </CodeGroup>
 
-<Note>
-  Os Motores usam a **mesma base** da API 221b
-  (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via
-  `Authorization: Bearer slhk_…` — **não** via `?token=`.
-</Note>
+Os Motores usam a **mesma base** da API 221b
+(`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via
+`Authorization: Bearer slhk_…` — **não** via `?token=`.
 
-<Tip>
-  Se você usa o header opcional `Idempotency-Key`, o ZIP de NFe faz parte do
-  payload comparado: reenviar o mesmo CNAB com um ZIP diferente e a mesma key
-  resulta em `409 idempotency_conflict`. Veja
-  [Idempotência](/motores/idempotencia).
-</Tip>
+Se você usa o header opcional `Idempotency-Key`, o ZIP de NFe faz parte do
+payload comparado: reenviar o mesmo CNAB com um ZIP diferente e a mesma key
+resulta em `409 idempotency_conflict`. Veja
+[Idempotência](/motores/idempotencia).
 
 ## Como o resultado da NFe aparece
 
@@ -110,13 +104,11 @@ Não existe um campo de status de NFe por título: o resultado da validação ap
 
 Se a fonte necessária para uma verificação ficar indisponível, o problema **não vira issue**: a regra afetada aparece em `degraded_rules[]` (com `rule_id`, `provider` e `titulos_affected`) e a cobertura por provider em `coverage[]`. No `summary`, os títulos afetados contam como `alerted`.
 
-<Warning>
-  `nfe_chave: null` não é um problema — é a **ausência de chave** no CNAB, e
-  portanto de validação. Se a sua esteira exige lastro de NFe para todos os
-  títulos, envie sempre a parte `xmls`, use uma engine com as regras de NFe
-  ativas e trate `nfe_chave: null`, as issues de NFe e `degraded_rules` na sua
-  regra de aprovação.
-</Warning>
+`nfe_chave: null` não é um problema — é a **ausência de chave** no CNAB, e
+portanto de validação. Se a sua esteira exige lastro de NFe para todos os
+títulos, envie sempre a parte `xmls`, use uma engine com as regras de NFe
+ativas e trate `nfe_chave: null`, as issues de NFe e `degraded_rules` na sua
+regra de aprovação.
 
 ## Limites dos arquivos
 

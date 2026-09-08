@@ -6,9 +6,7 @@ icon: "arrows-rotate"
 
 Tudo que os motores criam — uma análise (`POST /analyses`) ou uma operação de borderô (`POST /operations`) — é processado de forma assíncrona e passa pela **mesma forma de máquina de estados**: aguardando → executando → terminal. O que muda é o vocabulário público de cada motor. Esta página explica os estados, o polling e, por motor, o que cada campo do resultado significa.
 
-<Note>
-  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
-</Note>
+Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
 
 ## Máquina de estados
 
@@ -92,9 +90,7 @@ while (true) {
 ```
 </CodeGroup>
 
-<Tip>
-  Consultar mais rápido que o intervalo indicado não acelera o resultado. No CPF/CNPJ, honre `Retry-After`/`poll_after_seconds`; no borderô, mantenha o intervalo de ~2 segundos.
-</Tip>
+Consultar mais rápido que o intervalo indicado não acelera o resultado. No CPF/CNPJ, honre `Retry-After`/`poll_after_seconds`; no borderô, mantenha o intervalo de ~2 segundos.
 
 ### Boas práticas
 
@@ -119,9 +115,7 @@ O `verdict` resume o resultado da análise. Ele só existe quando a análise ter
 | `reprovado` | Pelo menos um bloco resultou em `blocked` |
 | `incompleto` | O motor terminou, mas pelo menos um bloco ficou `unavailable` porque a fonte de dados falhou |
 
-<Warning>
-  `incompleto` não é uma reprovação. Significa que parte das fontes de dados não respondeu e o motor não teve como avaliar todos os blocos. Confira o campo `coverage` para ver qual fonte ficou indisponível antes de decidir o que fazer com a análise.
-</Warning>
+`incompleto` não é uma reprovação. Significa que parte das fontes de dados não respondeu e o motor não teve como avaliar todos os blocos. Confira o campo `coverage` para ver qual fonte ficou indisponível antes de decidir o que fazer com a análise.
 
 ### Status de bloco
 

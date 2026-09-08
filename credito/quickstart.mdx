@@ -6,12 +6,10 @@ icon: "rocket"
 
 Neste guia você envia um borderô CNAB 400, acompanha o processamento até a conclusão e busca o resultado hierárquico da análise — cedente, sacados, títulos e as violações de regra (issues) de cada nó. É a mesma esteira de análise da interface web do Sherlocker, agora acessível por API.
 
-<Note>
-  Não confunda com o **Motor de Análise** ([documentado
-  aqui](/motor-analise/introducao)), que avalia o risco de um CNPJ ou CPF
-  individual. O Motor de Borderô analisa o borderô inteiro — e usa o Motor de
-  Análise por baixo para cada entidade.
-</Note>
+Não confunda com o **Motor de Análise** ([documentado
+aqui](/motor-analise/introducao)), que avalia o risco de um CNPJ ou CPF
+individual. O Motor de Borderô analisa o borderô inteiro — e usa o Motor de
+Análise por baixo para cada entidade.
 
 ## Pré-requisitos
 
@@ -21,13 +19,7 @@ Neste guia você envia um borderô CNAB 400, acompanha o processamento até a co
 - **Arquivo CNAB 400 remessa** (`.rem`) — Banco Paulista 611, 444 colunas, Windows-1252 — com no máximo 128 MiB.
 - **CNPJ do cedente** da operação (14 dígitos, com ou sem formatação).
 
-A base URL de todos os exemplos é `https://221b-api.sherlocker.com.br/api/v1`.
-
-<Note>
-  Os Motores usam a **mesma base** da API 221b
-  (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via
-  `Authorization: Bearer slhk_…` — **não** via `?token=`.
-</Note>
+A base URL dos exemplos é `https://221b-api.sherlocker.com.br/api/v1`. A autenticação é feita pelo header `Authorization: Bearer slhk_sua_chave_aqui`; os Motores não aceitam `?token=` na URL.
 
 <Steps>
 <Step title="Crie a operação">
@@ -104,13 +96,11 @@ const operation_id = operation.operation_id;
 
 Guarde o `operation_id`: é com ele que você consulta o status e o resultado. A cobrança (uma por entidade única do borderô — cedente + sacados únicos) acontece normalmente na criação, mas **não aparece no payload**: acompanhe débitos e estornos no extrato de tokens do workspace, no app Sherlocker.
 
-<Tip>
-  O header `Idempotency-Key` é **opcional**. Se você enviá-lo, reenviar o mesmo
-  payload com a mesma key devolve `200` com o body original (sem nova operação
-  nem nova cobrança); a mesma key com payload diferente devolve `409
-  idempotency_conflict`. Sem o header, cada POST cria uma operação nova. Veja
-  [Idempotência](/motores/idempotencia).
-</Tip>
+O header `Idempotency-Key` é **opcional**. Se você enviá-lo, reenviar o mesmo
+payload com a mesma key devolve `200` com o body original (sem nova operação
+nem nova cobrança); a mesma key com payload diferente devolve `409
+idempotency_conflict`. Sem o header, cada POST cria uma operação nova. Veja
+[Idempotência](/motores/idempotencia).
 
 </Step>
 <Step title="Acompanhe até a conclusão">
@@ -313,10 +303,8 @@ Variações do endpoint:
 - **`?include=execution_plan`** — lista separada por vírgulas de blocos extras; adiciona o campo `execution_plan` à resposta (hoje sempre `[]`).
 - Chamar o `/result` antes de a operação chegar a `completed` retorna [`409 conflict`](/problems/conflict) com detail no formato `Operation has not completed yet. Current status: processing`.
 
-<Note>
-  O `summary` **sempre** reflete o dataset completo — ele não muda com
-  `?filter`.
-</Note>
+O `summary` **sempre** reflete o dataset completo — ele não muda com
+`?filter`.
 
 </Step>
 <Step title="Interprete o resultado">
@@ -333,12 +321,10 @@ O resultado é uma árvore: **cedente → sacados → títulos**, cada nó com u
 | `degraded_rules[]`      | Regras que não puderam ser avaliadas por fonte indisponível: `rule_id`, `provider`, `titulos_affected`                                                                                                                 |
 | `titulo.nfe_chave`      | Chave da NFe vinculada ao título (`null` se não houver); problemas de NFe aparecem como issues do título                                                                                                               |
 
-<Warning>
-  Fonte de dados indisponível **não vira issue** — vira `degraded_rules` (e
-  aparece em `coverage`). No `summary`, os títulos afetados contam como
-  `alerted`. Se a sua esteira exige cobertura total, trate `degraded_rules`
-  não-vazio na sua regra de aprovação.
-</Warning>
+Fonte de dados indisponível **não vira issue** — vira `degraded_rules` (e
+aparece em `coverage`). No `summary`, os títulos afetados contam como
+`alerted`. Se a sua esteira exige cobertura total, trate `degraded_rules`
+não-vazio na sua regra de aprovação.
 
 Um filtro típico — listar as issues bloqueantes da operação:
 

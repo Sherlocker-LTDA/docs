@@ -6,11 +6,9 @@ icon: "triangle-exclamation"
 
 Toda resposta de erro da API `/v1` segue o [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807) e é retornada com `Content-Type: application/problem+json`. Isso vale para os **dois motores** — Motor de CPF/CNPJ (`POST /analyses`, `GET /analyses/{id}`) e Motor de Borderô (`POST /operations`, `GET /operations/{id}`, `GET /operations/{id}/result`): mesmo formato, mesmos códigos.
 
-<Note>
-  Os Motores usam a **mesma base** da API 221b
-  (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via
-  `Authorization: Bearer slhk_…` — **não** via `?token=`.
-</Note>
+Os Motores usam a **mesma base** da API 221b
+(`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via
+`Authorization: Bearer slhk_…` — **não** via `?token=`.
 
 ## Formato base
 
@@ -42,11 +40,9 @@ Todo body de erro contém, no mínimo:
 | `detail`   | Explicação legível do que deu errado nesta requisição                                    |
 | `instance` | `/v1?request_id=<request_id>` — identifica a requisição; inclua ao acionar o suporte     |
 
-<Warning>
-  `type` é um **identificador**, não um endpoint: não faça dereferência dele em
-  código de produção. Para decidir o que fazer programaticamente, use sempre o
-  campo `code`.
-</Warning>
+`type` é um **identificador**, não um endpoint: não faça dereferência dele em
+código de produção. Para decidir o que fazer programaticamente, use sempre o
+campo `code`.
 
 O `request_id` em `instance` é o mesmo que você enviou no header opcional `x-request-id` (ou um UUID gerado pelo servidor, se você não enviou). Ele também é ecoado no header da resposta e no campo `request_id` dos bodies de sucesso.
 
@@ -75,10 +71,8 @@ Cada código tem uma página própria em `/problems/<code>`, válida para os doi
 | [`bad_gateway`](/problems/bad_gateway)                       | 502   | **Ambos:** upstream indisponível ou resposta de transporte inválida                                                                                                                                                                            | —                     |
 | [`gateway_timeout`](/problems/gateway_timeout)               | 504   | **Ambos:** upstream excedeu o timeout do gateway                                                                                                                                                                                               | —                     |
 
-<Note>
-  O limite global da API é de 100 requisições por minuto por IP. Exceder o
-  limite retorna `429` — honre o header `Retry-After` antes de tentar de novo.
-</Note>
+O limite global da API é de 100 requisições por minuto por IP. Exceder o
+limite retorna `429` — honre o header `Retry-After` antes de tentar de novo.
 
 ## Campos extras por tipo
 

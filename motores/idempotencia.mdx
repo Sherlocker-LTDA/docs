@@ -46,13 +46,9 @@ Se duas requisições com a mesma key chegarem ao mesmo tempo, a primeira vence.
 2. **Timeout ou 5xx → repita com a MESMA key.** A resposta será a 202 original (se a primeira chamada não chegou) ou um replay 200 (se chegou). Nos dois casos, sem cobrança dupla.
 3. **4xx de validação → corrija e use uma key NOVA.** A key antiga está amarrada ao conteúdo antigo: mesma key + conteúdo corrigido resulta em `409 idempotency_conflict`.
 
-<Warning>
-  Nunca gere uma key nova ao repetir uma requisição que falhou por timeout ou 5xx. Uma key nova cria uma cobrança nova — no borderô, uma por entidade única do arquivo.
-</Warning>
+Nunca gere uma key nova ao repetir uma requisição que falhou por timeout ou 5xx. Uma key nova cria uma cobrança nova — no borderô, uma por entidade única do arquivo.
 
-<Note>
-  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
-</Note>
+Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
 
 ## Retry na prática
 
@@ -273,9 +269,7 @@ curl -i -X POST "https://221b-api.sherlocker.com.br/api/v1/operations" \
   -F "cedente_cnpj=12345678000195"
 ```
 
-<Note>
-  Sem o header `Idempotency-Key`, o borderô **não deduplica**: cada POST cria uma operação nova, com cobrança nova. Use a key sempre que houver qualquer chance de retry.
-</Note>
+Sem o header `Idempotency-Key`, o borderô **não deduplica**: cada POST cria uma operação nova, com cobrança nova. Use a key sempre que houver qualquer chance de retry.
 
 </Tab>
 </Tabs>

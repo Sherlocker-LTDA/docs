@@ -12,9 +12,7 @@ Cada análise executa um conjunto de **blocos** definidos pela engine. Um bloco 
 
 O campo `evidence[]` traz, quando aplicável, os dados que sustentam o resultado: `field`, `value`, `expected` e `result` (ex.: `match`, `divergent`).
 
-<Note>
-  Este catálogo cobre os blocos com escopo PJ e/ou PF — os únicos disponíveis pela API `/v1`. A análise de borderô/CNAB (blocos de título e NFe) não está disponível pela API pública.
-</Note>
+Este catálogo cobre os blocos com escopo PJ e/ou PF. O Motor de Borderô também está disponível pela API `/v1`; seus blocos de título e NFe estão descritos em [Títulos e NFe](/credito/titulos-e-nfe) e [Engines](/motores/engines).
 
 ## Status de um bloco
 
@@ -43,9 +41,7 @@ A coluna **Ação padrão** abaixo é a do catálogo. Cada engine pode sobrescre
 
 Alguns blocos aceitam parâmetros — por exemplo, capital social mínimo, idade mínima da empresa em meses, limiares de quantidade e valor, listas de CNAEs de risco. Os parâmetros são configurados por engine no app Sherlocker; quando não configurados, valem os padrões do catálogo. Não há configuração de engines pela API `/v1`.
 
-<Warning>
-  Os blocos `SERASA_*` dependem da integração Serasa habilitada no workspace. Sem ela, esses blocos retornam `unavailable` e o veredito fica `incompleto` — nunca um bloqueio falso.
-</Warning>
+Os blocos `SERASA_*` dependem da integração Serasa habilitada no workspace. Sem ela, esses blocos retornam `unavailable` e o veredito fica `incompleto` — nunca um bloqueio falso.
 
 ## Validação cadastral
 

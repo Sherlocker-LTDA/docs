@@ -9,9 +9,7 @@ O Sherlocker expõe **dois motores de análise** pela mesma API `/v1` — mesma 
 - **[Motor de CPF/CNPJ](/motor-analise/introducao)** — análise de risco de um documento individual: você envia um CNPJ ou CPF e recebe um veredito consolidado (`verdict`) com o detalhamento de cada verificação (`blocks`) e das fontes consultadas (`coverage`).
 - **[Motor de Borderô](/credito/introducao)** — análise de uma operação de desconto de duplicatas a partir de um arquivo **CNAB 400**: o motor faz o parse dos títulos, analisa o cedente e cada sacado único, valida cada título (com cruzamento opcional contra XMLs de NFe) e devolve um veredito por título e da operação.
 
-<Warning>
-  Os dois motores estão em **beta**. O acesso é liberado por workspace através da feature `analysis_engine` (necessária para qualquer chamada `/v1`) e, adicionalmente, `analysis_engine_pf` para análises de CPF. Sem a feature, as chamadas retornam `403 feature_not_enabled`. [Solicite acesso aqui](/api/access).
-</Warning>
+Os dois motores estão em **beta**. O acesso é liberado por workspace através da feature `analysis_engine` (necessária para qualquer chamada `/v1`) e, adicionalmente, `analysis_engine_pf` para análises de CPF. Sem a feature, as chamadas retornam `403 feature_not_enabled`. [Solicite acesso aqui](/api/access).
 
 ## Qual motor usar?
 
@@ -44,9 +42,7 @@ sequenceDiagram
 
 Ambos são assíncronos (polling — no CPF/CNPJ com `poll_after_seconds`/`Retry-After`, no borderô a cada ~2s), cobram tokens do mesmo pool do workspace (com estorno automático em `failed`) e retornam erros no mesmo formato RFC 7807 — veja a [referência comum de erros](/motor-analise/erros). O header `Idempotency-Key` é obrigatório no `POST /analyses` e opcional no `POST /operations` — veja [Idempotência](/motores/idempotencia).
 
-<Note>
-  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
-</Note>
+Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
 
 ## Collection do Postman
 
@@ -67,13 +63,9 @@ Disponibilizamos uma collection do Postman **só para os Motores**, com as reque
   </Step>
 </Steps>
 
-<Note>
-  As variáveis `document` e `cedente_cnpj` já vêm com valores de exemplo. Preencha apenas o `token` para começar.
-</Note>
+As variáveis `document` e `cedente_cnpj` já vêm com valores de exemplo. Preencha apenas o `token` para começar.
 
-<Warning>
-  Nunca compartilhe a collection com o `token` preenchido. Use a coluna **Current value** (que não é exportada) em vez de **Initial value**.
-</Warning>
+Nunca compartilhe a collection com o `token` preenchido. Use a coluna **Current value** (que não é exportada) em vez de **Initial value**.
 
 ## Próximos passos
 

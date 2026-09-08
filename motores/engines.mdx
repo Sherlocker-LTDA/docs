@@ -35,15 +35,11 @@ O campo é **opcional** nos dois motores — `engine_id` no body JSON do Motor d
 | Engine de borderô não utilizável | `422` [`no_engine`](/problems/no_engine) |
 | Nenhuma engine resolvida (sem engine explícita, sem padrão, sem template aplicável) | `422` [`no_engine`](/problems/no_engine) |
 
-<Note>
-  No Motor de CPF/CNPJ, `engine_id` inexistente ou de outro workspace retorna `404 not_found` — a API não revela a existência de engines de outros workspaces.
-</Note>
+No Motor de CPF/CNPJ, `engine_id` inexistente ou de outro workspace retorna `404 not_found` — a API não revela a existência de engines de outros workspaces.
 
 ### Exemplo com engine explícita
 
-<Note>
-  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
-</Note>
+Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
 
 <Tabs>
 <Tab title="CPF/CNPJ">
@@ -139,9 +135,7 @@ console.log(resp.status, await resp.json());
 ```
 </CodeGroup>
 
-<Warning>
-  Se você usa o header opcional `Idempotency-Key`, o `engine_id` faz parte do payload comparado: reenviar o mesmo arquivo com a mesma key e um `engine_id` diferente resulta em `409 idempotency_conflict`. Veja [Idempotência](/motores/idempotencia).
-</Warning>
+Se você usa o header opcional `Idempotency-Key`, o `engine_id` faz parte do payload comparado: reenviar o mesmo arquivo com a mesma key e um `engine_id` diferente resulta em `409 idempotency_conflict`. Veja [Idempotência](/motores/idempotencia).
 
 </Tab>
 </Tabs>
@@ -150,9 +144,7 @@ console.log(resp.status, await resp.json());
 
 Engines são criadas, editadas, definidas como padrão e arquivadas **no app Sherlocker** (interface web). A API `/v1` não tem endpoints de CRUD de engines — ela só consome uma engine já existente via `engine_id` ou pela resolução automática. Para criar uma política própria (mudar ações, ajustar parâmetros, ativar blocos opt-in), use o app.
 
-<Tip>
-  No borderô, a resposta do `GET /operations/{id}` sempre traz o `engine_id` efetivamente usado — inclusive quando você omitiu o campo (ou enviou `template-padrao`) e a operação rodou com o template do sistema. Guarde-o se quiser reproduzir a mesma política em operações futuras.
-</Tip>
+No borderô, a resposta do `GET /operations/{id}` sempre traz o `engine_id` efetivamente usado — inclusive quando você omitiu o campo (ou enviou `template-padrao`) e a operação rodou com o template do sistema. Guarde-o se quiser reproduzir a mesma política em operações futuras.
 
 ## O que cada motor verifica
 
@@ -242,9 +234,7 @@ Usado em análises de CPF (`subject_type: "pf"`). Lembre que análises de CPF ex
 | `SANCAO_INTERNACIONAL` | — |
 | `DEBARMENT_MULTILATERAL` | — |
 
-<Warning>
-  Os blocos `SERASA_*` dependem da integração Serasa habilitada no workspace. Sem ela, esses blocos saem com status `unavailable` e o `verdict` fica `incompleto` — nunca um bloqueio falso. Confira o campo `coverage` da resposta para ver qual fonte ficou indisponível.
-</Warning>
+Os blocos `SERASA_*` dependem da integração Serasa habilitada no workspace. Sem ela, esses blocos saem com status `unavailable` e o `verdict` fica `incompleto` — nunca um bloqueio falso. Confira o campo `coverage` da resposta para ver qual fonte ficou indisponível.
 
 </Tab>
 <Tab title="Borderô">

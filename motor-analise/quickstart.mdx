@@ -6,9 +6,7 @@ icon: "rocket"
 
 Neste guia você cria uma análise de risco de CNPJ, acompanha o processamento até o veredito final e repete o fluxo para um CPF. É o mesmo motor que roda na interface web do Sherlocker, agora acessível por API.
 
-<Note>
-  Não confunda com o **[Motor de Borderô](/credito/introducao)** (análise de borderô CNAB 400). O Motor de Análise avalia o risco cadastral de um CNPJ ou CPF individual.
-</Note>
+Não confunda com o **[Motor de Borderô](/credito/introducao)** (análise de borderô CNAB 400). O Motor de Análise avalia o risco cadastral de um CNPJ ou CPF individual.
 
 ## Pré-requisitos
 
@@ -16,15 +14,7 @@ Neste guia você cria uma análise de risco de CNPJ, acompanha o processamento a
 - **Chave de API**: criada no app Sherlocker em **Settings → API Keys**. As chaves têm prefixo `slhk_` e são exibidas uma única vez — guarde em local seguro.
 - **Saldo de tokens**: as análises consomem tokens do mesmo pool do workspace usado no app.
 
-A base URL de todos os exemplos é `https://221b-api.sherlocker.com.br/api/v1`.
-
-<Note>
-  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
-</Note>
-
-<Warning>
-  Diferente das demais APIs documentadas neste site, o Motor de Análise **não** usa `?token=` na URL. A autenticação é sempre pelo header `Authorization: Bearer slhk_sua_chave_aqui`. Veja [Autenticação](/motor-analise/autenticacao).
-</Warning>
+A base URL dos exemplos é `https://221b-api.sherlocker.com.br/api/v1`. A autenticação é feita pelo header `Authorization: Bearer slhk_sua_chave_aqui`; os Motores não aceitam `?token=` na URL. Veja [Autenticação](/motor-analise/autenticacao).
 
 <Steps>
 <Step title="Crie uma análise de CNPJ">
@@ -90,9 +80,7 @@ O documento pode ir com ou sem máscara — a API remove os não-dígitos e dete
 
 Os tokens são debitados na criação e confirmados em `tokens_charged` e `balance`, quando disponíveis (valores acima são **ilustrativos** — o preço por análise está em definição durante o beta; veja [Cobrança](/motores/cobranca)). Guarde o `id`: é com ele que você consulta o resultado.
 
-<Tip>
-  Em timeout ou erro 5xx, reenvie o POST com a **mesma** `Idempotency-Key` — se a requisição original tiver sido processada, você recebe `200` com a resposta original, sem nova cobrança (janela de 24 horas); se ela ainda estiver em andamento, você recebe `409` e deve consultar via `GET` com o `id` da 202 original. Detalhes em [Idempotência](/motores/idempotencia).
-</Tip>
+Em timeout ou erro 5xx, reenvie o POST com a **mesma** `Idempotency-Key` — se a requisição original tiver sido processada, você recebe `200` com a resposta original, sem nova cobrança (janela de 24 horas); se ela ainda estiver em andamento, você recebe `409` e deve consultar via `GET` com o `id` da 202 original. Detalhes em [Idempotência](/motores/idempotencia).
 
 </Step>
 <Step title="Acompanhe até o veredito">
@@ -244,9 +232,7 @@ const resp = await fetch("https://221b-api.sherlocker.com.br/api/v1/analyses", {
 
 Valores aceitos em `legal_basis`: `consentimento`, `legitimo_interesse`, `cumprimento_obrigacao_legal`, `protecao_credito`. O acompanhamento é idêntico ao Passo 2 — a resposta virá com `subject_type: "pf"` e os blocos do template PF.
 
-<Note>
-  Análises de CPF exigem a feature `analysis_engine_pf` habilitada no workspace, além da `analysis_engine`. Sem ela, a API responde `403 feature_not_enabled` com o campo `request_access_url` apontando para a página de solicitação de acesso.
-</Note>
+Análises de CPF exigem a feature `analysis_engine_pf` habilitada no workspace, além da `analysis_engine`. Sem ela, a API responde `403 feature_not_enabled` com o campo `request_access_url` apontando para a página de solicitação de acesso.
 
 </Step>
 </Steps>

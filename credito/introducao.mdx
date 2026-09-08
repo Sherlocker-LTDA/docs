@@ -12,9 +12,7 @@ Foi feito para quem opera recebíveis e precisa da esteira de análise dentro do
 - **Securitizadoras e factorings** — triagem automática de remessas de cedentes
 - **Backoffices de crédito** — automação da conferência título a título
 
-<Warning>
-  O Motor de Borderô está em **beta**. O acesso é liberado por workspace através da feature `analysis_engine` — a mesma do Motor de Análise. Sem a feature, as chamadas retornam `403 feature_not_enabled`. [Solicite acesso aqui](/api/access).
-</Warning>
+O Motor de Borderô está em **beta**. O acesso é liberado por workspace através da feature `analysis_engine` — a mesma do Motor de Análise. Sem a feature, as chamadas retornam `403 feature_not_enabled`. [Solicite acesso aqui](/api/access).
 
 ## Como funciona
 
@@ -40,11 +38,7 @@ sequenceDiagram
     S-->>C: 200 (cedente, sacados, titulos, issues, summary)
 ```
 
-Todos os endpoints usam a base `https://221b-api.sherlocker.com.br/api/v1` e autenticação pelo header `Authorization: Bearer slhk_sua_chave_aqui` — a **mesma base, a mesma chave e a mesma feature** do Motor de Análise.
-
-<Note>
-  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
-</Note>
+Todos os endpoints usam a base `https://221b-api.sherlocker.com.br/api/v1` e autenticação pelo header `Authorization: Bearer slhk_sua_chave_aqui`; os Motores não aceitam `?token=` na URL. A chave e a feature de acesso são as mesmas do Motor de Análise.
 
 A cobrança é por **entidade única** do borderô (cedente + sacados únicos), não por título: um borderô de 42 títulos com 1 cedente e 11 sacados únicos cobra 12 análises. Operações que terminam em `failed` têm os tokens reembolsados automaticamente. Veja [Cobrança](/motores/cobranca). As operações são consultadas pelo identificador retornado na criação.
 

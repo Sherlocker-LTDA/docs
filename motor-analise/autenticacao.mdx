@@ -12,9 +12,7 @@ Authorization: Bearer slhk_sua_chave_aqui
 
 As chaves têm o prefixo `slhk_` e são vinculadas ao seu workspace no Sherlocker. **Uma única chave serve os dois motores**: se você já integra um deles, use a chave que já tem no outro.
 
-<Warning>
-  **Diferente do restante das docs deste site.** As demais APIs documentadas aqui (221b-api) autenticam via query param `?token=`. Os Motores de Análise usam a **mesma base** (`https://221b-api.sherlocker.com.br/api/v1`), mas **não aceitam** token em query param — apenas o header `Authorization: Bearer slhk_`.
-</Warning>
+**Diferente do restante das docs deste site.** As demais APIs documentadas aqui (221b-api) autenticam via query param `?token=`. Os Motores de Análise usam a **mesma base** (`https://221b-api.sherlocker.com.br/api/v1`), mas **não aceitam** token em query param — apenas o header `Authorization: Bearer slhk_`.
 
 ## Criar e guardar a chave
 
@@ -30,9 +28,7 @@ As chaves têm o prefixo `slhk_` e são vinculadas ao seu workspace no Sherlocke
   </Step>
 </Steps>
 
-<Tip>
-  Se perder ou suspeitar de vazamento, revogue a chave no app e crie uma nova. Chaves revogadas passam a responder `401`.
-</Tip>
+Se perder ou suspeitar de vazamento, revogue a chave no app e crie uma nova. Chaves revogadas passam a responder `401`.
 
 ## Exemplo mínimo
 
@@ -64,10 +60,6 @@ console.log(resp.status);
 console.log(await resp.json());
 ```
 </CodeGroup>
-
-<Note>
-  Os Motores usam a **mesma base** da API 221b (`https://221b-api.sherlocker.com.br/api/v1`), mas autenticam via `Authorization: Bearer slhk_…` — **não** via `?token=`.
-</Note>
 
 ## Falhas de autenticação e acesso
 

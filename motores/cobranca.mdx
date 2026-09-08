@@ -6,9 +6,7 @@ icon: "coins"
 
 Os dois motores consomem **tokens do workspace**: o mesmo pool usado pela interface web do Sherlocker. Os princípios são idênticos — o que muda é a unidade de preço: o Motor de CPF/CNPJ cobra **por análise**; o Motor de Borderô cobra **por entidade única do arquivo**.
 
-<Warning>
-  **Preço em definição durante o beta.** Não fixe um custo em código. Todos os valores de tokens nesta página são **ilustrativos**.
-</Warning>
+**Preço em definição durante o beta.** Não fixe um custo em código. Todos os valores de tokens nesta página são **ilustrativos**.
 
 ## O débito acontece na criação — e é fail-closed
 
@@ -67,9 +65,7 @@ Um borderô com **42 títulos**, do mesmo cedente, sacados contra 11 empresas di
 
 Com um preço unitário ilustrativo de 1 token por análise, a operação debita **12 tokens** — não 42. Borderôs concentrados (muitos títulos, poucos sacados) custam proporcionalmente menos por título do que borderôs pulverizados.
 
-<Note>
-  A cobrança **não aparece no payload** da API de borderô — nem na resposta do POST, nem no `GET /operations/{id}`. O débito por operação (e o estorno em `failed`) fica registrado no extrato de tokens do workspace, no app Sherlocker.
-</Note>
+A cobrança **não aparece no payload** da API de borderô — nem na resposta do POST, nem no `GET /operations/{id}`. O débito por operação (e o estorno em `failed`) fica registrado no extrato de tokens do workspace, no app Sherlocker.
 
 ### O débito é após o parse
 
